@@ -1,0 +1,467 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 5.4.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/blog/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/blog/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/blog/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/blog/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/blog/css/main.css">
+
+
+<link rel="stylesheet" href="/blog/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"ruoxixiruo.github.io","root":"/blog/","scheme":"Mist","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":true,"show_result":true,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":true},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}};
+  </script>
+
+  <meta name="description" content="Dos 攻击防范（自动屏蔽攻击 IP）">
+<meta property="og:type" content="article">
+<meta property="og:title" content="实用shell脚本">
+<meta property="og:url" content="https://ruoxixiruo.github.io/blog/2022/03/13/linux/%E5%AE%9E%E7%94%A8shell%E8%84%9A%E6%9C%AC/index.html">
+<meta property="og:site_name" content="RUOXI-BLOG">
+<meta property="og:description" content="Dos 攻击防范（自动屏蔽攻击 IP）">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2022-03-13T00:55:16.000Z">
+<meta property="article:modified_time" content="2024-03-28T16:11:44.000Z">
+<meta property="article:author" content="ruoxi">
+<meta property="article:tag" content="linux">
+<meta name="twitter:card" content="summary">
+
+<link rel="canonical" href="https://ruoxixiruo.github.io/blog/2022/03/13/linux/%E5%AE%9E%E7%94%A8shell%E8%84%9A%E6%9C%AC/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+
+  <title>实用shell脚本 | RUOXI-BLOG</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/blog/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">RUOXI-BLOG</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/blog/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/blog/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/blog/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/blog/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a>
+
+  </li>
+        <li class="menu-item menu-item-schedule">
+
+    <a href="/blog/schedule/" rel="section"><i class="fa fa-calendar fa-fw"></i>日程表</a>
+
+  </li>
+        <li class="menu-item menu-item-sitemap">
+
+    <a href="/blog/sitemap.xml" rel="section"><i class="fa fa-sitemap fa-fw"></i>站点地图</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/blog/about/" rel="section"><i class="fa fa-user fa-fw"></i>关于</a>
+
+  </li>
+  </ul>
+</nav>
+
+
+
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://ruoxixiruo.github.io/blog/2022/03/13/linux/%E5%AE%9E%E7%94%A8shell%E8%84%9A%E6%9C%AC/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/blog/images/avatar.gif">
+      <meta itemprop="name" content="ruoxi">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="RUOXI-BLOG">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          实用shell脚本
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2022-03-13 00:55:16" itemprop="dateCreated datePublished" datetime="2022-03-13T00:55:16+00:00">2022-03-13</time>
+            </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/blog/categories/linux/" itemprop="url" rel="index"><span itemprop="name">linux</span></a>
+                </span>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <ol>
+<li> <strong>Dos 攻击防范（自动屏蔽攻击 IP）</strong> </li>
+</ol>
+<span id="more"></span>
+
+   <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line">#!/bin/bash</span><br><span class="line">DATE=$(date +%d/%b/%Y:%H:%M)</span><br><span class="line">LOG_FILE=/usr/local/nginx/logs/demo2.access.log</span><br><span class="line">ABNORMAL_IP=$(tail -n5000 $LOG_FILE |grep $DATE |awk &#x27;&#123;a[$1]++&#125;END&#123;for(i in a)if(a[i]&gt;10)print i&#125;&#x27;)</span><br><span class="line">for IP in $ABNORMAL_IP; do</span><br><span class="line">    if [ $(iptables -vnL |grep -c &quot;$IP&quot;) -eq 0 ]; then</span><br><span class="line">        iptables -I INPUT -s $IP -j DROP</span><br><span class="line">        echo &quot;$(date +&#x27;%F_%T&#x27;) $IP&quot; &gt;&gt; /tmp/drop_ip.log</span><br><span class="line">    fi</span><br><span class="line">done</span><br></pre></td></tr></table></figure>
+
+<ol start="2">
+<li> <strong>Linux 系统发送告警脚本</strong> </li>
+</ol>
+   <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line"># yum install mailx</span><br><span class="line"># vi /etc/mail.rc</span><br><span class="line">set from=baojingtongzhi@163.com smtp=smtp.163.com</span><br><span class="line">set smtp-auth-user=baojingtongzhi@163.com smtp-auth-password=123456</span><br><span class="line">set smtp-auth=login</span><br></pre></td></tr></table></figure>
+
+<ol start="3">
+<li> <strong>MySQL 数据库备份单循环</strong> </li>
+</ol>
+   <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line">#!/bin/bash</span><br><span class="line">DATE=$(date +%F_%H-%M-%S)</span><br><span class="line">HOST=localhost</span><br><span class="line">USER=backup</span><br><span class="line">PASS=123.com</span><br><span class="line">BACKUP_DIR=/data/db_backup</span><br><span class="line">DB_LIST=$(mysql -h$HOST -u$USER -p$PASS -s -e &quot;show databases;&quot; 2&gt;/dev/null |egrep -v &quot;Database|information_schema|mysql|performance_schema|sys&quot;)</span><br><span class="line"></span><br><span class="line">for DB in $DB_LIST; do</span><br><span class="line">    BACKUP_NAME=$BACKUP_DIR/$&#123;DB&#125;_$&#123;DATE&#125;.sql</span><br><span class="line">    if ! mysqldump -h$HOST -u$USER -p$PASS -B $DB &gt; $BACKUP_NAME 2&gt;/dev/null; then</span><br><span class="line">        echo &quot;$BACKUP_NAME 备份失败!&quot;</span><br><span class="line">    fi</span><br><span class="line">done</span><br></pre></td></tr></table></figure>
+
+<ol start="4">
+<li> <strong>MySQL 数据库备份多循环</strong> </li>
+</ol>
+   <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line">#!/bin/bash</span><br><span class="line">DATE=$(date +%F_%H-%M-%S)</span><br><span class="line">HOST=localhost</span><br><span class="line">USER=backup</span><br><span class="line">PASS=123.com</span><br><span class="line">BACKUP_DIR=/data/db_backup</span><br><span class="line">DB_LIST=$(mysql -h$HOST -u$USER -p$PASS -s -e &quot;show databases;&quot; 2&gt;/dev/null |egrep -v &quot;Database|information_schema|mysql|performance_schema|sys&quot;)</span><br><span class="line"></span><br><span class="line">for DB in $DB_LIST; do</span><br><span class="line">    BACKUP_DB_DIR=$BACKUP_DIR/$&#123;DB&#125;_$&#123;DATE&#125;</span><br><span class="line">    [ ! -d $BACKUP_DB_DIR ] &amp;&amp; mkdir -p $BACKUP_DB_DIR &amp;&gt;/dev/null</span><br><span class="line">    TABLE_LIST=$(mysql -h$HOST -u$USER -p$PASS -s -e &quot;use $DB;show tables;&quot; 2&gt;/dev/null)</span><br><span class="line">    for TABLE in $TABLE_LIST; do</span><br><span class="line">        BACKUP_NAME=$BACKUP_DB_DIR/$&#123;TABLE&#125;.sql</span><br><span class="line">        if ! mysqldump -h$HOST -u$USER -p$PASS $DB $TABLE &gt; $BACKUP_NAME 2&gt;/dev/null; then</span><br><span class="line">            echo &quot;$BACKUP_NAME 备份失败!&quot;</span><br><span class="line">        fi</span><br><span class="line">    done</span><br><span class="line">done</span><br></pre></td></tr></table></figure>
+
+<ol start="5">
+<li> <strong>Nginx 访问访问日志按天切割</strong> </li>
+</ol>
+   <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line">#!/bin/bash</span><br><span class="line">LOG_DIR=/usr/local/nginx/logs</span><br><span class="line">YESTERDAY_TIME=$(date -d &quot;yesterday&quot; +%F)</span><br><span class="line">LOG_MONTH_DIR=$LOG_DIR/$(date +&quot;%Y-%m&quot;)</span><br><span class="line">LOG_FILE_LIST=&quot;default.access.log&quot;</span><br><span class="line"></span><br><span class="line">for LOG_FILE in $LOG_FILE_LIST; do</span><br><span class="line">    [ ! -d $LOG_MONTH_DIR ] &amp;&amp; mkdir -p $LOG_MONTH_DIR</span><br><span class="line">    mv $LOG_DIR/$LOG_FILE $LOG_MONTH_DIR/$&#123;LOG_FILE&#125;_$&#123;YESTERDAY_TIME&#125;</span><br><span class="line">done</span><br><span class="line"></span><br><span class="line">kill -USR1 $(cat /var/run/nginx.pid)</span><br></pre></td></tr></table></figure>
+
+<ol start="6">
+<li> <strong>Nginx 访问日志分析脚本</strong> </li>
+</ol>
+   <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line">#!/bin/bash</span><br><span class="line"># 日志格式: $remote_addr - $remote_user [$time_local] &quot;$request&quot; $status $body_bytes_sent &quot;$http_referer&quot; &quot;$http_user_agent&quot; &quot;$http_x_forwarded_for&quot;</span><br><span class="line">LOG_FILE=$1</span><br><span class="line">echo &quot;统计访问最多的10个IP&quot;</span><br><span class="line">awk &#x27;&#123;a[$1]++&#125;END&#123;print &quot;UV:&quot;,length(a);for(v in a)print v,a[v]&#125;&#x27; $LOG_FILE |sort -k2 -nr |head -10</span><br><span class="line">echo &quot;----------------------&quot;</span><br><span class="line"></span><br><span class="line">echo &quot;统计时间段访问最多的IP&quot;</span><br><span class="line">awk &#x27;$4&gt;=&quot;[01/Dec/2018:13:20:25&quot; &amp;&amp; $4&lt;=&quot;[27/Nov/2018:16:20:49&quot;&#123;a[$1]++&#125;END&#123;for(v in a)print v,a[v]&#125;&#x27; $LOG_FILE |sort -k2 -nr|head -10</span><br><span class="line">echo &quot;----------------------&quot;</span><br><span class="line"></span><br><span class="line">echo &quot;统计访问最多的10个页面&quot;</span><br><span class="line">awk &#x27;&#123;a[$7]++&#125;END&#123;print &quot;PV:&quot;,length(a);for(v in a)&#123;if(a[v]&gt;10)print v,a[v]&#125;&#125;&#x27; $LOG_FILE |sort -k2 -nr</span><br><span class="line">echo &quot;----------------------&quot;</span><br><span class="line"></span><br><span class="line">echo &quot;统计访问页面状态码数量&quot;</span><br><span class="line">awk &#x27;&#123;a[$7&quot; &quot;$9]++&#125;END&#123;for(v in a)&#123;if(a[v]&gt;5)print v,a[v]&#125;&#125;&#x27;</span><br></pre></td></tr></table></figure>
+
+<ol start="7">
+<li> <strong>查看网卡实时流量脚本</strong> </li>
+</ol>
+   <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line">#!/bin/bash</span><br><span class="line">NIC=$1</span><br><span class="line">echo -e &quot; In ------ Out&quot;</span><br><span class="line">while true; do</span><br><span class="line">    OLD_IN=$(awk &#x27;$0~&quot;&#x27;$NIC&#x27;&quot;&#123;print $2&#125;&#x27; /proc/net/dev)</span><br><span class="line">    OLD_OUT=$(awk &#x27;$0~&quot;&#x27;$NIC&#x27;&quot;&#123;print $10&#125;&#x27; /proc/net/dev)</span><br><span class="line">    sleep 1</span><br><span class="line">    NEW_IN=$(awk  &#x27;$0~&quot;&#x27;$NIC&#x27;&quot;&#123;print $2&#125;&#x27; /proc/net/dev)</span><br><span class="line">    NEW_OUT=$(awk &#x27;$0~&quot;&#x27;$NIC&#x27;&quot;&#123;print $10&#125;&#x27; /proc/net/dev)</span><br><span class="line">    IN=$(printf &quot;%.1f%s&quot; &quot;$((($NEW_IN-$OLD_IN)/1024))&quot; &quot;KB/s&quot;)</span><br><span class="line">    OUT=$(printf &quot;%.1f%s&quot; &quot;$((($NEW_OUT-$OLD_OUT)/1024))&quot; &quot;KB/s&quot;)</span><br><span class="line">    echo &quot;$IN $OUT&quot;</span><br><span class="line">    sleep 1</span><br><span class="line">done</span><br></pre></td></tr></table></figure>
+
+<ol start="8">
+<li> <strong>服务器系统配置初始化脚本</strong> </li>
+</ol>
+   <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line">#/bin/bash</span><br><span class="line"># 设置时区并同步时间</span><br><span class="line">ln -s /usr/share/zoneinfo/Asia/Shanghai /etc/localtime</span><br><span class="line">if ! crontab -l |grep ntpdate &amp;&gt;/dev/null ; then</span><br><span class="line">    (echo &quot;* 1 * * * ntpdate time.windows.com &gt;/dev/null 2&gt;&amp;1&quot;;crontab -l) |crontab</span><br><span class="line">fi</span><br><span class="line"># 禁用selinux</span><br><span class="line">sed -i &#x27;/SELINUX/&#123;s/permissive/disabled/&#125;&#x27; /etc/selinux/config</span><br><span class="line"># 关闭防火墙</span><br><span class="line">if egrep &quot;7.[0-9]&quot; /etc/redhat-release &amp;&gt;/dev/null; then</span><br><span class="line">    systemctl stop firewalld</span><br><span class="line">    systemctl disable firewalld</span><br><span class="line">elif egrep &quot;6.[0-9]&quot; /etc/redhat-release &amp;&gt;/dev/null; then</span><br><span class="line">    service iptables stop</span><br><span class="line">    chkconfig iptables off</span><br><span class="line">fi</span><br><span class="line"># 历史命令显示操作时间</span><br><span class="line">if ! grep HISTTIMEFORMAT /etc/bashrc; then</span><br><span class="line">    echo &#x27;export HISTTIMEFORMAT=&quot;%F %T `whoami` &quot;&#x27; &gt;&gt; /etc/bashrc</span><br><span class="line">fi</span><br><span class="line"># SSH超时时间</span><br><span class="line">if ! grep &quot;TMOUT=600&quot; /etc/profile &amp;&gt;/dev/null; then</span><br><span class="line">    echo &quot;export TMOUT=600&quot; &gt;&gt; /etc/profile</span><br><span class="line">fi</span><br><span class="line"># 禁止root远程登录</span><br><span class="line">sed -i &#x27;s/#PermitRootLogin yes/PermitRootLogin no/&#x27; /etc/ssh/sshd_config</span><br><span class="line"># 禁止定时任务向发送邮件</span><br><span class="line">sed -i &#x27;s/^MAILTO=root/MAILTO=&quot;&quot;/&#x27; /etc/crontab</span><br><span class="line"># 设置最大打开文件数</span><br><span class="line">if ! grep &quot;* soft nofile 65535&quot; /etc/security/limits.conf &amp;&gt;/dev/null; then</span><br><span class="line">    cat &gt;&gt; /etc/security/limits.conf &lt;&lt; EOF</span><br><span class="line">    * soft nofile 65535</span><br><span class="line">    * hard nofile 65535</span><br><span class="line">EOF</span><br><span class="line">fi</span><br><span class="line"># 系统内核优化</span><br><span class="line">cat &gt;&gt; /etc/sysctl.conf &lt;&lt; EOF</span><br><span class="line">net.ipv4.tcp_syncookies = 1</span><br><span class="line">net.ipv4.tcp_max_tw_buckets = 20480</span><br><span class="line">net.ipv4.tcp_max_syn_backlog = 20480</span><br><span class="line">net.core.netdev_max_backlog = 262144</span><br><span class="line">net.ipv4.tcp_fin_timeout = 20</span><br><span class="line">EOF</span><br><span class="line"># 减少SWAP使用</span><br><span class="line">echo &quot;0&quot; &gt; /proc/sys/vm/swappiness</span><br><span class="line"></span><br><span class="line"># 安装系统性能分析工具及其他</span><br><span class="line">yum install gcc make autoconf vim sysstat net-tools iostat if</span><br></pre></td></tr></table></figure>
+
+<ol start="9">
+<li> <strong>监控 100 台服务器磁盘利用率脚本</strong> </li>
+</ol>
+   <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line">#!/bin/bash</span><br><span class="line">HOST_INFO=host.info</span><br><span class="line">for IP in $(awk &#x27;/^[^#]/&#123;print $1&#125;&#x27; $HOST_INFO); do</span><br><span class="line">    USER=$(awk -v ip=$IP &#x27;ip==$1&#123;print $2&#125;&#x27; $HOST_INFO)</span><br><span class="line">    PORT=$(awk -v ip=$IP &#x27;ip==$1&#123;print $3&#125;&#x27; $HOST_INFO)</span><br><span class="line">    TMP_FILE=/tmp/disk.tmp</span><br><span class="line">    ssh -p $PORT $USER@$IP &#x27;df -h&#x27; &gt; $TMP_FILE</span><br><span class="line">    USE_RATE_LIST=$(awk &#x27;BEGIN&#123;OFS=&quot;=&quot;&#125;/^\/dev/&#123;print $NF,int($5)&#125;&#x27; $TMP_FILE)</span><br><span class="line">    for USE_RATE in $USE_RATE_LIST; do</span><br><span class="line">        PART_NAME=$&#123;USE_RATE%=*&#125;</span><br><span class="line">        USE_RATE=$&#123;USE_RATE#*=&#125;</span><br><span class="line">        if [ $USE_RATE -ge 80 ]; then</span><br><span class="line">            echo &quot;Warning: $PART_NAME Partition usage $USE_RATE%!&quot;</span><br><span class="line">        fi</span><br><span class="line">    done</span><br><span class="line">done</span><br></pre></td></tr></table></figure>
+
+
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/blog/tags/linux/" rel="tag"># linux</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/blog/2022/03/12/linux/centos%E5%AE%89%E8%A3%85python3/" rel="prev" title="centos安装python3">
+      <i class="fa fa-chevron-left"></i> centos安装python3
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/blog/2022/03/13/docker/docker%E9%83%A8%E7%BD%B2jenkins/" rel="next" title="docker部署jenkins">
+      docker部署jenkins <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">ruoxi</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/blog/archives/">
+        
+          <span class="site-state-item-count">67</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/blog/categories/">
+          
+        <span class="site-state-item-count">17</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/blog/tags/">
+          
+        <span class="site-state-item-count">20</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2024</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">ruoxi</span>
+</div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/blog/lib/anime.min.js"></script>
+  <script src="/blog/lib/velocity/velocity.min.js"></script>
+  <script src="/blog/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/blog/js/utils.js"></script>
+
+<script src="/blog/js/motion.js"></script>
+
+
+<script src="/blog/js/schemes/muse.js"></script>
+
+
+<script src="/blog/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+</body>
+</html>

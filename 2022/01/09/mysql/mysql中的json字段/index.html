@@ -1,0 +1,477 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 5.4.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/blog/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/blog/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/blog/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/blog/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/blog/css/main.css">
+
+
+<link rel="stylesheet" href="/blog/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"ruoxixiruo.github.io","root":"/blog/","scheme":"Mist","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":true,"show_result":true,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":true},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}};
+  </script>
+
+  <meta name="description" content="msyql中的json字段 创建json 1create table json_test(id int primary key auto_increment, json_text json);">
+<meta property="og:type" content="article">
+<meta property="og:title" content="mysql中的json字段">
+<meta property="og:url" content="https://ruoxixiruo.github.io/blog/2022/01/09/mysql/mysql%E4%B8%AD%E7%9A%84json%E5%AD%97%E6%AE%B5/index.html">
+<meta property="og:site_name" content="RUOXI-BLOG">
+<meta property="og:description" content="msyql中的json字段 创建json 1create table json_test(id int primary key auto_increment, json_text json);">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2022-01-09T22:36:02.000Z">
+<meta property="article:modified_time" content="2024-03-28T16:11:44.000Z">
+<meta property="article:author" content="ruoxi">
+<meta property="article:tag" content="mysql">
+<meta name="twitter:card" content="summary">
+
+<link rel="canonical" href="https://ruoxixiruo.github.io/blog/2022/01/09/mysql/mysql%E4%B8%AD%E7%9A%84json%E5%AD%97%E6%AE%B5/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+
+  <title>mysql中的json字段 | RUOXI-BLOG</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/blog/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">RUOXI-BLOG</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/blog/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/blog/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/blog/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/blog/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a>
+
+  </li>
+        <li class="menu-item menu-item-schedule">
+
+    <a href="/blog/schedule/" rel="section"><i class="fa fa-calendar fa-fw"></i>日程表</a>
+
+  </li>
+        <li class="menu-item menu-item-sitemap">
+
+    <a href="/blog/sitemap.xml" rel="section"><i class="fa fa-sitemap fa-fw"></i>站点地图</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/blog/about/" rel="section"><i class="fa fa-user fa-fw"></i>关于</a>
+
+  </li>
+  </ul>
+</nav>
+
+
+
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://ruoxixiruo.github.io/blog/2022/01/09/mysql/mysql%E4%B8%AD%E7%9A%84json%E5%AD%97%E6%AE%B5/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/blog/images/avatar.gif">
+      <meta itemprop="name" content="ruoxi">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="RUOXI-BLOG">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          mysql中的json字段
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2022-01-09 22:36:02" itemprop="dateCreated datePublished" datetime="2022-01-09T22:36:02+00:00">2022-01-09</time>
+            </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/blog/categories/mysql/" itemprop="url" rel="index"><span itemprop="name">mysql</span></a>
+                </span>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <h4 id="msyql中的json字段"><a href="#msyql中的json字段" class="headerlink" title="msyql中的json字段"></a>msyql中的json字段</h4><ul>
+<li><p>创建json</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">create table json_test(id int primary key auto_increment, json_text json);</span><br></pre></td></tr></table></figure></li>
+</ul>
+<span id="more"></span> 
+
+<ul>
+<li><p>插入json</p>
+<ul>
+<li><p>直接插入字符串</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">insert into json_test (json_text) values (&#x27;&#123;&quot;name&quot;: &quot;test1&quot;, &quot;age&quot;: 20, &quot;height&quot;: 177&#125;&#x27;);</span><br></pre></td></tr></table></figure></li>
+<li><p>使用json函数</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">insert into json_test (json_text) values (json_object(&quot;name&quot;, &quot;test2&quot;, &quot;age&quot;, 22, &quot;height&quot;, 179));</span><br><span class="line"></span><br><span class="line"># 插入对象用json_object， 插入数组用json_array</span><br></pre></td></tr></table></figure></li>
+</ul>
+</li>
+<li><p>查询json</p>
+<ul>
+<li><p>使用json作为条件查询</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">注意：不能直接和json字段比较，要使用cast对字符串进行转化</span><br><span class="line"></span><br><span class="line">select * from json_test where cast(json_text as char) = &#x27;&#123;&quot;age&quot;: 20, &quot;name&quot;: &quot;test1&quot;, &quot;height&quot;: 177&#125;&#x27;;</span><br><span class="line"></span><br><span class="line">select * from json_test where json_text=cast(&#x27;&#123;&quot;age&quot;: 20, &quot;name&quot;: &quot;test1&quot;, &quot;height&quot;: 177&#125;&#x27; as json);</span><br><span class="line"></span><br></pre></td></tr></table></figure></li>
+<li><p>查询JSON中的数据用 column-&gt;path的形式，其中对象类型path的表示方式 .path，数组类型的表示方式[index];</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">select id, json_text-&gt;&#x27;$.name&#x27;, json_text-&gt;&#x27;$.age&#x27; from json_test;</span><br><span class="line"></span><br><span class="line">如果json是数组，则是 json_field-&gt;&#x27;$[index]&#x27;</span><br></pre></td></tr></table></figure></li>
+<li><p><strong>注意（MySQL：5.7.17）：</strong>JSON中的元素搜索是严格区分变量类型的，比如整型和字符串时严格区分的（-&gt;的形式），但是：-&gt;&gt;类型是不区分的</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">select * from json_test where json_text-&gt;&#x27;$.age&#x27;=20;  # 可以查到</span><br><span class="line">select * from json_test where json_text-&gt;&#x27;$.age&#x27;=&#x27;20&#x27;; # 不能查到</span><br><span class="line">select * from json_test where json_text-&gt;&gt;&#x27;$.age&#x27;=&#x27;20&#x27;; # 可以查到</span><br><span class="line">select * from json_test where json_text-&gt;&gt;&#x27;$.age&#x27;=20; # 可以查到</span><br></pre></td></tr></table></figure></li>
+<li><p>可以使用JSON_CONTAINS函数，但是该函数的第二个参数不接受整型，无论JSON元素时整型还是字符串</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">select * from json_test where json_contains(json_text, 20, &#x27;$.age&#x27;);  # 报错</span><br><span class="line">select * from json_test where json_contains(json_text, &#x27;20&#x27;, &#x27;$.age&#x27;); # 可以查到</span><br><span class="line">select * from json_test where json_contains(json_text, &#x27;0&#x27;, &#x27;$.age&#x27;); # 不报错，但是查不到数据</span><br><span class="line"></span><br><span class="line">对于数组类型的JSON查询，比如tags中包含有2个数据，同样要用JSON_CONTAINS函数，同样第二个参数也需要是字符串</span><br><span class="line">SELECT * FROM table_name WHERE JSON_CONTAINS(json_field,&#x27;1&#x27;);</span><br></pre></td></tr></table></figure></li>
+</ul>
+</li>
+<li><p>更新json</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">alter table json_test add arr_text json;   新增一个字段</span><br></pre></td></tr></table></figure>
+
+
+
+<ul>
+<li><p>更新整个JSON，与插入时类似</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">update json_test set arr_text = &#x27;[1, 2, 3]&#x27; where id=1;</span><br></pre></td></tr></table></figure></li>
+<li><p>JSON_INSERT  插入新值，但如果插入的key在json中已经存在，不会覆盖</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">update json_test set json_text = json_insert(json_text, &#x27;$.url&#x27;, &#x27;baidu.com&#x27;) where id = 1;</span><br><span class="line"></span><br></pre></td></tr></table></figure></li>
+<li><p>JSON_SET 插入新值，但如果插入的key在json中已经存在，会覆盖</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">update json_test set json_text=json_set(json_text, &#x27;$.name&#x27;, &#x27;test3&#x27;) where id = 2;</span><br></pre></td></tr></table></figure></li>
+<li><p>JSON_REPLACE</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">update json_test set json_text=json_replace(json_text, &#x27;$.name&#x27;, &#x27;test10&#x27;) where id = 1;</span><br></pre></td></tr></table></figure></li>
+<li><p>JSON_REMOVE</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">update json_test set json_text=json_remove(json_text, &#x27;$.url&#x27;, &#x27;$.height&#x27;) where id = 1;</span><br></pre></td></tr></table></figure></li>
+<li><p>JSON_ARRAY_APPEND 数组中增加元素</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">将数组的第一个元素变成数组，并向里面追加一个元素4</span><br><span class="line">update json_test set arr_text=json_array_append(arr_text, &#x27;$[0]&#x27;, 4) where id = 1;</span><br><span class="line"># [[1, 4], 2, 3]</span><br></pre></td></tr></table></figure></li>
+<li><p>JSON_ARRAY_INSERT 数组中添加元素</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">向数组的头部添加一个元素</span><br><span class="line">update json_test set arr_text=json_array_insert(arr_text, &#x27;$[0]&#x27;, 5) where id = 1;</span><br><span class="line">#[5, [1, 4], 2, 3]</span><br></pre></td></tr></table></figure></li>
+</ul>
+</li>
+<li><p>创建索引</p>
+<ul>
+<li><p>MySQL的JSON格式数据不能直接创建索引，但是可以变通一下，把要搜索的数据单独拎出来，单独一个数据列，然后在这个字段上创建一个索引</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line">CREATE TABLE muscleape_office(</span><br><span class="line">  c JSON,</span><br><span class="line">  g INT GENERATED ALWAYS AS (c-&gt;&quot;$.id&quot;),</span><br><span class="line">  INDEX i (g)</span><br><span class="line">);</span><br><span class="line"></span><br><span class="line">INSERT INTO muscleape_office (c)</span><br><span class="line">VALUES</span><br><span class="line">  (&#x27;&#123;&quot;id&quot;: &quot;1&quot;, &quot;name&quot;: &quot;Fred&quot;&#125;&#x27;),</span><br><span class="line">  (&#x27;&#123;&quot;id&quot;: &quot;2&quot;, &quot;name&quot;: &quot;Wilma&quot;&#125;&#x27;),</span><br><span class="line">  (&#x27;&#123;&quot;id&quot;: &quot;3&quot;, &quot;name&quot;: &quot;Barney&quot;&#125;&#x27;),</span><br><span class="line">  (&#x27;&#123;&quot;id&quot;: &quot;4&quot;, &quot;name&quot;: &quot;Betty&quot;&#125;&#x27;);</span><br><span class="line">  </span><br><span class="line">SELECT c-&gt;&gt;&#x27;$.name&#x27; AS name FROM muscleape_office WHERE g &gt; 2;</span><br><span class="line">EXPLAIN SELECT c-&gt;&gt;&#x27;$.name&#x27; AS name FROM muscleape_office WHERE g &gt; 2;</span><br></pre></td></tr></table></figure></li>
+</ul>
+</li>
+</ul>
+
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/blog/tags/mysql/" rel="tag"># mysql</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/blog/2021/05/04/linux/linux%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F/" rel="prev" title="linux操作系统">
+      <i class="fa fa-chevron-left"></i> linux操作系统
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/blog/2022/01/19/django/django%E4%B8%AD%E7%9A%84queryset/" rel="next" title="django中的queryset">
+      django中的queryset <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-4"><a class="nav-link" href="#msyql%E4%B8%AD%E7%9A%84json%E5%AD%97%E6%AE%B5"><span class="nav-number">1.</span> <span class="nav-text">msyql中的json字段</span></a></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">ruoxi</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/blog/archives/">
+        
+          <span class="site-state-item-count">67</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/blog/categories/">
+          
+        <span class="site-state-item-count">17</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/blog/tags/">
+          
+        <span class="site-state-item-count">20</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2024</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">ruoxi</span>
+</div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/blog/lib/anime.min.js"></script>
+  <script src="/blog/lib/velocity/velocity.min.js"></script>
+  <script src="/blog/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/blog/js/utils.js"></script>
+
+<script src="/blog/js/motion.js"></script>
+
+
+<script src="/blog/js/schemes/muse.js"></script>
+
+
+<script src="/blog/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+</body>
+</html>

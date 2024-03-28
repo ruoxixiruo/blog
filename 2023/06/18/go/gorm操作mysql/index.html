@@ -1,0 +1,483 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 5.4.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/blog/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/blog/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/blog/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/blog/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/blog/css/main.css">
+
+
+<link rel="stylesheet" href="/blog/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"ruoxixiruo.github.io","root":"/blog/","scheme":"Mist","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":true,"show_result":true,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":true},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}};
+  </script>
+
+  <meta name="description" content="1，官方文档">
+<meta property="og:type" content="article">
+<meta property="og:title" content="gorm操作mysql">
+<meta property="og:url" content="https://ruoxixiruo.github.io/blog/2023/06/18/go/gorm%E6%93%8D%E4%BD%9Cmysql/index.html">
+<meta property="og:site_name" content="RUOXI-BLOG">
+<meta property="og:description" content="1，官方文档">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2023-06-18T23:12:56.000Z">
+<meta property="article:modified_time" content="2024-03-28T16:11:44.000Z">
+<meta property="article:author" content="ruoxi">
+<meta property="article:tag" content="go">
+<meta name="twitter:card" content="summary">
+
+<link rel="canonical" href="https://ruoxixiruo.github.io/blog/2023/06/18/go/gorm%E6%93%8D%E4%BD%9Cmysql/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+
+  <title>gorm操作mysql | RUOXI-BLOG</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/blog/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">RUOXI-BLOG</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/blog/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/blog/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/blog/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/blog/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a>
+
+  </li>
+        <li class="menu-item menu-item-schedule">
+
+    <a href="/blog/schedule/" rel="section"><i class="fa fa-calendar fa-fw"></i>日程表</a>
+
+  </li>
+        <li class="menu-item menu-item-sitemap">
+
+    <a href="/blog/sitemap.xml" rel="section"><i class="fa fa-sitemap fa-fw"></i>站点地图</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/blog/about/" rel="section"><i class="fa fa-user fa-fw"></i>关于</a>
+
+  </li>
+  </ul>
+</nav>
+
+
+
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://ruoxixiruo.github.io/blog/2023/06/18/go/gorm%E6%93%8D%E4%BD%9Cmysql/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/blog/images/avatar.gif">
+      <meta itemprop="name" content="ruoxi">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="RUOXI-BLOG">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          gorm操作mysql
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2023-06-18 23:12:56" itemprop="dateCreated datePublished" datetime="2023-06-18T23:12:56+00:00">2023-06-18</time>
+            </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/blog/categories/go/" itemprop="url" rel="index"><span itemprop="name">go</span></a>
+                </span>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <h5 id="1，官方文档"><a href="#1，官方文档" class="headerlink" title="1，官方文档"></a>1，官方文档</h5><span id="more"></span>
+<ul>
+<li> <a target="_blank" rel="noopener" href="https://gorm.io/zh_CN/docs/index.html">GORM 指南 | GORM - The fantastic ORM library for Golang, aims to be developer friendly.</a> </li>
+</ul>
+<h5 id="2-安装"><a href="#2-安装" class="headerlink" title="2, 安装"></a>2, 安装</h5><figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">go</span> get -u gorm.io/gorm</span><br><span class="line"><span class="keyword">go</span> get -u gorm.io/driver/mysql</span><br></pre></td></tr></table></figure>
+
+<h5 id="3-定义数据库模型"><a href="#3-定义数据库模型" class="headerlink" title="3,定义数据库模型"></a>3,定义数据库模型</h5><ul>
+<li>结构体的名称必须首字母大写<ul>
+<li>表名称为user对应的结构体名称定义为User</li>
+<li>表名称为article_cate对应的结构体名称定义为ArticleCate</li>
+</ul>
+</li>
+<li>字段的名称首字母必须大写<ul>
+<li>字段名称为user对应的结构体属性定义为User</li>
+<li>字段名称为article_cate对应的结构体属性定义为ArticleCate</li>
+</ul>
+</li>
+<li>默认情况表名是结构体名称的复数形式</li>
+<li>我们可以使用结构体的自定义方法TableName改变结构体的默认表名称</li>
+</ul>
+<h5 id="4，连接数据库"><a href="#4，连接数据库" class="headerlink" title="4，连接数据库"></a>4，连接数据库</h5><figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// models/core.go</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">package</span> models</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> (</span><br><span class="line">	<span class="string">&quot;fmt&quot;</span></span><br><span class="line">	<span class="string">&quot;gorm.io/gorm&quot;</span></span><br><span class="line">	<span class="string">&quot;gorm.io/driver/mysql&quot;</span></span><br><span class="line">)</span><br><span class="line"></span><br><span class="line"><span class="keyword">var</span> DB *gorm.DB</span><br><span class="line"></span><br><span class="line"><span class="keyword">var</span> err error</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">init</span><span class="params">()</span></span>&#123;</span><br><span class="line">	dsn := <span class="string">&quot;root:root123456@tcp(47.107.81.114:3306)/test?charset=utf8mb4&amp;parseTime=True&amp;loc=Local&quot;</span></span><br><span class="line">	DB, err = gorm.Open(mysql.Open(dsn), &amp;gorm.Config&#123;&#125;)</span><br><span class="line">	<span class="keyword">if</span> err != <span class="literal">nil</span> &#123;</span><br><span class="line">		fmt.Println(<span class="string">&quot;连接数据库错误&quot;</span>)</span><br><span class="line">		<span class="keyword">return</span> </span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// models/user.go</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">package</span> models</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="keyword">type</span> User <span class="keyword">struct</span>&#123;</span><br><span class="line">	Id <span class="keyword">int</span> </span><br><span class="line">	Username <span class="keyword">string</span></span><br><span class="line">	Age <span class="keyword">int</span> </span><br><span class="line">	Email <span class="keyword">string</span> </span><br><span class="line">	AddTime <span class="keyword">int</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="params">(User)</span> <span class="title">TableName</span><span class="params">()</span> <span class="title">string</span></span> &#123;</span><br><span class="line">	<span class="keyword">return</span> <span class="string">&quot;user&quot;</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h5 id="5-创建"><a href="#5-创建" class="headerlink" title="5, 创建"></a>5, 创建</h5><figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">user := models.User&#123;</span><br><span class="line">    Username: <span class="string">&quot;test&quot;</span>,</span><br><span class="line">    Age: <span class="number">10</span>,</span><br><span class="line">    Email: <span class="string">&quot;123@123.com&quot;</span>, </span><br><span class="line">    AddTime: <span class="keyword">int</span>(time.Now().Unix()),</span><br><span class="line">&#125;</span><br><span class="line">models.DB.Create(&amp;user)</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line">users := []models.User&#123;</span><br><span class="line">    models.User&#123;</span><br><span class="line">        Username: <span class="string">&quot;test1&quot;</span>,</span><br><span class="line">        Age: <span class="number">20</span>,</span><br><span class="line">        Email: <span class="string">&quot;1234@123.com&quot;</span>, </span><br><span class="line">        AddTime: <span class="keyword">int</span>(time.Now().Unix()),</span><br><span class="line">    &#125;,</span><br><span class="line">    models.User&#123;</span><br><span class="line">        Username: <span class="string">&quot;test2&quot;</span>,</span><br><span class="line">        Age: <span class="number">22</span>,</span><br><span class="line">        Email: <span class="string">&quot;673@123.com&quot;</span>, </span><br><span class="line">        AddTime: <span class="keyword">int</span>(time.Now().Unix()),</span><br><span class="line">    &#125;,</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">models.DB.Create(users)</span><br></pre></td></tr></table></figure>
+
+<h5 id="6，更新"><a href="#6，更新" class="headerlink" title="6，更新"></a>6，更新</h5><figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">user := models.User&#123;Id: <span class="number">5</span>&#125;</span><br><span class="line">models.DB.Find(&amp;user)</span><br><span class="line">user.Age = <span class="number">50</span></span><br><span class="line">user.Username = <span class="string">&quot;hahaha&quot;</span></span><br><span class="line">models.DB.Save(&amp;user)</span><br><span class="line"></span><br><span class="line"><span class="comment">// 更新单列</span></span><br><span class="line">user := models.User&#123;&#125;</span><br><span class="line">models.DB.Model(&amp;user).Where(<span class="string">&quot;id = ?&quot;</span>, <span class="number">5</span>).Update(<span class="string">&quot;username&quot;</span>, <span class="string">&quot;xixixi&quot;</span>)</span><br><span class="line"></span><br><span class="line"><span class="comment">// 更新多列</span></span><br><span class="line">user := models.User&#123;&#125;</span><br><span class="line">models.DB.Model(&amp;user).Where(<span class="string">&quot;id = ?&quot;</span>, <span class="number">5</span>).Updates(<span class="keyword">map</span>[<span class="keyword">string</span>]<span class="keyword">interface</span>&#123;&#125;&#123;<span class="string">&quot;username&quot;</span>: <span class="string">&quot;test&quot;</span>, <span class="string">&quot;age&quot;</span>: <span class="number">10</span>, <span class="string">&quot;email&quot;</span>: <span class="string">&quot;134@aa.com&quot;</span>&#125;)</span><br></pre></td></tr></table></figure>
+
+
+
+<h5 id="7，删除"><a href="#7，删除" class="headerlink" title="7，删除"></a>7，删除</h5><figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">user := models.User&#123;Id: <span class="number">6</span>&#125;</span><br><span class="line">models.DB.Delete(&amp;user)</span><br><span class="line"></span><br><span class="line">user := models.User&#123;&#125;</span><br><span class="line">models.DB.Where(<span class="string">&quot;username = ?&quot;</span>, <span class="string">&quot;test&quot;</span>).Delete(&amp;user)</span><br></pre></td></tr></table></figure>
+
+<h5 id="8，查询"><a href="#8，查询" class="headerlink" title="8，查询"></a>8，查询</h5><ul>
+<li><p>Find</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">userList := []models.User&#123;&#125;</span><br><span class="line">models.DB.Find(&amp;userList)</span><br><span class="line"></span><br><span class="line">users := models.User&#123;Id: <span class="number">5</span>&#125;</span><br><span class="line">models.DB.Find(&amp;users)</span><br></pre></td></tr></table></figure></li>
+<li><p>First</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">user := models.User&#123;&#125;</span><br><span class="line">models.DB.First(&amp;user)</span><br></pre></td></tr></table></figure></li>
+<li><p>Where</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br></pre></td><td class="code"><pre><span class="line">  users := []models.User&#123;&#125;</span><br><span class="line">  models.DB.Where(<span class="string">&quot;id &gt; ?&quot;</span>, <span class="number">5</span>).First(&amp;users)</span><br><span class="line">  </span><br><span class="line">navs := []models.Nav&#123;&#125;</span><br><span class="line">  models.DB.Where(<span class="string">&quot;id &gt; ?&quot;</span>, <span class="number">3</span>).Find(&amp;navs)</span><br><span class="line">  </span><br><span class="line">  navs := []models.Nav&#123;&#125;</span><br><span class="line">  models.DB.Where(<span class="string">&quot;id &gt; ? and id &lt; ?&quot;</span>, <span class="number">0</span>, <span class="number">9</span>).Find(&amp;navs)</span><br><span class="line">  </span><br><span class="line">  navs := []models.Nav&#123;&#125;</span><br><span class="line">  models.DB.Where(<span class="string">&quot;id in (?)&quot;</span>, []<span class="keyword">int</span>&#123;<span class="number">1</span>, <span class="number">3</span>, <span class="number">5</span>&#125;).Find(&amp;navs)</span><br><span class="line">  </span><br><span class="line">  navs := []models.Nav&#123;&#125;</span><br><span class="line">  models.DB.Where(<span class="string">&quot;title like ?&quot;</span>, <span class="string">&quot;%t%&quot;</span>).Find(&amp;navs)</span><br><span class="line">  </span><br><span class="line">  navs := []models.Nav&#123;&#125;</span><br><span class="line">  models.DB.Where(<span class="string">&quot;id between ? and ?&quot;</span>, <span class="number">1</span>, <span class="number">3</span>).Find(&amp;navs)</span><br><span class="line">  </span><br><span class="line">  navs := []models.Nav&#123;&#125;</span><br><span class="line">  models.DB.Where(<span class="string">&quot;id = ? or id = ?&quot;</span>, <span class="number">1</span>, <span class="number">3</span>).Find(&amp;navs)</span><br><span class="line">  </span><br><span class="line">  navs := []models.Nav&#123;&#125;</span><br><span class="line">  models.DB.Where(<span class="string">&quot;id = ? &quot;</span>, <span class="number">1</span>).Or(<span class="string">&quot;id = ?&quot;</span>, <span class="number">3</span>).Find(&amp;navs)</span><br><span class="line">  </span><br><span class="line">  <span class="comment">// 指定返回字段</span></span><br><span class="line">  <span class="keyword">type</span> NavJson <span class="keyword">struct</span>&#123;</span><br><span class="line">      Id <span class="keyword">int</span>  <span class="string">`json:&quot;id&quot;`</span></span><br><span class="line">  	Title <span class="keyword">string</span> <span class="string">`json:&quot;title&quot;`</span></span><br><span class="line">  	Url <span class="keyword">string</span>	<span class="string">`json:&quot;url&quot;`</span></span><br><span class="line">  &#125;</span><br><span class="line">  <span class="function"><span class="keyword">func</span> <span class="params">(NavJson)</span> <span class="title">TableName</span><span class="params">()</span><span class="params">(<span class="keyword">string</span>)</span></span>&#123;</span><br><span class="line">  	<span class="keyword">return</span> <span class="string">&quot;nav&quot;</span></span><br><span class="line">  &#125;</span><br><span class="line">  navs := []NavJson&#123;&#125;</span><br><span class="line">  models.DB.Select(<span class="string">&quot;id, title, url&quot;</span>).Find(&amp;navs)</span><br><span class="line">  </span><br><span class="line">  navs := []models.Nav&#123;&#125;</span><br><span class="line">  models.DB.Order(<span class="string">&quot;id desc&quot;</span>).Order(<span class="string">&quot;sort asc&quot;</span>).Find(&amp;navs)</span><br><span class="line">  </span><br><span class="line">  navs := []models.Nav&#123;&#125;</span><br><span class="line">  models.DB.Order(<span class="string">&quot;id desc&quot;</span>).Offset(<span class="number">1</span>).Find(&amp;navs) </span><br><span class="line">  </span><br><span class="line">  <span class="comment">// 统计总数</span></span><br><span class="line">  navs := []models.Nav&#123;&#125;</span><br><span class="line">  <span class="keyword">var</span> count <span class="keyword">int64</span></span><br><span class="line">  models.DB.Find(&amp;navs).Count(&amp;count) </span><br></pre></td></tr></table></figure></li>
+</ul>
+<h5 id="9，使用原生sql查询"><a href="#9，使用原生sql查询" class="headerlink" title="9，使用原生sql查询"></a>9，使用原生sql查询</h5><figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 删除</span></span><br><span class="line">models.DB.Exec(<span class="string">&quot;delete from user where id = ?&quot;</span>, <span class="number">3</span>)</span><br><span class="line"></span><br><span class="line"><span class="comment">// 更新</span></span><br><span class="line">models.DB.Exec(<span class="string">&quot;update user set username = ? where id = ?&quot;</span>, <span class="string">&quot;测试删除&quot;</span>, <span class="number">2</span>)</span><br><span class="line"></span><br><span class="line">users := []models.User&#123;&#125;</span><br><span class="line">models.DB.Raw(<span class="string">&quot;select * from user&quot;</span>).Scan(&amp;users)</span><br><span class="line"></span><br><span class="line"><span class="keyword">var</span> count <span class="keyword">int</span></span><br><span class="line">models.DB.Raw(<span class="string">&quot;select count(*) from user&quot;</span>).Scan(&amp;count)</span><br></pre></td></tr></table></figure>
+
+<h5 id="10，关联查询"><a href="#10，关联查询" class="headerlink" title="10，关联查询"></a>10，关联查询</h5><ul>
+<li><p>一对多</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// models.go</span></span><br><span class="line"><span class="keyword">package</span> models</span><br><span class="line"></span><br><span class="line"><span class="comment">/*</span></span><br><span class="line"><span class="comment">ArticleCate ArticleCate `gorm:&quot;foreignKey:CateId;references:Id&quot;`</span></span><br><span class="line"><span class="comment">foreignKey外键，如果是表名加上Id默认可以不配置</span></span><br><span class="line"><span class="comment">references表示主键，默认是Id的话可以不配置</span></span><br><span class="line"><span class="comment">*/</span></span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="keyword">type</span> Article <span class="keyword">struct</span>&#123;</span><br><span class="line">	Id <span class="keyword">int</span> </span><br><span class="line">	Title <span class="keyword">string</span></span><br><span class="line">	ArticleCateId <span class="keyword">int</span> </span><br><span class="line">	State <span class="keyword">int</span></span><br><span class="line">	ArticleCate ArticleCate</span><br><span class="line">    <span class="comment">// 如果ArticleCateId该为CateId,此时就会找不到外键对应关系，需要重写外键</span></span><br><span class="line">    <span class="comment">// 改为ArticleCate ArticleCate `gorm:&quot;foreignKey:CateId&quot;`</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="params">(Article)</span> <span class="title">TableName</span><span class="params">()</span> <span class="title">string</span></span> &#123;</span><br><span class="line">	<span class="keyword">return</span> <span class="string">&quot;article&quot;</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="keyword">type</span> ArticleCate <span class="keyword">struct</span>&#123;</span><br><span class="line">	Id <span class="keyword">int</span>	<span class="string">`json:&quot;id&quot;`</span></span><br><span class="line">	Title <span class="keyword">string</span>	<span class="string">`json:&quot;title&quot;`</span></span><br><span class="line">	State <span class="keyword">int</span>	<span class="string">`json:&quot;state&quot;`</span></span><br><span class="line">    Article []Article <span class="string">`gorm:&quot;ForeignKey:CateId&quot;`</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="params">(ArticleCate)</span> <span class="title">TableName</span><span class="params">()</span> <span class="title">string</span></span> &#123;</span><br><span class="line">	<span class="keyword">return</span> <span class="string">&quot;article_cate&quot;</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">articles := []models.Article&#123;&#125;</span><br><span class="line">models.DB.Find(&amp;articles)</span><br><span class="line"></span><br><span class="line">articles := []models.Article&#123;&#125;</span><br><span class="line">models.DB.Preload(<span class="string">&quot;ArticleCate&quot;</span>).Find(&amp;articles)</span><br><span class="line"></span><br><span class="line">cates := []models.ArticleCate&#123;&#125;</span><br><span class="line">models.DB.Preload(<span class="string">&quot;Article&quot;</span>).Find(&amp;cates)</span><br></pre></td></tr></table></figure></li>
+<li><p>多对多查询</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// models.go</span></span><br><span class="line"><span class="keyword">package</span> models</span><br><span class="line"></span><br><span class="line"><span class="keyword">type</span> Student <span class="keyword">struct</span> &#123;</span><br><span class="line">	Id <span class="keyword">int</span>	<span class="string">`json:&quot;id&quot;`</span></span><br><span class="line">	Number <span class="keyword">int</span> 	<span class="string">`json:&quot;number&quot;`</span></span><br><span class="line">	Password <span class="keyword">string</span> 	<span class="string">`json:&quot;password&quot;`</span></span><br><span class="line">	ClassId <span class="keyword">int</span> 	<span class="string">`json:&quot;class_id&quot;`</span></span><br><span class="line">	Name <span class="keyword">string</span>		<span class="string">`json:&quot;name&quot;`</span></span><br><span class="line">	Lesson []Lesson	<span class="string">`gorm:&quot;many2many:lesson_student&quot;`</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="params">(Student)</span> <span class="title">TableName</span><span class="params">()</span> <span class="title">string</span></span> &#123;</span><br><span class="line">	<span class="keyword">return</span> <span class="string">&quot;student&quot;</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="keyword">type</span> Lesson <span class="keyword">struct</span> &#123;</span><br><span class="line">	Id <span class="keyword">int</span> 	<span class="string">`json:&quot;id&quot;`</span></span><br><span class="line">	Name <span class="keyword">string</span>		<span class="string">`json:&quot;name&quot;`</span></span><br><span class="line">    Student []Student	<span class="string">`gorm:&quot;many2many:lesson_student;&quot;`</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="params">(Lesson)</span> <span class="title">TableName</span><span class="params">()</span> <span class="title">string</span></span> &#123;</span><br><span class="line">	<span class="keyword">return</span> <span class="string">&quot;lesson&quot;</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="keyword">type</span> LessonStudent <span class="keyword">struct</span> &#123;</span><br><span class="line">	LessonId <span class="keyword">int</span> 	<span class="string">`json:&quot;lesson_id&quot;`</span></span><br><span class="line">	StudentId <span class="keyword">int</span>	<span class="string">`json:&quot;student_id&quot;`</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="params">(LessonStudent)</span> <span class="title">TableName</span><span class="params">()</span> <span class="title">string</span></span> &#123;</span><br><span class="line">	<span class="keyword">return</span> <span class="string">&quot;lesson_student&quot;</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 查询学生选修了哪些课程</span></span><br><span class="line">students := []models.Student&#123;&#125;</span><br><span class="line">models.DB.Preload(<span class="string">&quot;Lesson&quot;</span>).Find(&amp;students)</span><br><span class="line"></span><br><span class="line">students := []models.Student&#123;&#125;</span><br><span class="line">models.DB.Preload(<span class="string">&quot;Lesson&quot;</span>).Where(<span class="string">&quot;name = ?&quot;</span>, <span class="string">&quot;jack&quot;</span>).Find(&amp;students)</span><br><span class="line"></span><br><span class="line"><span class="comment">// 查询课程被哪些学生选修了</span></span><br><span class="line">lessons := []models.Lesson&#123;&#125;</span><br><span class="line">models.DB.Preload(<span class="string">&quot;Student&quot;</span>).Find(&amp;lessons)</span><br><span class="line"></span><br><span class="line">lessons := []models.Lesson&#123;&#125;</span><br><span class="line">models.DB.Preload(<span class="string">&quot;Student&quot;</span>).Where(<span class="string">&quot;name = ?&quot;</span>, <span class="string">&quot;英语&quot;</span>).Find(&amp;lessons)</span><br><span class="line"></span><br><span class="line">lessons := []models.Lesson&#123;&#125;</span><br><span class="line">models.DB.Preload(<span class="string">&quot;Student&quot;</span>).Offset(<span class="number">1</span>).Limit(<span class="number">2</span>).Find(&amp;lessons)</span><br><span class="line"></span><br><span class="line"><span class="comment">// 排除id等于1的学生</span></span><br><span class="line">lessons := []models.Lesson&#123;&#125;</span><br><span class="line">models.DB.Preload(<span class="string">&quot;Student&quot;</span>, <span class="string">&quot;id != 1&quot;</span>).Find(&amp;lessons)</span><br><span class="line"></span><br><span class="line">lessons := []models.Lesson&#123;&#125;</span><br><span class="line">models.DB.Preload(<span class="string">&quot;Student&quot;</span>, <span class="string">&quot;id in (?)&quot;</span>, []<span class="keyword">int</span>&#123;<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>&#125;).Find(&amp;lessons)</span><br><span class="line"></span><br><span class="line"><span class="comment">// 自定义预加载sql</span></span><br><span class="line"><span class="comment">// 学生id倒叙</span></span><br><span class="line">lessons := []models.Lesson&#123;&#125;</span><br><span class="line">models.DB.Preload(<span class="string">&quot;Student&quot;</span>, <span class="function"><span class="keyword">func</span><span class="params">(db *gorm.DB)</span> *<span class="title">gorm</span>.<span class="title">DB</span></span>&#123;</span><br><span class="line">    <span class="keyword">return</span> db.Order(<span class="string">&quot;student.id desc&quot;</span>)</span><br><span class="line">&#125;).Find(&amp;lessons)</span><br><span class="line"></span><br><span class="line">lessons := []models.Lesson&#123;&#125;</span><br><span class="line">models.DB.Preload(<span class="string">&quot;Student&quot;</span>, <span class="function"><span class="keyword">func</span><span class="params">(db *gorm.DB)</span> *<span class="title">gorm</span>.<span class="title">DB</span></span>&#123;</span><br><span class="line">    <span class="keyword">return</span> db.Where(<span class="string">&quot;id &gt; ?&quot;</span>, <span class="number">2</span>).Order(<span class="string">&quot;student.id desc&quot;</span>)</span><br><span class="line">&#125;).Find(&amp;lessons)</span><br></pre></td></tr></table></figure></li>
+</ul>
+<h5 id="11，gorm中使用事务"><a href="#11，gorm中使用事务" class="headerlink" title="11，gorm中使用事务"></a>11，gorm中使用事务</h5><ul>
+<li><p>禁用事务</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">DB, err = gorm.Open(mysql.Open(dsn), &amp;gorm.Config&#123;</span><br><span class="line">    QueryFields: <span class="literal">true</span>, <span class="comment">// 打印sql</span></span><br><span class="line">    SkipDefaultTransaction: <span class="literal">true</span>,  <span class="comment">// 禁用事务， 默认是开启</span></span><br><span class="line">&#125;)</span><br></pre></td></tr></table></figure></li>
+<li><p>事务例子</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// models.py</span></span><br><span class="line"><span class="keyword">package</span> models</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="keyword">type</span> Bank <span class="keyword">struct</span>&#123;</span><br><span class="line">	Id <span class="keyword">int</span></span><br><span class="line">	Username <span class="keyword">string</span></span><br><span class="line">	Balance <span class="keyword">float32</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="params">(Bank)</span> <span class="title">TableName</span><span class="params">()</span> <span class="title">string</span></span> &#123;</span><br><span class="line">	<span class="keyword">return</span> <span class="string">&quot;bank&quot;</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 开启事务</span></span><br><span class="line">tx := models.DB.Begin()</span><br><span class="line"><span class="keyword">defer</span> <span class="function"><span class="keyword">func</span><span class="params">()</span></span> &#123;</span><br><span class="line">    <span class="keyword">if</span> r := <span class="built_in">recover</span>(); r != <span class="literal">nil</span> &#123;</span><br><span class="line">        <span class="comment">// 回滚</span></span><br><span class="line">        tx.Rollback()</span><br><span class="line">    &#125;</span><br><span class="line">&#125;()</span><br><span class="line">u1 := models.Bank&#123;Id: <span class="number">1</span>&#125;</span><br><span class="line">tx.Find(&amp;u1)</span><br><span class="line">u1.Balance = u1.Balance - <span class="number">100</span></span><br><span class="line"><span class="keyword">if</span> err := tx.Save(&amp;u1).Error; err != <span class="literal">nil</span> &#123;</span><br><span class="line">    tx.Rollback()</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">u2 := models.Bank&#123;Id: <span class="number">2</span>&#125;</span><br><span class="line">tx.Find(&amp;u2)</span><br><span class="line">u2.Balance = u2.Balance + <span class="number">100</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">if</span> err := tx.Save(&amp;u2).Error; err != <span class="literal">nil</span> &#123;</span><br><span class="line">    tx.Rollback()</span><br><span class="line">&#125;</span><br><span class="line"><span class="comment">// 提交事务</span></span><br><span class="line">tx.Commit()</span><br><span class="line">	</span><br></pre></td></tr></table></figure></li>
+</ul>
+
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/blog/tags/go/" rel="tag"># go</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/blog/2023/06/16/flask/salalchemy%E7%94%A8%E6%B3%95/" rel="prev" title="salalchemy用法">
+      <i class="fa fa-chevron-left"></i> salalchemy用法
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/blog/2023/06/19/go/%E5%BE%AE%E6%9C%8D%E5%8A%A1/" rel="next" title="微服务">
+      微服务 <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-5"><a class="nav-link" href="#1%EF%BC%8C%E5%AE%98%E6%96%B9%E6%96%87%E6%A1%A3"><span class="nav-number">1.</span> <span class="nav-text">1，官方文档</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#2-%E5%AE%89%E8%A3%85"><span class="nav-number">2.</span> <span class="nav-text">2, 安装</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#3-%E5%AE%9A%E4%B9%89%E6%95%B0%E6%8D%AE%E5%BA%93%E6%A8%A1%E5%9E%8B"><span class="nav-number">3.</span> <span class="nav-text">3,定义数据库模型</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#4%EF%BC%8C%E8%BF%9E%E6%8E%A5%E6%95%B0%E6%8D%AE%E5%BA%93"><span class="nav-number">4.</span> <span class="nav-text">4，连接数据库</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#5-%E5%88%9B%E5%BB%BA"><span class="nav-number">5.</span> <span class="nav-text">5, 创建</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#6%EF%BC%8C%E6%9B%B4%E6%96%B0"><span class="nav-number">6.</span> <span class="nav-text">6，更新</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#7%EF%BC%8C%E5%88%A0%E9%99%A4"><span class="nav-number">7.</span> <span class="nav-text">7，删除</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#8%EF%BC%8C%E6%9F%A5%E8%AF%A2"><span class="nav-number">8.</span> <span class="nav-text">8，查询</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#9%EF%BC%8C%E4%BD%BF%E7%94%A8%E5%8E%9F%E7%94%9Fsql%E6%9F%A5%E8%AF%A2"><span class="nav-number">9.</span> <span class="nav-text">9，使用原生sql查询</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#10%EF%BC%8C%E5%85%B3%E8%81%94%E6%9F%A5%E8%AF%A2"><span class="nav-number">10.</span> <span class="nav-text">10，关联查询</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#11%EF%BC%8Cgorm%E4%B8%AD%E4%BD%BF%E7%94%A8%E4%BA%8B%E5%8A%A1"><span class="nav-number">11.</span> <span class="nav-text">11，gorm中使用事务</span></a></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">ruoxi</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/blog/archives/">
+        
+          <span class="site-state-item-count">67</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/blog/categories/">
+          
+        <span class="site-state-item-count">17</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/blog/tags/">
+          
+        <span class="site-state-item-count">20</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2024</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">ruoxi</span>
+</div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/blog/lib/anime.min.js"></script>
+  <script src="/blog/lib/velocity/velocity.min.js"></script>
+  <script src="/blog/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/blog/js/utils.js"></script>
+
+<script src="/blog/js/motion.js"></script>
+
+
+<script src="/blog/js/schemes/muse.js"></script>
+
+
+<script src="/blog/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+</body>
+</html>

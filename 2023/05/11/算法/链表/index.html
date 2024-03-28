@@ -1,0 +1,465 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 5.4.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/blog/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/blog/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/blog/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/blog/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/blog/css/main.css">
+
+
+<link rel="stylesheet" href="/blog/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"ruoxixiruo.github.io","root":"/blog/","scheme":"Mist","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":true,"show_result":true,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":true},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}};
+  </script>
+
+  <meta name="description" content="1，链表典型应用场景 操作系统的动态内存分配 LRU缓存淘汰算法">
+<meta property="og:type" content="article">
+<meta property="og:title" content="链表">
+<meta property="og:url" content="https://ruoxixiruo.github.io/blog/2023/05/11/%E7%AE%97%E6%B3%95/%E9%93%BE%E8%A1%A8/index.html">
+<meta property="og:site_name" content="RUOXI-BLOG">
+<meta property="og:description" content="1，链表典型应用场景 操作系统的动态内存分配 LRU缓存淘汰算法">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2023-05-11T21:55:44.000Z">
+<meta property="article:modified_time" content="2024-03-28T16:11:44.000Z">
+<meta property="article:author" content="ruoxi">
+<meta property="article:tag" content="算法">
+<meta name="twitter:card" content="summary">
+
+<link rel="canonical" href="https://ruoxixiruo.github.io/blog/2023/05/11/%E7%AE%97%E6%B3%95/%E9%93%BE%E8%A1%A8/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+
+  <title>链表 | RUOXI-BLOG</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/blog/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">RUOXI-BLOG</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/blog/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/blog/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/blog/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/blog/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a>
+
+  </li>
+        <li class="menu-item menu-item-schedule">
+
+    <a href="/blog/schedule/" rel="section"><i class="fa fa-calendar fa-fw"></i>日程表</a>
+
+  </li>
+        <li class="menu-item menu-item-sitemap">
+
+    <a href="/blog/sitemap.xml" rel="section"><i class="fa fa-sitemap fa-fw"></i>站点地图</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/blog/about/" rel="section"><i class="fa fa-user fa-fw"></i>关于</a>
+
+  </li>
+  </ul>
+</nav>
+
+
+
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://ruoxixiruo.github.io/blog/2023/05/11/%E7%AE%97%E6%B3%95/%E9%93%BE%E8%A1%A8/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/blog/images/avatar.gif">
+      <meta itemprop="name" content="ruoxi">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="RUOXI-BLOG">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          链表
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2023-05-11 21:55:44" itemprop="dateCreated datePublished" datetime="2023-05-11T21:55:44+00:00">2023-05-11</time>
+            </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/blog/categories/%E7%AE%97%E6%B3%95/" itemprop="url" rel="index"><span itemprop="name">算法</span></a>
+                </span>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <h4 id="1，链表典型应用场景"><a href="#1，链表典型应用场景" class="headerlink" title="1，链表典型应用场景"></a>1，链表典型应用场景</h4><ul>
+<li>操作系统的动态内存分配</li>
+<li>LRU缓存淘汰算法</li>
+</ul>
+<span id="more"></span>
+
+<h4 id="2，链表刷题"><a href="#2，链表刷题" class="headerlink" title="2，链表刷题"></a>2，链表刷题</h4><ul>
+<li><p>\141. 环形链表 </p>
+  <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line">方法一：</span><br><span class="line">    定义一个集合用来存放节点</span><br><span class="line">    遍历链表，判断当前节点是否在集合中</span><br><span class="line">    如果在，则有环</span><br><span class="line">    如果遍历完链表，没有节点在集合中，则是无环</span><br><span class="line"></span><br><span class="line">class Solution:</span><br><span class="line">    def hasCycle(self, head):</span><br><span class="line">        node_set = set()</span><br><span class="line">        while head:</span><br><span class="line">            if head in node_set:</span><br><span class="line">                return True</span><br><span class="line">            node_set.add(head)</span><br><span class="line">            head = head.next</span><br><span class="line">        return False </span><br><span class="line">        </span><br><span class="line">        </span><br><span class="line"></span><br><span class="line">方法二:</span><br><span class="line">    定义快慢两个指针，快的每次走两步，慢的走一步</span><br><span class="line">    直到快指针遍历完链表（无环），或者快慢指针指向同一个节点（有环）</span><br><span class="line"></span><br><span class="line">class Solution:</span><br><span class="line">    def hasCycle(self, head):</span><br><span class="line">        f = s = head</span><br><span class="line">        while f.next and f.next.next:</span><br><span class="line">            f = f.next.next </span><br><span class="line">            s = s.next </span><br><span class="line">            if f is s:</span><br><span class="line">                return True </span><br><span class="line">        return False</span><br></pre></td></tr></table></figure></li>
+<li><p>\202. 快乐数 </p>
+ <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line">用一个集合存放已经遍历过的数据</span><br><span class="line">如果出现重复的，表明不是快乐数</span><br><span class="line">直到最后的结果为1</span><br><span class="line"></span><br><span class="line">class Solution:</span><br><span class="line">    def isHappy(self, n):</span><br><span class="line">        num_set = set()</span><br><span class="line">        num_set.add(n)</span><br><span class="line"></span><br><span class="line">        while n &gt; 1:</span><br><span class="line">            num = 0</span><br><span class="line">            while n &gt; 0:</span><br><span class="line">                num += pow(n % 10, 2)</span><br><span class="line">                n //= 10</span><br><span class="line">            if num in num_set:</span><br><span class="line">                return False </span><br><span class="line">            num_set.add(num)</span><br><span class="line">            n = num</span><br><span class="line">        return True</span><br></pre></td></tr></table></figure></li>
+<li><p>\203. 移除链表元素 </p>
+ <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line">1，使用虚拟头节点</span><br><span class="line">2，注意在去掉一个节点后，指针不后移</span><br><span class="line"></span><br><span class="line">class Solution:</span><br><span class="line">    def removeElements(self, head, val):</span><br><span class="line">        h = vir_head = ListNode(None, head)</span><br><span class="line"></span><br><span class="line">        while vir_head and vir_head.next:</span><br><span class="line">            if vir_head.next.val == val:</span><br><span class="line">                vir_head.next = vir_head.next.next </span><br><span class="line">            else:</span><br><span class="line">                vir_head = vir_head.next </span><br><span class="line">        return h.next </span><br></pre></td></tr></table></figure></li>
+<li><p>面试题 02.07. 链表相交 </p>
+ <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line">1，分别统计两条链表的长度</span><br><span class="line">2，让长的链表的指针先移动</span><br><span class="line">3，到两个链表的长度相同时，两个的指针同时移动</span><br><span class="line">4，判断节点是否存在相同的，第一个相同的节点就是相同的起始节点</span><br><span class="line">注意：</span><br><span class="line">	链表一旦有了一个相同的节点，后面的部分就是都是重合的</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">class Solution:</span><br><span class="line">    def getIntersectionNode(self, headA, headB):</span><br><span class="line">        h_a, h_b = headA, headB</span><br><span class="line">        len_a = self.get_len(h_a)</span><br><span class="line">        len_b = self.get_len(h_b)</span><br><span class="line">        h_a1, h_b1 = headA, headB</span><br><span class="line">        if len_a &gt;= len_b:</span><br><span class="line">            for i in range(len_a-len_b):</span><br><span class="line">                h_a1 = h_a1.next </span><br><span class="line">        else:</span><br><span class="line">            for i in range(len_b-len_a):</span><br><span class="line">                h_b1 = h_b1.next </span><br><span class="line">        while h_a1:</span><br><span class="line">            if h_a1 is h_b1:</span><br><span class="line">                return h_a1 </span><br><span class="line">            h_a1 = h_a1.next </span><br><span class="line">            h_b1 = h_b1.next </span><br><span class="line">        return </span><br><span class="line">        </span><br><span class="line">    def get_len(self, head):</span><br><span class="line">        length = 0 </span><br><span class="line">        while head:</span><br><span class="line">            head = head.next </span><br><span class="line">            length += 1</span><br><span class="line">        return length</span><br></pre></td></tr></table></figure></li>
+<li><p>\707. 设计链表 </p>
+ <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br></pre></td><td class="code"><pre><span class="line">class MyLinkedList:</span><br><span class="line"></span><br><span class="line">    def __init__(self):</span><br><span class="line">        self.head = None</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">    def get(self, index):</span><br><span class="line">        h = self.head </span><br><span class="line">        while h:</span><br><span class="line">            if index == 0:</span><br><span class="line">                return h.val </span><br><span class="line">            h = h.next </span><br><span class="line">            index -= 1</span><br><span class="line"></span><br><span class="line">        return -1</span><br><span class="line"></span><br><span class="line">    def addAtHead(self, val):</span><br><span class="line">        self.head = Node(val, self.head)</span><br><span class="line"></span><br><span class="line">    def addAtTail(self, val):</span><br><span class="line">        vir_head = Node(None, self.head)</span><br><span class="line">        h = vir_head</span><br><span class="line">        while h and h.next:</span><br><span class="line">            h = h.next </span><br><span class="line">        h.next = Node(val)</span><br><span class="line">        self.head = vir_head.next</span><br><span class="line"></span><br><span class="line">    def addAtIndex(self, index, val):</span><br><span class="line">        vir_head = Node(None, self.head)</span><br><span class="line">        h = vir_head</span><br><span class="line">        while h:</span><br><span class="line">            if index == 0:</span><br><span class="line">                cur = Node(val, h.next)</span><br><span class="line">                h.next = cur </span><br><span class="line">                break</span><br><span class="line">            h = h.next</span><br><span class="line">            index -= 1</span><br><span class="line">        self.head = vir_head.next </span><br><span class="line"></span><br><span class="line">    def deleteAtIndex(self, index):</span><br><span class="line">        vir_head = Node(None, self.head)</span><br><span class="line">        h = vir_head</span><br><span class="line">        while h and h.next:</span><br><span class="line">            if index == 0:</span><br><span class="line">                h.next = h.next.next </span><br><span class="line">                break </span><br><span class="line">            h = h.next</span><br><span class="line">            index -= 1</span><br><span class="line">        self.head = vir_head.next</span><br><span class="line"></span><br><span class="line">    def travel(self, root):</span><br><span class="line">        if not root:</span><br><span class="line">            return </span><br><span class="line">        print(root.val, end=&quot;-&gt;&quot;)</span><br><span class="line">        self.travel(root.next)</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">class Node:</span><br><span class="line">    def __init__(self, val=None, nxt=None):</span><br><span class="line">        self.val = val </span><br><span class="line">        self.next = nxt</span><br></pre></td></tr></table></figure></li>
+<li><p>\206. 反转链表 </p>
+ <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line"># 递归</span><br><span class="line">class Solution:</span><br><span class="line">    def reverseList(self, head: Optional[ListNode]) -&gt; Optional[ListNode]:</span><br><span class="line">        if not head or not head.next:</span><br><span class="line">            return head </span><br><span class="line">        last = self.reverseList(head.next)</span><br><span class="line">        head.next.next = head</span><br><span class="line">        head.next = None </span><br><span class="line">        return last </span><br><span class="line">        </span><br><span class="line"># 遍历</span><br><span class="line">class Solution:</span><br><span class="line">    def reverseList(self, head: Optional[ListNode]) -&gt; Optional[ListNode]:</span><br><span class="line">        pre = None </span><br><span class="line">        cur = head </span><br><span class="line">        while cur:</span><br><span class="line">            nxt = cur.next </span><br><span class="line">            cur.next = pre </span><br><span class="line">            pre = cur </span><br><span class="line">            cur = nxt </span><br><span class="line">        return pre </span><br></pre></td></tr></table></figure></li>
+<li><p>\92. 反转链表 II </p>
+ <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line">使用虚拟头节点</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">class Solution:</span><br><span class="line">    def reverseBetween(self, head: Optional[ListNode], left: int, right: int) -&gt; Optional[ListNode]:</span><br><span class="line">        vir_head = ListNode(None, head)</span><br><span class="line">        h = vir_head</span><br><span class="line">        while h:</span><br><span class="line">            if left == 1:</span><br><span class="line">                break </span><br><span class="line">            h = h.next </span><br><span class="line">            left -= 1</span><br><span class="line">            right -= 1</span><br><span class="line">        h.next = self.reverseN(h.next, right)</span><br><span class="line">        return vir_head.next </span><br><span class="line">    </span><br><span class="line">    def reverseN(self, head, right):</span><br><span class="line">        l_end = head</span><br><span class="line">        pre = None </span><br><span class="line">        cur = head </span><br><span class="line">        while cur:</span><br><span class="line">            if right == 0:</span><br><span class="line">                break</span><br><span class="line">            nxt = cur.next </span><br><span class="line">            cur.next = pre </span><br><span class="line">            pre = cur </span><br><span class="line">            cur = nxt </span><br><span class="line">            right -= 1</span><br><span class="line">        l_end.next = cur </span><br><span class="line"></span><br><span class="line">        return pre</span><br></pre></td></tr></table></figure></li>
+<li><p>反转头n个节点</p>
+ <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br></pre></td><td class="code"><pre><span class="line">def reverseN(head, n):</span><br><span class="line">    if not head:</span><br><span class="line">        return </span><br><span class="line">    l_end = head</span><br><span class="line">    pre = None </span><br><span class="line">    cur = head </span><br><span class="line">    while cur:</span><br><span class="line">        if n == 0:</span><br><span class="line">            break</span><br><span class="line">        nxt = cur.next </span><br><span class="line">        cur.next = pre </span><br><span class="line">        pre = cur </span><br><span class="line">        cur = nxt </span><br><span class="line">        n -= 1</span><br><span class="line">    l_end.next = cur </span><br><span class="line"></span><br><span class="line">    return pre</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">def travel(head):</span><br><span class="line">    if not head:</span><br><span class="line">        return </span><br><span class="line">    print(head.val, end=&quot;-&gt;&quot;)</span><br><span class="line">    travel(head.next)</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">if __name__ == &quot;__main__&quot;:</span><br><span class="line">    node1 = Node(1)</span><br><span class="line">    node2 = Node(2)</span><br><span class="line">    node3 = Node(3)</span><br><span class="line">    node1.next = node2</span><br><span class="line">    node2.next = node3</span><br><span class="line">    head = node1</span><br><span class="line">    new_head = reverseN(head, 3)</span><br><span class="line">    travel(new_head)</span><br></pre></td></tr></table></figure></li>
+<li><p>\25. K 个一组翻转链表 </p>
+ <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line">1，先统计节点的个数</span><br><span class="line">2，然后按k个一组，以遍历m到n的方式去翻转</span><br><span class="line"></span><br><span class="line">class Solution:</span><br><span class="line">    def reverseKGroup(self, head: Optional[ListNode], k: int) -&gt; Optional[ListNode]:</span><br><span class="line">        num = 0 </span><br><span class="line">        h = head </span><br><span class="line">        while h:</span><br><span class="line">            h = h.next </span><br><span class="line">            num += 1</span><br><span class="line">        </span><br><span class="line">        n = 0</span><br><span class="line">        while num &gt;= k:</span><br><span class="line">            num -= k </span><br><span class="line">            head = self.reverseMN(head, k*n+1, k*(n+1))</span><br><span class="line">            n += 1</span><br><span class="line">        return head</span><br><span class="line"></span><br><span class="line">    def reverseMN(self, head, m, n):</span><br><span class="line">        vir_head = h = ListNode(None, head)</span><br><span class="line">        while h:</span><br><span class="line">            if m == 1:</span><br><span class="line">                break </span><br><span class="line">            h = h.next</span><br><span class="line">            m -= 1</span><br><span class="line">            n -= 1 </span><br><span class="line">        </span><br><span class="line">        h.next = self.reverseN(h.next, n)</span><br><span class="line"></span><br><span class="line">        return vir_head.next </span><br><span class="line"></span><br><span class="line">    def reverseN(self, head, n):</span><br><span class="line">        l_end = head </span><br><span class="line">        pre = None </span><br><span class="line">        cur = head </span><br><span class="line">        while cur:</span><br><span class="line">            if n == 0:</span><br><span class="line">                break </span><br><span class="line">            nxt = cur.next </span><br><span class="line">            cur.next = pre </span><br><span class="line">            pre = cur </span><br><span class="line">            cur = nxt </span><br><span class="line">            n -= 1</span><br><span class="line">        l_end.next = cur </span><br><span class="line">        return pre </span><br></pre></td></tr></table></figure></li>
+<li><p>\61. 旋转链表 </p>
+ <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br></pre></td><td class="code"><pre><span class="line"> &quot;&quot;&quot;</span><br><span class="line">1,统计链表的长度，获取尾节点</span><br><span class="line">2，将尾节点和头结点相连</span><br><span class="line">3，找到断点，返回新的头节点</span><br><span class="line">&quot;&quot;&quot;</span><br><span class="line"></span><br><span class="line">class Solution:</span><br><span class="line">    def rotateRight(self, head: Optional[ListNode], k: int) -&gt; Optional[ListNode]:</span><br><span class="line">        if not head:</span><br><span class="line">            return </span><br><span class="line">        length = 1</span><br><span class="line">        h = head </span><br><span class="line">        while h.next:</span><br><span class="line">            h = h.next </span><br><span class="line">            length += 1</span><br><span class="line">        h.next = head</span><br><span class="line">        k %= length </span><br><span class="line">        </span><br><span class="line">        num = length - k</span><br><span class="line">        new_head = None</span><br><span class="line">        while head:</span><br><span class="line">            if num == 1:</span><br><span class="line">                new_head = head.next </span><br><span class="line">                head.next = None </span><br><span class="line">            head = head.next </span><br><span class="line">            num -= 1</span><br><span class="line">        </span><br><span class="line">        return new_head</span><br></pre></td></tr></table></figure></li>
+<li><p>\24. 两两交换链表中的节点 </p>
+ <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line">class Solution:</span><br><span class="line">    def swapPairs(self, head: Optional[ListNode]) -&gt; Optional[ListNode]:</span><br><span class="line">        vir_head = ListNode(None, head)</span><br><span class="line">        pre = vir_head</span><br><span class="line">        while pre.next and pre.next.next:</span><br><span class="line">            cur = pre.next</span><br><span class="line">            nxt = cur.next </span><br><span class="line"></span><br><span class="line">            cur.next = nxt.next</span><br><span class="line">            nxt.next = cur </span><br><span class="line">            pre.next = nxt</span><br><span class="line"></span><br><span class="line">            pre = pre.next.next </span><br><span class="line">        return vir_head.next</span><br></pre></td></tr></table></figure></li>
+<li><p>剑指 Offer 22. 链表中倒数第k个节点 </p>
+ <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">class Solution:</span><br><span class="line">    def getKthFromEnd(self, head: ListNode, k: int) -&gt; ListNode:</span><br><span class="line">        h1 = h2 = head </span><br><span class="line"></span><br><span class="line">        for i in range(k):</span><br><span class="line">            h1 = h1.next </span><br><span class="line">        </span><br><span class="line">        while h1:</span><br><span class="line">            h1 = h1.next </span><br><span class="line">            h2 = h2.next </span><br><span class="line">        return h2</span><br></pre></td></tr></table></figure></li>
+<li><p>\83. 删除排序链表中的重复元素 </p>
+ <figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Solution</span>:</span></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">deleteDuplicates</span>(<span class="params">self, head: <span class="type">Optional</span>[ListNode]</span>) -&gt; <span class="type">Optional</span>[ListNode]:</span></span><br><span class="line">        cur = head </span><br><span class="line">        <span class="keyword">while</span> cur <span class="keyword">and</span> cur.<span class="built_in">next</span>:</span><br><span class="line">            <span class="keyword">if</span> cur.val == cur.<span class="built_in">next</span>.val:</span><br><span class="line">                cur.<span class="built_in">next</span> = cur.<span class="built_in">next</span>.<span class="built_in">next</span> </span><br><span class="line">                <span class="keyword">continue</span> </span><br><span class="line">            cur = cur.<span class="built_in">next</span> </span><br><span class="line">        <span class="keyword">return</span> head </span><br><span class="line">        </span><br><span class="line">      </span><br><span class="line"><span class="comment"># 递归</span></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Solution</span>:</span></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">deleteDuplicates</span>(<span class="params">self, head: <span class="type">Optional</span>[ListNode]</span>) -&gt; <span class="type">Optional</span>[ListNode]:</span></span><br><span class="line">        <span class="keyword">if</span> <span class="keyword">not</span> head <span class="keyword">or</span> <span class="keyword">not</span> head.<span class="built_in">next</span>:</span><br><span class="line">           <span class="keyword">return</span> head</span><br><span class="line"> </span><br><span class="line">       <span class="keyword">if</span> head.val != head.<span class="built_in">next</span>.val:</span><br><span class="line">           head.<span class="built_in">next</span> = self.deleteDuplicates(head.<span class="built_in">next</span>)</span><br><span class="line">       <span class="keyword">else</span>:</span><br><span class="line">           move = head.<span class="built_in">next</span> </span><br><span class="line">           <span class="keyword">while</span> move <span class="keyword">and</span> head.val == move.val:</span><br><span class="line">               move = move.<span class="built_in">next</span> </span><br><span class="line">           head.<span class="built_in">next</span> = self.deleteDuplicates(move)</span><br><span class="line">       <span class="keyword">return</span> head         </span><br><span class="line">       </span><br><span class="line"> </span><br></pre></td></tr></table></figure></li>
+<li><p>\82. 删除排序链表中的重复元素 II </p>
+ <figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br></pre></td><td class="code"><pre><span class="line"> <span class="string">&quot;&quot;&quot;</span></span><br><span class="line"><span class="string">递归</span></span><br><span class="line"><span class="string"> &quot;&quot;&quot;</span></span><br><span class="line"> <span class="class"><span class="keyword">class</span> <span class="title">Solution</span>:</span></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">deleteDuplicates</span>(<span class="params">self, head: <span class="type">Optional</span>[ListNode]</span>) -&gt; <span class="type">Optional</span>[ListNode]:</span></span><br><span class="line"></span><br><span class="line">        <span class="keyword">if</span> <span class="keyword">not</span> head <span class="keyword">or</span> <span class="keyword">not</span>  head.<span class="built_in">next</span>:</span><br><span class="line">            <span class="keyword">return</span> head </span><br><span class="line"></span><br><span class="line">        <span class="keyword">if</span> head.val != head.<span class="built_in">next</span>.val:</span><br><span class="line">            head.<span class="built_in">next</span> = self.deleteDuplicates(head.<span class="built_in">next</span>)</span><br><span class="line">        <span class="keyword">else</span>:</span><br><span class="line">            move = head.<span class="built_in">next</span> </span><br><span class="line">            <span class="keyword">while</span> move <span class="keyword">and</span> head.val == move.val:</span><br><span class="line">                move = move.<span class="built_in">next</span> </span><br><span class="line">            <span class="keyword">return</span> self.deleteDuplicates(move)</span><br><span class="line">        <span class="keyword">return</span> head </span><br><span class="line">        </span><br><span class="line"></span><br><span class="line"><span class="string">&quot;&quot;&quot;</span></span><br><span class="line"><span class="string">遍历</span></span><br><span class="line"><span class="string">&quot;&quot;&quot;</span></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Solution</span>:</span></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">deleteDuplicates</span>(<span class="params">self, head: <span class="type">Optional</span>[ListNode]</span>) -&gt; <span class="type">Optional</span>[ListNode]:</span></span><br><span class="line"></span><br><span class="line">        vir_head = ListNode(<span class="literal">None</span>, head)</span><br><span class="line"></span><br><span class="line">        cur = vir_head</span><br><span class="line">        <span class="keyword">while</span> cur <span class="keyword">and</span> cur.<span class="built_in">next</span> <span class="keyword">and</span> cur.<span class="built_in">next</span>.<span class="built_in">next</span>:</span><br><span class="line">            <span class="keyword">if</span> cur.<span class="built_in">next</span>.val != cur.<span class="built_in">next</span>.<span class="built_in">next</span>.val:</span><br><span class="line">                cur = cur.<span class="built_in">next</span> </span><br><span class="line">            <span class="keyword">else</span>:</span><br><span class="line">                move = cur.<span class="built_in">next</span> </span><br><span class="line">                <span class="keyword">while</span> move <span class="keyword">and</span> move.<span class="built_in">next</span> <span class="keyword">and</span> move.val == move.<span class="built_in">next</span>.val:</span><br><span class="line">                    move = move.<span class="built_in">next</span> </span><br><span class="line">                cur.<span class="built_in">next</span> = move.<span class="built_in">next</span></span><br><span class="line">        <span class="keyword">return</span> vir_head.<span class="built_in">next</span> </span><br></pre></td></tr></table></figure></li>
+<li><p>\725. 分隔链表 </p>
+ <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">    </span><br></pre></td></tr></table></figure></li>
+<li><p>\86. 分隔链表 </p>
+ <figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">    </span><br></pre></td></tr></table></figure></li>
+<li><p>\138. 复制带随机指针的链表 </p>
+ <figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">    </span><br></pre></td></tr></table></figure>
+
+</li>
+</ul>
+
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/blog/tags/%E7%AE%97%E6%B3%95/" rel="tag"># 算法</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/blog/2023/04/19/go/go%E8%AF%AD%E8%A8%80%E7%9A%84SDK%E5%AE%89%E8%A3%85/" rel="prev" title="go语言的SDK安装">
+      <i class="fa fa-chevron-left"></i> go语言的SDK安装
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/blog/2023/05/12/go/go%E5%85%A5%E9%97%A8/" rel="next" title="go入门">
+      go入门 <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-4"><a class="nav-link" href="#1%EF%BC%8C%E9%93%BE%E8%A1%A8%E5%85%B8%E5%9E%8B%E5%BA%94%E7%94%A8%E5%9C%BA%E6%99%AF"><span class="nav-number">1.</span> <span class="nav-text">1，链表典型应用场景</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#2%EF%BC%8C%E9%93%BE%E8%A1%A8%E5%88%B7%E9%A2%98"><span class="nav-number">2.</span> <span class="nav-text">2，链表刷题</span></a></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">ruoxi</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/blog/archives/">
+        
+          <span class="site-state-item-count">67</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/blog/categories/">
+          
+        <span class="site-state-item-count">17</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/blog/tags/">
+          
+        <span class="site-state-item-count">20</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2024</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">ruoxi</span>
+</div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/blog/lib/anime.min.js"></script>
+  <script src="/blog/lib/velocity/velocity.min.js"></script>
+  <script src="/blog/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/blog/js/utils.js"></script>
+
+<script src="/blog/js/motion.js"></script>
+
+
+<script src="/blog/js/schemes/muse.js"></script>
+
+
+<script src="/blog/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+</body>
+</html>

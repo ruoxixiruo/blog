@@ -1,0 +1,431 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 5.4.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/blog/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/blog/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/blog/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/blog/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/blog/css/main.css">
+
+
+<link rel="stylesheet" href="/blog/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"ruoxixiruo.github.io","root":"/blog/","scheme":"Mist","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":true,"show_result":true,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":true},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}};
+  </script>
+
+  <meta name="description" content="Here&#39;s something encrypted, password is required to continue reading.">
+<meta property="og:type" content="article">
+<meta property="og:title" content="redis基本操作">
+<meta property="og:url" content="https://ruoxixiruo.github.io/blog/2023/05/31/redis/redis%E5%9F%BA%E6%9C%AC%E6%93%8D%E4%BD%9C/index.html">
+<meta property="og:site_name" content="RUOXI-BLOG">
+<meta property="og:description" content="Here&#39;s something encrypted, password is required to continue reading.">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2023-05-31T23:36:01.000Z">
+<meta property="article:modified_time" content="2024-03-28T16:11:44.000Z">
+<meta property="article:author" content="ruoxi">
+<meta property="article:tag" content="redis">
+<meta name="twitter:card" content="summary">
+
+<link rel="canonical" href="https://ruoxixiruo.github.io/blog/2023/05/31/redis/redis%E5%9F%BA%E6%9C%AC%E6%93%8D%E4%BD%9C/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+
+  <title>redis基本操作 | RUOXI-BLOG</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/blog/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">RUOXI-BLOG</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/blog/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/blog/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/blog/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/blog/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a>
+
+  </li>
+        <li class="menu-item menu-item-schedule">
+
+    <a href="/blog/schedule/" rel="section"><i class="fa fa-calendar fa-fw"></i>日程表</a>
+
+  </li>
+        <li class="menu-item menu-item-sitemap">
+
+    <a href="/blog/sitemap.xml" rel="section"><i class="fa fa-sitemap fa-fw"></i>站点地图</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/blog/about/" rel="section"><i class="fa fa-user fa-fw"></i>关于</a>
+
+  </li>
+  </ul>
+</nav>
+
+
+
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://ruoxixiruo.github.io/blog/2023/05/31/redis/redis%E5%9F%BA%E6%9C%AC%E6%93%8D%E4%BD%9C/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/blog/images/avatar.gif">
+      <meta itemprop="name" content="ruoxi">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="RUOXI-BLOG">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          redis基本操作
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2023-05-31 23:36:01" itemprop="dateCreated datePublished" datetime="2023-05-31T23:36:01+00:00">2023-05-31</time>
+            </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/blog/categories/redis/" itemprop="url" rel="index"><span itemprop="name">redis</span></a>
+                </span>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <div class="hbe hbe-container" id="hexo-blog-encrypt" data-wpm="Oh, this is an invalid password. Check and try again, please." data-whm="OOPS, these decrypted content may changed, but you can still have a look.">
+  <script id="hbeData" type="hbeData" data-hmacdigest="bbde53cb4880bfac672b0433122f4be847c72f4d13b34b6167ed55cb2a7ba72d">b7a714f5e6d71c8b3c47308354f115127e5dc42043a2b8d3385fdd8f8d6c33b5345199df0de79c8cc2270e50050638750d8d171fad8e7606d54b596cc71340a60cf6305355a140309f814512c64239f8816eb39acb9cfc21b76db640340fedef0a9520f72d8c7fa61c774866f8a39153d8f2f33a63a898ed87518adea31c88d2583233ed0eaf4603ce286061de8ad0aef2f84df7f142aa2e48343d977cbee27555afe4b929d2f82febdee1966f244e678e8d6ae1c25789817965837068503356fbdd7d900f2b7dd61b527e0cc93b32d40e7b57b3214eba9b33877dd356072bf53a74f30d28dd99130f5c6ce0e42f4ca70e21d32df95d75940927a9e8e4281c5e926f2095d3555c8d91d9000a7b96469e23f42a37d97cc3e0b341c219e220203a478c3b284f2d799cb7b66e95a24ce07406ae4d30fb3596053c43040397955a9da34cf1c7e2b039250ba110420f9954cd9a6af13e1fd18506f65ea83a3b918d3873cbb21d18022da8f5bea99e1693b9ad21474accf2d7ce8c8698c9b6a7169223215aac0aefec9248d9fced8e9c03d464c2eecbb39f10caded6b4c1ae7449e30fe8a70c4b3222539bceff2de7ec13c9400623f695bd3da99c08276b3ddd7b752e065c2fc36f162831dae3c39cfd81bb05908cc3f2c6c9cf15bf8121f38af28abd40567371b205c45b76686ccb92dfc5a80b295cf3e8a4aee315b72a68af7b920ee953065e54aced28f14ea8887b99a66e12c200df9926bd84dbf30e3ae2cc51b3175dc8170f8ef8cf4b1b6ee3c092f61f21bbb2a119b22a58fc46b8055f327db1dc645380e109450f93d0c74bdfafd6a931235689965409e283202e5a60faac20a1cf52d75b401e148b6c0a01b8c81f2b2977935bd3c315bff7cca05e7d4915a8749fe27b40545888aeaec6fa24e1893906c6e171cd63f305cb9b5be2df2d848d82da61c9e93d2aff4065b84665e137422b7b86a021fe5e6dd28f14631bf993ee4160958c5394cf36ae16acdccd545e193544ee2158cc076074fcb6bc02d6ce0a6d2fe2e9b69fb7f6b24a1fda9cd91c5ed4261b907a8535401ebf7c754e06eb3b71c7cbab3786282e92c0bd9d7a59d77977ced69e8469b538066ddd91e6df43921613efeac24d3a91b034bc72f24ada250bd8b25048ca9db8f34a66d2b4c663cb9f5268232551a178926bddca3f371c21ff8f2167666f07a7bb93345dac718cb51a53bd6ae15614c0d7d7befb674148caa1ddd34527fa152dbb1036fa29bcb4a2602f71efdb67702fdb686d6a406958841482bb6fce591001044138228d969931df859cdfc1048d0890b32328e6fa281055600c8c8d006d56bbd1cc9feb4f115c2b6370aa7ee0d6f9855983582a13ab5d19a81fb8707ae9243d54f8f3812129e24c8bcf49a2436bd39dab60bf4da19b850e4da17c93e9b61fb362e4c36a63796f378f5733e8d22ad86706d592516f71ea5f3e39dfc818e4b34fda65a04f93a4ea76808824b2675349f49c631f238dfaebfb972a01267efa9fd56ef1d9e9e2521a07b5797c206b6a1c9570452360d9d0c3b12e783c4905d6880257a006c78c514ea2ced68cbe2720063b44382a7f65ba719927587c1176f9277afc0d7a74990e5829ac2c7d5aa7632921a15ab0196b8dbf38aaaef87a661a3c2cb5505fc8c0c5d74ac215b52f115a7467c33a61345693131c4a131a77cea6fb2c98d574eecd0d4c732d1298d55f6dfe51af6bd27b35669ef8992cbf35afa0462f4361622c7cad015846f50947c665fd06239b0d9f88964ce75e58a9c54bc593a443386bd9f918f077ff081370b4133ce7a60191d7f1d10ef675ebd79adf79c403a69abb882cc651b3b8d1a32089c9515eabbadb442a2df679795c15a47c049c24b61a935007d18006e8298262d2c533df368f1a1cd578b93068ad51cce21d4dc1db02ef1d4628234ad8c2fa7518cc1a5a1708963f9dd45e3b1710fc31e79e2e9c93a044c97a1a013d0e0c9a003545dccf1b10df0256eff06542967f706d70c8dbceead74d34429be112b8a83d5f44557df86110d516f78212ae1867c8fb1f6bc85bcaf7e4051dfef846a5c4be89034e529da55c3f54c08ff817e7649c92559e884a340c27563cf523c86a7aee5670bd78c40f4ef3e10d048ffa761643f4bf5e8e211038d7dcd70d5a9c5fbd91f589b0be9fca0464f9aa95a1542090ece66ca712da6a78fb1639412c6391c28df0b3c64df3991d7b09eff4ff76cadd61eeba67bc40ba4c7517e8aac4be6cfc11d7f2e597140f1abc82d19f6369f4b99d1aa77d616782fe36685ac1664fdab7527b84e03036f04476db5dc7c8c5df0b01d81a67f9cfebcf93d926694bd25ee089eea5f88da70eea0864636bc854e5e8352ea8879ec6b08d8818ff6fe671250273e25b75abbcbc897edcf11f3c528ec46da7eedac0be1ddddda11aedf0efcaac4bd53ba33ade09e71743f662d2e3a170290287f0ef3b18955d8837a25d955bbf7068bc3cdc60985cb5515bb4f2f814704afc05c5fe2a7370b3aefbf216a660a3c26eb405c6d64eaaa022e3b6bc8ede5316d6b2f6547a83bc403e35c4469e2725586bd2b296c1574997367921fa5a0d58ed00e0e8b57db812f870b481eedf9f930e4d22ab5fbe9ac98ed215869cb0a19b943d0848217e53e5a66b734a165310148c1b5031e043030fc5db6b9fc4dff1569993ace85140acdfc3b9d8383a8f95421e98b43aa90fb139eb9ba9dd5f34b9d4a1cf1bc9017373e57d79720027656f2054688eb982637523ed54fa4b01075e44402ad27c3fe1eaef8a37fd66efe42ccae4f9f08e78451ece63738e9fc5cf9187bff359ae4e2ac4480b74b667cdc7a72ceffc07cc811f4c623885de4b4448f32db11255a1bcd425abbd4217974569832037e4e4e3ff96e329f496a811f66448bdaf90cc62cfab8e7d61cb99d7e157d981f7691a29426d90b34e71aa3f8821f830734034ab041692b39f43f4a938be658afdaa215f05bee8df8eedd4eb2bd0458ad2f552d301b7b69c37124cfd1c6b0510d4424b0ba595e8e2f7a9c1514037822fb687c190b78dc7314fbc6367048b09e067c6a000be7be6558275842e419276b52f787e75384f4132c0cdcb9f7f011ca341e29684f527ed57a4424513bc16bf38ecc4b39757754c0dbfd36b5eefe7cc41a23167bc1e94580c423d21d8078152a771598c7fcc8ca436914229ac61e10b52cd0243f933b07e02c4fa713bd20883db0e091415d41a04cb7ff0c4710902ba1314b47c39b342fe8ee295432aad95ae2d8ea8bef53a453aa4d28a5485ab340923c67ccae3f4de243b50bcf7fc63cd606b3ba5f995ad394ae15264ccee835e98cab5f3ff06068e4c52e74e222f3a44f4e3412e15e65c24c01f98fc4fcbb5880eaa120520b8c8d3ea594b8e2be747b25f9a300854640c6b416d9f720c7bc0aef898b95dbaf78f26ff833de5885acfbdae25b6d04027fccb8e56f4869d03e447cc2d4cf1733d9efbf2ad079a7884e47353e3389b1cff0f4997e1aa6570b1f73bd53cd9e7d89ee029bdab75185ffbb7b22683d1aea50a0c7acd2ca33c868118518f5d738d8209f4e0f475a13668a5b97fd48884d2a783bdd09b214238b1170d0f36ae83a9e56da04064595efc43877f6c5c1c737bfccb4d605325c7048a3c42705cc989efdbadc0f2eb794f22066ad165dab49035f822937a317cc0a27d9b41b8ca25a33646672d6ee6c3bf2c452756108718f8026e65eb3fff526634583ff4ae09acf0cf361c089b60f2b749411c897d1d35bfffe3e161be41b7639ad9a4ce69b7e76d1cf45f5b0a97c8cbef1152570a3f1e552cdde0eb86adca4d26a3ace6f873d942bde3c705f290579b7f7591dee6621270f83922f4dd16e45ee5e62e471f575e36d8f174e06bd242700665a2263331978e5464e7feda98ac66cef5d76871f348ec783dc970980621e55e4b2ab5602d0ff66d6442dee9b73d21f27aa5b3094fe8a45d5b55cc03edb636e177f2aaeea2c2f2d1b7e9ce95361a700c47df97781e28acd9b1d88f9203f80b791000e37de9cadfed7efea82220309361c512e1d8ac84dd54a5c9e352022e0c80f958cdc472037f89e11f1b3e135422ebe9d0ed0ae0ffb06db78e7f5ebe18b1e8baeb8dc11e3eaaef48c38e89b5705a0f857a</script>
+  <div class="hbe hbe-content">
+    <div class="hbe hbe-input hbe-input-default">
+      <input class="hbe hbe-input-field hbe-input-field-default" type="password" id="hbePass">
+      <label class="hbe hbe-input-label hbe-input-label-default" for="hbePass">
+        <span class="hbe hbe-input-label-content hbe-input-label-content-default">Hey, password is required here.</span>
+      </label>
+    </div>
+  </div>
+</div>
+<script data-pjax src="/blog/lib/hbe.js"></script><link href="/blog/css/hbe.style.css" rel="stylesheet" type="text/css">
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/blog/tags/redis/" rel="tag"># redis</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/blog/2023/05/15/go/%E5%AE%A2%E6%88%B7%E7%AE%A1%E7%90%86%E7%B3%BB%E7%BB%9F/" rel="prev" title="客户管理系统">
+      <i class="fa fa-chevron-left"></i> 客户管理系统
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/blog/2023/06/01/go/go%E6%93%8D%E4%BD%9Credis/" rel="next" title="go操作redis">
+      go操作redis <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">ruoxi</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/blog/archives/">
+        
+          <span class="site-state-item-count">67</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/blog/categories/">
+          
+        <span class="site-state-item-count">17</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/blog/tags/">
+          
+        <span class="site-state-item-count">20</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2024</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">ruoxi</span>
+</div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/blog/lib/anime.min.js"></script>
+  <script src="/blog/lib/velocity/velocity.min.js"></script>
+  <script src="/blog/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/blog/js/utils.js"></script>
+
+<script src="/blog/js/motion.js"></script>
+
+
+<script src="/blog/js/schemes/muse.js"></script>
+
+
+<script src="/blog/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+</body>
+</html>

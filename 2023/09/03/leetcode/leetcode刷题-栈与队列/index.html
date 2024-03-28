@@ -1,0 +1,435 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 5.4.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/blog/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/blog/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/blog/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/blog/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/blog/css/main.css">
+
+
+<link rel="stylesheet" href="/blog/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"ruoxixiruo.github.io","root":"/blog/","scheme":"Mist","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":true,"show_result":true,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":true},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}};
+  </script>
+
+  <meta name="description" content="1,用栈实现队列 232. 用栈实现队列">
+<meta property="og:type" content="article">
+<meta property="og:title" content="leetcode刷题-栈与队列">
+<meta property="og:url" content="https://ruoxixiruo.github.io/blog/2023/09/03/leetcode/leetcode%E5%88%B7%E9%A2%98-%E6%A0%88%E4%B8%8E%E9%98%9F%E5%88%97/index.html">
+<meta property="og:site_name" content="RUOXI-BLOG">
+<meta property="og:description" content="1,用栈实现队列 232. 用栈实现队列">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2023-09-03T18:15:14.000Z">
+<meta property="article:modified_time" content="2024-03-28T16:11:44.000Z">
+<meta property="article:author" content="ruoxi">
+<meta property="article:tag" content="leetcode">
+<meta name="twitter:card" content="summary">
+
+<link rel="canonical" href="https://ruoxixiruo.github.io/blog/2023/09/03/leetcode/leetcode%E5%88%B7%E9%A2%98-%E6%A0%88%E4%B8%8E%E9%98%9F%E5%88%97/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+
+  <title>leetcode刷题-栈与队列 | RUOXI-BLOG</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/blog/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">RUOXI-BLOG</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/blog/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/blog/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/blog/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/blog/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a>
+
+  </li>
+        <li class="menu-item menu-item-schedule">
+
+    <a href="/blog/schedule/" rel="section"><i class="fa fa-calendar fa-fw"></i>日程表</a>
+
+  </li>
+        <li class="menu-item menu-item-sitemap">
+
+    <a href="/blog/sitemap.xml" rel="section"><i class="fa fa-sitemap fa-fw"></i>站点地图</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/blog/about/" rel="section"><i class="fa fa-user fa-fw"></i>关于</a>
+
+  </li>
+  </ul>
+</nav>
+
+
+
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://ruoxixiruo.github.io/blog/2023/09/03/leetcode/leetcode%E5%88%B7%E9%A2%98-%E6%A0%88%E4%B8%8E%E9%98%9F%E5%88%97/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/blog/images/avatar.gif">
+      <meta itemprop="name" content="ruoxi">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="RUOXI-BLOG">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          leetcode刷题-栈与队列
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2023-09-03 18:15:14" itemprop="dateCreated datePublished" datetime="2023-09-03T18:15:14+00:00">2023-09-03</time>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <h5 id="1-用栈实现队列"><a href="#1-用栈实现队列" class="headerlink" title="1,用栈实现队列"></a>1,用栈实现队列</h5><p> <a target="_blank" rel="noopener" href="https://leetcode.cn/problems/implement-queue-using-stacks/">232. 用栈实现队列</a></p>
+ <span id="more"></span>
+
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">type</span> MyQueue <span class="keyword">struct</span> &#123;</span><br><span class="line">    slice1 []<span class="keyword">int</span>  <span class="comment">// 输入栈</span></span><br><span class="line">    slice2 []<span class="keyword">int</span>  <span class="comment">// 输出栈   当输出栈输出完了，才能将输入栈的数据导入到输出栈</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">Constructor</span><span class="params">()</span> <span class="title">MyQueue</span></span> &#123;</span><br><span class="line">    <span class="keyword">var</span> mq MyQueue</span><br><span class="line">    <span class="keyword">return</span> mq</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="params">(this *MyQueue)</span> <span class="title">Push</span><span class="params">(x <span class="keyword">int</span>)</span></span>  &#123;</span><br><span class="line">    this.slice1 = <span class="built_in">append</span>(this.slice1, x)</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="params">(this *MyQueue)</span> <span class="title">Pop</span><span class="params">()</span> <span class="title">int</span></span> &#123;</span><br><span class="line">    <span class="keyword">if</span> <span class="built_in">len</span>(this.slice2) &gt; <span class="number">0</span> &#123;</span><br><span class="line">        res := this.slice2[<span class="built_in">len</span>(this.slice2) - <span class="number">1</span>]</span><br><span class="line">        this.slice2 = this.slice2[:<span class="built_in">len</span>(this.slice2) - <span class="number">1</span>]</span><br><span class="line">        <span class="keyword">return</span> res</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">for</span> <span class="built_in">len</span>(this.slice1) &gt; <span class="number">0</span> &#123;</span><br><span class="line">        this.slice2 = <span class="built_in">append</span>(this.slice2, this.slice1[<span class="built_in">len</span>(this.slice1) - <span class="number">1</span>])</span><br><span class="line">        this.slice1 = this.slice1[:<span class="built_in">len</span>(this.slice1)<span class="number">-1</span>]</span><br><span class="line">    &#125;</span><br><span class="line">    res := this.slice2[<span class="built_in">len</span>(this.slice2) - <span class="number">1</span>]</span><br><span class="line">    this.slice2 = this.slice2[:<span class="built_in">len</span>(this.slice2) - <span class="number">1</span>]</span><br><span class="line">    <span class="keyword">return</span> res </span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="params">(this *MyQueue)</span> <span class="title">Peek</span><span class="params">()</span> <span class="title">int</span></span> &#123;</span><br><span class="line">    <span class="keyword">if</span> <span class="built_in">len</span>(this.slice2) &gt; <span class="number">0</span> &#123;</span><br><span class="line">        <span class="keyword">return</span> this.slice2[<span class="built_in">len</span>(this.slice2) - <span class="number">1</span>]</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">for</span> <span class="built_in">len</span>(this.slice1) &gt; <span class="number">0</span> &#123;</span><br><span class="line">        this.slice2 = <span class="built_in">append</span>(this.slice2, this.slice1[<span class="built_in">len</span>(this.slice1) - <span class="number">1</span>])</span><br><span class="line">        this.slice1 = this.slice1[:<span class="built_in">len</span>(this.slice1)<span class="number">-1</span>]</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> this.slice2[<span class="built_in">len</span>(this.slice2) - <span class="number">1</span>]</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="params">(this *MyQueue)</span> <span class="title">Empty</span><span class="params">()</span> <span class="title">bool</span></span> &#123;</span><br><span class="line">    <span class="keyword">if</span> <span class="built_in">len</span>(this.slice1) &gt; <span class="number">0</span> || <span class="built_in">len</span>(this.slice2) &gt; <span class="number">0</span> &#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="literal">false</span></span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> <span class="literal">true</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * Your MyQueue object will be instantiated and called as such:</span></span><br><span class="line"><span class="comment"> * obj := Constructor();</span></span><br><span class="line"><span class="comment"> * obj.Push(x);</span></span><br><span class="line"><span class="comment"> * param_2 := obj.Pop();</span></span><br><span class="line"><span class="comment"> * param_3 := obj.Peek();</span></span><br><span class="line"><span class="comment"> * param_4 := obj.Empty();</span></span><br><span class="line"><span class="comment"> */</span></span><br></pre></td></tr></table></figure>
+
+<h5 id="2，用队列实现栈"><a href="#2，用队列实现栈" class="headerlink" title="2，用队列实现栈"></a>2，用队列实现栈</h5><p> <a target="_blank" rel="noopener" href="https://leetcode.cn/problems/implement-stack-using-queues/">225. 用队列实现栈</a></p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">type</span> MyStack <span class="keyword">struct</span> &#123;</span><br><span class="line">    queue1 []<span class="keyword">int</span>  <span class="comment">// 当queue1为空时， 将queue2的数据导入到queue2</span></span><br><span class="line">    queue2 []<span class="keyword">int</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">Constructor</span><span class="params">()</span> <span class="title">MyStack</span></span> &#123;</span><br><span class="line">    <span class="keyword">return</span> MyStack&#123;queue1: <span class="built_in">make</span>([]<span class="keyword">int</span>, <span class="number">0</span>), queue2: <span class="built_in">make</span>([]<span class="keyword">int</span>, <span class="number">0</span>)&#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="params">(this *MyStack)</span> <span class="title">Push</span><span class="params">(x <span class="keyword">int</span>)</span></span>  &#123;</span><br><span class="line">    this.queue1 = <span class="built_in">append</span>(this.queue1, x)</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="params">(this *MyStack)</span> <span class="title">Pop</span><span class="params">()</span> <span class="title">int</span></span> &#123;</span><br><span class="line">    <span class="keyword">for</span> <span class="built_in">len</span>(this.queue1) &gt; <span class="number">1</span>&#123;</span><br><span class="line">        this.queue2 = <span class="built_in">append</span>(this.queue2, this.queue1[<span class="number">0</span>])</span><br><span class="line">        this.queue1 = this.queue1[<span class="number">1</span>: <span class="built_in">len</span>(this.queue1)]</span><br><span class="line">    &#125;</span><br><span class="line">    res := this.queue1[<span class="number">0</span>]</span><br><span class="line">    this.queue1 = []<span class="keyword">int</span>&#123;&#125;</span><br><span class="line">    <span class="keyword">for</span> <span class="built_in">len</span>(this.queue2) &gt; <span class="number">0</span> &#123;</span><br><span class="line">        this.queue1 = <span class="built_in">append</span>(this.queue1, this.queue2[<span class="number">0</span>])</span><br><span class="line">        this.queue2 = this.queue2[<span class="number">1</span>: <span class="built_in">len</span>(this.queue2)]</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> res </span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="params">(this *MyStack)</span> <span class="title">Top</span><span class="params">()</span> <span class="title">int</span></span> &#123;</span><br><span class="line">    <span class="keyword">for</span> <span class="built_in">len</span>(this.queue1) &gt; <span class="number">1</span>&#123;</span><br><span class="line">        this.queue2 = <span class="built_in">append</span>(this.queue2, this.queue1[<span class="number">0</span>])</span><br><span class="line">        this.queue1 = this.queue1[<span class="number">1</span>: <span class="built_in">len</span>(this.queue1)]</span><br><span class="line">    &#125;</span><br><span class="line">    res := this.queue1[<span class="number">0</span>]</span><br><span class="line">    <span class="keyword">return</span> res </span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="params">(this *MyStack)</span> <span class="title">Empty</span><span class="params">()</span> <span class="title">bool</span></span> &#123;</span><br><span class="line">    <span class="keyword">if</span> <span class="built_in">len</span>(this.queue1) &gt; <span class="number">0</span> || <span class="built_in">len</span>(this.queue2) &gt; <span class="number">0</span>&#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="literal">false</span></span><br><span class="line">    &#125; </span><br><span class="line">    <span class="keyword">return</span> <span class="literal">true</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * Your MyStack object will be instantiated and called as such:</span></span><br><span class="line"><span class="comment"> * obj := Constructor();</span></span><br><span class="line"><span class="comment"> * obj.Push(x);</span></span><br><span class="line"><span class="comment"> * param_2 := obj.Pop();</span></span><br><span class="line"><span class="comment"> * param_3 := obj.Top();</span></span><br><span class="line"><span class="comment"> * param_4 := obj.Empty();</span></span><br><span class="line"><span class="comment"> */</span></span><br></pre></td></tr></table></figure>
+
+<h5 id="3，有效的括号"><a href="#3，有效的括号" class="headerlink" title="3，有效的括号"></a>3，有效的括号</h5><p> <a target="_blank" rel="noopener" href="https://leetcode.cn/problems/valid-parentheses/">20. 有效的括号</a></p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">isValid</span><span class="params">(s <span class="keyword">string</span>)</span> <span class="title">bool</span></span> &#123;</span><br><span class="line">    bMap := <span class="keyword">map</span>[<span class="keyword">byte</span>]<span class="keyword">byte</span>&#123;</span><br><span class="line">        <span class="string">&#x27;(&#x27;</span>: <span class="string">&#x27;)&#x27;</span>,</span><br><span class="line">        <span class="string">&#x27;&#123;&#x27;</span>: <span class="string">&#x27;&#125;&#x27;</span>,</span><br><span class="line">        <span class="string">&#x27;[&#x27;</span>: <span class="string">&#x27;]&#x27;</span>,</span><br><span class="line">    &#125;</span><br><span class="line">    slice := <span class="built_in">make</span>([]<span class="keyword">byte</span>, <span class="number">0</span>)</span><br><span class="line">    <span class="keyword">for</span> i:=<span class="number">0</span>;i&lt;<span class="built_in">len</span>(s);i++ &#123;</span><br><span class="line">        val := s[i]</span><br><span class="line">        <span class="keyword">if</span> val == <span class="string">&#x27;(&#x27;</span> || val == <span class="string">&#x27;&#123;&#x27;</span>  || val == <span class="string">&#x27;[&#x27;</span>&#123;</span><br><span class="line">            slice = <span class="built_in">append</span>(slice, val)</span><br><span class="line">            <span class="keyword">continue</span></span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">if</span> <span class="built_in">len</span>(slice) &lt; <span class="number">1</span> &#123;</span><br><span class="line">            <span class="keyword">return</span> <span class="literal">false</span></span><br><span class="line">        &#125;</span><br><span class="line">        last := slice[<span class="built_in">len</span>(slice)<span class="number">-1</span>]</span><br><span class="line">        <span class="keyword">if</span> bMap[last] != val &#123;</span><br><span class="line">            <span class="keyword">return</span> <span class="literal">false</span></span><br><span class="line">        &#125;</span><br><span class="line">        slice = slice[:<span class="built_in">len</span>(slice)<span class="number">-1</span>]</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">if</span> <span class="built_in">len</span>(slice) &gt; <span class="number">0</span> &#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="literal">false</span></span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> <span class="literal">true</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h5 id="4-删除字符串中的所有相邻重复项"><a href="#4-删除字符串中的所有相邻重复项" class="headerlink" title="4,删除字符串中的所有相邻重复项"></a>4,删除字符串中的所有相邻重复项</h5><p> <a target="_blank" rel="noopener" href="https://leetcode.cn/problems/remove-all-adjacent-duplicates-in-string/">1047. 删除字符串中的所有相邻重复项</a></p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">removeDuplicates</span><span class="params">(s <span class="keyword">string</span>)</span> <span class="title">string</span></span> &#123;</span><br><span class="line">    slice := <span class="built_in">make</span>([]<span class="keyword">byte</span>, <span class="number">0</span>)</span><br><span class="line">    <span class="keyword">for</span> i:=<span class="number">0</span>;i&lt;<span class="built_in">len</span>(s);i++&#123;</span><br><span class="line">        cur := s[i]</span><br><span class="line">        <span class="keyword">if</span> <span class="built_in">len</span>(slice) &lt; <span class="number">1</span>&#123;</span><br><span class="line">            slice = <span class="built_in">append</span>(slice, cur)</span><br><span class="line">            <span class="keyword">continue</span></span><br><span class="line">        &#125;</span><br><span class="line">        last := slice[<span class="built_in">len</span>(slice)<span class="number">-1</span>]</span><br><span class="line">        <span class="keyword">if</span> cur == last &#123;</span><br><span class="line">            slice = slice[:<span class="built_in">len</span>(slice)<span class="number">-1</span>]</span><br><span class="line">        &#125;<span class="keyword">else</span>&#123;</span><br><span class="line">           slice = <span class="built_in">append</span>(slice, cur) </span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> <span class="keyword">string</span>(slice)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h5 id="5-逆波兰表达式求值"><a href="#5-逆波兰表达式求值" class="headerlink" title="5,逆波兰表达式求值"></a>5,逆波兰表达式求值</h5><p> <a target="_blank" rel="noopener" href="https://leetcode.cn/problems/evaluate-reverse-polish-notation/">150. 逆波兰表达式求值</a></p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">evalRPN</span><span class="params">(tokens []<span class="keyword">string</span>)</span> <span class="title">int</span></span> &#123;</span><br><span class="line">    slice := <span class="built_in">make</span>([]<span class="keyword">int</span>, <span class="number">0</span>)</span><br><span class="line">    <span class="keyword">for</span> _, s := <span class="keyword">range</span> tokens &#123;</span><br><span class="line">       val, err := strconv.Atoi(s)</span><br><span class="line">       <span class="keyword">if</span> err == <span class="literal">nil</span> &#123;</span><br><span class="line">           slice = <span class="built_in">append</span>(slice, val)</span><br><span class="line">           <span class="keyword">continue</span></span><br><span class="line">       &#125;</span><br><span class="line">       s_len := <span class="built_in">len</span>(slice)</span><br><span class="line">       a := slice[s_len<span class="number">-1</span>]</span><br><span class="line">       b := slice[s_len<span class="number">-2</span>]</span><br><span class="line">       slice = slice[:s_len<span class="number">-2</span>]</span><br><span class="line">       <span class="keyword">if</span> s == <span class="string">&quot;+&quot;</span> &#123;</span><br><span class="line">           slice = <span class="built_in">append</span>(slice, b + a)</span><br><span class="line">       &#125; <span class="keyword">else</span> <span class="keyword">if</span> s == <span class="string">&quot;-&quot;</span>&#123;</span><br><span class="line">           slice = <span class="built_in">append</span>(slice, b - a)</span><br><span class="line">       &#125;<span class="keyword">else</span> <span class="keyword">if</span> s == <span class="string">&quot;*&quot;</span>&#123;</span><br><span class="line">           slice = <span class="built_in">append</span>(slice, b * a)</span><br><span class="line">       &#125;<span class="keyword">else</span> &#123;</span><br><span class="line">           slice = <span class="built_in">append</span>(slice, b / a)</span><br><span class="line">       &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">if</span> <span class="built_in">len</span>(slice) &gt; <span class="number">0</span> &#123;</span><br><span class="line">        <span class="keyword">return</span> slice[<span class="built_in">len</span>(slice)<span class="number">-1</span>]</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h5 id="6-滑动窗口最大值"><a href="#6-滑动窗口最大值" class="headerlink" title="6,滑动窗口最大值"></a>6,滑动窗口最大值</h5><p> <a target="_blank" rel="noopener" href="https://leetcode.cn/problems/sliding-window-maximum/">239. 滑动窗口最大值</a></p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 单调递减队列</span></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">maxSlidingWindow</span><span class="params">(nums []<span class="keyword">int</span>, k <span class="keyword">int</span>)</span> []<span class="title">int</span></span> &#123;</span><br><span class="line"></span><br><span class="line">    res := <span class="built_in">make</span>([]<span class="keyword">int</span>, <span class="number">0</span>)</span><br><span class="line"></span><br><span class="line">    sin_que := <span class="built_in">make</span>([]<span class="keyword">int</span>, <span class="number">0</span>)</span><br><span class="line"></span><br><span class="line">    <span class="keyword">for</span> ind, num := <span class="keyword">range</span>(nums) &#123;</span><br><span class="line">        <span class="keyword">for</span> <span class="built_in">len</span>(sin_que) &gt; <span class="number">0</span> &amp;&amp; nums[sin_que[<span class="built_in">len</span>(sin_que)<span class="number">-1</span>]] &lt; num &#123;</span><br><span class="line">            sin_que = sin_que[:<span class="built_in">len</span>(sin_que)<span class="number">-1</span>]</span><br><span class="line">        &#125;</span><br><span class="line">        sin_que = <span class="built_in">append</span>(sin_que, ind)</span><br><span class="line"></span><br><span class="line">        <span class="keyword">if</span> ind + <span class="number">1</span> &gt;= k &#123;</span><br><span class="line">            res = <span class="built_in">append</span>(res, nums[sin_que[<span class="number">0</span>]])</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">if</span> ind - sin_que[<span class="number">0</span>] + <span class="number">1</span> &gt;= k &#123;</span><br><span class="line">            sin_que = sin_que[<span class="number">1</span>:<span class="built_in">len</span>(sin_que)]</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> res</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h5 id="7-前-K-个高频元素"><a href="#7-前-K-个高频元素" class="headerlink" title="7,前 K 个高频元素"></a>7,前 K 个高频元素</h5><p> <a target="_blank" rel="noopener" href="https://leetcode.cn/problems/top-k-frequent-elements/">347. 前 K 个高频元素</a></p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 大顶堆</span></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">topKFrequent</span><span class="params">(nums []<span class="keyword">int</span>, k <span class="keyword">int</span>)</span> []<span class="title">int</span></span> &#123;</span><br><span class="line">    numMap := <span class="built_in">make</span>(<span class="keyword">map</span>[<span class="keyword">int</span>]<span class="keyword">int</span>)</span><br><span class="line">    <span class="keyword">for</span> _, num := <span class="keyword">range</span> nums &#123;</span><br><span class="line">        numMap[num] ++ </span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    queue := Queue&#123;slice: <span class="built_in">make</span>([][<span class="number">2</span>]<span class="keyword">int</span>, <span class="number">0</span>)&#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">for</span> key, val := <span class="keyword">range</span> numMap &#123;</span><br><span class="line">        queue.Push([<span class="number">2</span>]<span class="keyword">int</span>&#123;val, key&#125;)</span><br><span class="line">    &#125;</span><br><span class="line">    res := <span class="built_in">make</span>([]<span class="keyword">int</span>, <span class="number">0</span>)</span><br><span class="line">    <span class="keyword">for</span> i:=<span class="number">0</span>;i&lt;k;i++&#123;</span><br><span class="line">        res = <span class="built_in">append</span>(res, queue.Pop()[<span class="number">1</span>])</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> res</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="keyword">type</span> Queue <span class="keyword">struct</span> &#123;</span><br><span class="line">    slice [][<span class="number">2</span>]<span class="keyword">int</span> </span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="params">(self *Queue)</span> <span class="title">Push</span><span class="params">(item [2]<span class="keyword">int</span>)</span></span>&#123;</span><br><span class="line">    self.slice = <span class="built_in">append</span>(self.slice, item)</span><br><span class="line">    cur := <span class="built_in">len</span>(self.slice) - <span class="number">1</span></span><br><span class="line">    <span class="keyword">for</span> cur &gt; <span class="number">0</span> &#123;</span><br><span class="line">        parent := (cur - <span class="number">1</span>) / <span class="number">2</span></span><br><span class="line">        <span class="keyword">if</span> self.slice[parent][<span class="number">0</span>] &lt; self.slice[cur][<span class="number">0</span>]&#123;</span><br><span class="line">            self.slice[parent], self.slice[cur] = self.slice[cur], self.slice[parent]</span><br><span class="line">        &#125;</span><br><span class="line">        cur = parent</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="params">(self *Queue)</span> <span class="title">Pop</span><span class="params">()</span> [2]<span class="title">int</span></span>&#123;</span><br><span class="line">    qLen := <span class="built_in">len</span>(self.slice)</span><br><span class="line">    self.slice[<span class="number">0</span>], self.slice[qLen<span class="number">-1</span>] = self.slice[qLen<span class="number">-1</span>], self.slice[<span class="number">0</span>]</span><br><span class="line">    res := self.slice[qLen<span class="number">-1</span>]</span><br><span class="line">    self.slice = self.slice[:qLen<span class="number">-1</span>]</span><br><span class="line">    cur := <span class="number">0</span> </span><br><span class="line">    qLen -= <span class="number">1</span></span><br><span class="line">    <span class="keyword">for</span> cur &lt; qLen &#123;</span><br><span class="line">        parent := cur</span><br><span class="line">        left := parent * <span class="number">2</span> + <span class="number">1</span></span><br><span class="line">        right := parent * <span class="number">2</span> + <span class="number">2</span></span><br><span class="line">        <span class="keyword">if</span> left &lt; qLen &amp;&amp; self.slice[left][<span class="number">0</span>] &gt; self.slice[parent][<span class="number">0</span>]&#123;</span><br><span class="line">            parent = left </span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">if</span> right &lt; qLen &amp;&amp; self.slice[right][<span class="number">0</span>] &gt; self.slice[parent][<span class="number">0</span>]&#123;</span><br><span class="line">            parent = right</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">if</span> parent == cur &#123;</span><br><span class="line">            <span class="keyword">break</span></span><br><span class="line">        &#125;</span><br><span class="line">        self.slice[cur], self.slice[parent] = self.slice[parent], self.slice[cur]</span><br><span class="line">        cur = parent</span><br><span class="line"></span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> res </span><br><span class="line"></span><br><span class="line">&#125;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/blog/tags/leetcode/" rel="tag"># leetcode</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/blog/2023/09/03/leetcode/leetcode%E5%88%B7%E9%A2%98-%E5%AD%97%E7%AC%A6%E4%B8%B2/" rel="prev" title="leetcode刷题-字符串">
+      <i class="fa fa-chevron-left"></i> leetcode刷题-字符串
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/blog/2023/09/03/leetcode/leetcode%E5%88%B7%E9%A2%98-%E4%BA%8C%E5%8F%89%E6%A0%91/" rel="next" title="leetcode刷题-二叉树">
+      leetcode刷题-二叉树 <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-5"><a class="nav-link" href="#1-%E7%94%A8%E6%A0%88%E5%AE%9E%E7%8E%B0%E9%98%9F%E5%88%97"><span class="nav-number">1.</span> <span class="nav-text">1,用栈实现队列</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#2%EF%BC%8C%E7%94%A8%E9%98%9F%E5%88%97%E5%AE%9E%E7%8E%B0%E6%A0%88"><span class="nav-number">2.</span> <span class="nav-text">2，用队列实现栈</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#3%EF%BC%8C%E6%9C%89%E6%95%88%E7%9A%84%E6%8B%AC%E5%8F%B7"><span class="nav-number">3.</span> <span class="nav-text">3，有效的括号</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#4-%E5%88%A0%E9%99%A4%E5%AD%97%E7%AC%A6%E4%B8%B2%E4%B8%AD%E7%9A%84%E6%89%80%E6%9C%89%E7%9B%B8%E9%82%BB%E9%87%8D%E5%A4%8D%E9%A1%B9"><span class="nav-number">4.</span> <span class="nav-text">4,删除字符串中的所有相邻重复项</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#5-%E9%80%86%E6%B3%A2%E5%85%B0%E8%A1%A8%E8%BE%BE%E5%BC%8F%E6%B1%82%E5%80%BC"><span class="nav-number">5.</span> <span class="nav-text">5,逆波兰表达式求值</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#6-%E6%BB%91%E5%8A%A8%E7%AA%97%E5%8F%A3%E6%9C%80%E5%A4%A7%E5%80%BC"><span class="nav-number">6.</span> <span class="nav-text">6,滑动窗口最大值</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#7-%E5%89%8D-K-%E4%B8%AA%E9%AB%98%E9%A2%91%E5%85%83%E7%B4%A0"><span class="nav-number">7.</span> <span class="nav-text">7,前 K 个高频元素</span></a></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">ruoxi</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/blog/archives/">
+        
+          <span class="site-state-item-count">67</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/blog/categories/">
+          
+        <span class="site-state-item-count">17</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/blog/tags/">
+          
+        <span class="site-state-item-count">20</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2024</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">ruoxi</span>
+</div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/blog/lib/anime.min.js"></script>
+  <script src="/blog/lib/velocity/velocity.min.js"></script>
+  <script src="/blog/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/blog/js/utils.js"></script>
+
+<script src="/blog/js/motion.js"></script>
+
+
+<script src="/blog/js/schemes/muse.js"></script>
+
+
+<script src="/blog/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+</body>
+</html>

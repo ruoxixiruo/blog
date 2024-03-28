@@ -1,0 +1,606 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 5.4.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/blog/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/blog/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/blog/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/blog/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/blog/css/main.css">
+
+
+<link rel="stylesheet" href="/blog/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"ruoxixiruo.github.io","root":"/blog/","scheme":"Mist","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":true,"show_result":true,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":true},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}};
+  </script>
+
+  <meta name="description" content="1,grpc框架">
+<meta property="og:type" content="article">
+<meta property="og:title" content="grpc">
+<meta property="og:url" content="https://ruoxixiruo.github.io/blog/2023/06/26/go/grpc/index.html">
+<meta property="og:site_name" content="RUOXI-BLOG">
+<meta property="og:description" content="1,grpc框架">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2023-06-26T23:25:17.000Z">
+<meta property="article:modified_time" content="2024-03-28T16:11:44.000Z">
+<meta property="article:author" content="ruoxi">
+<meta property="article:tag" content="go">
+<meta property="article:tag" content="rpc">
+<meta name="twitter:card" content="summary">
+
+<link rel="canonical" href="https://ruoxixiruo.github.io/blog/2023/06/26/go/grpc/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+
+  <title>grpc | RUOXI-BLOG</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/blog/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">RUOXI-BLOG</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/blog/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/blog/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/blog/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/blog/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a>
+
+  </li>
+        <li class="menu-item menu-item-schedule">
+
+    <a href="/blog/schedule/" rel="section"><i class="fa fa-calendar fa-fw"></i>日程表</a>
+
+  </li>
+        <li class="menu-item menu-item-sitemap">
+
+    <a href="/blog/sitemap.xml" rel="section"><i class="fa fa-sitemap fa-fw"></i>站点地图</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/blog/about/" rel="section"><i class="fa fa-user fa-fw"></i>关于</a>
+
+  </li>
+  </ul>
+</nav>
+
+
+
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://ruoxixiruo.github.io/blog/2023/06/26/go/grpc/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/blog/images/avatar.gif">
+      <meta itemprop="name" content="ruoxi">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="RUOXI-BLOG">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          grpc
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2023-06-26 23:25:17" itemprop="dateCreated datePublished" datetime="2023-06-26T23:25:17+00:00">2023-06-26</time>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <h5 id="1-grpc框架"><a href="#1-grpc框架" class="headerlink" title="1,grpc框架"></a>1,grpc框架</h5><span id="more"></span>
+
+<ul>
+<li><p>grpc是一个高性能，开源，通用的RPC框架，面向移动和HTTP/2设计</p>
+</li>
+<li><p>文档</p>
+<ul>
+<li> <a target="_blank" rel="noopener" href="https://www.yuque.com/bobby-zpcyu/fgg66n/bl6nke">grpc  (yuque.com)</a> </li>
+</ul>
+</li>
+<li><p>python下的protobuf使用</p>
+<ul>
+<li><p>pip install grpcio -i <a target="_blank" rel="noopener" href="https://pypi.douban.com/simple">https://pypi.douban.com/simple</a></p>
+</li>
+<li><p>pip install grpcio-tools -i <a target="_blank" rel="noopener" href="https://pypi.douban.com/simple">https://pypi.douban.com/simple</a></p>
+</li>
+<li><p>protobuf3有自己专门的定义格式的</p>
+</li>
+<li><p> <code>grpcio-tools</code> 最后一个能生成方法和类的定义的版本是 <code>1.43.0</code> ，从 <code>1.44</code> 开始就没有定义内容了，开始动态生成。 </p>
+</li>
+<li><p>根据proto文件生成对应的python文件</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">// hello.proto</span><br><span class="line">syntax = <span class="string">&quot;proto3&quot;</span>;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">message HelloRequest &#123;</span><br><span class="line">    string name = <span class="number">1</span>;   // name表示名称, <span class="number">1</span>是name的编号</span><br><span class="line">&#125;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">python -m grpc_tools.protoc --python_out=. --grpc_python_out=. -I. hello.proto</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> proto <span class="keyword">import</span>  hello_pb2</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">request = hello_pb2.HelloRequest()</span><br><span class="line">request.name = <span class="string">&quot;tom&quot;</span></span><br><span class="line">rest_str = request.SerializeToString()</span><br><span class="line"><span class="built_in">print</span>(rest_str)</span><br></pre></td></tr></table></figure></li>
+</ul>
+</li>
+<li><p>python grpc </p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line">syntax = <span class="string">&quot;proto3&quot;</span>;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">// The greeting service definition.</span><br><span class="line">service Greeter &#123;</span><br><span class="line">    // Sends a greeting</span><br><span class="line">    rpc SayHello (HelloRequest) returns (HelloReply) &#123;&#125;</span><br><span class="line">  &#125;</span><br><span class="line">  </span><br><span class="line">  // The request message containing the use<span class="string">r&#x27;s name.</span></span><br><span class="line"><span class="string">  message HelloRequest &#123;</span></span><br><span class="line"><span class="string">    string name = 1;</span></span><br><span class="line"><span class="string">  &#125;</span></span><br><span class="line"><span class="string">  </span></span><br><span class="line"><span class="string">  // The response message containing the greetings</span></span><br><span class="line"><span class="string">  message HelloReply &#123;</span></span><br><span class="line"><span class="string">    string message = 1;</span></span><br><span class="line"><span class="string">  &#125;</span></span><br></pre></td></tr></table></figure>
+
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> concurrent <span class="keyword">import</span> futures</span><br><span class="line"><span class="keyword">import</span> grpc</span><br><span class="line"><span class="keyword">from</span> proto <span class="keyword">import</span> hello_pb2, hello_pb2_grpc</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Greeter</span>(<span class="params">hello_pb2_grpc.GreeterServicer</span>):</span></span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">SayHello</span>(<span class="params">self, request, context</span>):</span></span><br><span class="line">        <span class="keyword">return</span> hello_pb2.HelloReply(message=<span class="string">f&quot;hello, <span class="subst">&#123;request.name&#125;</span>&quot;</span>)</span><br><span class="line">    </span><br><span class="line"></span><br><span class="line"><span class="keyword">if</span> __name__ == <span class="string">&quot;__main__&quot;</span>:</span><br><span class="line">    <span class="comment"># 1, 实例化server</span></span><br><span class="line">    server = grpc.server(futures.ThreadPoolExecutor(max_workers=<span class="number">10</span>))</span><br><span class="line">    <span class="comment"># 2，注册逻辑到server中</span></span><br><span class="line">    hello_pb2_grpc.add_GreeterServicer_to_server(Greeter(), server)</span><br><span class="line">    <span class="comment"># 3, 启动</span></span><br><span class="line">    server.add_insecure_port(<span class="string">&quot;127.0.0.1:8001&quot;</span>)</span><br><span class="line">    <span class="built_in">print</span>(<span class="string">&quot;start----------------&quot;</span>)</span><br><span class="line">    server.start()</span><br><span class="line">    server.wait_for_termination()</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> grpc </span><br><span class="line"><span class="keyword">from</span> proto <span class="keyword">import</span> hello_pb2, hello_pb2_grpc</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="keyword">if</span> __name__ == <span class="string">&quot;__main__&quot;</span>:</span><br><span class="line">    <span class="keyword">with</span> grpc.insecure_channel(<span class="string">&quot;127.0.0.1:8001&quot;</span>) <span class="keyword">as</span> channel:</span><br><span class="line">        stub = hello_pb2_grpc.GreeterStub(channel)</span><br><span class="line">        rsp = stub.SayHello(hello_pb2.HelloRequest(name=<span class="string">&quot;tom&quot;</span>))</span><br><span class="line">        <span class="built_in">print</span>(rsp.message)</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>注意python生成的pb文件存在路径问题，需要手动修改</li>
+</ul>
+</li>
+<li><p>go grpc</p>
+<ul>
+<li><p>下载工具</p>
+<ul>
+<li><a target="_blank" rel="noopener" href="https://github.com/protocolbuffers/protobuf/releases">https://github.com/protocolbuffers/protobuf/releases</a>   </li>
+<li>用来生成go的pb</li>
+</ul>
+</li>
+<li><p>下载go的依赖包</p>
+<ul>
+<li> go install google.golang.org/protobuf/cmd/<a href="mailto:&#112;&#x72;&#x6f;&#116;&#111;&#99;&#x2d;&#x67;&#101;&#110;&#45;&#103;&#x6f;&#64;&#x76;&#x31;&#46;&#50;&#55;&#x2e;&#49;">&#112;&#x72;&#x6f;&#116;&#111;&#99;&#x2d;&#x67;&#101;&#110;&#45;&#103;&#x6f;&#64;&#x76;&#x31;&#46;&#50;&#55;&#x2e;&#49;</a> </li>
+<li> go install google.golang.org/grpc/cmd/<a href="mailto:&#112;&#114;&#111;&#x74;&#111;&#x63;&#45;&#x67;&#x65;&#110;&#x2d;&#103;&#x6f;&#x2d;&#x67;&#114;&#x70;&#99;&#x40;&#x76;&#x31;&#x2e;&#x31;&#46;&#48;">&#112;&#114;&#111;&#x74;&#111;&#x63;&#45;&#x67;&#x65;&#110;&#x2d;&#103;&#x6f;&#x2d;&#x67;&#114;&#x70;&#99;&#x40;&#x76;&#x31;&#x2e;&#x31;&#46;&#48;</a> </li>
+</ul>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// proto/hello.proto</span></span><br><span class="line"></span><br><span class="line">syntax = <span class="string">&quot;proto3&quot;</span>;</span><br><span class="line"><span class="comment">// 放在当前目录, package指定为proto</span></span><br><span class="line">option go_package = <span class="string">&quot;.;proto&quot;</span>;</span><br><span class="line">service Greeter &#123;</span><br><span class="line">  rpc SayHello (HelloRequest) returns (HelloReply);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">message HelloRequest &#123;</span><br><span class="line">  <span class="keyword">string</span> name = <span class="number">1</span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">message HelloReply &#123;</span><br><span class="line">  <span class="keyword">string</span> message = <span class="number">1</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">protoc --go_out=. --<span class="keyword">go</span>-grpc_out=. hello.proto</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> main</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> (</span><br><span class="line">	<span class="string">&quot;context&quot;</span></span><br><span class="line">	<span class="string">&quot;net&quot;</span></span><br><span class="line">	<span class="string">&quot;project1/grpc_test/proto&quot;</span></span><br><span class="line"></span><br><span class="line">	<span class="string">&quot;google.golang.org/grpc&quot;</span></span><br><span class="line">)</span><br><span class="line"></span><br><span class="line"><span class="keyword">type</span> Server <span class="keyword">struct</span>&#123;</span><br><span class="line"></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="params">(s *Server)</span> <span class="title">SayHello</span><span class="params">(ctx context.Context, request *proto.HelloRequest)</span> <span class="params">(*proto.HelloReply, error)</span></span> &#123;</span><br><span class="line">	<span class="keyword">return</span> &amp;proto.HelloReply&#123;</span><br><span class="line">		Message: <span class="string">&quot;hello &quot;</span> + request.Name,</span><br><span class="line">	&#125;, <span class="literal">nil</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">main</span><span class="params">()</span></span> &#123;</span><br><span class="line">	g := grpc.NewServer()</span><br><span class="line">	proto.RegisterGreeterServer(g, &amp;Server&#123;&#125;)</span><br><span class="line">	lis, err := net.Listen(<span class="string">&quot;tcp&quot;</span>, <span class="string">&quot;0.0.0.0:8080&quot;</span>)</span><br><span class="line">	<span class="keyword">if</span> err != <span class="literal">nil</span> &#123;</span><br><span class="line">		<span class="built_in">panic</span>(<span class="string">&quot;fail to listen&quot;</span>)</span><br><span class="line">	&#125;</span><br><span class="line">	g.Serve(lis)</span><br><span class="line">&#125;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> main</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> (</span><br><span class="line">	<span class="string">&quot;context&quot;</span></span><br><span class="line">	<span class="string">&quot;fmt&quot;</span></span><br><span class="line">	<span class="string">&quot;project1/grpc_test/proto&quot;</span></span><br><span class="line"></span><br><span class="line">	<span class="string">&quot;google.golang.org/grpc&quot;</span></span><br><span class="line">)</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">main</span><span class="params">()</span></span> &#123;</span><br><span class="line">	conn, err := grpc.Dial(<span class="string">&quot;127.0.0.1:8080&quot;</span>, grpc.WithInsecure())</span><br><span class="line">	<span class="keyword">if</span> err != <span class="literal">nil</span> &#123;</span><br><span class="line">		<span class="built_in">panic</span>(err)</span><br><span class="line">	&#125;</span><br><span class="line">	<span class="keyword">defer</span> conn.Close()</span><br><span class="line">	c := proto.NewGreeterClient(conn)</span><br><span class="line">	r, err := c.SayHello(context.Background(), &amp;proto.HelloRequest&#123;Name: <span class="string">&quot;tom&quot;</span>&#125;)</span><br><span class="line">	fmt.Println(r.Message)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></li>
+<li><p>如果在使用的时候报错   missing method ustEmbedUnimplementedGreeterServer </p>
+<ul>
+<li>将ustEmbedUnimplementedGreeterServer 方法注释掉</li>
+</ul>
+</li>
+<li><p>python和go相互调用，但是注意要保证proto文件一致，但是注意在python中不要package这一行,或者使用option go_package = “.;proto”;</p>
+</li>
+</ul>
+</li>
+</ul>
+<h5 id="2，grpc的四种数据流"><a href="#2，grpc的四种数据流" class="headerlink" title="2，grpc的四种数据流"></a>2，grpc的四种数据流</h5><ul>
+<li>简单模式</li>
+<li>服务端数据流模式<ul>
+<li>客户端发起一次请求，服务端返回一段连续的数据流</li>
+<li>例子：客户端向服务端发送一个股票代码，服务端将该股票的实时数据源源不断的返回给客户端</li>
+</ul>
+</li>
+<li>客户端数据流模式<ul>
+<li>与服务端流模式相反，客户端源源不断的向服务端发送数据流</li>
+<li>例子：物联网终端向服务器报送数据</li>
+</ul>
+</li>
+<li>双向数据流模式<ul>
+<li>客户端和服务端可以向对方发送数据流</li>
+<li>例子: 聊天机器人</li>
+</ul>
+</li>
+<li>go实现</li>
+</ul>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// proto/stream.proto</span></span><br><span class="line">syntax = <span class="string">&quot;proto3&quot;</span>;</span><br><span class="line"></span><br><span class="line">option go_package = <span class="string">&quot;.;proto&quot;</span>;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">service Greeter&#123;</span><br><span class="line">    rpc GetStream(StreamReqData) returns (stream StreamResData);</span><br><span class="line">    rpc PutStream(stream StreamReqData) returns (StreamResData);</span><br><span class="line">    rpc AllStream(stream StreamReqData) returns (stream StreamResData);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">message StreamReqData &#123;</span><br><span class="line">    <span class="keyword">string</span> data = <span class="number">1</span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">message StreamResData &#123;</span><br><span class="line">    <span class="keyword">string</span> data = <span class="number">1</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> main</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> (</span><br><span class="line">	<span class="string">&quot;fmt&quot;</span></span><br><span class="line">	<span class="string">&quot;net&quot;</span></span><br><span class="line">	<span class="string">&quot;project1/stream_grpc_test/proto&quot;</span></span><br><span class="line">	<span class="string">&quot;sync&quot;</span></span><br><span class="line">	<span class="string">&quot;time&quot;</span></span><br><span class="line"></span><br><span class="line">	<span class="string">&quot;google.golang.org/grpc&quot;</span></span><br><span class="line">)</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="keyword">const</span> PORT = <span class="string">&quot;:8001&quot;</span></span><br><span class="line"><span class="keyword">type</span> server <span class="keyword">struct</span> &#123;</span><br><span class="line"></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="params">(s *server)</span> <span class="title">GetStream</span><span class="params">(req *proto.StreamReqData, res proto.Greeter_GetStreamServer)</span> <span class="title">error</span></span>&#123;</span><br><span class="line">	i := <span class="number">0</span> </span><br><span class="line">	<span class="keyword">for</span> &#123;</span><br><span class="line">		res.Send(&amp;proto.StreamResData&#123;</span><br><span class="line">			Data: fmt.Sprintf(<span class="string">&quot;%v&quot;</span>, time.Now().Unix()),</span><br><span class="line">		&#125;)</span><br><span class="line">		time.Sleep(time.Second)</span><br><span class="line">		<span class="keyword">if</span> i &gt; <span class="number">10</span>&#123;</span><br><span class="line">			<span class="keyword">break</span></span><br><span class="line">		&#125;</span><br><span class="line">		i++</span><br><span class="line">	&#125;</span><br><span class="line">	<span class="keyword">return</span> <span class="literal">nil</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="params">(s *server)</span> <span class="title">PutStream</span><span class="params">(cliStr proto.Greeter_PutStreamServer)</span> <span class="title">error</span></span>&#123;</span><br><span class="line">	<span class="keyword">for</span> &#123;</span><br><span class="line">		a, err := cliStr.Recv()</span><br><span class="line">		<span class="keyword">if</span> err != <span class="literal">nil</span>&#123;</span><br><span class="line">			<span class="keyword">break</span></span><br><span class="line">		&#125;</span><br><span class="line">		fmt.Println(a.Data)</span><br><span class="line">	&#125;</span><br><span class="line">	<span class="keyword">return</span> <span class="literal">nil</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="params">(s *server)</span> <span class="title">AllStream</span><span class="params">(allStr proto.Greeter_AllStreamServer)</span> <span class="title">error</span></span> &#123;</span><br><span class="line">	wg := sync.WaitGroup&#123;&#125;</span><br><span class="line">	wg.Add(<span class="number">2</span>)</span><br><span class="line">	<span class="keyword">go</span> <span class="function"><span class="keyword">func</span><span class="params">()</span></span>&#123;</span><br><span class="line">		<span class="keyword">defer</span> wg.Done()</span><br><span class="line">		<span class="keyword">for</span> &#123;</span><br><span class="line">			data, _ := allStr.Recv()</span><br><span class="line">			fmt.Println(<span class="string">&quot;收到客户端消息: &quot;</span>, data.Data)</span><br><span class="line">		&#125;</span><br><span class="line">	&#125;()</span><br><span class="line"></span><br><span class="line">	<span class="keyword">go</span> <span class="function"><span class="keyword">func</span><span class="params">()</span></span>&#123;</span><br><span class="line">		<span class="keyword">defer</span> wg.Done()</span><br><span class="line">		<span class="keyword">for</span> &#123;</span><br><span class="line">			allStr.Send(&amp;proto.StreamResData&#123;Data: <span class="string">&quot;server&quot;</span>&#125;)</span><br><span class="line">			time.Sleep(time.Second)</span><br><span class="line">		&#125;</span><br><span class="line">	&#125;()</span><br><span class="line">	wg.Wait()</span><br><span class="line">	<span class="keyword">return</span> <span class="literal">nil</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">main</span><span class="params">()</span></span>&#123;</span><br><span class="line">	lis, err := net.Listen(<span class="string">&quot;tcp&quot;</span>, PORT)</span><br><span class="line">	<span class="keyword">if</span> err != <span class="literal">nil</span>&#123;</span><br><span class="line">		<span class="built_in">panic</span>(err)</span><br><span class="line">	&#125;</span><br><span class="line">	s := grpc.NewServer()</span><br><span class="line">	proto.RegisterGreeterServer(s, &amp;server&#123;&#125;)</span><br><span class="line">	s.Serve(lis)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> main</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> (</span><br><span class="line">	<span class="string">&quot;context&quot;</span></span><br><span class="line">	<span class="string">&quot;fmt&quot;</span></span><br><span class="line">	<span class="string">&quot;project1/stream_grpc_test/proto&quot;</span></span><br><span class="line">	<span class="string">&quot;sync&quot;</span></span><br><span class="line">	<span class="string">&quot;time&quot;</span></span><br><span class="line"></span><br><span class="line">	<span class="string">&quot;google.golang.org/grpc&quot;</span></span><br><span class="line">)</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">main</span><span class="params">()</span></span>&#123;</span><br><span class="line">	conn, err := grpc.Dial(<span class="string">&quot;localhost:8001&quot;</span>, grpc.WithInsecure())</span><br><span class="line">	<span class="keyword">if</span> err != <span class="literal">nil</span>&#123;</span><br><span class="line">		<span class="built_in">panic</span>(err)</span><br><span class="line">	&#125;</span><br><span class="line">	<span class="keyword">defer</span> conn.Close()</span><br><span class="line"></span><br><span class="line">	c := proto.NewGreeterClient(conn)</span><br><span class="line">	res, _ := c.GetStream(context.Background(), &amp;proto.StreamReqData&#123;Data: <span class="string">&quot;test&quot;</span>&#125;)</span><br><span class="line">	<span class="keyword">for</span> &#123;</span><br><span class="line">		a, err := res.Recv()</span><br><span class="line">		<span class="keyword">if</span> err != <span class="literal">nil</span>&#123;</span><br><span class="line">			<span class="keyword">break</span></span><br><span class="line">		&#125;</span><br><span class="line">		fmt.Println(a)</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">	<span class="comment">// 客户端流模式</span></span><br><span class="line">	putS, _ := c.PutStream(context.Background())</span><br><span class="line">	i := <span class="number">0</span> </span><br><span class="line">	<span class="keyword">for</span> &#123;</span><br><span class="line">		i ++</span><br><span class="line">		putS.Send(&amp;proto.StreamReqData&#123;</span><br><span class="line">			Data: fmt.Sprintf(<span class="string">&quot;test%d&quot;</span>, i),</span><br><span class="line">		&#125;)</span><br><span class="line">		time.Sleep(time.Second)</span><br><span class="line">		<span class="keyword">if</span> i &gt; <span class="number">10</span>&#123;</span><br><span class="line">			<span class="keyword">break</span></span><br><span class="line">		&#125;</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">	<span class="comment">// 双向流模式</span></span><br><span class="line">	allStr, _ := c.AllStream(context.Background())</span><br><span class="line">	wg := sync.WaitGroup&#123;&#125;</span><br><span class="line">	wg.Add(<span class="number">2</span>)</span><br><span class="line">	<span class="keyword">go</span> <span class="function"><span class="keyword">func</span><span class="params">()</span></span>&#123;</span><br><span class="line">		<span class="keyword">defer</span> wg.Done()</span><br><span class="line">		<span class="keyword">for</span> &#123;</span><br><span class="line">			data, _ := allStr.Recv()</span><br><span class="line">			fmt.Println(<span class="string">&quot;收到服务端消息: &quot;</span>, data.Data)</span><br><span class="line">		&#125;</span><br><span class="line">	&#125;()</span><br><span class="line"></span><br><span class="line">	<span class="keyword">go</span> <span class="function"><span class="keyword">func</span><span class="params">()</span></span>&#123;</span><br><span class="line">		<span class="keyword">defer</span> wg.Done()</span><br><span class="line">		<span class="keyword">for</span> &#123;</span><br><span class="line">			allStr.Send(&amp;proto.StreamReqData&#123;Data: <span class="string">&quot;client&quot;</span>&#125;)</span><br><span class="line">			time.Sleep(time.Second)</span><br><span class="line">		&#125;</span><br><span class="line">	&#125;()</span><br><span class="line">	wg.Wait()</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>python实现</li>
+</ul>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line">syntax = <span class="string">&quot;proto3&quot;</span>;</span><br><span class="line"></span><br><span class="line">// The greeting service definition.</span><br><span class="line">service Greeter &#123;</span><br><span class="line">    // Sends a greeting</span><br><span class="line">    rpc SayHello (HelloRequest) returns (stream HelloResponse);</span><br><span class="line">    rpc SayHello1 (stream HelloRequest) returns (HelloResponse);</span><br><span class="line">    rpc SayHello2 (stream HelloRequest) returns (stream HelloResponse);</span><br><span class="line">  &#125;</span><br><span class="line">  </span><br><span class="line">// The request message containing the use<span class="string">r&#x27;s name.</span></span><br><span class="line"><span class="string">message HelloRequest &#123;</span></span><br><span class="line"><span class="string">  string name = 1;</span></span><br><span class="line"><span class="string">&#125;</span></span><br><span class="line"><span class="string"></span></span><br><span class="line"><span class="string">// The response message containing the greetings</span></span><br><span class="line"><span class="string">message HelloResponse &#123;</span></span><br><span class="line"><span class="string">  string res = 1;</span></span><br><span class="line"><span class="string">&#125;</span></span><br><span class="line"><span class="string"></span></span><br></pre></td></tr></table></figure>
+
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> grpc </span><br><span class="line"><span class="keyword">from</span> proto <span class="keyword">import</span> hello_pb2, hello_pb2_grpc</span><br><span class="line"><span class="keyword">from</span> concurrent.futures <span class="keyword">import</span> ThreadPoolExecutor</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">HelloService</span>(<span class="params">hello_pb2_grpc.GreeterServicer</span>):</span></span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">SayHello</span>(<span class="params">self, request, context</span>):</span></span><br><span class="line">        <span class="keyword">for</span> _ <span class="keyword">in</span> <span class="built_in">range</span>(<span class="number">10</span>):</span><br><span class="line">            <span class="keyword">yield</span> hello_pb2.HelloResponse(res=<span class="string">f&quot;hello&quot;</span>)</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">SayHello1</span>(<span class="params">self, request_iterator, context</span>):</span></span><br><span class="line">        <span class="keyword">for</span> i <span class="keyword">in</span> request_iterator:</span><br><span class="line">            <span class="built_in">print</span>(i)</span><br><span class="line">        <span class="keyword">return</span> hello_pb2.HelloResponse(res=<span class="string">f&quot;haha&quot;</span>)</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">SayHello2</span>(<span class="params">self, request_iterator, context</span>):</span></span><br><span class="line">        <span class="keyword">for</span> i <span class="keyword">in</span> request_iterator:</span><br><span class="line">            <span class="built_in">print</span>(i)</span><br><span class="line">            <span class="keyword">yield</span> hello_pb2.HelloResponse(res=<span class="string">f&quot;hello, <span class="subst">&#123;i.name&#125;</span>&quot;</span>)</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="keyword">if</span> __name__ == <span class="string">&quot;__main__&quot;</span>:</span><br><span class="line">    server = grpc.server(ThreadPoolExecutor(max_workers=<span class="number">10</span>))</span><br><span class="line">    hello_pb2_grpc.add_GreeterServicer_to_server(HelloService(), server)</span><br><span class="line">    server.add_insecure_port(<span class="string">&quot;127.0.0.1:8080&quot;</span>)</span><br><span class="line">    server.start()</span><br><span class="line">    server.wait_for_termination()</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> time</span><br><span class="line"><span class="keyword">import</span> grpc </span><br><span class="line"><span class="keyword">from</span> proto <span class="keyword">import</span> hello_pb2_grpc, hello_pb2</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">send1</span>():</span></span><br><span class="line">    <span class="keyword">for</span> i <span class="keyword">in</span> <span class="built_in">range</span>(<span class="number">10</span>):</span><br><span class="line">        <span class="keyword">yield</span> hello_pb2.HelloRequest(name=<span class="string">f&quot;tom<span class="subst">&#123;i&#125;</span>&quot;</span>)</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">send2</span>():</span></span><br><span class="line">    n = <span class="number">0</span> </span><br><span class="line">    <span class="keyword">while</span> <span class="number">1</span>:</span><br><span class="line">        time.sleep(<span class="number">1</span>)</span><br><span class="line">        <span class="keyword">yield</span> hello_pb2.HelloRequest(name=<span class="string">f&quot;mike<span class="subst">&#123;n&#125;</span>&quot;</span>)</span><br><span class="line">        n += <span class="number">1</span></span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="keyword">if</span> __name__ == <span class="string">&quot;__main__&quot;</span>:</span><br><span class="line"></span><br><span class="line">    cli = grpc.insecure_channel(<span class="string">&quot;127.0.0.1:8080&quot;</span>)</span><br><span class="line">    stub = hello_pb2_grpc.GreeterStub(cli)</span><br><span class="line">    res = stub.SayHello(hello_pb2.HelloRequest(name=<span class="string">&quot;tom&quot;</span>))</span><br><span class="line">    <span class="keyword">for</span> i <span class="keyword">in</span> res:</span><br><span class="line">        <span class="built_in">print</span>(i)</span><br><span class="line"></span><br><span class="line">    res1 = stub.SayHello1(send1())</span><br><span class="line">    <span class="built_in">print</span>(res1)</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">    res2 = stub.SayHello2(send2())</span><br><span class="line">    <span class="keyword">for</span> i <span class="keyword">in</span> res2:</span><br><span class="line">        <span class="built_in">print</span>(i)</span><br></pre></td></tr></table></figure>
+
+<h5 id="3，protobuf相关"><a href="#3，protobuf相关" class="headerlink" title="3，protobuf相关"></a>3，protobuf相关</h5><ul>
+<li><a target="_blank" rel="noopener" href="https://lixiangyun.gitbook.io/protobuf3/">Protobuf3 语言指南 - protobuf3中文指南 (gitbook.io)</a> </li>
+<li>proto文件导入其它的proto文件</li>
+</ul>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> <span class="string">&quot;base.proto&quot;</span>;</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>嵌套的message对象</li>
+</ul>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">message HelloReply &#123;</span><br><span class="line">  <span class="keyword">string</span> message = <span class="number">1</span>;</span><br><span class="line"></span><br><span class="line">  message Result &#123;</span><br><span class="line">    <span class="keyword">string</span> name = <span class="number">1</span>;</span><br><span class="line">    <span class="keyword">string</span> url = <span class="number">2</span>;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>枚举类型</li>
+<li>map类型</li>
+<li>timestamp类型</li>
+</ul>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">syntax = <span class="string">&quot;proto3&quot;</span>;</span><br><span class="line"><span class="keyword">import</span> <span class="string">&quot;google/protobuf/timestamp.proto&quot;</span>;</span><br><span class="line">message HelloRequest &#123;</span><br><span class="line">  <span class="keyword">string</span> name = <span class="number">1</span>;</span><br><span class="line">  google.protobuf.Timestamp addTime = <span class="number">2</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h5 id="4，grpc进阶"><a href="#4，grpc进阶" class="headerlink" title="4，grpc进阶"></a>4，grpc进阶</h5><ul>
+<li><p>grpc配合asyncio使用</p>
+<ul>
+<li><a target="_blank" rel="noopener" href="https://grpc.github.io/grpc/python/grpc_asyncio.html">https://grpc.github.io/grpc/python/grpc_asyncio.html</a></li>
+</ul>
+</li>
+<li><p>直接使用proto文件</p>
+<ul>
+<li><a target="_blank" rel="noopener" href="https://github.com/grpc/grpc/tree/master/examples/python/no_codegen">https://github.com/grpc/grpc/tree/master/examples/python/no_codegen</a></li>
+</ul>
+</li>
+<li><p>grpclib</p>
+<ul>
+<li><a target="_blank" rel="noopener" href="https://github.com/vmagamedov/grpclib">https://github.com/vmagamedov/grpclib</a></li>
+<li>pip install grpclib -i <a target="_blank" rel="noopener" href="https://pypi.douban.com/simple">https://pypi.douban.com/simple</a></li>
+</ul>
+</li>
+<li><p>grpc的metadata机制</p>
+</li>
+<li><p>拦截器</p>
+<ul>
+<li><p>go实现</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line">syntax = <span class="string">&quot;proto3&quot;</span>;</span><br><span class="line"><span class="comment">// 放在当前目录, package指定为proto</span></span><br><span class="line">option go_package = <span class="string">&quot;.;proto&quot;</span>;</span><br><span class="line">service Greeter &#123;</span><br><span class="line">  rpc SayHello (HelloRequest) returns (HelloReply);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">message HelloRequest &#123;</span><br><span class="line">  <span class="keyword">string</span> name = <span class="number">1</span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">message HelloReply &#123;</span><br><span class="line">  <span class="keyword">string</span> message = <span class="number">1</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> main</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> (</span><br><span class="line">	<span class="string">&quot;context&quot;</span></span><br><span class="line">	<span class="string">&quot;fmt&quot;</span></span><br><span class="line">	<span class="string">&quot;net&quot;</span></span><br><span class="line">	<span class="string">&quot;project1/grpc_test/proto&quot;</span></span><br><span class="line"></span><br><span class="line">	<span class="string">&quot;google.golang.org/grpc&quot;</span></span><br><span class="line">)</span><br><span class="line"></span><br><span class="line"><span class="keyword">type</span> Server <span class="keyword">struct</span>&#123;</span><br><span class="line"></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="params">(s *Server)</span> <span class="title">SayHello</span><span class="params">(ctx context.Context, request *proto.HelloRequest)</span> <span class="params">(*proto.HelloReply, error)</span></span> &#123;</span><br><span class="line">	<span class="keyword">return</span> &amp;proto.HelloReply&#123;</span><br><span class="line">		Message: <span class="string">&quot;hello &quot;</span> + request.Name,</span><br><span class="line">	&#125;, <span class="literal">nil</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">main</span><span class="params">()</span></span> &#123;</span><br><span class="line">	<span class="comment">// 定义一个服务端拦截器</span></span><br><span class="line">	interceptor := <span class="function"><span class="keyword">func</span><span class="params">(ctx context.Context, req <span class="keyword">interface</span>&#123;&#125;, info *grpc.UnaryServerInfo, handler grpc.UnaryHandler)</span> <span class="params">(resp <span class="keyword">interface</span>&#123;&#125;, err error)</span></span>&#123;</span><br><span class="line">		fmt.Println(<span class="string">&quot;start...&quot;</span>)</span><br><span class="line">        res, err :=  handler(ctx, req)</span><br><span class="line">        fmt.Println(<span class="string">&quot;end...&quot;</span>)</span><br><span class="line">        <span class="keyword">return</span> res, err</span><br><span class="line">        </span><br><span class="line">	&#125;</span><br><span class="line">	opt := grpc.UnaryInterceptor(interceptor)</span><br><span class="line">	g := grpc.NewServer(opt)</span><br><span class="line"></span><br><span class="line">	proto.RegisterGreeterServer(g, &amp;Server&#123;&#125;)</span><br><span class="line">	lis, err := net.Listen(<span class="string">&quot;tcp&quot;</span>, <span class="string">&quot;0.0.0.0:8080&quot;</span>)</span><br><span class="line">	<span class="keyword">if</span> err != <span class="literal">nil</span> &#123;</span><br><span class="line">		<span class="built_in">panic</span>(<span class="string">&quot;fail to listen&quot;</span>)</span><br><span class="line">	&#125;</span><br><span class="line">	fmt.Println(<span class="string">&quot;start...&quot;</span>)</span><br><span class="line">	g.Serve(lis)</span><br><span class="line">&#125;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> main</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> (</span><br><span class="line">	<span class="string">&quot;context&quot;</span></span><br><span class="line">	<span class="string">&quot;fmt&quot;</span></span><br><span class="line">	<span class="string">&quot;project1/grpc_test/proto&quot;</span></span><br><span class="line">	<span class="string">&quot;time&quot;</span></span><br><span class="line"></span><br><span class="line">	<span class="string">&quot;google.golang.org/grpc&quot;</span></span><br><span class="line">)</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">main</span><span class="params">()</span></span> &#123;</span><br><span class="line">	<span class="comment">// 定义客户端拦截器</span></span><br><span class="line">	interceptor := <span class="function"><span class="keyword">func</span><span class="params">(ctx context.Context, method <span class="keyword">string</span>, req, reply <span class="keyword">interface</span>&#123;&#125;, cc *grpc.ClientConn, invoker grpc.UnaryInvoker, opts ...grpc.CallOption)</span> <span class="title">error</span></span>&#123;</span><br><span class="line">		start := time.Now()</span><br><span class="line">		err := invoker(ctx, method, req, reply, cc, opts...)</span><br><span class="line">		fmt.Println(<span class="string">&quot;耗时：&quot;</span>, time.Since(start))</span><br><span class="line">		<span class="keyword">return</span> err</span><br><span class="line">	&#125;</span><br><span class="line">	opts := []grpc.DialOption&#123;grpc.WithUnaryInterceptor(interceptor), grpc.WithInsecure()&#125;</span><br><span class="line">	conn, err := grpc.Dial(<span class="string">&quot;127.0.0.1:8080&quot;</span>, opts...)</span><br><span class="line">	<span class="keyword">if</span> err != <span class="literal">nil</span> &#123;</span><br><span class="line">		<span class="built_in">panic</span>(err)</span><br><span class="line">	&#125;</span><br><span class="line">	<span class="keyword">defer</span> conn.Close()</span><br><span class="line">	c := proto.NewGreeterClient(conn)</span><br><span class="line">	r, _ := c.SayHello(context.Background(), &amp;proto.HelloRequest&#123;Name: <span class="string">&quot;tom&quot;</span>&#125;)</span><br><span class="line">	fmt.Println(r.Message)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></li>
+<li><p>go-grpc-middleware   github</p>
+</li>
+<li><p>python实现</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line">syntax = <span class="string">&quot;proto3&quot;</span>;</span><br><span class="line"></span><br><span class="line">// The greeting service definition.</span><br><span class="line">service Greeter &#123;</span><br><span class="line">    // Sends a greeting</span><br><span class="line">    rpc SayHello (HelloRequest) returns (HelloReply) &#123;&#125;</span><br><span class="line">  &#125;</span><br><span class="line">  </span><br><span class="line">// The request message containing the use<span class="string">r&#x27;s name.</span></span><br><span class="line"><span class="string">message HelloRequest &#123;</span></span><br><span class="line"><span class="string">  string name = 1;</span></span><br><span class="line"><span class="string">&#125;</span></span><br><span class="line"><span class="string"></span></span><br><span class="line"><span class="string">// The response message containing the greetings</span></span><br><span class="line"><span class="string">message HelloReply &#123;</span></span><br><span class="line"><span class="string">  string message = 1;</span></span><br><span class="line"><span class="string"></span></span><br><span class="line"><span class="string">&#125;</span></span><br></pre></td></tr></table></figure>
+
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> concurrent <span class="keyword">import</span> futures</span><br><span class="line"><span class="keyword">import</span> grpc</span><br><span class="line"><span class="keyword">from</span> proto <span class="keyword">import</span> hello_pb2, hello_pb2_grpc</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Greeter</span>(<span class="params">hello_pb2_grpc.GreeterServicer</span>):</span></span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">SayHello</span>(<span class="params">self, request, context</span>):</span></span><br><span class="line">        <span class="keyword">return</span> hello_pb2.HelloReply(message=<span class="string">f&quot;hello, <span class="subst">&#123;request.name&#125;</span>&quot;</span>)</span><br><span class="line">    </span><br><span class="line"></span><br><span class="line"><span class="comment"># 定义服务端拦截器</span></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">LogInterceptor</span>(<span class="params">grpc.ServerInterceptor</span>):</span></span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">intercept_service</span>(<span class="params">self, continuation, handler_call_details</span>):</span></span><br><span class="line">        <span class="built_in">print</span>(<span class="string">&quot;request start...&quot;</span>)</span><br><span class="line">        rsp = continuation(handler_call_details)</span><br><span class="line">        <span class="built_in">print</span>(<span class="string">&quot;request end...&quot;</span>)</span><br><span class="line">        <span class="keyword">return</span> rsp</span><br><span class="line"></span><br><span class="line"><span class="keyword">if</span> __name__ == <span class="string">&quot;__main__&quot;</span>:</span><br><span class="line">    <span class="comment"># 1, 实例化server</span></span><br><span class="line">    interceptor = LogInterceptor()</span><br><span class="line">    server = grpc.server(futures.ThreadPoolExecutor(max_workers=<span class="number">10</span>), interceptors=(interceptor,))</span><br><span class="line">    <span class="comment"># 2，注册逻辑到server中</span></span><br><span class="line">    hello_pb2_grpc.add_GreeterServicer_to_server(Greeter(), server)</span><br><span class="line">    <span class="comment"># 3, 启动</span></span><br><span class="line">    server.add_insecure_port(<span class="string">&quot;127.0.0.1:8001&quot;</span>)</span><br><span class="line">    <span class="built_in">print</span>(<span class="string">&quot;start----------------&quot;</span>)</span><br><span class="line">    server.start()</span><br><span class="line">    server.wait_for_termination()</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> grpc </span><br><span class="line"><span class="keyword">import</span> time</span><br><span class="line"><span class="keyword">from</span> proto <span class="keyword">import</span> hello_pb2, hello_pb2_grpc</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">MyInterceptor</span>(<span class="params">grpc.UnaryUnaryClientInterceptor</span>):</span></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">intercept_unary_unary</span>(<span class="params">self, continuation, client_call_details, request</span>):</span></span><br><span class="line">        start = time.time()</span><br><span class="line">        rsp = continuation(client_call_details, request)</span><br><span class="line">        <span class="built_in">print</span>(time.time() - start)</span><br><span class="line">        <span class="keyword">return</span> rsp</span><br><span class="line"></span><br><span class="line"><span class="keyword">if</span> __name__ == <span class="string">&quot;__main__&quot;</span>:</span><br><span class="line">    <span class="comment"># 客户端拦截器</span></span><br><span class="line">    interceptor = MyInterceptor()</span><br><span class="line">    <span class="keyword">with</span> grpc.insecure_channel(<span class="string">&quot;127.0.0.1:8001&quot;</span>) <span class="keyword">as</span> channel:</span><br><span class="line">        interceptor_channel = grpc.intercept_channel(channel, interceptor)</span><br><span class="line">        stub = hello_pb2_grpc.GreeterStub(interceptor_channel)</span><br><span class="line">        rsp = stub.SayHello(hello_pb2.HelloRequest(name=<span class="string">&quot;tom&quot;</span>))</span><br><span class="line">        <span class="built_in">print</span>(rsp.message)</span><br></pre></td></tr></table></figure></li>
+</ul>
+</li>
+<li><p>grpc的auth认证</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line">syntax = <span class="string">&quot;proto3&quot;</span>;</span><br><span class="line"><span class="comment">// 放在当前目录, package指定为proto</span></span><br><span class="line">option go_package = <span class="string">&quot;.;proto&quot;</span>;</span><br><span class="line">service Greeter &#123;</span><br><span class="line">  rpc SayHello (HelloRequest) returns (HelloReply);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">message HelloRequest &#123;</span><br><span class="line">  <span class="keyword">string</span> name = <span class="number">1</span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">message HelloReply &#123;</span><br><span class="line">  <span class="keyword">string</span> message = <span class="number">1</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> main</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> (</span><br><span class="line">	<span class="string">&quot;context&quot;</span></span><br><span class="line">	<span class="string">&quot;fmt&quot;</span></span><br><span class="line">	<span class="string">&quot;net&quot;</span></span><br><span class="line">	<span class="string">&quot;project1/grpc_test/proto&quot;</span></span><br><span class="line"></span><br><span class="line">	<span class="string">&quot;google.golang.org/grpc&quot;</span></span><br><span class="line">	<span class="string">&quot;google.golang.org/grpc/codes&quot;</span></span><br><span class="line">	<span class="string">&quot;google.golang.org/grpc/metadata&quot;</span></span><br><span class="line">	<span class="string">&quot;google.golang.org/grpc/status&quot;</span></span><br><span class="line">)</span><br><span class="line"></span><br><span class="line"><span class="keyword">type</span> Server <span class="keyword">struct</span>&#123;</span><br><span class="line"></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="params">(s *Server)</span> <span class="title">SayHello</span><span class="params">(ctx context.Context, request *proto.HelloRequest)</span> <span class="params">(*proto.HelloReply, error)</span></span> &#123;</span><br><span class="line">	<span class="keyword">return</span> &amp;proto.HelloReply&#123;</span><br><span class="line">		Message: <span class="string">&quot;hello &quot;</span> + request.Name,</span><br><span class="line">	&#125;, <span class="literal">nil</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">main</span><span class="params">()</span></span> &#123;</span><br><span class="line">	<span class="comment">// 定义一个拦截器</span></span><br><span class="line">	interceptor := <span class="function"><span class="keyword">func</span><span class="params">(ctx context.Context, req <span class="keyword">interface</span>&#123;&#125;, info *grpc.UnaryServerInfo, handler grpc.UnaryHandler)</span> <span class="params">(resp <span class="keyword">interface</span>&#123;&#125;, err error)</span></span>&#123;</span><br><span class="line">		fmt.Println(<span class="string">&quot;接受到了一个新的请求&quot;</span>)</span><br><span class="line">        <span class="comment">// metadata认证</span></span><br><span class="line">		md, ok := metadata.FromIncomingContext(ctx)</span><br><span class="line">		<span class="keyword">if</span> !ok&#123;</span><br><span class="line">			fmt.Println(<span class="string">&quot;get metadata error&quot;</span>)</span><br><span class="line">			<span class="keyword">return</span> resp, status.Error(codes.Unauthenticated, <span class="string">&quot;认证失败&quot;</span>)</span><br><span class="line">		&#125;</span><br><span class="line">		<span class="keyword">var</span> appid <span class="keyword">string</span> </span><br><span class="line">		<span class="keyword">var</span> appkey <span class="keyword">string</span> </span><br><span class="line">		<span class="keyword">if</span> val, ok := md[<span class="string">&quot;appid&quot;</span>]; ok &#123;</span><br><span class="line">			appid = val[<span class="number">0</span>]</span><br><span class="line">		&#125;</span><br><span class="line">		<span class="keyword">if</span> val, ok := md[<span class="string">&quot;appkey&quot;</span>]; ok &#123;</span><br><span class="line">			appkey = val[<span class="number">0</span>]</span><br><span class="line">		&#125;</span><br><span class="line">		<span class="keyword">if</span> appid != <span class="string">&quot;10000&quot;</span> || appkey != <span class="string">&quot;key&quot;</span> &#123;</span><br><span class="line">			<span class="keyword">return</span> resp, status.Error(codes.Unauthenticated, <span class="string">&quot;认证失败&quot;</span>)</span><br><span class="line">		&#125;</span><br><span class="line">		<span class="keyword">return</span> handler(ctx, req)</span><br><span class="line">	&#125;</span><br><span class="line">	opt := grpc.UnaryInterceptor(interceptor)</span><br><span class="line">	g := grpc.NewServer(opt)</span><br><span class="line"></span><br><span class="line">	proto.RegisterGreeterServer(g, &amp;Server&#123;&#125;)</span><br><span class="line">	lis, err := net.Listen(<span class="string">&quot;tcp&quot;</span>, <span class="string">&quot;0.0.0.0:8080&quot;</span>)</span><br><span class="line">	<span class="keyword">if</span> err != <span class="literal">nil</span> &#123;</span><br><span class="line">		<span class="built_in">panic</span>(<span class="string">&quot;fail to listen&quot;</span>)</span><br><span class="line">	&#125;</span><br><span class="line">	fmt.Println(<span class="string">&quot;start...&quot;</span>)</span><br><span class="line">	g.Serve(lis)</span><br><span class="line">&#125;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> main</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> (</span><br><span class="line">	<span class="string">&quot;context&quot;</span></span><br><span class="line">	<span class="string">&quot;fmt&quot;</span></span><br><span class="line">	<span class="string">&quot;project1/grpc_test/proto&quot;</span></span><br><span class="line">	<span class="string">&quot;time&quot;</span></span><br><span class="line"></span><br><span class="line">	<span class="string">&quot;google.golang.org/grpc&quot;</span></span><br><span class="line">	<span class="string">&quot;google.golang.org/grpc/metadata&quot;</span></span><br><span class="line">)</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="keyword">type</span> customCredential <span class="keyword">struct</span>&#123;&#125;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="comment">// 方式二</span></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="params">(c customCredential)</span><span class="title">GetRequestMetadata</span><span class="params">(ctx context.Context, uri ...<span class="keyword">string</span>)</span> <span class="params">(<span class="keyword">map</span>[<span class="keyword">string</span>]<span class="keyword">string</span>, error)</span></span>&#123;</span><br><span class="line">	<span class="keyword">return</span> <span class="keyword">map</span>[<span class="keyword">string</span>]<span class="keyword">string</span>&#123;</span><br><span class="line">		<span class="string">&quot;appid&quot;</span>: <span class="string">&quot;10000&quot;</span>,</span><br><span class="line">		<span class="string">&quot;appkey&quot;</span>: <span class="string">&quot;key&quot;</span>,</span><br><span class="line">	&#125;, <span class="literal">nil</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="params">(c customCredential)</span><span class="title">RequireTransportSecurity</span><span class="params">()</span> <span class="title">bool</span></span>&#123;</span><br><span class="line">	<span class="keyword">return</span> <span class="literal">false</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">main</span><span class="params">()</span></span> &#123;</span><br><span class="line">	<span class="comment">// 定义客户端拦截器</span></span><br><span class="line">	<span class="comment">// interceptor := func(ctx context.Context, method string, req, reply interface&#123;&#125;, cc *grpc.ClientConn, invoker grpc.UnaryInvoker, opts ...grpc.CallOption) error&#123;</span></span><br><span class="line">	<span class="comment">// 	start := time.Now()</span></span><br><span class="line">    	<span class="comment">// 方式一</span></span><br><span class="line">	<span class="comment">// 	md := metadata.New(map[string]string&#123;</span></span><br><span class="line">	<span class="comment">// 		&quot;appid&quot;: &quot;10000&quot;,</span></span><br><span class="line">	<span class="comment">// 		&quot;appkey&quot;: &quot;key&quot;,</span></span><br><span class="line"></span><br><span class="line">	<span class="comment">// 	&#125;)</span></span><br><span class="line">	<span class="comment">// 	ctx = metadata.NewOutgoingContext(context.Background(), md)</span></span><br><span class="line">	<span class="comment">// 	err := invoker(ctx, method, req, reply, cc, opts...)</span></span><br><span class="line">	<span class="comment">// 	fmt.Println(&quot;耗时：&quot;, time.Since(start))</span></span><br><span class="line">	<span class="comment">// 	return err</span></span><br><span class="line">	<span class="comment">// &#125;</span></span><br><span class="line">	<span class="comment">// opts := []grpc.DialOption&#123;grpc.WithUnaryInterceptor(interceptor), grpc.WithInsecure()&#125;</span></span><br><span class="line"></span><br><span class="line">	</span><br><span class="line">	opts := []grpc.DialOption&#123;grpc.WithPerRPCCredentials(customCredential&#123;&#125;), grpc.WithInsecure()&#125;</span><br><span class="line">	conn, err := grpc.Dial(<span class="string">&quot;127.0.0.1:8080&quot;</span>, opts...)</span><br><span class="line">	<span class="keyword">if</span> err != <span class="literal">nil</span> &#123;</span><br><span class="line">		<span class="built_in">panic</span>(err)</span><br><span class="line">	&#125;</span><br><span class="line">	<span class="keyword">defer</span> conn.Close()</span><br><span class="line">	c := proto.NewGreeterClient(conn)</span><br><span class="line">	r, _ := c.SayHello(context.Background(), &amp;proto.HelloRequest&#123;Name: <span class="string">&quot;tom&quot;</span>&#125;)</span><br><span class="line">	fmt.Println(r.Message)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></li>
+<li><p>grpc验证器</p>
+<ul>
+<li><p><code>protoc-gen-validate</code> <a target="_blank" rel="noopener" href="https://github.com/bufbuild/protoc-gen-validate">bufbuild/protoc-gen-validate: Protocol Buffer Validation - Checkout the new <code>protovalidate</code> project (github.com)</a>  </p>
+</li>
+<li><p>windows下载安装</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//下载地址</span></span><br><span class="line">https:<span class="comment">//oss.sonatype.org/content/repositories/snapshots/io/envoyproxy/protoc-gen-validate/protoc-gen-validate/0.4.0-SNAPSHOT/</span></span><br><span class="line"><span class="comment">// 将下载的zip包中的exe文件拷贝到go的根目录的bin目录下</span></span><br></pre></td></tr></table></figure>
+
+<figure class="highlight protobuf"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// hello.proto</span></span><br><span class="line">syntax = <span class="string">&quot;proto3&quot;</span>;</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> <span class="string">&quot;validate.proto&quot;</span>;</span><br><span class="line"><span class="keyword">option</span> go_package=<span class="string">&quot;.;proto&quot;</span>;</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">service</span> <span class="title">Greeter</span> </span>&#123;</span><br><span class="line">    <span class="function"><span class="keyword">rpc</span> SayHello (Person) <span class="keyword">returns</span> (Person)</span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">message</span> <span class="title">Person</span> </span>&#123;</span><br><span class="line">    <span class="built_in">uint64</span> id    = <span class="number">1</span> [(validate.rules).<span class="built_in">uint64</span>.gt    = <span class="number">999</span>];</span><br><span class="line">    <span class="built_in">string</span> email = <span class="number">2</span> [(validate.rules).<span class="built_in">string</span>.email = <span class="literal">true</span>];</span><br><span class="line">    <span class="built_in">string</span> name  = <span class="number">3</span> [(validate.rules).<span class="built_in">string</span> = &#123;</span><br><span class="line">                      pattern:   <span class="string">&quot;[A-Za-z]*&quot;</span>,max_bytes: <span class="number">256</span>,&#125;];</span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight protobuf"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// validate.proto</span></span><br><span class="line"><span class="comment">// 从 https://github.com/bufbuild/protoc-gen-validate/blob/main/validate/validate.proto 拷贝</span></span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> main</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> (</span><br><span class="line">	<span class="string">&quot;context&quot;</span></span><br><span class="line">	<span class="string">&quot;net&quot;</span></span><br><span class="line">	<span class="string">&quot;project1/grpc_validate/proto&quot;</span></span><br><span class="line"></span><br><span class="line">	<span class="string">&quot;google.golang.org/grpc&quot;</span></span><br><span class="line">	<span class="string">&quot;google.golang.org/grpc/codes&quot;</span></span><br><span class="line">	<span class="string">&quot;google.golang.org/grpc/status&quot;</span></span><br><span class="line">)</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="keyword">type</span> Server <span class="keyword">struct</span>&#123;&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="params">(s *Server)</span> <span class="title">SayHello</span><span class="params">(ctx context.Context, request *proto.Person)</span> <span class="params">(*proto.Person,</span></span></span><br><span class="line"><span class="params"><span class="function">	error)</span></span>&#123;</span><br><span class="line">	<span class="keyword">return</span> request, <span class="literal">nil</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">type</span> Validator <span class="keyword">interface</span> &#123;</span><br><span class="line">	Validate() error</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">main</span><span class="params">()</span></span>&#123;</span><br><span class="line">	<span class="keyword">var</span> interceptor grpc.UnaryServerInterceptor</span><br><span class="line">	interceptor = <span class="function"><span class="keyword">func</span><span class="params">(ctx context.Context, req <span class="keyword">interface</span>&#123;&#125;, info *grpc.UnaryServerInfo, handler grpc.UnaryHandler)</span> <span class="params">(resp <span class="keyword">interface</span>&#123;&#125;, err error)</span></span> &#123;</span><br><span class="line">		<span class="comment">// 继续处理请求</span></span><br><span class="line">		<span class="keyword">if</span> r, ok := req.(Validator); ok &#123;</span><br><span class="line">			<span class="keyword">if</span> err := r.Validate(); err != <span class="literal">nil</span> &#123;</span><br><span class="line">				<span class="keyword">return</span> <span class="literal">nil</span>, status.Error(codes.InvalidArgument, err.Error())</span><br><span class="line">			&#125;</span><br><span class="line">		&#125;</span><br><span class="line"></span><br><span class="line">		<span class="keyword">return</span> handler(ctx, req)</span><br><span class="line">	&#125;</span><br><span class="line">	<span class="keyword">var</span> opts []grpc.ServerOption</span><br><span class="line">	opts = <span class="built_in">append</span>(opts, grpc.UnaryInterceptor(interceptor))</span><br><span class="line"></span><br><span class="line">	g := grpc.NewServer(opts...)</span><br><span class="line">	proto.RegisterGreeterServer(g, &amp;Server&#123;&#125;)</span><br><span class="line">	lis, err := net.Listen(<span class="string">&quot;tcp&quot;</span>, <span class="string">&quot;0.0.0.0:8080&quot;</span>)</span><br><span class="line">	<span class="keyword">if</span> err != <span class="literal">nil</span>&#123;</span><br><span class="line">		<span class="built_in">panic</span>(<span class="string">&quot;failed to listen:&quot;</span>+err.Error())</span><br><span class="line">	&#125;</span><br><span class="line">	err = g.Serve(lis)</span><br><span class="line">	<span class="keyword">if</span> err != <span class="literal">nil</span>&#123;</span><br><span class="line">		<span class="built_in">panic</span>(<span class="string">&quot;failed to start grpc:&quot;</span>+err.Error())</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span>  main</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> (</span><br><span class="line">	<span class="string">&quot;context&quot;</span></span><br><span class="line">	<span class="string">&quot;fmt&quot;</span></span><br><span class="line">	<span class="string">&quot;google.golang.org/grpc&quot;</span></span><br><span class="line">	<span class="string">&quot;project1/grpc_validate/proto&quot;</span></span><br><span class="line">)</span><br><span class="line"></span><br><span class="line"><span class="keyword">type</span> customCredential <span class="keyword">struct</span>&#123;&#125;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">main</span><span class="params">()</span></span> &#123;</span><br><span class="line">	<span class="keyword">var</span> opts []grpc.DialOption</span><br><span class="line"></span><br><span class="line">	<span class="comment">//opts = append(opts, grpc.WithUnaryInterceptor(interceptor))</span></span><br><span class="line">	opts = <span class="built_in">append</span>(opts, grpc.WithInsecure())</span><br><span class="line"></span><br><span class="line">	conn, err := grpc.Dial(<span class="string">&quot;localhost:8080&quot;</span>, opts...)</span><br><span class="line">	<span class="keyword">if</span> err != <span class="literal">nil</span> &#123;</span><br><span class="line">		<span class="built_in">panic</span>(err)</span><br><span class="line">	&#125;</span><br><span class="line">	<span class="keyword">defer</span> conn.Close()</span><br><span class="line"></span><br><span class="line">	c := proto.NewGreeterClient(conn)</span><br><span class="line">	<span class="comment">//rsp, _ := c.Search(context.Background(), &amp;empty.Empty&#123;&#125;)</span></span><br><span class="line">	rsp, err := c.SayHello(context.Background(), &amp;proto.Person&#123;</span><br><span class="line">		Id: <span class="number">1000</span>,</span><br><span class="line">		Email: <span class="string">&quot;123@163.com&quot;</span>,</span><br><span class="line">		Name: <span class="string">&quot;009aa009aa&quot;</span>,</span><br><span class="line">	&#125;)</span><br><span class="line">	<span class="keyword">if</span> err != <span class="literal">nil</span> &#123;</span><br><span class="line">		<span class="built_in">panic</span>(err)</span><br><span class="line">	&#125;</span><br><span class="line">	fmt.Println(rsp.Id)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></li>
+<li><p>生成pd文件</p>
+<ul>
+<li>protoc -I . –go_out=. –go-grpc_out=. –validate_out=”lang=go:.” hello.proto</li>
+</ul>
+</li>
+<li><p>注意注释掉生成pd文件中的mustEmbedUnimplementedGreeterServer()</p>
+</li>
+</ul>
+</li>
+<li><p>gprc错误处理</p>
+</li>
+<li><p>grpc超时机制</p>
+</li>
+</ul>
+
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/blog/tags/go/" rel="tag"># go</a>
+              <a href="/blog/tags/rpc/" rel="tag"># rpc</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/blog/2023/06/26/go/go-rpc/" rel="prev" title="go rpc">
+      <i class="fa fa-chevron-left"></i> go rpc
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/blog/2023/06/28/python/python%E6%97%A5%E5%BF%97%E9%85%8D%E7%BD%AE/" rel="next" title="python日志配置">
+      python日志配置 <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-5"><a class="nav-link" href="#1-grpc%E6%A1%86%E6%9E%B6"><span class="nav-number">1.</span> <span class="nav-text">1,grpc框架</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#2%EF%BC%8Cgrpc%E7%9A%84%E5%9B%9B%E7%A7%8D%E6%95%B0%E6%8D%AE%E6%B5%81"><span class="nav-number">2.</span> <span class="nav-text">2，grpc的四种数据流</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#3%EF%BC%8Cprotobuf%E7%9B%B8%E5%85%B3"><span class="nav-number">3.</span> <span class="nav-text">3，protobuf相关</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#4%EF%BC%8Cgrpc%E8%BF%9B%E9%98%B6"><span class="nav-number">4.</span> <span class="nav-text">4，grpc进阶</span></a></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">ruoxi</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/blog/archives/">
+        
+          <span class="site-state-item-count">67</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/blog/categories/">
+          
+        <span class="site-state-item-count">17</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/blog/tags/">
+          
+        <span class="site-state-item-count">20</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2024</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">ruoxi</span>
+</div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/blog/lib/anime.min.js"></script>
+  <script src="/blog/lib/velocity/velocity.min.js"></script>
+  <script src="/blog/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/blog/js/utils.js"></script>
+
+<script src="/blog/js/motion.js"></script>
+
+
+<script src="/blog/js/schemes/muse.js"></script>
+
+
+<script src="/blog/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+</body>
+</html>
