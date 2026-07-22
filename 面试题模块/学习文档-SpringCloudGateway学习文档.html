@@ -1,0 +1,1606 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SpringCloudGateway学习文档</title>
+<style>
+body {
+    transition: margin-left .25s ease;
+    font-family: -apple-system, "Noto Sans SC", "Microsoft YaHei", sans-serif;
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 20px 24px 60px;
+    line-height: 1.8;
+    color: #333;
+    background: #fff;
+}
+h1 { border-bottom: 2px solid #eee; padding-bottom: 10px; color: #222; }
+h2 { color: #333; margin-top: 32px; }
+h3 { color: #555; }
+a { color: #0366d6; text-decoration: none; }
+a:hover { text-decoration: underline; }
+pre {
+    background: #f6f8fa;
+    border-radius: 6px;
+    padding: 16px;
+    overflow-x: auto;
+    font-size: 14px;
+    line-height: 1.45;
+}
+code {
+    background: #f0f2f4;
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-size: 14px;
+}
+pre code { background: none; padding: 0; }
+blockquote {
+    border-left: 4px solid #ddd;
+    margin: 0;
+    padding: 0 16px;
+    color: #666;
+}
+table {
+    border-collapse: collapse;
+    width: 100%;
+    margin: 16px 0;
+}
+th, td {
+    border: 1px solid #ddd;
+    padding: 8px 12px;
+    text-align: left;
+}
+th { background: #f6f8fa; }
+img { max-width: 100%; }
+.back-link {
+    margin-bottom: 20px;
+    display: block;
+    color: #666;
+}
+.back-link:hover { color: #0366d6; }
+
+.sidebar-toc {
+    transition: left .25s ease;
+    position: fixed;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    width: 220px;
+    background: #f8f9fa;
+    border-right: 1px solid #e9ecef;
+    padding: 20px 0;
+    overflow-y: auto;
+    font-size: 13px;
+    z-index: 100;
+}
+.sidebar-toc a {
+    display: block;
+    padding: 6px 16px;
+    color: #555;
+    text-decoration: none;
+    border-left: 3px solid transparent;
+    line-height: 1.5;
+}
+.sidebar-toc a:hover {
+    background: #e9ecef;
+    color: #0366d6;
+    border-left-color: #0366d6;
+}
+.sidebar-toc .toc-h2 { padding-left: 16px; font-weight: 500; }
+.sidebar-toc .toc-h3 { padding-left: 32px; font-size: 12px; }
+body { margin-left: 240px; }
+
+
+.copy-btn {
+    position: absolute; top: 6px; right: 6px;
+    background: #e9ecef; border: none;
+    border-radius: 4px; padding: 3px 10px;
+    font-size: 12px; color: #555; cursor: pointer;
+    opacity: 0; transition: opacity 0.2s;
+    z-index: 1;
+}
+pre:hover .copy-btn { opacity: 1; }
+.copy-btn:hover { background: #d0d7de; }
+.copy-btn.copied { opacity: 1; background: #2da44e; color: #fff; }
+.copy-btn{position:absolute;top:6px;right:6px;background:#e9ecef;border:none;border-radius:4px;padding:3px 10px;font-size:12px;color:#555;cursor:pointer;opacity:0;transition:opacity .2s;z-index:1}pre:hover .copy-btn{opacity:1}.copy-btn:hover{background:#d0d7de}.copy-btn.copied{opacity:1;background:#2da44e;color:#fff}
+.copy-btn{position:absolute;top:6px;right:6px;background:#e9ecef;border:none;border-radius:4px;padding:3px 10px;font-size:12px;color:#555;cursor:pointer;opacity:0;transition:opacity .2s;z-index:1}pre:hover .copy-btn{opacity:1}.copy-btn:hover{background:#d0d7de}.copy-btn.copied{opacity:1;background:#2da44e;color:#fff}
+.copy-btn{position:absolute;top:6px;right:6px;background:#e9ecef;border:none;border-radius:4px;padding:3px 10px;font-size:12px;color:#555;cursor:pointer;opacity:0;transition:opacity .2s;z-index:1}pre:hover .copy-btn{opacity:1}.copy-btn:hover{background:#d0d7de}.copy-btn.copied{opacity:1;background:#2da44e;color:#fff}
+.sidebar-toggle-btn {
+  position: fixed;
+  left: 220px;
+  top: 0;
+  width: 28px;
+  height: 40px;
+  background: #f8f9fa;
+  border: 1px solid #e9ecef;
+  border-left: none;
+  border-radius: 0 4px 4px 0;
+  cursor: pointer;
+  font-size: 16px;
+  color: #555;
+  z-index: 101;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: left .25s, background .2s;
+  padding: 0;
+  line-height: 1;
+}
+.sidebar-toggle-btn:hover { background: #e9ecef; color: #0366d6; }
+.sidebar-collapsed .sidebar-toc { left: -220px; }
+.sidebar-collapsed .sidebar-toggle-btn { left: 0; }
+.sidebar-collapsed body, body.sidebar-collapsed { margin-left: 28px; }
+.sidebar-overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,.3);
+  z-index: 99;
+}
+@media (max-width: 768px) {
+  .sidebar-collapsed .sidebar-overlay { display: none; }
+  .sidebar-toc { left: -220px; }
+  .sidebar-toggle-btn { left: 0; }
+  body { margin-left: 28px; }
+}
+
+</style>
+</head>
+</head>
+<body>
+<nav class="sidebar-toc"><a class="toc-h2" href="#1-gateway">1. Gateway 概述</a><a class="toc-h3" href="#11">1.1 定位</a><a class="toc-h3" href="#12">1.2 Gateway vs Zuul 对比</a><a class="toc-h3" href="#13">1.3 核心特性</a><a class="toc-h3" href="#14">1.4 请求处理流程</a><a class="toc-h2" href="#2">2. 核心三组件：Route / Predicate / Filter</a><a class="toc-h3" href="#21">2.1 定义</a><a class="toc-h3" href="#22">2.2 路由匹配与 Filter 链架构</a><a class="toc-h3" href="#23">2.3 Predicate 组合示例</a><a class="toc-h2" href="#3-yaml-vs-java">3. 配置方式：YAML vs Java DSL</a><a class="toc-h3" href="#31-yaml">3.1 YAML 配置（推荐）</a><a class="toc-h3" href="#32-java-dsl">3.2 Java DSL 配置</a><a class="toc-h3" href="#33">3.3 选型建议</a><a class="toc-h2" href="#4">4. 内置路由谓词工厂</a><a class="toc-h3" href="#41-predicate">4.1 完整列表</a><a class="toc-h3" href="#42">4.2 定时维护页面</a><a class="toc-h3" href="#43">4.3 灰度发布（权重路由）</a><a class="toc-h2" href="#5-gatewayfilter">5. 内置 GatewayFilter 工厂</a><a class="toc-h3" href="#51">5.1 请求头操作</a><a class="toc-h3" href="#52">5.2 响应头操作</a><a class="toc-h3" href="#53">5.3 路径处理</a><a class="toc-h3" href="#54">5.4 请求体/响应体修改</a><a class="toc-h3" href="#55">5.5 重定向 / 状态 / 熔断 / 重试 / 限流</a><a class="toc-h3" href="#56">5.6 综合示例</a><a class="toc-h2" href="#6">6. 自定义谓词和过滤器</a><a class="toc-h3" href="#61-routepredicatefactory">6.1 自定义 RoutePredicateFactory</a><a class="toc-h3" href="#62-gatewayfilterfactory">6.2 自定义 GatewayFilterFactory</a><a class="toc-h2" href="#7">7. 全局过滤器</a><a class="toc-h3" href="#71">7.1 GatewayFilter vs GlobalFilter</a><a class="toc-h3" href="#72">7.2 内置 GlobalFilter 及执行顺序</a><a class="toc-h3" href="#73">7.3 自定义全局认证过滤器</a><a class="toc-h2" href="#8">8. 限流</a><a class="toc-h3" href="#81">8.1 令牌桶算法</a><a class="toc-h3" href="#82">8.2 配置</a><a class="toc-h3" href="#83">8.3 限流维度（KeyResolver）</a><a class="toc-h3" href="#84">8.4 分布式限流（Redis 集群）</a><a class="toc-h2" href="#9">9. 熔断与降级</a><a class="toc-h3" href="#91">9.1 熔断状态机</a><a class="toc-h3" href="#92-resilience4j">9.2 Resilience4j 配置</a><a class="toc-h3" href="#93">9.3 降级处理</a><a class="toc-h2" href="#10">10. 跨域处理</a><a class="toc-h3" href="#101">10.1 全局 CORS 配置</a><a class="toc-h3" href="#102">10.2 路由级 CORS</a><a class="toc-h3" href="#103">10.3 注意事项</a><a class="toc-h2" href="#11_1">11. 监控与日志</a><a class="toc-h3" href="#111-actuator">11.1 Actuator 集成</a><a class="toc-h3" href="#112-actuator">11.2 常用端点</a><a class="toc-h3" href="#113">11.3 日志配置</a><a class="toc-h2" href="#12_1">12. 性能优化</a><a class="toc-h3" href="#121">12.1 HTTP 连接池</a><a class="toc-h3" href="#122-netty">12.2 Netty 配置</a><a class="toc-h3" href="#123-jvm">12.3 JVM 参数（4C8G）</a><a class="toc-h3" href="#124">12.4 路由缓存</a><a class="toc-h2" href="#13-spring-cloud-gateway-vs-zuul">13. Spring Cloud Gateway vs Zuul</a><a class="toc-h3" href="#131">13.1 核心差异</a><a class="toc-h3" href="#132-zuul-1x">13.2 阻塞 vs 非阻塞</a><a class="toc-h3" href="#133">13.3 迁移清单</a><a class="toc-h2" href="#14_1">14. 高频面试题</a><a class="toc-h3" href="#q1spring-cloud-gateway">Q1：核心组件和工作原理？</a><a class="toc-h3" href="#q2spring-cloud-gateway-zuul">Q2：与 Zuul 的区别？</a><a class="toc-h3" href="#q3gatewayfilter-globalfilter">Q3：GatewayFilter 和 GlobalFilter 的区别？</a><a class="toc-h3" href="#q4">Q4：如何自定义全局过滤器实现认证？</a><a class="toc-h3" href="#q5spring-cloud-gateway">Q5：如何实现限流？</a><a class="toc-h3" href="#q6gateway-nacos">Q6：如何与 Nacos 集成实现动态路由？</a><a class="toc-h3" href="#q7gateway">Q7：过滤器执行顺序？</a><a class="toc-h3" href="#q8gateway">Q8：如何处理超时？</a><a class="toc-h3" href="#q9gateway-websocket">Q9：如何支持 WebSocket？</a><a class="toc-h3" href="#q10gateway-sentinel">Q10：如何与 Sentinel 集成？</a><a class="toc-h2" href="#_2">附录：常用配置速查</a></nav>
+<button class="sidebar-toggle-btn" onclick="toggleSidebar()" title="切换侧栏">☰</button>
+
+<div class="sidebar-overlay" onclick="toggleSidebar()"></div>
+
+<script>
+function toggleSidebar() {
+  document.body.classList.toggle('sidebar-collapsed');
+  try { localStorage.setItem('sidebarCollapsed', document.body.classList.contains('sidebar-collapsed')); } catch(e) {}
+}
+(function() {
+  try {
+    if (localStorage.getItem('sidebarCollapsed') === 'true') {
+      document.body.classList.add('sidebar-collapsed');
+    }
+  } catch(e) {}
+})();
+</script>
+<a class="back-link" href="/blog/2026/05/16/面试题/面试题/">← 返回面试题目录</a>
+<h1 id=page-title>Spring Cloud Gateway 面试学习文档</h1>
+<blockquote>
+<p>📅 整理日期：2026-06-14 | 🎯 目标：系统掌握 Spring Cloud Gateway 核心原理与面试高频考点</p>
+</blockquote>
+<hr />
+
+<h2 id="1-gateway">1. Gateway 概述</h2>
+<h3 id="11">1.1 定位</h3>
+<p>Spring Cloud Gateway 是 Spring 官方推出的<strong>第二代 API 网关</strong>，基于 Spring 5、Project Reactor 和 Spring Boot 2.x，使用 <strong>WebFlux + Netty</strong> 实现异步非阻塞 I/O。</p>
+<p><strong>核心职责</strong>：微服务架构的统一入口，集中处理路由、认证、限流、熔断、监控等横切关注点。</p>
+<blockquote>
+<p><strong>面试话术</strong>：Gateway 基于 Netty 实现异步非阻塞，单线程可处理海量连接，这是对比 Zuul 1.x（同步阻塞 Servlet 模型）的根本性能优势。</p>
+</blockquote>
+
+<h3 id="12">1.2 Gateway vs Zuul 对比</h3>
+<table>
+<thead>
+<tr>
+<th>对比项</th>
+<th>Spring Cloud Gateway</th>
+<th>Zuul 1.x</th>
+<th>Zuul 2.x</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>I/O 模型</td>
+<td>异步非阻塞（Netty）</td>
+<td>同步阻塞（Servlet）</td>
+<td>异步非阻塞</td>
+</tr>
+<tr>
+<td>性能</td>
+<td>高（~30k RPS）</td>
+<td>低（~5k RPS）</td>
+<td>中高</td>
+</tr>
+<tr>
+<td>背压支持</td>
+<td>✅（Project Reactor）</td>
+<td>❌</td>
+<td>✅</td>
+</tr>
+<tr>
+<td>Spring 生态集成</td>
+<td>✅ 原生</td>
+<td>⚠️ 需适配</td>
+<td>⚠️ 需适配</td>
+</tr>
+<tr>
+<td>配置灵活性</td>
+<td>✅ YAML/Java DSL</td>
+<td>⚠️ 硬编码多</td>
+<td>✅</td>
+</tr>
+<tr>
+<td>过滤器类型</td>
+<td>GatewayFilter + GlobalFilter</td>
+<td>Pre/Post Filter</td>
+<td>Inbound/Outbound</td>
+</tr>
+<tr>
+<td>官方维护</td>
+<td>✅ Spring 官方</td>
+<td>❌ Netflix 停止维护</td>
+<td>⚠️ 社区维护</td>
+</tr>
+<tr>
+<td>学习曲线</td>
+<td>中</td>
+<td>低</td>
+<td>中高</td>
+</tr>
+</tbody>
+</table>
+
+<h3 id="13">1.3 核心特性</h3>
+<ul>
+<li>基于 Spring Framework 5、Project Reactor、Spring Boot 2.x</li>
+<li>支持任何请求属性上的路由匹配</li>
+<li>Predicate + Filter 链式处理</li>
+<li>集成 Spring Cloud DiscoveryClient（Nacos/Eureka）</li>
+<li>集成 Resilience4j 熔断</li>
+<li>基于 Redis 的分布式限流</li>
+<li>路径重写、WebSocket 路由</li>
+</ul>
+
+<h3 id="14">1.4 请求处理流程</h3>
+<pre><code>                   +-------------------------------------------------------+
+                   |             Gateway Request Flow                       |
+                   +-------------------------------------------------------+
+
+     Client                Gateway                           Downstream
+       |                      |                                   |
+       |   HTTP Request       |                                   |
+       +---------------------&gt;|                                   |
+       |                      |                                   |
+       |               +------+------+                            |
+       |               |  Handler    |  1. traverse RouteDefs     |
+       |               |  Mapping    |     match Predicates       |
+       |               +------+------+                            |
+       |                      |                                   |
+       |               +------+------+                            |
+       |               |  Web        |  2. assemble Filter chain  |
+       |               |  Handler    |     GlobalFilter            |
+       |               +------+------+   + GatewayFilter           |
+       |                      |                                   |
+       |               +------+------+                            |
+       |               |  Pre        |  3. pre-filters            |
+       |               |  Filters    |     auth / ratelimit       |
+       |               +------+------+     add headers            |
+       |                      |                                   |
+       |                      |   Proxied Request                 |
+       |                      +----------------------------------&gt;|
+       |                      |                                   |
+       |                      |   Response                        |
+       |                      |&lt;----------------------------------+
+       |                      |                                   |
+       |               +------+------+                            |
+       |               |  Post       |  4. post-filters           |
+       |               |  Filters    |     logging / metrics      |
+       |               +------+------+     modify response        |
+       |                      |                                   |
+       |   HTTP Response      |                                   |
+       |&lt;---------------------+                                   |
+       |                      |                                   |
+</code></pre>
+<p><strong>关键点</strong>：过滤器链分 <strong>Pre</strong>（请求转发前）和 <strong>Post</strong>（响应返回前）两个阶段，通过 <code>ServerWebExchange</code> 在过滤器间共享上下文。</p>
+<hr />
+
+<h2 id="2">2. 核心三组件：Route / Predicate / Filter</h2>
+<h3 id="21">2.1 定义</h3>
+<table>
+<thead>
+<tr>
+<th>概念</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Route（路由）</strong></td>
+<td>网关基本构建块，由 ID、目标 URI、Predicate 集合、Filter 集合组成</td>
+</tr>
+<tr>
+<td><strong>Predicate（断言）</strong></td>
+<td>Java 8 Predicate，匹配 HTTP 请求属性（路径、方法、Header 等），决定请求走哪条路由</td>
+</tr>
+<tr>
+<td><strong>Filter（过滤器）</strong></td>
+<td>GatewayFilter 实例，在转发前 / 返回后修改请求和响应</td>
+</tr>
+</tbody>
+</table>
+
+<h3 id="22">2.2 路由匹配与 Filter 链架构</h3>
+<pre><code>                 +---------------------------------------------+
+                 |    Routing &amp; Filter Chain Architecture       |
+                 +---------------------------------------------+
+
+     Incoming Request
+           |
+           v
+    +----------------------------------------------------+
+    |             Route Predicate Matching                |
+    |                                                    |
+    |   Route-0: [Path=/api/orders/**] ---&gt; MATCH?      |
+    |   Route-1: [Path=/api/users/**]  ---&gt; MATCH? [X]  |
+    |   Route-2: [Path=/api/**]        ---&gt; (skipped)   |
+    |                                                    |
+    |   Rule: first-match wins, order matters            |
+    +------------------------+---------------------------+
+                             | Route-1 matched
+                             v
+    +----------------------------------------------------+
+    |              Filter Chain Assembly                  |
+    |                                                    |
+    |   +------------------------------------------+     |
+    |   |  Mixed &amp; sorted by Order (low -> high)   |     |
+    |   |                                          |     |
+    |   |  GlobalFilter[]  +  GatewayFilter[]      |     |
+    |   |                                          |     |
+    |   |  Example order:                          |     |
+    |   |    -100 -- AuthGlobalFilter               |     |
+    |   |       0 -- GatewayMetricsFilter           |     |
+    |   |       1 -- StripPrefix (GatewayFilter)    |     |
+    |   |      50 -- AddRequestHeader (GatewayFilter)|    |
+    |   |   10150 -- ReactiveLoadBalancerClientFilter|    |
+    |   |                                          |     |
+    |   |  PRE:  execute in order  (small -> large) |    |
+    |   |  POST: execute in reverse (large -> small)|    |
+    |   +------------------------------------------+     |
+    +------------------------+---------------------------+
+                             |
+                             v
+                    Downstream Service
+</code></pre>
+<blockquote>
+<p><strong>注意</strong>：Route 定义顺序决定匹配优先级，先定义的先匹配，匹配即停止。同一 Route 内多个 Predicate 是 AND 关系（全部满足才命中）。</p>
+</blockquote>
+
+<h3 id="23">2.3 Predicate 组合示例</h3>
+<pre><code class="language-yaml">spring:
+  cloud:
+    gateway:
+      routes:
+        - id: complex-route
+          uri: https://example.org
+          predicates:
+            - Path=/api/users/**
+            - Method=GET
+            - Header=X-Request-Id, \d+          # regex match
+            - Query=version, v[12]              # version=v1 or v2
+            - After=2023-01-01T00:00:00+08:00[Asia/Shanghai]
+            - Weight=group1, 80                 # 80% traffic
+</code></pre>
+<hr />
+
+<h2 id="3-yaml-vs-java">3. 配置方式：YAML vs Java DSL</h2>
+<h3 id="31-yaml">3.1 YAML 配置（推荐）</h3>
+<pre><code class="language-yaml">spring:
+  application:
+    name: api-gateway
+  cloud:
+    nacos:
+      discovery:
+        server-addr: nacos-server:8848
+    gateway:
+      discovery:
+        locator:
+          enabled: true
+          lower-case-service-id: true
+      routes:
+        - id: user-service-route
+          uri: lb://user-service
+          predicates:
+            - Path=/api/users/**
+          filters:
+            - StripPrefix=1
+
+        - id: order-service-route
+          uri: lb://order-service
+          predicates:
+            - Path=/api/orders/**
+          filters:
+            - StripPrefix=1
+            - AddRequestHeader=X-Gateway-Version, v1
+
+      globalcors:
+        cors-configurations:
+          '[/**]':
+            allowed-origins:
+              - &quot;https://example.com&quot;
+            allowed-methods:
+              - GET
+              - POST
+            allowed-headers:
+              - &quot;*&quot;
+            allow-credentials: true
+            max-age: 3600
+</code></pre>
+
+<h3 id="32-java-dsl">3.2 Java DSL 配置</h3>
+<pre><code class="language-java">@Configuration
+public class GatewayConfig {
+
+    @Bean
+    public RouteLocator customRouteLocator(RouteLocatorBuilder builder) {
+        return builder.routes()
+            .route(&quot;user-service-route&quot;, r -&gt; r
+                .path(&quot;/api/users/**&quot;)
+                .filters(f -&gt; f
+                    .stripPrefix(1)
+                    .addRequestHeader(&quot;X-Gateway&quot;, &quot;SCG&quot;)
+                )
+                .uri(&quot;lb://user-service&quot;)
+            )
+            .route(&quot;order-service-route-v1&quot;, r -&gt; r
+                .weight(&quot;order-group&quot;, 80)
+                .uri(&quot;lb://order-service-v1&quot;)
+            )
+            .route(&quot;order-service-route-v2&quot;, r -&gt; r
+                .weight(&quot;order-group&quot;, 20)
+                .uri(&quot;lb://order-service-v2&quot;)
+            )
+            .build();
+    }
+
+    @Bean
+    public GlobalFilter customGlobalFilter() {
+        return (exchange, chain) -&gt; {
+            exchange.getRequest().mutate()
+                .header(&quot;X-Request-Id&quot;, UUID.randomUUID().toString())
+                .build();
+            return chain.filter(exchange);
+        };
+    }
+}
+</code></pre>
+
+<h3 id="33">3.3 选型建议</h3>
+<table>
+<thead>
+<tr>
+<th>对比项</th>
+<th>YAML 配置</th>
+<th>Java DSL</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>可读性</td>
+<td>✅ 高</td>
+<td>⚠️ 中</td>
+</tr>
+<tr>
+<td>动态刷新</td>
+<td>✅ 支持（配合 Nacos）</td>
+<td>❌ 需重启</td>
+</tr>
+<tr>
+<td>复杂逻辑</td>
+<td>⚠️ 受限</td>
+<td>✅ 灵活</td>
+</tr>
+<tr>
+<td>推荐场景</td>
+<td>标准路由规则</td>
+<td>动态路由、复杂逻辑</td>
+</tr>
+</tbody>
+</table>
+<hr />
+
+<h2 id="4">4. 内置路由谓词工厂</h2>
+<h3 id="41-predicate">4.1 完整列表</h3>
+<table>
+<thead>
+<tr>
+<th>Predicate 工厂</th>
+<th>配置示例</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>After</strong></td>
+<td><code>After=2023-01-01T00:00:00+08:00[Asia/Shanghai]</code></td>
+<td>指定时间之后放行</td>
+</tr>
+<tr>
+<td><strong>Before</strong></td>
+<td><code>Before=2023-12-31T23:59:59+08:00[Asia/Shanghai]</code></td>
+<td>指定时间之前放行</td>
+</tr>
+<tr>
+<td><strong>Between</strong></td>
+<td><code>Between=2023-06-01T02:00+08:00, 2023-06-01T06:00+08:00</code></td>
+<td>时间段内放行</td>
+</tr>
+<tr>
+<td><strong>Cookie</strong></td>
+<td><code>Cookie=sessionId, .+</code></td>
+<td>Cookie 匹配（支持正则）</td>
+</tr>
+<tr>
+<td><strong>Header</strong></td>
+<td><code>Header=X-Request-Id, \d+</code></td>
+<td>Header 匹配（支持正则）</td>
+</tr>
+<tr>
+<td><strong>Host</strong></td>
+<td><code>Host=**.example.com, **.test.com</code></td>
+<td>域名匹配</td>
+</tr>
+<tr>
+<td><strong>Method</strong></td>
+<td><code>Method=GET,POST</code></td>
+<td>HTTP 方法匹配</td>
+</tr>
+<tr>
+<td><strong>Path</strong></td>
+<td><code>Path=/api/users/**, /api/admins/**</code></td>
+<td>Ant 风格路径匹配</td>
+</tr>
+<tr>
+<td><strong>Query</strong></td>
+<td><code>Query=version, v[12]</code></td>
+<td>查询参数匹配（支持正则）</td>
+</tr>
+<tr>
+<td><strong>RemoteAddr</strong></td>
+<td><code>RemoteAddr=192.168.1.1/24</code></td>
+<td>来源 IP 匹配（CIDR）</td>
+</tr>
+<tr>
+<td><strong>Weight</strong></td>
+<td><code>Weight=group1, 80</code></td>
+<td>同组权重分流（灰度发布）</td>
+</tr>
+<tr>
+<td><strong>CloudFoundryRouteService</strong></td>
+<td><code>CloudFoundryRouteService</code></td>
+<td>CF 平台专用</td>
+</tr>
+<tr>
+<td><strong>ReadBodyPredicateFactory</strong></td>
+<td><code>ReadBody=...</code></td>
+<td>读取请求体匹配（2.x+）</td>
+</tr>
+</tbody>
+</table>
+
+<h3 id="42">4.2 定时维护页面</h3>
+<pre><code class="language-yaml">spring:
+  cloud:
+    gateway:
+      routes:
+        - id: maintenance-page
+          uri: https://maintenance.example.com
+          predicates:
+            - Between=2023-06-01T02:00:00+08:00[Asia/Shanghai], 2023-06-01T06:00:00+08:00[Asia/Shanghai]
+</code></pre>
+
+<h3 id="43">4.3 灰度发布（权重路由）</h3>
+<pre><code class="language-yaml">spring:
+  cloud:
+    gateway:
+      routes:
+        - id: order-service-v1
+          uri: lb://order-service-v1
+          predicates:
+            - Path=/api/orders/**
+            - Weight=order-group, 90
+          filters:
+            - StripPrefix=1
+
+        - id: order-service-v2
+          uri: lb://order-service-v2
+          predicates:
+            - Path=/api/orders/**
+            - Weight=order-group, 10
+          filters:
+            - StripPrefix=1
+</code></pre>
+<blockquote>
+<p><strong>面试话术</strong>：同一 Weight group 内权重总和为 100%。用 Weight 谓词实现灰度发布：先切 10% 流量验证新版本，稳定后逐步放量。</p>
+</blockquote>
+<hr />
+
+<h2 id="5-gatewayfilter">5. 内置 GatewayFilter 工厂</h2>
+<h3 id="51">5.1 请求头操作</h3>
+<table>
+<thead>
+<tr>
+<th>Filter 工厂</th>
+<th>配置示例</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>AddRequestHeader</strong></td>
+<td><code>AddRequestHeader=X-User-Id, 123</code></td>
+<td>添加请求头</td>
+</tr>
+<tr>
+<td><strong>RemoveRequestHeader</strong></td>
+<td><code>RemoveRequestHeader=X-Internal</code></td>
+<td>移除请求头</td>
+</tr>
+<tr>
+<td><strong>SetRequestHeader</strong></td>
+<td><code>SetRequestHeader=X-User-Id, 456</code></td>
+<td>覆盖请求头</td>
+</tr>
+<tr>
+<td><strong>AddRequestParameter</strong></td>
+<td><code>AddRequestParameter=version, v1</code></td>
+<td>添加查询参数</td>
+</tr>
+<tr>
+<td><strong>RemoveRequestParameter</strong></td>
+<td><code>RemoveRequestParameter=debug</code></td>
+<td>移除查询参数</td>
+</tr>
+</tbody>
+</table>
+
+<h3 id="52">5.2 响应头操作</h3>
+<table>
+<thead>
+<tr>
+<th>Filter 工厂</th>
+<th>配置示例</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>AddResponseHeader</strong></td>
+<td><code>AddResponseHeader=X-Gateway, SCG</code></td>
+<td>添加响应头</td>
+</tr>
+<tr>
+<td><strong>RemoveResponseHeader</strong></td>
+<td><code>RemoveResponseHeader=X-Internal</code></td>
+<td>移除响应头</td>
+</tr>
+<tr>
+<td><strong>SetResponseHeader</strong></td>
+<td><code>SetResponseHeader=X-Gateway, v2</code></td>
+<td>覆盖响应头</td>
+</tr>
+<tr>
+<td><strong>DedupeResponseHeader</strong></td>
+<td><code>DedupeResponseHeader=X-Response-Time, RETAIN_FIRST</code></td>
+<td>去重响应头</td>
+</tr>
+</tbody>
+</table>
+
+<h3 id="53">5.3 路径处理</h3>
+<table>
+<thead>
+<tr>
+<th>Filter 工厂</th>
+<th>配置示例</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>StripPrefix</strong></td>
+<td><code>StripPrefix=1</code></td>
+<td>去除前缀（/api/users/1 -> /users/1）</td>
+</tr>
+<tr>
+<td><strong>PrefixPath</strong></td>
+<td><code>PrefixPath=/api</code></td>
+<td>添加前缀（/users/1 -> /api/users/1）</td>
+</tr>
+<tr>
+<td><strong>SetPath</strong></td>
+<td><code>SetPath=/users/{segment}</code></td>
+<td>模板重写路径</td>
+</tr>
+<tr>
+<td><strong>RewritePath</strong></td>
+<td><code>RewritePath=/api/(?&lt;segment&gt;.*), /$\{segment}</code></td>
+<td>正则重写路径</td>
+</tr>
+</tbody>
+</table>
+
+<h3 id="54">5.4 请求体/响应体修改</h3>
+<pre><code class="language-yaml">spring:
+  cloud:
+    gateway:
+      routes:
+        - id: modify-route
+          uri: https://example.org
+          predicates:
+            - Path=/api/**
+          filters:
+            - name: ModifyRequestBody
+              args:
+                contentType: application/json
+                rewriteFunction: com.example.ModifyRequestBodyGatewayFilterFactory
+
+            - name: ModifyResponseBody
+              args:
+                contentType: application/json
+                rewriteFunction: com.example.ModifyResponseBodyGatewayFilterFactory
+</code></pre>
+
+<h3 id="55">5.5 重定向 / 状态 / 熔断 / 重试 / 限流</h3>
+<table>
+<thead>
+<tr>
+<th>Filter 工厂</th>
+<th>配置示例</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>RedirectTo</strong></td>
+<td><code>RedirectTo=302, https://new.example.com</code></td>
+<td>重定向</td>
+</tr>
+<tr>
+<td><strong>SetStatus</strong></td>
+<td><code>SetStatus=404</code></td>
+<td>设置响应状态码</td>
+</tr>
+<tr>
+<td><strong>CircuitBreaker</strong></td>
+<td><code>CircuitBreaker=myCircuitBreaker, fallbackUri=/fallback</code></td>
+<td>熔断</td>
+</tr>
+<tr>
+<td><strong>Retry</strong></td>
+<td><code>Retry=3, INTERNAL_SERVER_ERROR</code></td>
+<td>重试</td>
+</tr>
+<tr>
+<td><strong>RequestRateLimiter</strong></td>
+<td><code>RequestRateLimiter=redis-rate-limiter.replenishRate=10, ...</code></td>
+<td>限流</td>
+</tr>
+</tbody>
+</table>
+
+<h3 id="56">5.6 综合示例</h3>
+<pre><code class="language-yaml">spring:
+  cloud:
+    gateway:
+      routes:
+        - id: user-service-route
+          uri: lb://user-service
+          predicates:
+            - Path=/api/users/**
+          filters:
+            - StripPrefix=1
+            - AddRequestHeader=X-Gateway, SCG
+            - AddResponseHeader=X-Response-Time, ${DATE_TIME}
+            - RewritePath=/users/(?&lt;id&gt;.*), /user/$\{id}
+            - name: CircuitBreaker
+              args:
+                name: userCircuitBreaker
+                fallbackUri: forward:/fallback/user
+            - name: RequestRateLimiter
+              args:
+                redis-rate-limiter.replenishRate: 10
+                redis-rate-limiter.burstCapacity: 20
+</code></pre>
+<hr />
+
+<h2 id="6">6. 自定义谓词和过滤器</h2>
+<h3 id="61-routepredicatefactory">6.1 自定义 RoutePredicateFactory</h3>
+<pre><code class="language-java">// match by request header X-Api-Version
+@Component
+public class VersionRoutePredicateFactory
+        extends AbstractRoutePredicateFactory&lt;VersionRoutePredicateFactory.Config&gt; {
+
+    public VersionRoutePredicateFactory() {
+        super(Config.class);
+    }
+
+    @Override
+    public Predicate&lt;ServerWebExchange&gt; apply(Config config) {
+        return exchange -&gt; {
+            String version = exchange.getRequest()
+                .getHeaders()
+                .getFirst(&quot;X-Api-Version&quot;);
+            return version != null &amp;&amp; version.equals(config.getVersion());
+        };
+    }
+
+    @Data
+    public static class Config {
+        private String version;
+    }
+}
+</code></pre>
+<pre><code class="language-yaml"># usage
+spring:
+  cloud:
+    gateway:
+      routes:
+        - id: version-route
+          uri: https://example.org
+          predicates:
+            - Version=1.0
+</code></pre>
+
+<h3 id="62-gatewayfilterfactory">6.2 自定义 GatewayFilterFactory</h3>
+<pre><code class="language-java">// log request elapsed time
+@Component
+public class RequestTimeGatewayFilterFactory
+    extends AbstractGatewayFilterFactory&lt;RequestTimeGatewayFilterFactory.Config&gt; {
+
+    private static final String START_TIME = &quot;startTime&quot;;
+
+    public RequestTimeGatewayFilterFactory() {
+        super(Config.class);
+    }
+
+    @Override
+    public GatewayFilter apply(Config config) {
+        return (exchange, chain) -&gt; {
+            exchange.getAttributes().put(START_TIME, System.currentTimeMillis());
+            return chain.filter(exchange).then(
+                Mono.fromRunnable(() -&gt; {
+                    Long startTime = exchange.getAttribute(START_TIME);
+                    if (startTime != null) {
+                        long duration = System.currentTimeMillis() - startTime;
+                        log.info(&quot;Request {} took {} ms&quot;,
+                            exchange.getRequest().getPath(), duration);
+                    }
+                })
+            );
+        };
+    }
+
+    @Data
+    public static class Config {
+        private boolean enabled = true;
+    }
+}
+</code></pre>
+<hr />
+
+<h2 id="7">7. 全局过滤器</h2>
+<h3 id="71">7.1 GatewayFilter vs GlobalFilter</h3>
+<p><strong>GatewayFilter</strong>：作用于指定路由，在 YAML 的 <code>filters</code> 节点引用。<br>
+<strong>GlobalFilter</strong>：作用于所有路由，<code>@Component</code> 注解自动注册。</p>
+
+<h3 id="72">7.2 内置 GlobalFilter 及执行顺序</h3>
+<pre><code>                  +---------------------------------------------+
+                  |        Filter Chain Execution Order          |
+                  +---------------------------------------------+
+
+    +---------------------------------------------------------------+
+    |                    PRE (Request Direction)                     |
+    |                    small order ----------------> large         |
+    |                                                                |
+    |   -1: NettyWriteResponseFilter                                |
+    |   -100: AuthGlobalFilter (custom)                             |
+    |    0: GatewayMetricsFilter                                    |
+    |    1: StripPrefix (GatewayFilter)                             |
+    |   50: AddRequestHeader (GatewayFilter)                        |
+    | 10000: WebClientHttpRoutingFilter                             |
+    | 10150: ReactiveLoadBalancerClientFilter                       |
+    |                                                                |
+    +------------------------------+--------------------------------+
+                                   |  Proxy Request
+                                   v
+                              Downstream Service
+                                   |
+                                   v
+                                Response
+    +------------------------------+--------------------------------+
+    |                   POST (Response Direction)                    |
+    |                   large order ----------------> small          |
+    |                                                                |
+    |   (executed in reverse order of PRE: large -> small)          |
+    |                                                                |
+    | 10150: ReactiveLoadBalancerClientFilter (post)                |
+    | 10000: WebClientHttpRoutingFilter (post)                      |
+    |   50: AddRequestHeader (post)                                 |
+    |    1: StripPrefix (post)                                      |
+    |    0: GatewayMetricsFilter (post)                             |
+    |   -100: AuthGlobalFilter (post)                               |
+    |   -1: NettyWriteResponseFilter (post)                         |
+    |                                                                |
+    |   KEY: GlobalFilter and GatewayFilter are merged into ONE     |
+    |        chain, sorted by getOrder().                           |
+    |        PRE: small->large, POST: large->small.                 |
+    +---------------------------------------------------------------+
+</code></pre>
+
+<h3 id="73">7.3 自定义全局认证过滤器</h3>
+<pre><code class="language-java">@Component
+@Order(-100)
+public class AuthGlobalFilter implements GlobalFilter, Ordered {
+
+    @Override
+    public Mono&lt;Void&gt; filter(ServerWebExchange exchange, GatewayFilterChain chain) {
+        ServerHttpRequest request = exchange.getRequest();
+        String authHeader = request.getHeaders().getFirst(&quot;Authorization&quot;);
+
+        if (authHeader == null || !isValidToken(authHeader)) {
+            exchange.getResponse().setStatusCode(HttpStatus.UNAUTHORIZED);
+            return exchange.getResponse().setComplete();
+        }
+
+        ServerHttpRequest mutatedRequest = request.mutate()
+            .header(&quot;X-User-Id&quot;, getUserIdFromToken(authHeader))
+            .build();
+
+        return chain.filter(exchange.mutate().request(mutatedRequest).build());
+    }
+
+    @Override
+    public int getOrder() { return -100; }
+
+    private boolean isValidToken(String token) { /* ... */ }
+    private String getUserIdFromToken(String token) { /* ... */ }
+}
+</code></pre>
+<hr />
+
+<h2 id="8">8. 限流</h2>
+<h3 id="81">8.1 令牌桶算法</h3>
+<p>Gateway 基于 <strong>Redis + Lua 脚本</strong> 实现令牌桶限流：令牌以固定速率（<code>replenishRate</code>）补充到桶中，桶有容量上限（<code>burstCapacity</code>），请求到达时消耗令牌，令牌不足则拒绝（HTTP 429）。</p>
+<p>使用 Redis 的原因：Gateway 多实例部署时，令牌状态需全局共享，Lua 脚本保证原子性。</p>
+
+<h3 id="82">8.2 配置</h3>
+<pre><code class="language-yaml">spring:
+  cloud:
+    gateway:
+      routes:
+        - id: rate-limit-route
+          uri: lb://user-service
+          predicates:
+            - Path=/api/users/**
+          filters:
+            - name: RequestRateLimiter
+              args:
+                redis-rate-limiter.replenishRate: 10
+                redis-rate-limiter.burstCapacity: 20
+                redis-rate-limiter.requestedTokens: 1
+                key-resolver: &quot;#{@userKeyResolver}&quot;
+</code></pre>
+
+<h3 id="83">8.3 限流维度（KeyResolver）</h3>
+<pre><code class="language-java">// rate-limit by IP
+@Bean
+public KeyResolver ipKeyResolver() {
+    return exchange -&gt; Mono.just(
+        exchange.getRequest().getRemoteAddress().getAddress().getHostAddress()
+    );
+}
+
+// rate-limit by user
+@Bean
+public KeyResolver userKeyResolver() {
+    return exchange -&gt; {
+        String userId = exchange.getRequest().getHeaders().getFirst(&quot;X-User-Id&quot;);
+        return Mono.just(userId != null ? userId : &quot;anonymous&quot;);
+    };
+}
+</code></pre>
+
+<h3 id="84">8.4 分布式限流（Redis 集群）</h3>
+<pre><code class="language-yaml">spring:
+  redis:
+    cluster:
+      nodes:
+        - redis-node1:6379
+        - redis-node2:6379
+        - redis-node3:6379
+    password: redis_password
+    timeout: 6000ms
+
+  cloud:
+    gateway:
+      routes:
+        - id: rate-limit-route
+          uri: lb://user-service
+          filters:
+            - name: RequestRateLimiter
+              args:
+                rate-limiter: &quot;redis-rate-limiter&quot;
+                key-resolver: &quot;#{@ipKeyResolver}&quot;
+</code></pre>
+<hr />
+
+<h2 id="9">9. 熔断与降级</h2>
+<h3 id="91">9.1 熔断状态机</h3>
+<pre><code>                 +-------------+
+                 |   Closed    |  &lt;-- normal state
+                 +------+------+
+                        | failure rate > threshold
+                        v
+                 +-------------+
+                 |    Open     |  &lt;-- fast-fail, no forwarding
+                 +------+------+
+                        | wait duration elapsed
+                        v
+                 +-------------+
+                 | Half-Open   |  &lt;-- trial recovery
+                 +------+------+
+                        | success -> Closed
+                        | failure -> Open
+                        v
+                 +-------------+
+                 |   Closed    |
+                 +-------------+
+</code></pre>
+
+<h3 id="92-resilience4j">9.2 Resilience4j 配置</h3>
+<pre><code class="language-xml">&lt;dependency&gt;
+    &lt;groupId&gt;org.springframework.cloud&lt;/groupId&gt;
+    &lt;artifactId&gt;spring-cloud-starter-circuitbreaker-resilience4j&lt;/artifactId&gt;
+&lt;/dependency&gt;
+</code></pre>
+<pre><code class="language-yaml">spring:
+  cloud:
+    gateway:
+      routes:
+        - id: user-service-route
+          uri: lb://user-service
+          predicates:
+            - Path=/api/users/**
+          filters:
+            - name: CircuitBreaker
+              args:
+                name: userCircuitBreaker
+                fallbackUri: forward:/fallback/user
+
+resilience4j:
+  circuitbreaker:
+    instances:
+      userCircuitBreaker:
+        sliding-window-size: 10
+        failure-rate-threshold: 50
+        wait-duration-in-open-state: 10000
+        permitted-number-of-calls-in-half-open-state: 3
+        automatic-transition-from-open-to-half-open-enabled: true
+</code></pre>
+
+<h3 id="93">9.3 降级处理</h3>
+<pre><code class="language-java">@RestController
+public class FallbackController {
+
+    @GetMapping(&quot;/fallback/user&quot;)
+    public ResponseEntity&lt;Map&lt;String, Object&gt;&gt; userFallback() {
+        Map&lt;String, Object&gt; response = new HashMap&lt;&gt;();
+        response.put(&quot;code&quot;, 503);
+        response.put(&quot;message&quot;, &quot;User service unavailable, please retry later&quot;);
+        response.put(&quot;data&quot;, null);
+        return ResponseEntity.status(HttpStatus.SERVICE_UNAVAILABLE).body(response);
+    }
+}
+</code></pre>
+<hr />
+
+<h2 id="10">10. 跨域处理</h2>
+<h3 id="101">10.1 全局 CORS 配置</h3>
+<pre><code class="language-yaml">spring:
+  cloud:
+    gateway:
+      globalcors:
+        cors-configurations:
+          '[/**]':
+            allowed-origins:
+              - &quot;https://www.example.com&quot;
+              - &quot;https://admin.example.com&quot;
+            allowed-methods:
+              - GET
+              - POST
+              - PUT
+              - DELETE
+              - OPTIONS
+            allowed-headers:
+              - &quot;*&quot;
+            expose-headers:
+              - &quot;X-Total-Count&quot;
+              - &quot;X-Gateway-Version&quot;
+            allow-credentials: true
+            max-age: 7200
+</code></pre>
+
+<h3 id="102">10.2 路由级 CORS</h3>
+<pre><code class="language-yaml">spring:
+  cloud:
+    gateway:
+      routes:
+        - id: cors-route
+          uri: lb://user-service
+          predicates:
+            - Path=/api/users/**
+          metadata:
+            cors:
+              allowed-origins: &quot;https://mobile.example.com&quot;
+              allowed-methods: &quot;GET,POST&quot;
+</code></pre>
+
+<h3 id="103">10.3 注意事项</h3>
+<ul>
+<li>不要同时配置全局 CORS 和 Controller 层 <code>@CrossOrigin</code>，会冲突</li>
+<li>生产环境明确指定 <code>allowed-origins</code>，不要用 <code>"*"</code>（与 <code>allow-credentials: true</code> 互斥）</li>
+<li>OPTIONS 预检请求由 Gateway 自动处理</li>
+</ul>
+<hr />
+
+<h2 id="11_1">11. 监控与日志</h2>
+<h3 id="111-actuator">11.1 Actuator 集成</h3>
+<pre><code class="language-xml">&lt;dependency&gt;
+    &lt;groupId&gt;org.springframework.boot&lt;/groupId&gt;
+    &lt;artifactId&gt;spring-boot-starter-actuator&lt;/artifactId&gt;
+&lt;/dependency&gt;
+</code></pre>
+<pre><code class="language-yaml">management:
+  endpoints:
+    web:
+      exposure:
+        include: gateway, health, metrics, prometheus
+  endpoint:
+    gateway:
+      enabled: true
+</code></pre>
+
+<h3 id="112-actuator">11.2 常用端点</h3>
+<table>
+<thead>
+<tr>
+<th>端点</th>
+<th>路径</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>routes</strong></td>
+<td><code>/actuator/gateway/routes</code></td>
+<td>查看所有路由</td>
+</tr>
+<tr>
+<td><strong>routes/{id}</strong></td>
+<td><code>/actuator/gateway/routes/{id}</code></td>
+<td>查看指定路由详情</td>
+</tr>
+<tr>
+<td><strong>refresh</strong></td>
+<td><code>POST /actuator/gateway/refresh</code></td>
+<td>刷新路由缓存</td>
+</tr>
+<tr>
+<td><strong>health</strong></td>
+<td><code>/actuator/health</code></td>
+<td>健康检查</td>
+</tr>
+<tr>
+<td><strong>metrics</strong></td>
+<td><code>/actuator/metrics</code></td>
+<td>指标</td>
+</tr>
+</tbody>
+</table>
+
+<h3 id="113">11.3 日志配置</h3>
+<pre><code class="language-yaml">logging:
+  level:
+    org.springframework.cloud.gateway: DEBUG
+    reactor.netty: WARN
+  pattern:
+    console: &quot;%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{36} - %msg%n&quot;
+</code></pre>
+<hr />
+
+<h2 id="12_1">12. 性能优化</h2>
+<h3 id="121">12.1 HTTP 连接池</h3>
+<pre><code class="language-yaml">spring:
+  cloud:
+    gateway:
+      httpclient:
+        connect-timeout: 1000
+        response-timeout: 5s
+        pool:
+          max-connections: 500
+          acquire-timeout: 3000
+          max-idle-time: 60000
+</code></pre>
+
+<h3 id="122-netty">12.2 Netty 配置</h3>
+<pre><code class="language-yaml">spring:
+  cloud:
+    gateway:
+      httpclient:
+        wiretap: false      # turn off in production
+        compression: true   # enable compression
+</code></pre>
+
+<h3 id="123-jvm">12.3 JVM 参数（4C8G）</h3>
+<pre><code class="language-bash">JAVA_OPTS=&quot;-Xms4g -Xmx4g \
+  -XX:+UseG1GC \
+  -XX:MaxGCPauseMillis=200 \
+  -XX:+HeapDumpOnOutOfMemoryError \
+  -XX:HeapDumpPath=/home/gateway/logs/heap.hprof \
+  -Dreactor.netty.io-worker-count=8 \
+  -Dreactor.netty.pool.max-connections=1000&quot;
+</code></pre>
+
+<h3 id="124">12.4 路由缓存</h3>
+<pre><code class="language-yaml">spring:
+  cloud:
+    gateway:
+      route-definition-locator:
+        enabled: true  # for Nacos dynamic routing
+</code></pre>
+<hr />
+
+<h2 id="13-spring-cloud-gateway-vs-zuul">13. Spring Cloud Gateway vs Zuul</h2>
+<h3 id="131">13.1 核心差异</h3>
+<table>
+<thead>
+<tr>
+<th>对比项</th>
+<th>Spring Cloud Gateway</th>
+<th>Zuul 1.x</th>
+<th>Zuul 2.x</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>I/O 模型</strong></td>
+<td>异步非阻塞（Netty + WebFlux）</td>
+<td>同步阻塞（Servlet）</td>
+<td>异步非阻塞（Netty）</td>
+</tr>
+<tr>
+<td><strong>性能</strong></td>
+<td>高（~30k RPS）</td>
+<td>低（~5k RPS）</td>
+<td>中高（~20k RPS）</td>
+</tr>
+<tr>
+<td><strong>背压支持</strong></td>
+<td>✅（Project Reactor）</td>
+<td>❌</td>
+<td>✅</td>
+</tr>
+<tr>
+<td><strong>Spring 生态集成</strong></td>
+<td>✅ 原生</td>
+<td>⚠️ 需适配</td>
+<td>⚠️ 需适配</td>
+</tr>
+<tr>
+<td><strong>配置方式</strong></td>
+<td>YAML/Java DSL</td>
+<td>XML/Groovy</td>
+<td>XML/Groovy</td>
+</tr>
+<tr>
+<td><strong>过滤器类型</strong></td>
+<td>GatewayFilter + GlobalFilter</td>
+<td>Pre/Post Filter</td>
+<td>Inbound/Outbound</td>
+</tr>
+<tr>
+<td><strong>官方维护</strong></td>
+<td>✅ Spring 官方</td>
+<td>❌ Netflix 停止维护</td>
+<td>⚠️ 社区维护</td>
+</tr>
+<tr>
+<td><strong>启动速度</strong></td>
+<td>快</td>
+<td>中</td>
+<td>中</td>
+</tr>
+<tr>
+<td><strong>内存占用</strong></td>
+<td>低</td>
+<td>中</td>
+<td>中</td>
+</tr>
+</tbody>
+</table>
+
+<h3 id="132-zuul-1x">13.2 阻塞 vs 非阻塞</h3>
+<pre><code>  Zuul 1.x (sync-blocking):               Spring Cloud Gateway (async-nonblocking):
+
+  Request --&gt; Tomcat Thread --+           Request --&gt; Netty EventLoop --+
+                              |                                        |
+                          [BLOCK]                                  [REACT]
+                              |                                        |
+                          ZuulFilter                             WebFlux Filter
+                          (sync chain)                           (async chain)
+                              |                                        |
+                          [BLOCK]                                  [AWAIT]
+                              |                                        |
+                       Downstream Call                         Downstream Call
+                       (sync HTTP)                             (async HTTP)
+                              |                                        |
+                          [BLOCK]                                  [AWAIT]
+                              |                                        |
+                          Response                                Response
+
+  1 request = 1 thread                    Few EventLoop threads serve many
+  Thread pool exhausted -> down           Event-driven + non-blocking I/O
+</code></pre>
+
+<h3 id="133">13.3 迁移清单</h3>
+<pre><code>Zuul 1.x -> Spring Cloud Gateway migration:
+
+1. Dependencies:
+   - Remove spring-cloud-starter-netflix-zuul
+   - Add spring-cloud-starter-gateway
+   - Remove spring-boot-starter-web (conflicts with WebFlux)
+
+2. Config migration:
+   - Zuul routes -> Gateway routes (different YAML format)
+   - ZuulFilter -> GatewayFilter + GlobalFilter
+
+3. Filter rewrite:
+   - Sync return -> async return Mono&lt;Void&gt;
+   - ThreadLocal not available -> use ServerWebExchange context
+
+4. Verification:
+   - Load test for performance comparison
+   - Regression test all routing rules
+</code></pre>
+<hr />
+
+<h2 id="14_1">14. 高频面试题</h2>
+
+<h3 id="q1spring-cloud-gateway">Q1：核心组件和工作原理？</h3>
+<p><strong>三组件</strong>：Route（路由定义）、Predicate（匹配条件）、Filter（请求/响应拦截）。</p>
+<p><strong>流程</strong>：请求到达 -> Handler Mapping 匹配 Route（按 Predicate）-> 组装 Filter 链（GlobalFilter + GatewayFilter 合并排序）-> Pre Filter 阶段 -> 转发下游服务 -> Post Filter 阶段 -> 响应返回。</p>
+
+<h3 id="q2spring-cloud-gateway-zuul">Q2：与 Zuul 的区别？</h3>
+<p>核心：Gateway 异步非阻塞（Netty），Zuul 1.x 同步阻塞（Servlet）。Gateway 性能约 6 倍于 Zuul 1.x，且 Spring 官方维护。详见第 13 章对比表。</p>
+
+<h3 id="q3gatewayfilter-globalfilter">Q3：GatewayFilter 和 GlobalFilter 的区别？</h3>
+<table>
+<thead>
+<tr>
+<th>对比项</th>
+<th>GatewayFilter</th>
+<th>GlobalFilter</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>作用范围</strong></td>
+<td>单个路由（YAML filters 节点引用）</td>
+<td>所有路由（@Component 自动注册）</td>
+</tr>
+<tr>
+<td><strong>执行顺序</strong></td>
+<td>与 GlobalFilter 混合排序，按 Order 值</td>
+<td>按 Order 值排序</td>
+</tr>
+<tr>
+<td><strong>典型场景</strong></td>
+<td>路径重写、Header 修改</td>
+<td>认证、日志、限流</td>
+</tr>
+</tbody>
+</table>
+
+<h3 id="q4">Q4：如何自定义全局过滤器实现认证？</h3>
+<p>实现 <code>GlobalFilter</code> + <code>Ordered</code> 接口，<code>filter()</code> 返回 <code>Mono&lt;Void&gt;</code>。认证失败调用 <code>setComplete()</code> 中断链，认证成功将用户信息写入请求头传递给下游（详见 7.3 节代码）。</p>
+
+<h3 id="q5spring-cloud-gateway">Q5：如何实现限流？</h3>
+<p>内置 <code>RequestRateLimiter</code> GatewayFilter，基于 Redis + Lua 令牌桶算法。通过 <code>KeyResolver</code> 按 IP/用户/接口维度限流。详见第 8 章。</p>
+
+<h3 id="q6gateway-nacos">Q6：如何与 Nacos 集成实现动态路由？</h3>
+<pre><code class="language-xml">&lt;dependency&gt;
+    &lt;groupId&gt;com.alibaba.cloud&lt;/groupId&gt;
+    &lt;artifactId&gt;spring-cloud-starter-alibaba-nacos-discovery&lt;/artifactId&gt;
+&lt;/dependency&gt;
+&lt;dependency&gt;
+    &lt;groupId&gt;com.alibaba.cloud&lt;/groupId&gt;
+    &lt;artifactId&gt;spring-cloud-starter-alibaba-nacos-config&lt;/artifactId&gt;
+&lt;/dependency&gt;
+</code></pre>
+<pre><code class="language-yaml">spring:
+  cloud:
+    nacos:
+      discovery:
+        server-addr: nacos-server:8848
+      config:
+        server-addr: nacos-server:8848
+        file-extension: yaml
+    gateway:
+      discovery:
+        locator:
+          enabled: true
+</code></pre>
+<p><strong>流程</strong>：Nacos 存储路由配置 -> Gateway 监听变更 -> <code>RouteDefinitionWriter</code> 更新路由 -> <code>ApplicationEventPublisher</code> 刷新缓存。</p>
+
+<h3 id="q7gateway">Q7：过滤器执行顺序？</h3>
+<p>GlobalFilter 和 GatewayFilter 合并为一条链，按 <code>Ordered.getOrder()</code> 排序。Pre 阶段 order 小的先执行，Post 阶段逆序（order 大的先执行）。详见 7.2 节流程图。</p>
+
+<h3 id="q8gateway">Q8：如何处理超时？</h3>
+<pre><code class="language-yaml">spring:
+  cloud:
+    gateway:
+      httpclient:
+        connect-timeout: 1000
+        response-timeout: 5s
+      routes:
+        - id: timeout-route
+          uri: lb://user-service
+          predicates:
+            - Path=/api/users/**
+          filters:
+            - name: CircuitBreaker
+              args:
+                name: userCircuitBreaker
+                fallbackUri: forward:/fallback/timeout
+</code></pre>
+
+<h3 id="q9gateway-websocket">Q9：如何支持 WebSocket？</h3>
+<pre><code class="language-yaml">spring:
+  cloud:
+    gateway:
+      routes:
+        - id: websocket-route
+          uri: ws://websocket-service:8080
+          predicates:
+            - Path=/ws/**
+</code></pre>
+<p>URI 使用 <code>ws://</code> / <code>wss://</code>，内置 <code>WebSocketRoutingFilter</code> 自动处理，支持 STOMP/SockJS。</p>
+
+<h3 id="q10gateway-sentinel">Q10：如何与 Sentinel 集成？</h3>
+<pre><code class="language-xml">&lt;dependency&gt;
+    &lt;groupId&gt;com.alibaba.cloud&lt;/groupId&gt;
+    &lt;artifactId&gt;spring-cloud-starter-alibaba-sentinel&lt;/artifactId&gt;
+&lt;/dependency&gt;
+&lt;dependency&gt;
+    &lt;groupId&gt;com.alibaba.cloud&lt;/groupId&gt;
+    &lt;artifactId&gt;spring-cloud-alibaba-sentinel-gateway&lt;/artifactId&gt;
+&lt;/dependency&gt;
+</code></pre>
+<pre><code class="language-yaml">spring:
+  cloud:
+    sentinel:
+      transport:
+        dashboard: sentinel-dashboard:8080
+      filter:
+        enabled: false
+      scg:
+        fallback:
+          mode: response
+          response-body: '{&quot;code&quot;:429,&quot;message&quot;:&quot;Too many requests&quot;}'
+</code></pre>
+<p>Sentinel Dashboard 中配置流控规则（QPS 阈值）、熔断规则（慢调用比例/异常比例）和热点规则。</p>
+<hr />
+
+<h2 id="_2">附录：常用配置速查</h2>
+<pre><code class="language-yaml"># Complete configuration example
+spring:
+  application:
+    name: api-gateway
+  cloud:
+    nacos:
+      discovery:
+        server-addr: nacos-server:8848
+    gateway:
+      discovery:
+        locator:
+          enabled: true
+          lower-case-service-id: true
+      routes:
+        - id: user-service-route
+          uri: lb://user-service
+          predicates:
+            - Path=/api/users/**
+          filters:
+            - StripPrefix=1
+            - AddRequestHeader=X-Gateway, SCG
+            - name: CircuitBreaker
+              args:
+                name: userCircuitBreaker
+                fallbackUri: forward:/fallback/user
+            - name: RequestRateLimiter
+              args:
+                redis-rate-limiter.replenishRate: 10
+                redis-rate-limiter.burstCapacity: 20
+      globalcors:
+        cors-configurations:
+          '[/**]':
+            allowed-origins: &quot;https://example.com&quot;
+            allowed-methods: &quot;GET,POST,PUT,DELETE&quot;
+      httpclient:
+        connect-timeout: 1000
+        response-timeout: 5s
+        pool:
+          max-connections: 500
+
+  redis:
+    host: redis-server
+    port: 6379
+    password: redis_password
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: gateway, health, metrics
+</code></pre>
+<hr />
+<blockquote>
+<p><strong>学习建议</strong>：Spring Cloud Gateway 面试聚焦三个关键词：<strong>异步非阻塞</strong>（WebFlux/Netty）、<strong>过滤器链</strong>（GlobalFilter/GatewayFilter 合并排序）、<strong>微服务网关场景</strong>（限流/熔断/认证/灰度）。建议先理解 WebFlux 响应式模型，再深入 Gateway 过滤器机制，最后掌握与 Nacos/Sentinel/Resilience4j 的集成。</p>
+</blockquote>
+
+<script>
+// Scroll spy — highlight active sidebar item
+window.addEventListener('scroll', function() {
+    var links = document.querySelectorAll('.sidebar-toc a');
+    var scrollY = window.scrollY + 120;
+    var current = '';
+    for (var i = links.length - 1; i >= 0; i--) {
+        var target = document.getElementById(links[i].getAttribute('href').slice(1));
+        if (target && target.offsetTop <= scrollY) {
+            current = links[i];
+            break;
+        }
+    }
+    links.forEach(function(a) { a.style.fontWeight = 'normal'; a.style.color = '#555'; });
+    if (current) { current.style.fontWeight = 'bold'; current.style.color = '#0366d6'; }
+});
+</script>
+
+
+<script>
+document.querySelectorAll('pre > code').forEach(function(codeBlock, i) {
+    var pre = codeBlock.parentNode;
+    pre.style.position = 'relative';
+    var btn = document.createElement('button');
+    btn.className = 'copy-btn';
+    btn.textContent = '复制';
+    pre.appendChild(btn);
+    btn.addEventListener('click', function() {
+        var text = codeBlock.textContent;
+        navigator.clipboard.writeText(text).then(function() {
+            btn.textContent = '已复制';
+            btn.classList.add('copied');
+            setTimeout(function() {
+                btn.textContent = '复制';
+                btn.classList.remove('copied');
+            }, 2000);
+        }).catch(function() {
+            var ta = document.createElement('textarea');
+            ta.value = text; ta.style.position = 'fixed'; ta.style.opacity = '0';
+            document.body.appendChild(ta); ta.select();
+            document.execCommand('copy'); document.body.removeChild(ta);
+            btn.textContent = '已复制'; btn.classList.add('copied');
+            setTimeout(function() { btn.textContent = '复制'; btn.classList.remove('copied'); }, 2000);
+        });
+    });
+});
+</script>
+
+
+<script>document.querySelectorAll("pre>code").forEach(function(c){var p=c.parentNode;p.style.position="relative";var b=document.createElement("button");b.className="copy-btn";b.textContent="复制";p.appendChild(b);b.addEventListener("click",function(){var t=c.textContent;navigator.clipboard.writeText(t).then(function(){b.textContent="已复制";b.classList.add("copied");setTimeout(function(){b.textContent="复制";b.classList.remove("copied")},2000)}).catch(function(){var a=document.createElement("textarea");a.value=t;a.style.position="fixed";a.style.opacity="0";document.body.appendChild(a);a.select();document.execCommand("copy");document.body.removeChild(a);b.textContent="已复制";b.classList.add("copied");setTimeout(function(){b.textContent="复制";b.classList.remove("copied")},2000)})})})</script>
+</body>
+</html>

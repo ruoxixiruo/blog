@@ -1,0 +1,543 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 5.4.2">
+  <link rel="apple-touch-icon" sizes="180x180" href="/blog/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/blog/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/blog/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/blog/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/blog/css/main.css">
+
+
+<link rel="stylesheet" href="/blog/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"ruoxixiruo.github.io","root":"/blog/","scheme":"Gemini","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":true,"show_result":true,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":true},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}};
+  </script>
+
+  <meta name="description" content="1，Nacos 简介Nacos（Naming and Configuration Service）是阿里巴巴开源的服务发现与配置管理平台，致力于帮助用户构建云原生应用。 两大核心功能：  服务发现（Naming）：服务的注册、发现、健康检查 配置管理（Config）：动态配置、配置版本管理、快速生效  核心特性：  服务发现：支持 DNS &#x2F; HTTP 协议 配置中心：支持配置热更新，毫秒级生效">
+<meta property="og:type" content="article">
+<meta property="og:title" content="nacos学习">
+<meta property="og:url" content="https://ruoxixiruo.github.io/blog/2024/08/01/springcloud/nacos%E5%AD%A6%E4%B9%A0/index.html">
+<meta property="og:site_name" content="RUOXI-BLOG">
+<meta property="og:description" content="1，Nacos 简介Nacos（Naming and Configuration Service）是阿里巴巴开源的服务发现与配置管理平台，致力于帮助用户构建云原生应用。 两大核心功能：  服务发现（Naming）：服务的注册、发现、健康检查 配置管理（Config）：动态配置、配置版本管理、快速生效  核心特性：  服务发现：支持 DNS &#x2F; HTTP 协议 配置中心：支持配置热更新，毫秒级生效">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2024-08-01T10:00:00.000Z">
+<meta property="article:modified_time" content="2026-07-22T02:51:55.000Z">
+<meta property="article:author" content="ruoxi">
+<meta property="article:tag" content="java">
+<meta property="article:tag" content="微服务">
+<meta property="article:tag" content="nacos">
+<meta name="twitter:card" content="summary">
+
+<link rel="canonical" href="https://ruoxixiruo.github.io/blog/2024/08/01/springcloud/nacos%E5%AD%A6%E4%B9%A0/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+
+  <title>nacos学习 | RUOXI-BLOG</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/blog/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">RUOXI-BLOG</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/blog/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/blog/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/blog/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/blog/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a>
+
+  </li>
+        <li class="menu-item menu-item-posts">
+
+    <a href="/blog/posts/" rel="section"><i class="fa fa-rss fa-fw"></i>posts</a>
+
+  </li>
+  </ul>
+</nav>
+
+
+
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+  <div class="reading-progress-bar"></div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://ruoxixiruo.github.io/blog/2024/08/01/springcloud/nacos%E5%AD%A6%E4%B9%A0/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/blog/images/avatar.gif">
+      <meta itemprop="name" content="ruoxi">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="RUOXI-BLOG">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          nacos学习
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2024-08-01 10:00:00" itemprop="dateCreated datePublished" datetime="2024-08-01T10:00:00+00:00">2024-08-01</time>
+            </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/blog/categories/java/" itemprop="url" rel="index"><span itemprop="name">java</span></a>
+                </span>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <h5 id="1，Nacos-简介"><a href="#1，Nacos-简介" class="headerlink" title="1，Nacos 简介"></a>1，Nacos 简介</h5><p>Nacos（Naming and Configuration Service）是阿里巴巴开源的服务发现与配置管理平台，致力于帮助用户构建云原生应用。</p>
+<p><strong>两大核心功能：</strong></p>
+<ul>
+<li><strong>服务发现（Naming）</strong>：服务的注册、发现、健康检查</li>
+<li><strong>配置管理（Config）</strong>：动态配置、配置版本管理、快速生效</li>
+</ul>
+<p><strong>核心特性：</strong></p>
+<ul>
+<li>服务发现：支持 DNS / HTTP 协议</li>
+<li>配置中心：支持配置热更新，毫秒级生效</li>
+<li>动态 DNS：支持基于权重的路由</li>
+<li>服务健康检查：TCP / HTTP / MySQL 探测</li>
+<li>多数据中心：支持同城/异地多活</li>
+<li>AP / CP 模式切换：根据场景选择一致性 or 可用性</li>
+</ul>
+<span id="more"></span>
+
+<h5 id="2，安装与启动"><a href="#2，安装与启动" class="headerlink" title="2，安装与启动"></a>2，安装与启动</h5><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 下载</span></span><br><span class="line"><span class="comment"># https://github.com/alibaba/nacos/releases</span></span><br><span class="line"><span class="comment"># 选择 nacos-server-2.x.x.zip</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 解压</span></span><br><span class="line">unzip nacos-server-2.2.4.zip</span><br><span class="line"><span class="built_in">cd</span> nacos</span><br><span class="line"></span><br><span class="line"><span class="comment"># 单机模式启动</span></span><br><span class="line"><span class="comment"># Windows:</span></span><br><span class="line">bin\startup.cmd -m standalone</span><br><span class="line"></span><br><span class="line"><span class="comment"># Linux/Mac:</span></span><br><span class="line">sh bin/startup.sh -m standalone</span><br><span class="line"></span><br><span class="line"><span class="comment"># 访问控制台</span></span><br><span class="line"><span class="comment"># http://localhost:8848/nacos</span></span><br><span class="line"><span class="comment"># 账号/密码: nacos/nacos</span></span><br></pre></td></tr></table></figure>
+
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 集群模式启动</span></span><br><span class="line"><span class="comment"># 1. 准备 MySQL 数据库，执行 conf/mysql-schema.sql</span></span><br><span class="line"><span class="comment"># 2. 修改 conf/application.properties，配置数据源</span></span><br><span class="line"><span class="comment"># 3. 配置 conf/cluster.conf，列出所有节点 ip:port</span></span><br><span class="line"><span class="comment"># 4. 每个节点执行 sh bin/startup.sh（不加 standalone）</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># Nacos 目录结构</span></span><br><span class="line">nacos/</span><br><span class="line">├── bin/               <span class="comment"># 启停脚本</span></span><br><span class="line">├── conf/              <span class="comment"># 配置文件</span></span><br><span class="line">│   ├── application.properties   <span class="comment"># 主配置</span></span><br><span class="line">│   ├── cluster.conf            <span class="comment"># 集群节点</span></span><br><span class="line">│   └── nacos-logback.xml       <span class="comment"># 日志配置</span></span><br><span class="line">├── data/              <span class="comment"># 数据存储（derby / 日志）</span></span><br><span class="line">├── logs/              <span class="comment"># 运行日志</span></span><br><span class="line">└── target/            <span class="comment"># JAR 包</span></span><br><span class="line">    └── nacos-server.jar</span><br></pre></td></tr></table></figure>
+
+<h5 id="3，命名空间、分组、集群概念"><a href="#3，命名空间、分组、集群概念" class="headerlink" title="3，命名空间、分组、集群概念"></a>3，命名空间、分组、集群概念</h5><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><span class="line">┌──────────────────── Nacos 实例 ─────────────────────┐</span><br><span class="line">│                                                      │</span><br><span class="line">│  ┌───────── Namespace: dev ──────────┐               │</span><br><span class="line">│  │                                     │              │</span><br><span class="line">│  │  Group: DEFAULT_GROUP               │              │</span><br><span class="line">│  │  ┌──── 服务: service-user ────┐     │              │</span><br><span class="line">│  │  │  Cluster: SH (上海)         │     │              │</span><br><span class="line">│  │  │  - Instance 1 (10.0.1.1:8080)   │              │</span><br><span class="line">│  │  │  - Instance 2 (10.0.1.2:8080)   │              │</span><br><span class="line">│  │  │  Cluster: BJ (北京)         │     │              │</span><br><span class="line">│  │  │  - Instance 3 (10.0.2.1:8080)   │              │</span><br><span class="line">│  │  └────────────────────────┘     │              │</span><br><span class="line">│  └──────────────────────────────┘              │</span><br><span class="line">│                                                      │</span><br><span class="line">│  ┌───────── Namespace: prod ──────────┐              │</span><br><span class="line">│  │  ... (隔离的生产环境)               │              │</span><br><span class="line">│  └──────────────────────────────┘              │</span><br><span class="line">└──────────────────────────────────────────────────────┘</span><br><span class="line"></span><br><span class="line">Namespace（命名空间）：环境隔离，dev/test/prod 互相看不见</span><br><span class="line">Group（分组）：同一环境内的逻辑分组，如微服务应用 vs 中间件</span><br><span class="line">Cluster（集群）：同一服务在不同地域/机房的部署</span><br><span class="line">Instance（实例）：服务的一个运行节点</span><br><span class="line"></span><br><span class="line">Data ID（配置唯一标识）：Namespace + Group + Data ID 三元组唯一确定</span><br></pre></td></tr></table></figure>
+
+<h5 id="4，服务注册与发现-——-Java-SDK"><a href="#4，服务注册与发现-——-Java-SDK" class="headerlink" title="4，服务注册与发现 —— Java SDK"></a>4，服务注册与发现 —— Java SDK</h5><figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">dependency</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>com.alibaba.nacos<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>nacos-client<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">version</span>&gt;</span>2.2.4<span class="tag">&lt;/<span class="name">version</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> com.alibaba.nacos.api.NacosFactory;</span><br><span class="line"><span class="keyword">import</span> com.alibaba.nacos.api.naming.NamingService;</span><br><span class="line"><span class="keyword">import</span> com.alibaba.nacos.api.naming.pojo.Instance;</span><br><span class="line"></span><br><span class="line"><span class="comment">// ============ 服务注册 ============</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">ServiceRegister</span> &#123;</span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title function_">main</span><span class="params">(String[] args)</span> <span class="keyword">throws</span> Exception &#123;</span><br><span class="line">        <span class="comment">// 1. 创建 NamingService</span></span><br><span class="line">        <span class="type">Properties</span> <span class="variable">props</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">Properties</span>();</span><br><span class="line">        props.setProperty(<span class="string">&quot;serverAddr&quot;</span>, <span class="string">&quot;localhost:8848&quot;</span>);</span><br><span class="line">        props.setProperty(<span class="string">&quot;namespace&quot;</span>, <span class="string">&quot;dev&quot;</span>);</span><br><span class="line">        <span class="type">NamingService</span> <span class="variable">naming</span> <span class="operator">=</span> NacosFactory.createNamingService(props);</span><br><span class="line"></span><br><span class="line">        <span class="comment">// 2. 构造实例</span></span><br><span class="line">        <span class="type">Instance</span> <span class="variable">instance</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">Instance</span>();</span><br><span class="line">        instance.setIp(<span class="string">&quot;192.168.1.100&quot;</span>);</span><br><span class="line">        instance.setPort(<span class="number">8080</span>);</span><br><span class="line">        instance.setWeight(<span class="number">1.0</span>);</span><br><span class="line">        instance.setClusterName(<span class="string">&quot;SH&quot;</span>);</span><br><span class="line">        instance.setMetadata(<span class="keyword">new</span> <span class="title class_">HashMap</span>&lt;&gt;() &#123;&#123;</span><br><span class="line">            put(<span class="string">&quot;version&quot;</span>, <span class="string">&quot;v1.2&quot;</span>);</span><br><span class="line">            put(<span class="string">&quot;region&quot;</span>, <span class="string">&quot;east&quot;</span>);</span><br><span class="line">        &#125;&#125;);</span><br><span class="line"></span><br><span class="line">        <span class="comment">// 3. ★ 注册服务</span></span><br><span class="line">        naming.registerInstance(<span class="string">&quot;service-user&quot;</span>, <span class="string">&quot;DEFAULT_GROUP&quot;</span>, instance);</span><br><span class="line"></span><br><span class="line">        System.out.println(<span class="string">&quot;服务注册成功&quot;</span>);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// ============ 服务发现 ============</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">ServiceDiscovery</span> &#123;</span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title function_">main</span><span class="params">(String[] args)</span> <span class="keyword">throws</span> Exception &#123;</span><br><span class="line">        <span class="type">Properties</span> <span class="variable">props</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">Properties</span>();</span><br><span class="line">        props.setProperty(<span class="string">&quot;serverAddr&quot;</span>, <span class="string">&quot;localhost:8848&quot;</span>);</span><br><span class="line">        <span class="type">NamingService</span> <span class="variable">naming</span> <span class="operator">=</span> NacosFactory.createNamingService(props);</span><br><span class="line"></span><br><span class="line">        <span class="comment">// ★ 1. 获取所有健康实例</span></span><br><span class="line">        List&lt;Instance&gt; instances = naming.selectInstances(</span><br><span class="line">            <span class="string">&quot;service-user&quot;</span>,          <span class="comment">// 服务名</span></span><br><span class="line">            <span class="string">&quot;DEFAULT_GROUP&quot;</span>,         <span class="comment">// 分组</span></span><br><span class="line">            <span class="literal">true</span>                     <span class="comment">// 只获取健康的</span></span><br><span class="line">        );</span><br><span class="line"></span><br><span class="line">        <span class="keyword">for</span> (Instance instance : instances) &#123;</span><br><span class="line">            System.out.println(instance.getIp() + <span class="string">&quot;:&quot;</span> + instance.getPort());</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="comment">// ★ 2. 获取所有实例（含不健康的）</span></span><br><span class="line">        List&lt;Instance&gt; allInstances = naming.getAllInstances(</span><br><span class="line">            <span class="string">&quot;service-user&quot;</span>, <span class="string">&quot;DEFAULT_GROUP&quot;</span>);</span><br><span class="line"></span><br><span class="line">        <span class="comment">// ★ 3. 订阅服务变更</span></span><br><span class="line">        naming.subscribe(<span class="string">&quot;service-user&quot;</span>, <span class="string">&quot;DEFAULT_GROUP&quot;</span>, event -&gt; &#123;</span><br><span class="line">            System.out.println(<span class="string">&quot;服务列表变更: &quot;</span> + event.getInstances().size());</span><br><span class="line">            <span class="keyword">for</span> (Instance inst : event.getInstances()) &#123;</span><br><span class="line">                System.out.println(inst.getIp() + <span class="string">&quot;:&quot;</span> + inst.getPort() +</span><br><span class="line">                    <span class="string">&quot; 健康:&quot;</span> + inst.isHealthy());</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// ============ 客户端核心配置 ============</span></span><br><span class="line"></span><br><span class="line"><span class="type">Properties</span> <span class="variable">props</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">Properties</span>();</span><br><span class="line">props.setProperty(<span class="string">&quot;serverAddr&quot;</span>, <span class="string">&quot;localhost:8848&quot;</span>);     <span class="comment">// Nacos 地址</span></span><br><span class="line">props.setProperty(<span class="string">&quot;namespace&quot;</span>, <span class="string">&quot;dev&quot;</span>);                 <span class="comment">// 命名空间</span></span><br><span class="line">props.setProperty(<span class="string">&quot;groupName&quot;</span>, <span class="string">&quot;DEFAULT_GROUP&quot;</span>);       <span class="comment">// 默认分组</span></span><br><span class="line">props.setProperty(<span class="string">&quot;clusterName&quot;</span>, <span class="string">&quot;SH&quot;</span>);                <span class="comment">// 默认集群</span></span><br><span class="line"></span><br><span class="line"><span class="comment">// 心跳</span></span><br><span class="line">props.setProperty(<span class="string">&quot;namingClientBeatThreadCount&quot;</span>, <span class="string">&quot;2&quot;</span>);       <span class="comment">// 心跳线程数</span></span><br><span class="line">props.setProperty(<span class="string">&quot;beatInterval&quot;</span>, <span class="string">&quot;5000&quot;</span>);                    <span class="comment">// 心跳间隔(ms)</span></span><br><span class="line"></span><br><span class="line"><span class="comment">// 缓存</span></span><br><span class="line">props.setProperty(<span class="string">&quot;namingLoadCacheAtStart&quot;</span>, <span class="string">&quot;true&quot;</span>);         <span class="comment">// 启动时加载缓存</span></span><br><span class="line">props.setProperty(<span class="string">&quot;namingCacheRegistryDir&quot;</span>, <span class="string">&quot;/path/to/cache&quot;</span>); <span class="comment">// 持久化缓存目录</span></span><br><span class="line"></span><br><span class="line"><span class="comment">// 日志</span></span><br><span class="line">props.setProperty(<span class="string">&quot;namingClientLogDir&quot;</span>, <span class="string">&quot;/path/to/logs&quot;</span>);</span><br></pre></td></tr></table></figure>
+
+<h5 id="5，服务发现-——-HTTP-API"><a href="#5，服务发现-——-HTTP-API" class="headerlink" title="5，服务发现 —— HTTP API"></a>5，服务发现 —— HTTP API</h5><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># ============ 注册实例 ============</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># POST /nacos/v1/ns/instance</span></span><br><span class="line">curl -X POST <span class="string">&#x27;http://localhost:8848/nacos/v1/ns/instance&#x27;</span> \</span><br><span class="line">  -d <span class="string">&#x27;serviceName=service-user&#x27;</span> \</span><br><span class="line">  -d <span class="string">&#x27;ip=192.168.1.100&#x27;</span> \</span><br><span class="line">  -d <span class="string">&#x27;port=8080&#x27;</span> \</span><br><span class="line">  -d <span class="string">&#x27;weight=1.0&#x27;</span> \</span><br><span class="line">  -d <span class="string">&#x27;healthy=true&#x27;</span> \</span><br><span class="line">  -d <span class="string">&#x27;enabled=true&#x27;</span> \</span><br><span class="line">  -d <span class="string">&#x27;clusterName=SH&#x27;</span> \</span><br><span class="line">  -d <span class="string">&#x27;metadata=&#123;&quot;version&quot;:&quot;v1.2&quot;&#125;&#x27;</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># ============ 发现实例列表 ============</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># GET /nacos/v1/ns/instance/list</span></span><br><span class="line">curl <span class="string">&#x27;http://localhost:8848/nacos/v1/ns/instance/list?serviceName=service-user&#x27;</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 返回</span></span><br><span class="line">&#123;</span><br><span class="line">  <span class="string">&quot;name&quot;</span>: <span class="string">&quot;DEFAULT_GROUP@@service-user&quot;</span>,</span><br><span class="line">  <span class="string">&quot;hosts&quot;</span>: [</span><br><span class="line">    &#123;</span><br><span class="line">      <span class="string">&quot;ip&quot;</span>: <span class="string">&quot;192.168.1.100&quot;</span>,</span><br><span class="line">      <span class="string">&quot;port&quot;</span>: 8080,</span><br><span class="line">      <span class="string">&quot;healthy&quot;</span>: <span class="literal">true</span>,</span><br><span class="line">      <span class="string">&quot;weight&quot;</span>: 1.0,</span><br><span class="line">      <span class="string">&quot;clusterName&quot;</span>: <span class="string">&quot;SH&quot;</span>,</span><br><span class="line">      <span class="string">&quot;metadata&quot;</span>: &#123;<span class="string">&quot;version&quot;</span>: <span class="string">&quot;v1.2&quot;</span>&#125;</span><br><span class="line">    &#125;</span><br><span class="line">  ]</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment"># ============ 发送心跳（临时实例）============</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># PUT /nacos/v1/ns/instance/beat</span></span><br><span class="line">curl -X PUT <span class="string">&#x27;http://localhost:8848/nacos/v1/ns/instance/beat&#x27;</span> \</span><br><span class="line">  -d <span class="string">&#x27;serviceName=service-user&#x27;</span> \</span><br><span class="line">  -d <span class="string">&#x27;ip=192.168.1.100&#x27;</span> \</span><br><span class="line">  -d <span class="string">&#x27;port=8080&#x27;</span> \</span><br><span class="line">  -d <span class="string">&#x27;beat=&#123;&quot;cluster&quot;:&quot;SH&quot;,&quot;metadata&quot;:&#123;&#125;&#125;&#x27;</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># ============ 注销实例 ============</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># DELETE /nacos/v1/ns/instance</span></span><br><span class="line">curl -X DELETE <span class="string">&#x27;http://localhost:8848/nacos/v1/ns/instance&#x27;</span> \</span><br><span class="line">  -d <span class="string">&#x27;serviceName=service-user&#x27;</span> \</span><br><span class="line">  -d <span class="string">&#x27;ip=192.168.1.100&#x27;</span> \</span><br><span class="line">  -d <span class="string">&#x27;port=8080&#x27;</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># ============ 查询服务列表 ============</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># GET /nacos/v1/ns/service/list</span></span><br><span class="line">curl <span class="string">&#x27;http://localhost:8848/nacos/v1/ns/service/list?pageNo=1&amp;pageSize=10&#x27;</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># ============ 查询服务详情 ============</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># GET /nacos/v1/ns/service</span></span><br><span class="line">curl <span class="string">&#x27;http://localhost:8848/nacos/v1/ns/service?serviceName=service-user&#x27;</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># ============ 更新实例 ============</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># PUT /nacos/v1/ns/instance</span></span><br><span class="line">curl -X PUT <span class="string">&#x27;http://localhost:8848/nacos/v1/ns/instance&#x27;</span> \</span><br><span class="line">  -d <span class="string">&#x27;serviceName=service-user&#x27;</span> \</span><br><span class="line">  -d <span class="string">&#x27;ip=192.168.1.100&#x27;</span> \</span><br><span class="line">  -d <span class="string">&#x27;port=8080&#x27;</span> \</span><br><span class="line">  -d <span class="string">&#x27;weight=0.8&#x27;</span>              <span class="comment"># 修改权重</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># ============ 健康检查开关 ============</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># PUT /nacos/v1/ns/health/instance</span></span><br><span class="line">curl -X PUT <span class="string">&#x27;http://localhost:8848/nacos/v1/ns/health/instance&#x27;</span> \</span><br><span class="line">  -d <span class="string">&#x27;serviceName=service-user&#x27;</span> \</span><br><span class="line">  -d <span class="string">&#x27;ip=192.168.1.100&#x27;</span> \</span><br><span class="line">  -d <span class="string">&#x27;port=8080&#x27;</span> \</span><br><span class="line">  -d <span class="string">&#x27;healthy=false&#x27;</span>            <span class="comment"># 标记为不健康</span></span><br></pre></td></tr></table></figure>
+
+<h5 id="6，配置管理-——-Java-SDK"><a href="#6，配置管理-——-Java-SDK" class="headerlink" title="6，配置管理 —— Java SDK"></a>6，配置管理 —— Java SDK</h5><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> com.alibaba.nacos.api.NacosFactory;</span><br><span class="line"><span class="keyword">import</span> com.alibaba.nacos.api.config.ConfigService;</span><br><span class="line"><span class="keyword">import</span> com.alibaba.nacos.api.config.listener.Listener;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">ConfigDemo</span> &#123;</span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title function_">main</span><span class="params">(String[] args)</span> <span class="keyword">throws</span> Exception &#123;</span><br><span class="line">        <span class="type">Properties</span> <span class="variable">props</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">Properties</span>();</span><br><span class="line">        props.setProperty(<span class="string">&quot;serverAddr&quot;</span>, <span class="string">&quot;localhost:8848&quot;</span>);</span><br><span class="line">        props.setProperty(<span class="string">&quot;namespace&quot;</span>, <span class="string">&quot;dev&quot;</span>);</span><br><span class="line">        <span class="type">ConfigService</span> <span class="variable">configService</span> <span class="operator">=</span> NacosFactory.createConfigService(props);</span><br><span class="line"></span><br><span class="line">        <span class="comment">// ★ 1. 发布配置</span></span><br><span class="line">        configService.publishConfig(</span><br><span class="line">            <span class="string">&quot;service-user.yaml&quot;</span>,       <span class="comment">// dataId</span></span><br><span class="line">            <span class="string">&quot;DEFAULT_GROUP&quot;</span>,           <span class="comment">// group</span></span><br><span class="line">            <span class="string">&quot;server:\n  port: 8080\n  name: user-service&quot;</span></span><br><span class="line">        );</span><br><span class="line"></span><br><span class="line">        <span class="comment">// ★ 2. 获取配置</span></span><br><span class="line">        <span class="type">String</span> <span class="variable">config</span> <span class="operator">=</span> configService.getConfig(</span><br><span class="line">            <span class="string">&quot;service-user.yaml&quot;</span>,</span><br><span class="line">            <span class="string">&quot;DEFAULT_GROUP&quot;</span>,</span><br><span class="line">            <span class="number">5000</span>                       <span class="comment">// 超时</span></span><br><span class="line">        );</span><br><span class="line">        System.out.println(config);</span><br><span class="line"></span><br><span class="line">        <span class="comment">// ★ 3. 监听配置变更</span></span><br><span class="line">        configService.addListener(<span class="string">&quot;service-user.yaml&quot;</span>, <span class="string">&quot;DEFAULT_GROUP&quot;</span>, <span class="keyword">new</span> <span class="title class_">Listener</span>() &#123;</span><br><span class="line">            <span class="meta">@Override</span></span><br><span class="line">            <span class="keyword">public</span> Executor <span class="title function_">getExecutor</span><span class="params">()</span> &#123;</span><br><span class="line">                <span class="keyword">return</span> <span class="literal">null</span>;            <span class="comment">// 使用默认线程池</span></span><br><span class="line">            &#125;</span><br><span class="line"></span><br><span class="line">            <span class="meta">@Override</span></span><br><span class="line">            <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">receiveConfigInfo</span><span class="params">(String configInfo)</span> &#123;</span><br><span class="line">                System.out.println(<span class="string">&quot;配置变更: \n&quot;</span> + configInfo);</span><br><span class="line">                <span class="comment">// 执行刷新逻辑</span></span><br><span class="line">            &#125;</span><br><span class="line">        &#125;);</span><br><span class="line"></span><br><span class="line">        <span class="comment">// ★ 4. 删除配置</span></span><br><span class="line">        configService.removeConfig(<span class="string">&quot;service-user.yaml&quot;</span>, <span class="string">&quot;DEFAULT_GROUP&quot;</span>);</span><br><span class="line"></span><br><span class="line">        <span class="comment">// 保持运行，等待配置变更</span></span><br><span class="line">        Thread.sleep(Long.MAX_VALUE);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h5 id="7，配置管理-——-HTTP-API"><a href="#7，配置管理-——-HTTP-API" class="headerlink" title="7，配置管理 —— HTTP API"></a>7，配置管理 —— HTTP API</h5><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># ============ 发布 / 更新配置 ============</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># POST /nacos/v1/cs/configs</span></span><br><span class="line">curl -X POST <span class="string">&#x27;http://localhost:8848/nacos/v1/cs/configs&#x27;</span> \</span><br><span class="line">  -d <span class="string">&#x27;dataId=service-user.yaml&#x27;</span> \</span><br><span class="line">  -d <span class="string">&#x27;group=DEFAULT_GROUP&#x27;</span> \</span><br><span class="line">  -d <span class="string">&#x27;content=server:\n  port: 8080&#x27;</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># ============ 获取配置 ============</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># GET /nacos/v1/cs/configs</span></span><br><span class="line">curl <span class="string">&#x27;http://localhost:8848/nacos/v1/cs/configs?dataId=service-user.yaml&amp;group=DEFAULT_GROUP&#x27;</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># ============ 删除配置 ============</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># DELETE /nacos/v1/cs/configs</span></span><br><span class="line">curl -X DELETE <span class="string">&#x27;http://localhost:8848/nacos/v1/cs/configs?dataId=service-user.yaml&amp;group=DEFAULT_GROUP&#x27;</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># ============ 监听配置变更（长轮询）============</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># POST /nacos/v1/cs/configs/listener</span></span><br><span class="line"><span class="comment"># Content-Type: application/x-www-form-urlencoded</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 请求头：</span></span><br><span class="line"><span class="comment"># Long-Pulling-Timeout: 30000    # 长轮询超时（毫秒）</span></span><br><span class="line"><span class="comment"># 请求体：Listening-Configs=service-user.yaml%02DEFAULT_GROUP%01</span></span><br><span class="line"><span class="comment">#        格式：dataId%02group%01（多个用 %01 分隔）</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 如果配置有变更，立即返回新配置</span></span><br><span class="line"><span class="comment"># 如果没有变更，等待超时后返回空</span></span><br></pre></td></tr></table></figure>
+
+<h5 id="8，配置长轮询机制"><a href="#8，配置长轮询机制" class="headerlink" title="8，配置长轮询机制"></a>8，配置长轮询机制</h5><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line">客户端                    Nacos Server</span><br><span class="line">  │                          │</span><br><span class="line">  │  POST /configs/listener  │</span><br><span class="line">  │  Long-Pulling-Timeout:   │</span><br><span class="line">  │  30000                    │</span><br><span class="line">  ├─────────────────────────►│</span><br><span class="line">  │                          │  1. 检查配置 MD5</span><br><span class="line">  │                          │  2. 如果 MD5 没变</span><br><span class="line">  │                          │     → 加入 ClientLongPolling 队列</span><br><span class="line">  │                          │     → 挂起 29.5 秒</span><br><span class="line">  │                          │</span><br><span class="line">  │     (挂起中...)           │</span><br><span class="line">  │                          │</span><br><span class="line">  │                          │  3. 如果此期间配置被修改</span><br><span class="line">  │                          │     → 立即返回新配置</span><br><span class="line">  │                          │</span><br><span class="line">  │                          │  4. 如果超时无变更</span><br><span class="line">  │  ← 返回空（超时 / 变更）  │     → 返回空</span><br><span class="line">  │                          │</span><br><span class="line">  │  再次发起监听请求          │  （客户端立即再次发起监听）</span><br><span class="line">  ├─────────────────────────►│</span><br><span class="line">  │        ...                │</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// Nacos Server 端长轮询处理（简化版）</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">ConfigController</span> &#123;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@PostMapping(&quot;/listener&quot;)</span></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">listener</span><span class="params">(HttpServletRequest request, HttpServletResponse response)</span> &#123;</span><br><span class="line"></span><br><span class="line">        <span class="comment">// 1. 解析客户端监听的配置列表</span></span><br><span class="line">        <span class="type">String</span> <span class="variable">listeningConfigs</span> <span class="operator">=</span> request.getParameter(<span class="string">&quot;Listening-Configs&quot;</span>);</span><br><span class="line">        <span class="comment">// service-user.yaml%02DEFAULT_GROUP%01service-order.yaml%02DEFAULT_GROUP</span></span><br><span class="line"></span><br><span class="line">        <span class="comment">// 2. 检查每个配置的 MD5 是否有变更</span></span><br><span class="line">        <span class="keyword">for</span> (Config config : parseConfigs(listeningConfigs)) &#123;</span><br><span class="line">            <span class="type">String</span> <span class="variable">currentMd5</span> <span class="operator">=</span> MD5Util.md5Hex(config.getContent());</span><br><span class="line">            <span class="keyword">if</span> (!currentMd5.equals(clientRequestedMd5)) &#123;</span><br><span class="line">                <span class="comment">// ★ 有变更：立即返回</span></span><br><span class="line">                response.getWriter().write(config.getDataId() + <span class="string">&quot;$&quot;</span> + currentMd5);</span><br><span class="line">                <span class="keyword">return</span>;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="comment">// 3. ★ 无变更：加入长轮询队列（挂起客户端请求）</span></span><br><span class="line">        <span class="type">ClientLongPolling</span> <span class="variable">clientLongPolling</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">ClientLongPolling</span>(</span><br><span class="line">            request, response, listeningConfigs, <span class="number">29500</span> <span class="comment">// 29.5s</span></span><br><span class="line">        );</span><br><span class="line"></span><br><span class="line">        <span class="comment">// 4. 注册到 scheduledExecutor，29.5s 后超时返回空</span></span><br><span class="line">        scheduler.schedule(clientLongPolling, <span class="number">29500</span>, MILLISECONDS);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h5 id="9，数据一致性-——-AP-与-CP-模式"><a href="#9，数据一致性-——-AP-与-CP-模式" class="headerlink" title="9，数据一致性 —— AP 与 CP 模式"></a>9，数据一致性 —— AP 与 CP 模式</h5><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># Nacos 支持两种一致性协议</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># ============ AP 模式（临时实例，默认）============</span></span><br><span class="line"><span class="comment"># 基于自研的 Distro 协议（阿里定制版）</span></span><br><span class="line"><span class="comment"># 场景：临时实例的服务注册/发现</span></span><br><span class="line"><span class="comment"># 特点：最终一致性、高可用、性能好</span></span><br><span class="line"><span class="comment"># 节点故障时：自动摘除故障节点上的实例，不影响整体服务</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># Nacos 控制台配置：</span></span><br><span class="line"><span class="comment"># spring.cloud.nacos.discovery.ephemeral=true  （默认）</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># ============ CP 模式（持久化实例）============</span></span><br><span class="line"><span class="comment"># 基于简化的 Raft 协议（JRaft）</span></span><br><span class="line"><span class="comment"># 场景：配置中心、持久化实例的服务注册</span></span><br><span class="line"><span class="comment"># 特点：强一致性、需要选举 Leader、半数以上节点存活</span></span><br><span class="line"><span class="comment"># 节点故障时：如果剩余节点不足半数，服务不可用（保证一致性）</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># Nacos 控制台配置：</span></span><br><span class="line"><span class="comment"># spring.cloud.nacos.discovery.ephemeral=false</span></span><br></pre></td></tr></table></figure>
+
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line"># Distro 协议简介（AP 模式）：</span><br><span class="line"></span><br><span class="line">1. 每个 Nacos 节点负责一部分服务的注册信息</span><br><span class="line">2. 服务实例注册到一个节点时，该节点作为数据的&quot;Owner&quot;</span><br><span class="line">3. Owner 节点异步将数据同步到其他节点</span><br><span class="line">4. 客户端查询时：</span><br><span class="line">   - 如果目标节点是 Owner → 直接返回</span><br><span class="line">   - 如果不是 Owner → 转发到 Owner 或返回本地缓存</span><br><span class="line"></span><br><span class="line">5. 故障处理：</span><br><span class="line">   - 节点宕机 → 该节点负责的服务由其他节点接管</span><br><span class="line">   - 新节点加入 → 重新分配服务归属</span><br><span class="line"></span><br><span class="line"># Raft 协议简介（CP 模式）：</span><br><span class="line"></span><br><span class="line">1. 集群中有 Leader 和 Follower 角色</span><br><span class="line">2. 写请求必须经过 Leader → 半数以上确认 → 提交</span><br><span class="line">3. 读请求：Leader 直接返回；Follower 转发给 Leader</span><br><span class="line">4. Leader 选举：随机超时 → 发起投票 → 收到多数票 → 成为 Leader</span><br><span class="line">5. 日志复制：Leader 发送心跳 + 日志 → Follower 确认一致性</span><br></pre></td></tr></table></figure>
+
+<h5 id="10，Nacos-集群部署"><a href="#10，Nacos-集群部署" class="headerlink" title="10，Nacos 集群部署"></a>10，Nacos 集群部署</h5><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># ============ 步骤 1：准备 MySQL ============</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 创建数据库</span></span><br><span class="line">CREATE DATABASE nacos_config DEFAULT CHARSET utf8mb4;</span><br><span class="line"></span><br><span class="line"><span class="comment"># 导入表结构</span></span><br><span class="line"><span class="built_in">source</span> nacos/conf/mysql-schema.sql;</span><br><span class="line"></span><br><span class="line"><span class="comment"># ============ 步骤 2：配置数据源 ============</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 编辑 conf/application.properties</span></span><br><span class="line"></span><br><span class="line">spring.datasource.platform=mysql</span><br><span class="line">db.num=1</span><br><span class="line">db.url.0=jdbc:mysql://10.0.0.100:3306/nacos_config?characterEncoding=utf8&amp;connectTimeout=1000&amp;socketTimeout=3000&amp;autoReconnect=<span class="literal">true</span>&amp;useSSL=<span class="literal">false</span></span><br><span class="line">db.user.0=nacos</span><br><span class="line">db.password.0=nacos_password</span><br><span class="line"></span><br><span class="line"><span class="comment"># ============ 步骤 3：配置集群节点 ============</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 编辑 conf/cluster.conf（每行一个节点）</span></span><br><span class="line">10.0.0.1:8848</span><br><span class="line">10.0.0.2:8848</span><br><span class="line">10.0.0.3:8848</span><br><span class="line"></span><br><span class="line"><span class="comment"># 三台机器做相同配置</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># ============ 步骤 4：启动集群 ============</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 每台机器执行（不加 -m standalone）</span></span><br><span class="line">sh bin/startup.sh</span><br><span class="line"></span><br><span class="line"><span class="comment"># 查看日志确认集群建立成功</span></span><br><span class="line"><span class="built_in">tail</span> -f logs/nacos-cluster.log</span><br><span class="line"><span class="comment"># is ready to serve, access leader ...</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># ============ 步骤 5：Nginx 反向代理 ============</span></span><br><span class="line"></span><br><span class="line">upstream nacos_cluster &#123;</span><br><span class="line">    server 10.0.0.1:8848;</span><br><span class="line">    server 10.0.0.2:8848;</span><br><span class="line">    server 10.0.0.3:8848;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">server &#123;</span><br><span class="line">    listen 80;</span><br><span class="line">    server_name nacos.example.com;</span><br><span class="line"></span><br><span class="line">    location /nacos/ &#123;</span><br><span class="line">        proxy_pass http://nacos_cluster/nacos/;</span><br><span class="line">        proxy_set_header Host <span class="variable">$host</span>;</span><br><span class="line">        proxy_set_header X-Real-IP <span class="variable">$remote_addr</span>;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment"># 客户端配置改为 Nginx 地址</span></span><br><span class="line"><span class="comment"># spring.cloud.nacos.discovery.server-addr=nacos.example.com:80</span></span><br></pre></td></tr></table></figure>
+
+<h5 id="11，监控与运维"><a href="#11，监控与运维" class="headerlink" title="11，监控与运维"></a>11，监控与运维</h5><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># ============ Nacos 内置监控端点 ============</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># Prometheus 指标</span></span><br><span class="line"><span class="comment"># GET /nacos/actuator/prometheus</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># Nacos 需开启：</span></span><br><span class="line"><span class="comment"># management.endpoints.web.exposure.include=*</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 接入 Prometheus + Grafana</span></span><br><span class="line"><span class="comment"># Nacos 官方提供 Grafana Dashboard JSON</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># ============ 重要监控指标 ============</span></span><br><span class="line"><span class="comment"># nacos_monitor&#123;name=&#x27;ServiceCount&#x27;&#125;        注册的服务总数</span></span><br><span class="line"><span class="comment"># nacos_monitor&#123;name=&#x27;InstanceCount&#x27;&#125;       注册的实例总数</span></span><br><span class="line"><span class="comment"># nacos_monitor&#123;name=&#x27;configCount&#x27;&#125;         配置总数</span></span><br><span class="line"><span class="comment"># nacos_monitor&#123;name=&#x27;httpRequest&#x27;&#125;         HTTP 请求量</span></span><br><span class="line"><span class="comment"># nacos_monitor&#123;name=&#x27;cpu&#x27;&#125;                 CPU 使用率</span></span><br><span class="line"><span class="comment"># nacos_monitor&#123;name=&#x27;memory&#x27;&#125;              内存使用量</span></span><br><span class="line"><span class="comment"># nacos_monitor&#123;name=&#x27;longPolling&#x27;&#125;         长轮询连接数</span></span><br></pre></td></tr></table></figure>
+
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># ============ 日志目录 ============</span></span><br><span class="line"></span><br><span class="line"><span class="built_in">tail</span> -f logs/nacos-server.log         <span class="comment"># 主服务日志</span></span><br><span class="line"><span class="built_in">tail</span> -f logs/naming-server.log        <span class="comment"># 服务发现模块</span></span><br><span class="line"><span class="built_in">tail</span> -f logs/config-server.log        <span class="comment"># 配置管理模块</span></span><br><span class="line"><span class="built_in">tail</span> -f logs/raft.log                 <span class="comment"># Raft 协议日志</span></span><br><span class="line"><span class="built_in">tail</span> -f logs/distro.log               <span class="comment"># Distro 协议日志</span></span><br></pre></td></tr></table></figure>
+
+<h5 id="12，最佳实践"><a href="#12，最佳实践" class="headerlink" title="12，最佳实践"></a>12，最佳实践</h5><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 1. 命名空间规划</span></span><br><span class="line"><span class="comment"># namespace: dev / test / staging / prod</span></span><br><span class="line"><span class="comment"># 各环境完全隔离</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 2. 分组规划</span></span><br><span class="line"><span class="comment"># 业务服务: DEFAULT_GROUP</span></span><br><span class="line"><span class="comment"># 中间件配置: MIDDLEWARE_GROUP</span></span><br><span class="line"><span class="comment"># 公共配置: COMMON_GROUP</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 3. 配置分级</span></span><br><span class="line"><span class="comment"># 应用专属: $&#123;spring.application.name&#125;.yaml</span></span><br><span class="line"><span class="comment"># 扩展配置: ext-custom.yaml</span></span><br><span class="line"><span class="comment"># 共享配置: common.yaml, db-common.yaml, redis-common.yaml</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 4. 安全</span></span><br><span class="line"><span class="comment"># 修改默认 nacos/nacos 密码</span></span><br><span class="line"><span class="comment"># 开启鉴权: nacos.core.auth.enabled=true</span></span><br><span class="line"><span class="comment"># 生产环境使用独立数据库</span></span><br><span class="line"><span class="comment"># 不暴露 Nacos Console 到公网</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 5. 容量建议</span></span><br><span class="line"><span class="comment"># 单节点：&lt; 1000 服务实例</span></span><br><span class="line"><span class="comment"># 3 节点集群：&lt; 10000 服务实例</span></span><br><span class="line"><span class="comment"># 5 节点集群：&lt; 100000 服务实例</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 6. 心跳配置建议</span></span><br><span class="line"><span class="comment"># 正常环境：心跳 5 秒，过期 15 秒，剔除 30 秒</span></span><br><span class="line"><span class="comment"># 高负载环境：心跳 10 秒，过期 30 秒，剔除 60 秒</span></span><br></pre></td></tr></table></figure>
+
+<h5 id="13，命令速查"><a href="#13，命令速查" class="headerlink" title="13，命令速查"></a>13，命令速查</h5><table>
+<thead>
+<tr>
+<th>操作</th>
+<th>API</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>注册实例</td>
+<td><code>POST /nacos/v1/ns/instance</code></td>
+<td>注册服务实例</td>
+</tr>
+<tr>
+<td>发现实例</td>
+<td><code>GET /nacos/v1/ns/instance/list</code></td>
+<td>查询服务实例列表</td>
+</tr>
+<tr>
+<td>心跳</td>
+<td><code>PUT /nacos/v1/ns/instance/beat</code></td>
+<td>临时实例心跳</td>
+</tr>
+<tr>
+<td>注销实例</td>
+<td><code>DELETE /nacos/v1/ns/instance</code></td>
+<td>注销服务实例</td>
+</tr>
+<tr>
+<td>更新实例</td>
+<td><code>PUT /nacos/v1/ns/instance</code></td>
+<td>修改权重等元数据</td>
+</tr>
+<tr>
+<td>健康开关</td>
+<td><code>PUT /nacos/v1/ns/health/instance</code></td>
+<td>手动上下线</td>
+</tr>
+<tr>
+<td>服务列表</td>
+<td><code>GET /nacos/v1/ns/service/list</code></td>
+<td>查询全部服务</td>
+</tr>
+<tr>
+<td>服务详情</td>
+<td><code>GET /nacos/v1/ns/service</code></td>
+<td>查询服务详情</td>
+</tr>
+<tr>
+<td>获取配置</td>
+<td><code>GET /nacos/v1/cs/configs</code></td>
+<td>拉取配置内容</td>
+</tr>
+<tr>
+<td>发布配置</td>
+<td><code>POST /nacos/v1/cs/configs</code></td>
+<td>新建/更新配置</td>
+</tr>
+<tr>
+<td>删除配置</td>
+<td><code>DELETE /nacos/v1/cs/configs</code></td>
+<td>删除配置</td>
+</tr>
+<tr>
+<td>监听配置</td>
+<td><code>POST /nacos/v1/cs/configs/listener</code></td>
+<td>长轮询监听变更</td>
+</tr>
+<tr>
+<td>获取命名空间</td>
+<td><code>GET /nacos/v1/console/namespaces</code></td>
+<td>查询命名空间列表</td>
+</tr>
+</tbody></table>
+
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/blog/tags/java/" rel="tag"># java</a>
+              <a href="/blog/tags/%E5%BE%AE%E6%9C%8D%E5%8A%A1/" rel="tag"># 微服务</a>
+              <a href="/blog/tags/nacos/" rel="tag"># nacos</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/blog/2024/07/25/springcloud/SpringCloudAlibaba%E6%BA%90%E7%A0%81%E5%AD%A6%E4%B9%A0/" rel="prev" title="SpringCloudAlibaba源码学习">
+      <i class="fa fa-chevron-left"></i> SpringCloudAlibaba源码学习
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/blog/2024/08/05/springcloud/nacos%E6%BA%90%E7%A0%81%E5%AD%A6%E4%B9%A0/" rel="next" title="nacos源码学习">
+      nacos源码学习 <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-5"><a class="nav-link" href="#1%EF%BC%8CNacos-%E7%AE%80%E4%BB%8B"><span class="nav-number">1.</span> <span class="nav-text">1，Nacos 简介</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#2%EF%BC%8C%E5%AE%89%E8%A3%85%E4%B8%8E%E5%90%AF%E5%8A%A8"><span class="nav-number">2.</span> <span class="nav-text">2，安装与启动</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#3%EF%BC%8C%E5%91%BD%E5%90%8D%E7%A9%BA%E9%97%B4%E3%80%81%E5%88%86%E7%BB%84%E3%80%81%E9%9B%86%E7%BE%A4%E6%A6%82%E5%BF%B5"><span class="nav-number">3.</span> <span class="nav-text">3，命名空间、分组、集群概念</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#4%EF%BC%8C%E6%9C%8D%E5%8A%A1%E6%B3%A8%E5%86%8C%E4%B8%8E%E5%8F%91%E7%8E%B0-%E2%80%94%E2%80%94-Java-SDK"><span class="nav-number">4.</span> <span class="nav-text">4，服务注册与发现 —— Java SDK</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#5%EF%BC%8C%E6%9C%8D%E5%8A%A1%E5%8F%91%E7%8E%B0-%E2%80%94%E2%80%94-HTTP-API"><span class="nav-number">5.</span> <span class="nav-text">5，服务发现 —— HTTP API</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#6%EF%BC%8C%E9%85%8D%E7%BD%AE%E7%AE%A1%E7%90%86-%E2%80%94%E2%80%94-Java-SDK"><span class="nav-number">6.</span> <span class="nav-text">6，配置管理 —— Java SDK</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#7%EF%BC%8C%E9%85%8D%E7%BD%AE%E7%AE%A1%E7%90%86-%E2%80%94%E2%80%94-HTTP-API"><span class="nav-number">7.</span> <span class="nav-text">7，配置管理 —— HTTP API</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#8%EF%BC%8C%E9%85%8D%E7%BD%AE%E9%95%BF%E8%BD%AE%E8%AF%A2%E6%9C%BA%E5%88%B6"><span class="nav-number">8.</span> <span class="nav-text">8，配置长轮询机制</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#9%EF%BC%8C%E6%95%B0%E6%8D%AE%E4%B8%80%E8%87%B4%E6%80%A7-%E2%80%94%E2%80%94-AP-%E4%B8%8E-CP-%E6%A8%A1%E5%BC%8F"><span class="nav-number">9.</span> <span class="nav-text">9，数据一致性 —— AP 与 CP 模式</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#10%EF%BC%8CNacos-%E9%9B%86%E7%BE%A4%E9%83%A8%E7%BD%B2"><span class="nav-number">10.</span> <span class="nav-text">10，Nacos 集群部署</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#11%EF%BC%8C%E7%9B%91%E6%8E%A7%E4%B8%8E%E8%BF%90%E7%BB%B4"><span class="nav-number">11.</span> <span class="nav-text">11，监控与运维</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#12%EF%BC%8C%E6%9C%80%E4%BD%B3%E5%AE%9E%E8%B7%B5"><span class="nav-number">12.</span> <span class="nav-text">12，最佳实践</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#13%EF%BC%8C%E5%91%BD%E4%BB%A4%E9%80%9F%E6%9F%A5"><span class="nav-number">13.</span> <span class="nav-text">13，命令速查</span></a></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">ruoxi</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/blog/archives/">
+        
+          <span class="site-state-item-count">80</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/blog/categories/">
+          
+        <span class="site-state-item-count">17</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/blog/tags/">
+          
+        <span class="site-state-item-count">47</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2026</span>
+  <span class="with-love">
+    <i class="fa fa-code"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">ruoxi</span>
+</div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/blog/lib/anime.min.js"></script>
+  <script src="/blog/lib/velocity/velocity.min.js"></script>
+  <script src="/blog/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/blog/js/utils.js"></script>
+
+<script src="/blog/js/motion.js"></script>
+
+
+<script src="/blog/js/schemes/pisces.js"></script>
+
+
+<script src="/blog/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+</body>
+</html>

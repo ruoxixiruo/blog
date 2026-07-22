@@ -1,0 +1,1504 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>DRF学习文档</title>
+<style>
+body {
+    transition: margin-left .25s ease;
+    font-family: -apple-system, "Noto Sans SC", "Microsoft YaHei", sans-serif;
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 20px 24px 60px;
+    line-height: 1.8;
+    color: #333;
+    background: #fff;
+}
+h1 { border-bottom: 2px solid #eee; padding-bottom: 10px; color: #222; }
+h2 { color: #333; margin-top: 32px; }
+h3 { color: #555; }
+a { color: #0366d6; text-decoration: none; }
+a:hover { text-decoration: underline; }
+pre {
+    background: #f6f8fa;
+    border-radius: 6px;
+    padding: 16px;
+    overflow-x: auto;
+    font-size: 14px;
+    line-height: 1.45;
+}
+code {
+    background: #f0f2f4;
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-size: 14px;
+}
+pre code { background: none; padding: 0; }
+blockquote {
+    border-left: 4px solid #ddd;
+    margin: 0;
+    padding: 0 16px;
+    color: #666;
+}
+table {
+    border-collapse: collapse;
+    width: 100%;
+    margin: 16px 0;
+}
+th, td {
+    border: 1px solid #ddd;
+    padding: 8px 12px;
+    text-align: left;
+}
+th { background: #f6f8fa; }
+img { max-width: 100%; }
+.back-link {
+    margin-bottom: 20px;
+    display: block;
+    color: #666;
+}
+.back-link:hover { color: #0366d6; }
+
+.sidebar-toc {
+    transition: left .25s ease;
+    position: fixed;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    width: 220px;
+    background: #f8f9fa;
+    border-right: 1px solid #e9ecef;
+    padding: 20px 0;
+    overflow-y: auto;
+    font-size: 13px;
+    z-index: 100;
+}
+.sidebar-toc a {
+    display: block;
+    padding: 6px 16px;
+    color: #555;
+    text-decoration: none;
+    border-left: 3px solid transparent;
+    line-height: 1.5;
+}
+.sidebar-toc a:hover {
+    background: #e9ecef;
+    color: #0366d6;
+    border-left-color: #0366d6;
+}
+.sidebar-toc .toc-h2 { padding-left: 16px; font-weight: 500; }
+.sidebar-toc .toc-h3 { padding-left: 32px; font-size: 12px; }
+body { margin-left: 240px; }
+
+
+.copy-btn {
+    position: absolute; top: 6px; right: 6px;
+    background: #e9ecef; border: none;
+    border-radius: 4px; padding: 3px 10px;
+    font-size: 12px; color: #555; cursor: pointer;
+    opacity: 0; transition: opacity 0.2s;
+    z-index: 1;
+}
+pre:hover .copy-btn { opacity: 1; }
+.copy-btn:hover { background: #d0d7de; }
+.copy-btn.copied { opacity: 1; background: #2da44e; color: #fff; }
+.copy-btn{position:absolute;top:6px;right:6px;background:#e9ecef;border:none;border-radius:4px;padding:3px 10px;font-size:12px;color:#555;cursor:pointer;opacity:0;transition:opacity .2s;z-index:1}pre:hover .copy-btn{opacity:1}.copy-btn:hover{background:#d0d7de}.copy-btn.copied{opacity:1;background:#2da44e;color:#fff}
+.copy-btn{position:absolute;top:6px;right:6px;background:#e9ecef;border:none;border-radius:4px;padding:3px 10px;font-size:12px;color:#555;cursor:pointer;opacity:0;transition:opacity .2s;z-index:1}pre:hover .copy-btn{opacity:1}.copy-btn:hover{background:#d0d7de}.copy-btn.copied{opacity:1;background:#2da44e;color:#fff}
+.copy-btn{position:absolute;top:6px;right:6px;background:#e9ecef;border:none;border-radius:4px;padding:3px 10px;font-size:12px;color:#555;cursor:pointer;opacity:0;transition:opacity .2s;z-index:1}pre:hover .copy-btn{opacity:1}.copy-btn:hover{background:#d0d7de}.copy-btn.copied{opacity:1;background:#2da44e;color:#fff}
+.sidebar-toggle-btn {
+  position: fixed;
+  left: 220px;
+  top: 0;
+  width: 28px;
+  height: 40px;
+  background: #f8f9fa;
+  border: 1px solid #e9ecef;
+  border-left: none;
+  border-radius: 0 4px 4px 0;
+  cursor: pointer;
+  font-size: 16px;
+  color: #555;
+  z-index: 101;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: left .25s, background .2s;
+  padding: 0;
+  line-height: 1;
+}
+.sidebar-toggle-btn:hover { background: #e9ecef; color: #0366d6; }
+.sidebar-collapsed .sidebar-toc { left: -220px; }
+.sidebar-collapsed .sidebar-toggle-btn { left: 0; }
+.sidebar-collapsed body, body.sidebar-collapsed { margin-left: 28px; }
+.sidebar-overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,.3);
+  z-index: 99;
+}
+@media (max-width: 768px) {
+  .sidebar-collapsed .sidebar-overlay { display: none; }
+  .sidebar-toc { left: -220px; }
+  .sidebar-toggle-btn { left: 0; }
+  body { margin-left: 28px; }
+}
+
+</style>
+</head>
+</head>
+<body>
+<nav class="sidebar-toc"><a class="toc-h2" href="#1-drf">1. 先搞懂：DRF 到底是个啥？</a><a class="toc-h3" href="#_2">🍕 打个比方</a><a class="toc-h3" href="#drf_1">📋 DRF 是什么？</a><a class="toc-h3" href="#_3">🔄 一个请求的生命之旅</a><a class="toc-h3" href="#drf_2">🧩 DRF 核心组件一览</a><a class="toc-h3" href="#restful-api">📐 RESTful API 设计原则</a><a class="toc-h2" href="#2-api">2. 请求和响应 —— API 的"门面"</a><a class="toc-h3" href="#21-request-django">2.1 Request 对象 —— 比原版 Django 更聪明</a><a class="toc-h3" href="#22-response">2.2 Response 对象 —— 自动选最合适的格式</a><a class="toc-h3" href="#23">2.3 常用状态码（心里有数就行）</a><a class="toc-h3" href="#24-content-negotiation">2.4 内容协商 (Content Negotiation)</a><a class="toc-h2" href="#3-serializer-drf">3. 序列化器 (Serializer) —— DRF 的灵魂</a><a class="toc-h3" href="#_4">🗣 用大白话说</a><a class="toc-h3" href="#31-serializer-vs-modelserializer-vs">3.1 Serializer vs ModelSerializer —— 手动挡 vs 自动挡</a><a class="toc-h3" href="#32-modelserializer">3.2 ModelSerializer 基础用法</a><a class="toc-h3" href="#33-serializermethodfield">3.3 SerializerMethodField —— 自定义计算字段</a><a class="toc-h3" href="#34">3.4 嵌套序列化 —— 一个接口带出关联数据</a><a class="toc-h3" href="#35-create-update">3.5 自定义 create 和 update —— 特殊逻辑自己掌控</a><a class="toc-h3" href="#36">3.6 序列化器校验流程 —— 层层过筛子</a><a class="toc-h2" href="#4-views">4. 视图 (Views) —— 从面条代码到几行搞定</a><a class="toc-h3" href="#_5">📈 视图层级的"进化树"</a><a class="toc-h3" href="#42-api_view">4.2 @api_view（函数视图）</a><a class="toc-h3" href="#43-apiview">4.3 APIView（类视图，自定义空间大）</a><a class="toc-h3" href="#44-generic-views-crud">4.4 Generic Views —— 标准 CRUD 几行搞定</a><a class="toc-h3" href="#45-viewset">4.5 ViewSet —— 一个类搞定所有操作</a><a class="toc-h3" href="#46-mixin">4.6 Mixin 组合详解 —— 像乐高一样拼功能</a><a class="toc-h2" href="#5-routers-url">5. 路由 (Routers) —— 让 URL 自动生成</a><a class="toc-h3" href="#_6">🚗 大白话</a><a class="toc-h3" href="#51-simplerouter">5.1 SimpleRouter</a><a class="toc-h3" href="#52-defaultrouter">5.2 DefaultRouter</a><a class="toc-h3" href="#53-django-url">5.3 挂载到 Django URL</a><a class="toc-h2" href="#6-authentication">6. 认证 (Authentication) —— "你是谁"</a><a class="toc-h3" href="#_7">🚪 打个比方</a><a class="toc-h3" href="#61">6.1 认证类的调用顺序（面试高频！）</a><a class="toc-h3" href="#62">6.2 内置认证方案</a><a class="toc-h3" href="#63">6.3 自定义认证类 —— 当内置的不够用</a><a class="toc-h3" href="#64">6.4 视图级别认证</a><a class="toc-h2" href="#7-permissions">7. 权限 (Permissions) —— "你能干嘛"</a><a class="toc-h3" href="#vs">🔑 认证 vs 权限（面试必考！）</a><a class="toc-h3" href="#72">7.2 内置权限类</a><a class="toc-h3" href="#73">7.3 自定义权限</a><a class="toc-h3" href="#74">7.4 权限执行顺序</a><a class="toc-h2" href="#8-throttling">8. 限流 (Throttling) —— 防刷防爆</a><a class="toc-h3" href="#_14">⏱ 大白话</a><a class="toc-h3" href="#82">8.2 内置限流类</a><a class="toc-h3" href="#83">8.3 自定义限流</a><a class="toc-h2" href="#9">9. 过滤与排序 —— 让查询更灵活</a><a class="toc-h3" href="#91-django-filter">9.1 django-filter 集成</a><a class="toc-h3" href="#92">9.2 过滤字段</a><a class="toc-h3" href="#93-filterset">9.3 自定义 FilterSet</a><a class="toc-h3" href="#94">9.4 搜索</a><a class="toc-h3" href="#95">9.5 排序</a><a class="toc-h2" href="#10-pagination">10. 分页 (Pagination) —— 别一次性全返回</a><a class="toc-h3" href="#_15">📄 大白话</a><a class="toc-h3" href="#101">10.1 全局配置</a><a class="toc-h3" href="#102">10.2 三种分页器</a><a class="toc-h3" href="#103">10.3 三种分页对比</a><a class="toc-h2" href="#11-versioning-api">11. 版本控制 (Versioning) —— 新旧 API 共存</a><a class="toc-h3" href="#111">11.1 三种版本控制方式</a><a class="toc-h3" href="#112">11.2 配置示例</a><a class="toc-h3" href="#113">11.3 视图中获取版本</a><a class="toc-h2" href="#12">12. 中间件与异常处理 —— 把错误友好地兜住</a><a class="toc-h3" href="#121">12.1 异常处理</a><a class="toc-h3" href="#122">12.2 常用装饰器</a><a class="toc-h2" href="#13-jwt">13. JWT 认证 —— 现代化登录方案</a><a class="toc-h3" href="#_16">🎫 大白话</a><a class="toc-h3" href="#131-simplejwt">13.1 SimpleJWT 集成</a><a class="toc-h3" href="#132-jwt">13.2 JWT 获取与使用</a><a class="toc-h3" href="#133-jwt-payload">13.3 自定义 JWT Payload</a><a class="toc-h2" href="#14">14. 信号与钩子 —— 关键时刻插一脚</a><a class="toc-h3" href="#_17">🪝 大白话</a><a class="toc-h3" href="#141-drf">14.1 DRF 信号</a><a class="toc-h3" href="#142-viewset">14.2 常用钩子方法（ViewSet 中）</a><a class="toc-h2" href="#15-api">15. 性能优化 —— 让你的 API 快如闪电</a><a class="toc-h3" href="#151-select_related-prefetch_related">⚡ 15.1 select_related / prefetch_related</a><a class="toc-h3" href="#152-only-defer">15.2 only() / defer()</a><a class="toc-h3" href="#153">15.3 缓存</a><a class="toc-h3" href="#154">15.4 分页优化</a><a class="toc-h2" href="#16">16. 高频面试题 —— 直接背就完了</a><a class="toc-h3" href="#q1drf">Q1：DRF 的请求生命周期？</a><a class="toc-h3" href="#q2serializer-modelserializer">Q2：Serializer 和 ModelSerializer 的区别？</a><a class="toc-h3" href="#q3">Q3：认证和权限的区别？</a><a class="toc-h3" href="#q4">Q4：多个认证类的调用顺序是怎样的？（高频）</a><a class="toc-h3" href="#q5-jwt">Q5：如何实现 JWT 认证？</a><a class="toc-h3" href="#q6viewset-generic-view">Q6：Viewset 和 Generic View 的区别？</a><a class="toc-h3" href="#q7">Q7：如何做接口分页？</a><a class="toc-h3" href="#q8drf">Q8：DRF 如何处理异常？</a><a class="toc-h3" href="#q9-drf">Q9：如何优化 DRF 接口性能？</a><a class="toc-h3" href="#q10-api">Q10：如何实现 API 版本管理？</a><a class="toc-h3" href="#q11serializer">Q11：Serializer 的校验顺序？</a><a class="toc-h3" href="#q12">Q12：如何实现文件上传？</a><a class="toc-h3" href="#q13drf-action">Q13：DRF 中 @action 装饰器的用法？</a><a class="toc-h3" href="#q14">Q14：如何实现搜索和过滤？</a><a class="toc-h3" href="#q15drf-renderer">Q15：DRF 的渲染器 (Renderer) 是什么？</a><a class="toc-h3" href="#q16">Q16：如何写单元测试？</a><a class="toc-h2" href="#drf_3">附录：DRF 配置速查表</a></nav>
+<button class="sidebar-toggle-btn" onclick="toggleSidebar()" title="切换侧栏">☰</button>
+
+<div class="sidebar-overlay" onclick="toggleSidebar()"></div>
+
+<script>
+function toggleSidebar() {
+  document.body.classList.toggle('sidebar-collapsed');
+  try { localStorage.setItem('sidebarCollapsed', document.body.classList.contains('sidebar-collapsed')); } catch(e) {}
+}
+(function() {
+  try {
+    if (localStorage.getItem('sidebarCollapsed') === 'true') {
+      document.body.classList.add('sidebar-collapsed');
+    }
+  } catch(e) {}
+})();
+</script>
+<a class="back-link" href="/blog/2026/05/16/面试题/面试题/">← 返回面试题目录</a>
+<h1 id=page-title>DRF 面试学习文档</h1>
+
+<h2 id="1-drf">1. 先搞懂：DRF 到底是个啥？</h2>
+
+<h3 id="_2">打个比方</h3>
+<p>用原生 Django 写接口就像从零开始做披萨——揉面、调酱、烤制，每一步都得自己来。DRF 则是一条<strong>自动化后厨流水线</strong>：配置几个参数，面团自动揉、酱料自动配、烤箱自动控温。还自带<strong>门禁</strong>（认证）、<strong>权限牌</strong>（权限）、<strong>排队系统</strong>（限流）。</p>
+
+<h3 id="drf_1">DRF 是什么？</h3>
+<p>DRF（Django REST Framework）是基于 Django 的 Web API 框架，提供完整工具集快速构建 RESTful API。</p>
+
+<h3 id="_3">DRF 请求生命周期（总览）</h3>
+<pre><code>                    ┌──────────────────────────────────────────────────────────┐
+                    │                DRF 请求生命周期（全链路）                    │
+                    └──────────────────────────────────────────────────────────┘
+
+  HTTP 请求
+      │
+      ▼
+┌─────────────┐
+│ Django 中间件 │ ── 全局预处理（CORS、CSRF、压缩等）
+└─────────────┘
+      │
+      ▼
+┌─────────────┐
+│  URL 路由匹配 │ ── urlpatterns → View.as_view()
+└─────────────┘
+      │
+      ▼
+┌─────────────────────────────────────────────────────────────────┐
+│                      DRF 三板斧（按顺序执行）                      │
+│                                                                  │
+│  ┌──────────┐     ┌──────────┐     ┌──────────┐                 │
+│  │  认证     │ ──► │  权限     │ ──► │  限流     │                 │
+│  │ Auth     │     │ Perm     │     │ Throttle │                 │
+│  └──────────┘     └──────────┘     └──────────┘                 │
+│   401 未认证        403 无权限        429 请求过多                │
+└─────────────────────────────────────────────────────────────────┘
+      │ 通过
+      ▼
+┌─────────────────────────────────────────────────────────────────┐
+│                       视图层 (View / ViewSet)                     │
+│                                                                  │
+│  dispatch()  ──►  get() / post() / put() / delete()             │
+│                    │                                              │
+│                    ├── get_queryset()       获取查询集             │
+│                    ├── get_object()          获取单个对象           │
+│                    ├── get_serializer()      获取序列化器           │
+│                    │                           │                   │
+│                    │     ┌─────────────────────┘                   │
+│                    │     ▼                                         │
+│                    │  ┌──────────────────┐                        │
+│                    │  │   Serializer     │                        │
+│                    │  │  is_valid() 校验  │                        │
+│                    │  │  save() 持久化    │                        │
+│                    │  │  .data 序列化输出  │                        │
+│                    │  └──────────────────┘                        │
+│                    │     │                                         │
+│                    ▼     ▼                                         │
+│               return Response(data)                               │
+└─────────────────────────────────────────────────────────────────┘
+      │
+      ▼
+┌─────────────┐
+│  渲染器      │ ── 根据 Accept 头输出 JSON / HTML / XML
+│  Renderer   │
+└─────────────┘
+      │
+      ▼
+  HTTP 响应
+</code></pre>
+
+<p>餐厅类比：认证 = 查会员卡，权限 = VIP区/普通区，限流 = 每人限量，视图 = 服务员接单，序列化器 = 厨师翻译订单/上菜。</p>
+
+<h3 id="drf_2">核心组件一览</h3>
+<table>
+<thead>
+<tr><th>组件</th><th>大白话</th><th>技术职责</th></tr>
+</thead>
+<tbody>
+<tr><td>Request/Response</td><td>智能信封，自动识别内容类型</td><td>扩展 Django 原生 HttpRequest，内容协商</td></tr>
+<tr><td>Serializer</td><td>翻译官：模型 ↔ JSON</td><td>数据校验、序列化、反序列化</td></tr>
+<tr><td>View/ViewSet</td><td>服务员：处理订单</td><td>处理请求逻辑，路由映射</td></tr>
+<tr><td>Router</td><td>自动导航：不用手写 URL</td><td>自动生成 URL 路由</td></tr>
+<tr><td>Authentication</td><td>门禁：查会员卡</td><td>身份识别</td></tr>
+<tr><td>Permission</td><td>权限牌：VIP区/普通区</td><td>权限控制</td></tr>
+<tr><td>Throttling</td><td>限流器：限量</td><td>请求频率限制</td></tr>
+<tr><td>Pagination</td><td>分页器：分批上菜</td><td>分页控制</td></tr>
+<tr><td>Filter</td><td>筛子：按口味筛选</td><td>查询过滤与排序</td></tr>
+<tr><td>Versioning</td><td>版本标签：v1/v2 菜单</td><td>API 版本管理</td></tr>
+</tbody>
+</table>
+
+<h3 id="restful-api">RESTful API 设计原则</h3>
+<ul>
+<li><strong>资源导向</strong>：URL 用名词（<code>/users/</code>），不用动词</li>
+<li><strong>HTTP 方法语义化</strong>：GET 查询、POST 创建、PUT 全量更新、PATCH 部分更新、DELETE 删除</li>
+<li><strong>无状态</strong>：每个请求包含所有必要信息，服务器不保存客户端状态</li>
+<li><strong>统一接口</strong>：标准 HTTP 方法、状态码、媒体类型</li>
+</ul>
+<hr />
+
+<h2 id="2-api">2. 请求和响应 —— API 的"门面"</h2>
+
+<h3 id="21-request-django">2.1 Request 对象 —— 比原版 Django 更聪明</h3>
+<p>DRF 的 <code>Request</code> 扩展了 Django <code>HttpRequest</code>，自动解析 JSON、Form、文件等格式：</p>
+<pre><code class="language-python">from rest_framework.request import Request
+
+# 核心属性
+request.data          # 解析后的请求体（POST/PUT/PATCH），自动适配 JSON/Form/Multipart
+request.query_params  # GET 查询参数（等同于 request.GET）
+request.user          # 认证后的用户对象
+request.auth          # 认证凭据
+request.FILES         # 上传的文件
+
+# 内容协商
+request.accepted_renderer  # 客户端期望的渲染格式
+request.content_type       # 请求的 Content-Type
+</code></pre>
+
+<h3 id="22-response">2.2 Response 对象 —— 自动选最合适的格式</h3>
+<pre><code class="language-python">from rest_framework.response import Response
+
+# Response 根据 Accept 头自动选择渲染格式（JSON/HTML 等）
+return Response(data, status=status.HTTP_201_CREATED)
+return Response({'error': 'msg'}, status=status.HTTP_400_BAD_REQUEST)
+</code></pre>
+
+<h3 id="23">2.3 常用状态码</h3>
+<pre><code class="language-python">from rest_framework import status
+
+status.HTTP_200_OK                    # 成功
+status.HTTP_201_CREATED               # 创建成功
+status.HTTP_204_NO_CONTENT            # 删除成功（无返回内容）
+status.HTTP_400_BAD_REQUEST           # 请求参数错误
+status.HTTP_401_UNAUTHORIZED          # 未认证
+status.HTTP_403_FORBIDDEN             # 无权限
+status.HTTP_404_NOT_FOUND             # 资源不存在
+status.HTTP_405_METHOD_NOT_ALLOWED    # 方法不允许
+status.HTTP_500_INTERNAL_SERVER_ERROR # 服务器错误
+</code></pre>
+
+<h3 id="24-content-negotiation">2.4 内容协商 (Content Negotiation)</h3>
+<p>DRF 根据请求 <code>Accept</code> 头决定响应格式。客户端要求 JSON 则返回 JSON，要求 HTML 则渲染 Browsable API 页面。</p>
+<hr />
+
+<h2 id="3-serializer-drf">3. 序列化器 (Serializer) —— DRF 的灵魂</h2>
+
+<h3 id="_4">用大白话说</h3>
+<p>序列化器是<strong>数据翻译官</strong>，做三件事：</p>
+<ul>
+<li><strong>序列化</strong>：Python 对象 → JSON（返回给客户端）</li>
+<li><strong>反序列化</strong>：JSON → Python 对象（客户端发来的数据存库）</li>
+<li><strong>校验</strong>：字段类型对不对？必填字段漏没漏？</li>
+</ul>
+
+<h3 id="31-serializer-vs-modelserializer-vs">3.1 Serializer vs ModelSerializer —— 手动挡 vs 自动挡</h3>
+<table>
+<thead><tr><th>对比项</th><th>Serializer（手动挡）</th><th>ModelSerializer（自动挡）</th></tr></thead>
+<tbody>
+<tr><td>定义方式</td><td>手动声明每个字段</td><td>自动根据 Model 生成字段</td></tr>
+<tr><td>使用场景</td><td>非模型数据、复杂校验</td><td>标准 CRUD、Model 直接关联</td></tr>
+<tr><td>create/update</td><td>需手动实现</td><td>自动实现</td></tr>
+</tbody>
+</table>
+<blockquote>
+<p><strong>面试话术：</strong>"能用 ModelSerializer 就先用它，省事；复杂逻辑再退化到 Serializer 手动控制。"</p>
+</blockquote>
+
+<h3 id="32-modelserializer">3.2 ModelSerializer 基础用法</h3>
+<pre><code class="language-python">from rest_framework import serializers
+from .models import Article
+
+class ArticleSerializer(serializers.ModelSerializer):
+    author_name = serializers.CharField(source='author.username', read_only=True)
+
+    class Meta:
+        model = Article
+        fields = ['id', 'title', 'content', 'author_name', 'created_at']
+        # exclude = ['author']  # 与 fields 二选一
+        read_only_fields = ['created_at']
+
+    # 字段级别校验
+    def validate_title(self, value):
+        if len(value) &lt; 5:
+            raise serializers.ValidationError("标题至少5个字符")
+        return value
+
+    # 对象级别校验（多字段联合）
+    def validate(self, attrs):
+        if attrs.get('title') == attrs.get('content'):
+            raise serializers.ValidationError("标题和内容不能相同")
+        return attrs
+</code></pre>
+
+<h3 id="33-serializermethodfield">3.3 SerializerMethodField —— 自定义计算字段</h3>
+<pre><code class="language-python">class ArticleSerializer(serializers.ModelSerializer):
+    comment_count = serializers.SerializerMethodField()
+
+    class Meta:
+        model = Article
+        fields = '__all__'
+
+    def get_comment_count(self, obj):
+        return obj.comments.count()
+</code></pre>
+
+<h3 id="34">3.4 嵌套序列化 —— 一个接口带出关联数据</h3>
+<pre><code class="language-python">class CommentSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Comment
+        fields = ['id', 'content', 'created_at']
+
+class ArticleDetailSerializer(serializers.ModelSerializer):
+    comments = CommentSerializer(many=True, read_only=True)
+    tags = serializers.StringRelatedField(many=True)
+
+    class Meta:
+        model = Article
+        fields = '__all__'
+</code></pre>
+
+<h3 id="35-create-update">3.5 自定义 create 和 update</h3>
+<pre><code class="language-python">class UserSerializer(serializers.ModelSerializer):
+    password = serializers.CharField(write_only=True)
+
+    class Meta:
+        model = User
+        fields = ['id', 'username', 'email', 'password']
+
+    def create(self, validated_data):
+        password = validated_data.pop('password')
+        user = User(**validated_data)
+        user.set_password(password)
+        user.save()
+        return user
+
+    def update(self, instance, validated_data):
+        password = validated_data.pop('password', None)
+        instance = super().update(instance, validated_data)
+        if password:
+            instance.set_password(password)
+            instance.save()
+        return instance
+</code></pre>
+
+<h3 id="36">3.6 序列化器校验流程</h3>
+<pre><code>                    序列化器校验流水线
+  ┌─────────────────────────────────────────────────────────┐
+  │                                                         │
+  │  ① 字段类型校验（CharField.max_length 等内置约束）       │
+  │     │  失败 → 立即返回错误，不继续                        │
+  │     ▼  通过                                              │
+  │  ② 字段级别的 validators 列表                           │
+  │     │  失败 → 立即返回错误，不继续                        │
+  │     ▼  通过                                              │
+  │  ③ validate_&lt;field_name&gt;()  单字段自定义校验             │
+  │     │  失败 → 立即返回错误，不继续                        │
+  │     ▼  通过                                              │
+  │  ④ validate()  对象级别校验（多字段联合）                 │
+  │     │  失败 → 返回错误                                   │
+  │     ▼  通过                                              │
+  │  ✓ 校验通过，进入 create() / update()                    │
+  │                                                         │
+  └─────────────────────────────────────────────────────────┘
+</code></pre>
+<p>每一步不通过就直接返回错误，不给后续步骤机会。类比安检：先查身份证（类型校验），再看身份证是否过期（验证器），再比对姓名和脸是否一致（validate）。</p>
+<hr />
+
+<h2 id="4-views">4. 视图 (Views) —— 从面条代码到几行搞定</h2>
+
+<h3 id="_5">视图层级的"进化树"</h3>
+<table>
+<thead><tr><th>方式</th><th>代码量</th><th>灵活度</th><th>场景</th></tr></thead>
+<tbody>
+<tr><td>@api_view (FBV)</td><td>多</td><td>最高</td><td>简单接口或高度自定义</td></tr>
+<tr><td>APIView</td><td>中</td><td>高</td><td>需要自定义逻辑的首选</td></tr>
+<tr><td>GenericAPIView + Mixin</td><td>少</td><td>中</td><td>有控制权又省事</td></tr>
+<tr><td>Generic Views</td><td>更少</td><td>中</td><td>标准单资源/列表操作</td></tr>
+<tr><td>ViewSet + Router</td><td>最少</td><td>中低</td><td>标准 REST，自动生成 URL</td></tr>
+<tr><td>ModelViewSet</td><td>极少</td><td>低</td><td>开箱即用，5行搞定 CRUD</td></tr>
+</tbody>
+</table>
+
+<h3>视图调度流程 (dispatch flow)</h3>
+<pre><code>                    ViewSet / APIView 调度流程
+  ┌─────────────────────────────────────────────────────────────────┐
+  │                                                                  │
+  │  HTTP 请求到达                                                    │
+  │      │                                                           │
+  │      ▼                                                           │
+  │  .as_view() → view()                                             │
+  │      │                                                           │
+  │      ▼                                                           │
+  │  .dispatch()                                                     │
+  │      │                                                           │
+  │      ├── ① initialize_request()  包装 DRF Request                │
+  │      │                                                           │
+  │      ├── ② initial()                                             │
+  │      │      ├── perform_authentication(request)  # 认证           │
+  │      │      ├── check_permissions(request)       # 权限检查       │
+  │      │      └── check_throttles(request)         # 限流检查       │
+  │      │                                                           │
+  │      └── ③ handler = getattr(self, request.method.lower())       │
+  │               │                                                  │
+  │               │  对于 ViewSet：                                   │
+  │               │  GET /articles/       → list()                   │
+  │               │  POST /articles/      → create()                 │
+  │               │  GET /articles/1/     → retrieve()               │
+  │               │  PUT /articles/1/     → update()                 │
+  │               │  PATCH /articles/1/   → partial_update()         │
+  │               │  DELETE /articles/1/  → destroy()                │
+  │               │                                                  │
+  │               │  对于 APIView：                                    │
+  │               │  GET    → self.get()                              │
+  │               │  POST   → self.post()                            │
+  │               │  ...                                             │
+  │               │                                                  │
+  │               ▼                                                  │
+  │          handler(request, *args, **kwargs)                       │
+  │               │                                                  │
+  │               ▼                                                  │
+  │          return Response(data)                                   │
+  │                                                                  │
+  └─────────────────────────────────────────────────────────────────┘
+</code></pre>
+
+<h3 id="42-api_view">4.2 @api_view（函数视图）</h3>
+<pre><code class="language-python">from rest_framework.decorators import api_view
+from rest_framework.response import Response
+
+@api_view(['GET', 'POST'])
+def article_list(request):
+    if request.method == 'GET':
+        articles = Article.objects.all()
+        serializer = ArticleSerializer(articles, many=True)
+        return Response(serializer.data)
+
+    elif request.method == 'POST':
+        serializer = ArticleSerializer(data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=201)
+        return Response(serializer.errors, status=400)
+</code></pre>
+
+<h3 id="43-apiview">4.3 APIView（类视图，自定义空间大）</h3>
+<pre><code class="language-python">from rest_framework.views import APIView
+from rest_framework.response import Response
+
+class ArticleListView(APIView):
+    def get(self, request):
+        articles = Article.objects.all()
+        serializer = ArticleSerializer(articles, many=True)
+        return Response(serializer.data)
+
+    def post(self, request):
+        serializer = ArticleSerializer(data=request.data)
+        if serializer.is_valid(raise_exception=True):
+            serializer.save()
+            return Response(serializer.data, status=201)
+</code></pre>
+
+<h3 id="44-generic-views-crud">4.4 Generic Views —— 标准 CRUD 几行搞定</h3>
+<pre><code class="language-python">from rest_framework.generics import ListCreateAPIView, RetrieveUpdateDestroyAPIView
+
+class ArticleListView(ListCreateAPIView):
+    queryset = Article.objects.all()
+    serializer_class = ArticleSerializer
+
+class ArticleDetailView(RetrieveUpdateDestroyAPIView):
+    queryset = Article.objects.all()
+    serializer_class = ArticleSerializer
+</code></pre>
+
+<h3 id="45-viewset">4.5 ViewSet —— 一个类搞定所有操作</h3>
+<pre><code class="language-python">from rest_framework.viewsets import ModelViewSet
+from rest_framework import mixins
+
+# ModelViewSet = List + Create + Retrieve + Update + Destroy
+class ArticleViewSet(ModelViewSet):
+    queryset = Article.objects.all()
+    serializer_class = ArticleSerializer
+    filterset_fields = ['category', 'author']
+    search_fields = ['title', 'content']
+    ordering_fields = ['created_at']
+
+# 自定义 ViewSet（仅部分操作）
+class ArticleReadOnlyViewSet(mixins.ListModelMixin,
+                             mixins.RetrieveModelMixin,
+                             viewsets.GenericViewSet):
+    queryset = Article.objects.all()
+    serializer_class = ArticleSerializer
+
+# ViewSet 中自定义 action
+from rest_framework.decorators import action
+
+class ArticleViewSet(ModelViewSet):
+    queryset = Article.objects.all()
+    serializer_class = ArticleSerializer
+
+    @action(detail=True, methods=['post'])
+    def publish(self, request, pk=None):
+        article = self.get_object()
+        article.is_published = True
+        article.save()
+        return Response({'status': 'published'})
+
+    @action(detail=False, methods=['get'])
+    def top_articles(self, request):
+        top = self.get_queryset().order_by('-views')[:10]
+        serializer = self.get_serializer(top, many=True)
+        return Response(serializer.data)
+</code></pre>
+
+<h3 id="46-mixin">4.6 Mixin 组合详解</h3>
+<table>
+<thead><tr><th>Mixin</th><th>方法</th><th>HTTP 方法</th></tr></thead>
+<tbody>
+<tr><td>CreateModelMixin</td><td>create</td><td>POST</td></tr>
+<tr><td>ListModelMixin</td><td>list</td><td>GET</td></tr>
+<tr><td>RetrieveModelMixin</td><td>retrieve</td><td>GET (单个)</td></tr>
+<tr><td>UpdateModelMixin</td><td>update, partial_update</td><td>PUT, PATCH</td></tr>
+<tr><td>DestroyModelMixin</td><td>destroy</td><td>DELETE</td></tr>
+</tbody>
+</table>
+<hr />
+
+<h2 id="5-routers-url">5. 路由 (Routers) —— 让 URL 自动生成</h2>
+
+<h3 id="_6">大白话</h3>
+<p>不用 Router，每个 URL 得手写 <code>path('articles/', view)</code>。用 Router，一个 ViewSet 自动生成 6 个 URL。好比原来手动写菜单，现在菜单自动打印。</p>
+
+<h3 id="51-simplerouter">5.1 SimpleRouter</h3>
+<pre><code class="language-python">from rest_framework.routers import SimpleRouter
+
+router = SimpleRouter()
+router.register('articles', ArticleViewSet)
+
+urlpatterns = router.urls
+# 生成的路由：
+# GET    /articles/         → list
+# POST   /articles/         → create
+# GET    /articles/{pk}/    → retrieve
+# PUT    /articles/{pk}/    → update
+# PATCH  /articles/{pk}/    → partial_update
+# DELETE /articles/{pk}/    → destroy
+# POST   /articles/{pk}/publish/  → 自定义 action
+</code></pre>
+
+<h3 id="52-defaultrouter">5.2 DefaultRouter</h3>
+<pre><code class="language-python">from rest_framework.routers import DefaultRouter
+
+router = DefaultRouter()
+# 额外提供 API 根视图（/api/），列出所有可用端点
+</code></pre>
+
+<h3 id="53-django-url">5.3 挂载到 Django URL</h3>
+<pre><code class="language-python">from django.urls import path, include
+
+urlpatterns = [
+    path('api/', include(router.urls)),
+]
+</code></pre>
+<hr />
+
+<h2 id="6-authentication">6. 认证 (Authentication) —— "你是谁"</h2>
+
+<h3 id="_7">打个比方</h3>
+<p>认证是<strong>门口保安查工牌</strong>——确认身份。进去后能进哪些办公室、碰哪些文件，那是权限的事。</p>
+
+<h3 id="61">6.1 认证类的调用顺序（面试高频！）</h3>
+<p>DRF 支持<strong>多个认证类</strong>，按列表<strong>顺序依次尝试</strong>。</p>
+
+<h4>认证流程详解</h4>
+<pre><code>                    认证流程 (Authentication Flow)
+  ┌─────────────────────────────────────────────────────────────────┐
+  │                                                                  │
+  │  请求到达                                                         │
+  │      │                                                           │
+  │      ▼                                                           │
+  │  ┌───────────────────────────────────────────────────────┐      │
+  │  │ 遍历 authentication_classes 列表，按顺序调用             │      │
+  │  │ 每个认证类的 .authenticate(request)                     │      │
+  │  └───────────────────────────────────────────────────────┘      │
+  │      │                                                           │
+  │      ▼                                                           │
+  │  ┌───────────────┐                                               │
+  │  │  认证类 [0]    │                                               │
+  │  │ authenticate() │                                              │
+  │  └───────┬───────┘                                               │
+  │          │                                                       │
+  │     ┌────┼────────────────────┬──────────────────┐              │
+  │     │    │                    │                  │              │
+  │     ▼    ▼                    ▼                  ▼              │
+  │  返回   返回 None         抛出异常              返回             │
+  │  (user,  (不识别此认证)    AuthenticationFailed  (user,         │
+  │   auth)                       (token 过期等)      auth)          │
+  │     │         │                 │                  │             │
+  │     │         ▼                 ▼                  │             │
+  │     │    ┌───────────────┐  ┌───────────────┐      │             │
+  │     │    │  认证类 [1]    │  │  立即返回 401  │      │             │
+  │     │    │ authenticate()│  │  不再尝试后续   │      │             │
+  │     │    └───────┬───────┘  └───────────────┘      │             │
+  │     │         (...) 循环                          │             │
+  │     │            │                                  │             │
+  │     │            ▼ 全部返回 None                    │             │
+  │     │       ┌──────────────────┐                   │             │
+  │     │       │ request.user =   │                   │             │
+  │     │       │ AnonymousUser    │                   │             │
+  │     │       └──────────────────┘                   │             │
+  │     │                                              │             │
+  │     ▼                                              ▼             │
+  │  ┌──────────────────────────────────────────────────────┐       │
+  │  │  认证成功！                                          │       │
+  │  │  request.user = user, request.auth = auth             │       │
+  │  │  停止遍历后续类，进入权限检查                          │       │
+  │  └──────────────────────────────────────────────────────┘       │
+  │                                                                  │
+  └─────────────────────────────────────────────────────────────────┘
+</code></pre>
+
+<h4>三种返回结果</h4>
+<table>
+<thead><tr><th><code>authenticate()</code> 返回值</th><th>含义</th><th>后续行为</th></tr></thead>
+<tbody>
+<tr><td><code>(user, auth)</code> 元组</td><td>认证成功</td><td><strong>停止遍历</strong>，设置 <code>request.user</code> 和 <code>request.auth</code></td></tr>
+<tr><td><code>None</code></td><td>不适用（跳过）</td><td><strong>继续尝试</strong>下一个认证类</td></tr>
+<tr><td>抛出 <code>AuthenticationFailed</code></td><td>认证失败</td><td><strong>立即终止</strong>，返回 401，不再尝试后续类</td></tr>
+</tbody>
+</table>
+
+<h4>关键规则</h4>
+<ol>
+<li><strong>顺序决定优先级</strong>：列表前面的先执行</li>
+<li><strong>首个成功即停止</strong>：返回 <code>(user, auth)</code> 则后续不再执行</li>
+<li><strong>None 是"跳过"</strong>：表示"这不归我管"</li>
+<li><strong>异常是"否决"</strong>：抛出 <code>AuthenticationFailed</code> 直接 401</li>
+<li><strong>全部跳过则匿名</strong>：<code>request.user</code> = <code>AnonymousUser</code></li>
+</ol>
+
+<h4>源码验证</h4>
+<pre><code class="language-python">@property
+def user(self):
+    if not hasattr(self, '_user'):
+        self._authenticate()
+    return self._user
+
+def _authenticate(self):
+    for authenticator in self.authenticators:
+        try:
+            user_auth_tuple = authenticator.authenticate(self)
+        except exceptions.APIException:
+            self._not_authenticated()
+            raise
+
+        if user_auth_tuple is not None:
+            self._authenticator = authenticator
+            self.user, self.auth = user_auth_tuple
+            return
+
+    self._not_authenticated()  # 所有类都返回 None
+</code></pre>
+
+<h4>实际例子：多认证方式共存</h4>
+<pre><code class="language-python"># settings.py — 全局配置
+REST_FRAMEWORK = {
+    'DEFAULT_AUTHENTICATION_CLASSES': [
+        'rest_framework_simplejwt.authentication.JWTAuthentication',   # ① JWT
+        'rest_framework.authentication.SessionAuthentication',         # ② Session
+        'rest_framework.authentication.BasicAuthentication',           # ③ BasicAuth
+    ]
+}
+</code></pre>
+<p><strong>执行场景分析：</strong></p>
+<pre><code>场景 A：请求带 Authorization: Bearer &lt;jwt_token&gt;
+  → ① JWT 验证成功 → (user, token) → ②③ 不执行
+  → request.user = user ✅
+
+场景 B：请求带 Cookie（浏览器已登录）
+  → ① JWT 没找到 Bearer token → None
+  → ② Session 有效 → (user, None) → ③ 不执行
+  → request.user = user ✅
+
+场景 C：请求带 Authorization: Basic &lt;base64&gt;
+  → ① 格式不对 → None
+  → ② 无 Session → None
+  → ③ Basic 验证成功 → (user, None)
+  → request.user = user ✅
+
+场景 D：请求带过期 JWT token
+  → ① token 过期 → 抛出 AuthenticationFailed
+  → 立即 401，②③ 不执行 ❌
+
+场景 E：请求无任何认证信息
+  → ①②③ 全部返回 None
+  → request.user = AnonymousUser
+</code></pre>
+
+<h4>视图级别覆写</h4>
+<pre><code class="language-python">class PaymentView(APIView):
+    authentication_classes = [JWTAuthentication]  # 只用 JWT
+
+class PublicView(APIView):
+    authentication_classes = []  # 无需认证
+</code></pre>
+
+<blockquote>
+<p><strong>面试话术：</strong>"DRF 认证类按顺序执行，三种返回：元组表示成功并停止、None 表示跳过、异常表示失败立即 401。配置建议：最常用最快的放前面——JWT 首位只需解密不用查库，Session 放后面需要查库。"</p>
+</blockquote>
+
+<h3 id="62">6.2 内置认证方案</h3>
+<pre><code class="language-python"># settings.py 全局配置
+REST_FRAMEWORK = {
+    'DEFAULT_AUTHENTICATION_CLASSES': [
+        'rest_framework.authentication.SessionAuthentication',
+        'rest_framework.authentication.BasicAuthentication',
+        'rest_framework.authentication.TokenAuthentication',
+    ]
+}
+</code></pre>
+<table>
+<thead><tr><th>认证方式</th><th>说明</th></tr></thead>
+<tbody>
+<tr><td>SessionAuthentication</td><td>基于 Django Session，适合浏览器</td></tr>
+<tr><td>BasicAuthentication</td><td>HTTP Basic Auth（用户名+密码 Base64）</td></tr>
+<tr><td>TokenAuthentication</td><td>DRF 自带 Token，<code>Authorization: Token xxx</code></td></tr>
+</tbody>
+</table>
+
+<h3 id="63">6.3 自定义认证类</h3>
+<pre><code class="language-python">from rest_framework.authentication import BaseAuthentication
+from rest_framework.exceptions import AuthenticationFailed
+
+class MyTokenAuthentication(BaseAuthentication):
+    def authenticate(self, request):
+        token = request.META.get('HTTP_AUTHORIZATION', '')
+        if not token.startswith('Bearer '):
+            raise AuthenticationFailed('无效的认证信息')
+        token_key = token[7:]
+        user = self._verify_token(token_key)  # 自定义验证逻辑
+        return (user, token_key)  # 返回 (user, auth)
+
+    def authenticate_header(self, request):
+        return 'Bearer'
+</code></pre>
+
+<h3 id="64">6.4 视图级别认证</h3>
+<pre><code class="language-python">class MyView(APIView):
+    authentication_classes = [TokenAuthentication]
+
+    def get(self, request):
+        # request.user 已认证
+        pass
+</code></pre>
+<hr />
+
+<h2 id="7-permissions">7. 权限 (Permissions) —— "你能干嘛"</h2>
+
+<h3 id="vs">认证 vs 权限（面试必考！）</h3>
+<table>
+<thead><tr><th>概念</th><th>问的问题</th><th>类比</th></tr></thead>
+<tbody>
+<tr><td>认证 (Authentication)</td><td><strong>你是谁？</strong></td><td>保安查工牌</td></tr>
+<tr><td>权限 (Permission)</td><td><strong>你能做什么？</strong></td><td>办公室门禁卡权限</td></tr>
+</tbody>
+</table>
+<blockquote>
+<p><strong>面试话术：</strong>"认证在前，权限在后。先确认身份，再判断能干什么。认证失败 401，权限不足 403。"</p>
+</blockquote>
+
+<h3 id="72">7.2 内置权限类</h3>
+<pre><code class="language-python">from rest_framework.permissions import (
+    AllowAny,                     # 允许任何人
+    IsAuthenticated,              # 必须登录
+    IsAdminUser,                  # 必须是管理员 (is_staff)
+    IsAuthenticatedOrReadOnly,    # 认证用户可读写，未认证只能读
+)
+</code></pre>
+
+<h3 id="73">7.3 自定义权限</h3>
+<pre><code class="language-python">from rest_framework.permissions import BasePermission
+
+class IsOwnerOrReadOnly(BasePermission):
+    def has_permission(self, request, view):
+        # 视图级别：是否允许访问此视图
+        if request.method in SAFE_METHODS:
+            return True
+        return request.user and request.user.is_authenticated
+
+    def has_object_permission(self, request, view, obj):
+        # 对象级别：是否允许操作此对象（仅 retrieve/update/destroy 时调用）
+        if request.method in SAFE_METHODS:
+            return True
+        return obj.author == request.user
+</code></pre>
+
+<h3 id="74">7.4 权限执行顺序</h3>
+<pre><code>has_permission()（视图级） → has_object_permission()（对象级）
+</code></pre>
+<blockquote>
+<p><code>has_object_permission</code> 只在 <strong>retrieve/update/destroy</strong> 等操作单个对象时调用。</p>
+</blockquote>
+<hr />
+
+<h2 id="8-throttling">8. 限流 (Throttling) —— 防刷防爆</h2>
+
+<h3 id="_14">大白话</h3>
+<p>限流就是<strong>排队限号</strong>。银行每天只受理 100 个号，防止有人一分钟请求一万次把服务器打崩。</p>
+
+<h3 id="82">8.2 内置限流类</h3>
+<pre><code class="language-python">REST_FRAMEWORK = {
+    'DEFAULT_THROTTLE_CLASSES': [
+        'rest_framework.throttling.AnonRateThrottle',
+        'rest_framework.throttling.UserRateThrottle',
+    ],
+    'DEFAULT_THROTTLE_RATES': {
+        'anon': '100/day',
+        'user': '1000/day',
+        'burst': '10/min',  # 自定义 scope
+    }
+}
+</code></pre>
+<table>
+<thead><tr><th>限流类</th><th>说明</th></tr></thead>
+<tbody>
+<tr><td>AnonRateThrottle</td><td>限制未认证用户</td></tr>
+<tr><td>UserRateThrottle</td><td>限制已认证用户（按 user.id）</td></tr>
+<tr><td>ScopedRateThrottle</td><td>按 scope 限流</td></tr>
+</tbody>
+</table>
+
+<h3 id="83">8.3 自定义限流</h3>
+<pre><code class="language-python">from rest_framework.throttling import BaseThrottle
+
+class CustomRateThrottle(BaseThrottle):
+    def allow_request(self, request, view):
+        # 返回 True 允许，False 拒绝
+        pass
+
+    def wait(self):
+        return 60  # 建议等待秒数
+</code></pre>
+<hr />
+
+<h2 id="9">9. 过滤与排序 —— 让查询更灵活</h2>
+
+<h3 id="91-django-filter">9.1 django-filter 集成</h3>
+<pre><code class="language-bash">pip install django-filter
+</code></pre>
+<pre><code class="language-python"># settings.py
+INSTALLED_APPS = ['django_filters']
+REST_FRAMEWORK = {
+    'DEFAULT_FILTER_BACKENDS': [
+        'django_filters.rest_framework.DjangoFilterBackend',
+        'rest_framework.filters.SearchFilter',
+        'rest_framework.filters.OrderingFilter',
+    ]
+}
+</code></pre>
+
+<h3 id="92">9.2 过滤字段</h3>
+<pre><code class="language-python">class ArticleViewSet(viewsets.ModelViewSet):
+    queryset = Article.objects.all()
+    serializer_class = ArticleSerializer
+    filterset_fields = ['category', 'author']  # ?category=tech
+</code></pre>
+
+<h3 id="93-filterset">9.3 自定义 FilterSet</h3>
+<pre><code class="language-python">import django_filters
+
+class ArticleFilterSet(django_filters.FilterSet):
+    min_price = django_filters.NumberFilter(field_name='price', lookup_expr='gte')
+    max_price = django_filters.NumberFilter(field_name='price', lookup_expr='lte')
+    title_contains = django_filters.CharFilter(field_name='title', lookup_expr='icontains')
+    created_after = django_filters.DateFilter(field_name='created_at', lookup_expr='gt')
+
+    class Meta:
+        model = Article
+        fields = ['category', 'author']
+</code></pre>
+
+<h3 id="94">9.4 搜索</h3>
+<pre><code class="language-python">class ArticleViewSet(viewsets.ModelViewSet):
+    search_fields = ['title', 'content']  # ?search=django
+</code></pre>
+
+<h3 id="95">9.5 排序</h3>
+<pre><code class="language-python">class ArticleViewSet(viewsets.ModelViewSet):
+    ordering_fields = ['created_at', 'views', 'title']
+    ordering = ['created_at']  # 默认排序，?ordering=-views 降序
+</code></pre>
+<hr />
+
+<h2 id="10-pagination">10. 分页 (Pagination) —— 别一次性全返回</h2>
+
+<h3 id="_15">大白话</h3>
+<p>1 万篇文章不能一次性全返回，浏览器会卡死。分页就是<strong>一次只给一页</strong>。</p>
+
+<h3 id="101">10.1 全局配置</h3>
+<pre><code class="language-python">REST_FRAMEWORK = {
+    'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.PageNumberPagination',
+    'PAGE_SIZE': 10,
+}
+</code></pre>
+
+<h3 id="102">10.2 三种分页器</h3>
+<h4>PageNumberPagination（最常用，像翻书）</h4>
+<pre><code class="language-python">class StandardPagination(PageNumberPagination):
+    page_size = 10
+    page_size_query_param = 'page_size'  # ?page_size=20
+    max_page_size = 100
+</code></pre>
+
+<h4>LimitOffsetPagination</h4>
+<pre><code class="language-python">class LimitOffsetPagination(LimitOffsetPagination):
+    default_limit = 10
+    max_limit = 100  # ?limit=10&offset=20
+</code></pre>
+
+<h4>CursorPagination（性能最优，适合大数据量）</h4>
+<pre><code class="language-python">class CursorPagination(CursorPagination):
+    page_size = 10
+    ordering = '-created_at'  # 必须指定排序字段
+</code></pre>
+
+<h3 id="103">10.3 三种分页对比</h3>
+<table>
+<thead><tr><th>类型</th><th>URL 参数</th><th>优点</th><th>缺点</th></tr></thead>
+<tbody>
+<tr><td>PageNumberPagination</td><td><code>?page=2</code></td><td>简单直观、支持跳页</td><td>大偏移量性能差</td></tr>
+<tr><td>LimitOffsetPagination</td><td><code>?limit=10&amp;offset=20</code></td><td>灵活</td><td>不支持总数、无跳页</td></tr>
+<tr><td>CursorPagination</td><td><code>?cursor=xxx</code></td><td>性能最优、防重复/遗漏</td><td>不支持跳页</td></tr>
+</tbody>
+</table>
+<blockquote>
+<p><strong>面试话术：</strong>"CursorPagination 不做 COUNT 查询，大数据量性能最好，适合无限滚动。"</p>
+</blockquote>
+<hr />
+
+<h2 id="11-versioning-api">11. 版本控制 (Versioning) —— 新旧 API 共存</h2>
+
+<h3 id="111">11.1 三种版本控制方式</h3>
+<table>
+<thead><tr><th>方式</th><th>URL 示例</th><th>说明</th></tr></thead>
+<tbody>
+<tr><td>URLPathVersioning</td><td><code>/api/v1/articles/</code></td><td>URL 路径中（最推荐）</td></tr>
+<tr><td>QueryParameterVersioning</td><td><code>/api/articles/?version=1</code></td><td>查询参数</td></tr>
+<tr><td>AcceptHeaderVersioning</td><td><code>Accept: application/json; version=1.0</code></td><td>Header 中</td></tr>
+</tbody>
+</table>
+
+<h3 id="112">11.2 配置示例</h3>
+<pre><code class="language-python">REST_FRAMEWORK = {
+    'DEFAULT_VERSIONING_CLASS': 'rest_framework.versioning.URLPathVersioning',
+    'DEFAULT_VERSION': 'v1',
+    'ALLOWED_VERSIONS': ['v1', 'v2'],
+    'VERSION_PARAM': 'version',
+}
+
+# urls.py
+urlpatterns = [
+    path('api/&lt;version:version&gt;/articles/', ArticleListView.as_view()),
+]
+</code></pre>
+
+<h3 id="113">11.3 视图中获取版本</h3>
+<pre><code class="language-python">class ArticleListView(APIView):
+    def get(self, request):
+        version = request.version  # 'v1' 或 'v2'
+        if version == 'v1':
+            serializer = ArticleSerializerV1(queryset, many=True)
+        else:
+            serializer = ArticleSerializerV2(queryset, many=True)
+        return Response(serializer.data)
+</code></pre>
+<hr />
+
+<h2 id="12">12. 中间件与异常处理 —— 把错误友好地兜住</h2>
+
+<h3 id="121">12.1 异常处理</h3>
+<pre><code class="language-python">from rest_framework.views import exception_handler
+from rest_framework.response import Response
+
+def custom_exception_handler(exc, context):
+    response = exception_handler(exc, context)
+
+    if response is not None:
+        data = {
+            'code': response.status_code,
+            'message': '请求失败',
+            'detail': response.data
+        }
+        response.data = data
+
+    return response
+
+# settings.py
+REST_FRAMEWORK = {
+    'EXCEPTION_HANDLER': 'myproject.utils.custom_exception_handler',
+}
+</code></pre>
+
+<h3 id="122">12.2 常用装饰器</h3>
+<pre><code class="language-python">from rest_framework.decorators import (
+    api_view,                  # 函数视图装饰器
+    action,                    # ViewSet 自定义 action
+    permission_classes,        # 权限
+    authentication_classes,    # 认证
+    throttle_classes,          # 限流
+    renderer_classes,          # 渲染器
+    parser_classes,            # 解析器
+)
+
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+@throttle_classes([UserRateThrottle])
+def my_view(request):
+    pass
+</code></pre>
+<hr />
+
+<h2 id="13-jwt">13. JWT 认证 —— 现代化登录方案</h2>
+
+<h3 id="_16">大白话</h3>
+<p>JWT 像<strong>带防伪标识的门票</strong>。验证后盖个章，之后进出亮章就行，不用每次都掏身份证。有过期时间，过期用"续签票"刷新。</p>
+
+<h3 id="131-simplejwt">13.1 SimpleJWT 集成</h3>
+<pre><code class="language-bash">pip install djangorestframework-simplejwt
+</code></pre>
+<pre><code class="language-python"># settings.py
+INSTALLED_APPS = ['rest_framework', 'rest_framework_simplejwt']
+REST_FRAMEWORK = {
+    'DEFAULT_AUTHENTICATION_CLASSES': [
+        'rest_framework_simplejwt.authentication.JWTAuthentication',
+    ]
+}
+
+from datetime import timedelta
+SIMPLE_JWT = {
+    'ACCESS_TOKEN_LIFETIME': timedelta(minutes=60),
+    'REFRESH_TOKEN_LIFETIME': timedelta(days=7),
+    'ROTATE_REFRESH_TOKENS': True,
+}
+</code></pre>
+
+<h3 id="132-jwt">13.2 JWT 获取与使用</h3>
+<pre><code class="language-python"># 登录获取 token
+POST /api/token/
+{
+    "username": "admin",
+    "password": "123456"
+}
+# 返回：
+{
+    "access": "eyJ0eXAi...",
+    "refresh": "eyJ0eXAi..."
+}
+
+# 使用 token
+Authorization: Bearer eyJ0eXAi...
+
+# 刷新 token
+POST /api/token/refresh/
+{
+    "refresh": "eyJ0eXAi..."
+}
+</code></pre>
+
+<h3 id="133-jwt-payload">13.3 自定义 JWT Payload</h3>
+<pre><code class="language-python">from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
+
+class MyTokenObtainPairSerializer(TokenObtainPairSerializer):
+    @classmethod
+    def get_token(cls, user):
+        token = super().get_token(user)
+        token['username'] = user.username
+        token['role'] = user.role
+        return token
+
+    def validate(self, attrs):
+        data = super().validate(attrs)
+        data['username'] = self.user.username
+        return data
+</code></pre>
+<hr />
+
+<h2 id="14">14. 信号与钩子 —— 关键时刻插一脚</h2>
+
+<h3 id="_17">大白话</h3>
+<p>钩子是流程中预设的插槽。比如"保存文章后自动通知作者"，不需要改源码，在 <code>perform_create</code> 里加逻辑就行。</p>
+
+<h3 id="141-drf">14.1 DRF 信号</h3>
+<pre><code class="language-python">from rest_framework import signals
+
+signals.request_started.send(sender=None, request=request)
+signals.request_finished.send(sender=None, request=request)
+</code></pre>
+
+<h3 id="142-viewset">14.2 常用钩子方法（ViewSet 中）</h3>
+<pre><code class="language-python">class ArticleViewSet(ModelViewSet):
+    queryset = Article.objects.all()
+    serializer_class = ArticleSerializer
+
+    def get_queryset(self):
+        # 自定义查询集
+        return Article.objects.filter(author=self.request.user)
+
+    def get_serializer_class(self):
+        # 不同 action 用不同序列化器
+        if self.action == 'list':
+            return ArticleListSerializer
+        return ArticleDetailSerializer
+
+    def get_serializer_context(self):
+        # 传递额外上下文
+        context = super().get_serializer_context()
+        context['request'] = self.request
+        return context
+
+    def perform_create(self, serializer):
+        # save 前做额外处理
+        serializer.save(author=self.request.user)
+
+    def perform_destroy(self, instance):
+        # 自定义删除（软删除）
+        instance.is_deleted = True
+        instance.save()
+</code></pre>
+<hr />
+
+<h2 id="15-api">15. 性能优化 —— 让你的 API 快如闪电</h2>
+
+<h3 id="151-select_related-prefetch_related">15.1 select_related / prefetch_related</h3>
+<pre><code class="language-python"># ForeignKey / OneToOne → select_related（SQL JOIN）
+queryset = Article.objects.select_related('author')
+
+# ManyToMany / 反向关系 → prefetch_related（额外查询后 Python 拼接）
+queryset = Article.objects.prefetch_related('tags', 'comments')
+
+# 组合使用
+queryset = Article.objects.select_related('author').prefetch_related('tags')
+</code></pre>
+
+<h3 id="152-only-defer">15.2 only() / defer()</h3>
+<pre><code class="language-python"># only：只加载指定字段
+queryset = Article.objects.only('id', 'title')
+
+# defer：延迟加载指定字段
+queryset = Article.objects.defer('content')
+</code></pre>
+
+<h3 id="153">15.3 缓存</h3>
+<pre><code class="language-python">from django.core.cache import cache
+
+class ArticleViewSet(ModelViewSet):
+    def list(self, request):
+        cache_key = f'articles_{request.query_params}'
+        data = cache.get(cache_key)
+        if data:
+            return Response(data)
+
+        queryset = self.filter_queryset(self.get_queryset())
+        serializer = self.get_serializer(queryset, many=True)
+        cache.set(cache_key, serializer.data, timeout=300)
+        return Response(serializer.data)
+</code></pre>
+
+<h3 id="154">15.4 分页优化</h3>
+<ul>
+<li>大数据量使用 <code>CursorPagination</code>（避免 COUNT 查询）</li>
+<li>处理大量数据使用 <code>iterator()</code></li>
+</ul>
+<hr />
+
+<h2 id="16">16. 高频面试题</h2>
+
+<h3 id="q1drf">Q1：DRF 的请求生命周期？</h3>
+<pre><code>HTTP 请求
+  → Django 中间件
+  → URL 路由匹配
+  → 认证 (Authentication)     —— 401 未认证
+  → 权限 (Permission)          —— 403 无权限
+  → 限流 (Throttling)          —— 429 请求过多
+  → 视图 dispatch()
+    → get_queryset()
+    → get_serializer()
+    → is_valid() 校验
+    → save() / .data
+  → 渲染 (Renderer)
+  → HTTP 响应
+</code></pre>
+<blockquote>
+<p><strong>面试话术：</strong>"DRF 请求先经 Django 中间件和路由匹配，然后依次执行认证、权限、限流三道安检，进入视图层——获取查询集、序列化、校验、持久化，最后渲染为客户端期望的格式返回。"</p>
+</blockquote>
+
+<h3 id="q2serializer-modelserializer">Q2：Serializer 和 ModelSerializer 的区别？</h3>
+<ul>
+<li><strong>Serializer</strong>：手动定义字段，需自己实现 <code>create()</code> 和 <code>update()</code></li>
+<li><strong>ModelSerializer</strong>：根据 Model 自动生成字段，自动实现 <code>create()</code> 和 <code>update()</code></li>
+<li>选择：能用 ModelSerializer 就用，复杂逻辑再退化到 Serializer</li>
+</ul>
+
+<h3 id="q3">Q3：认证和权限的区别？</h3>
+<ul>
+<li><strong>认证</strong>：确认"你是谁"，返回 <code>(user, auth)</code></li>
+<li><strong>权限</strong>：确认"你能做什么"，在认证之后执行</li>
+<li>未认证 401，无权限 403</li>
+</ul>
+
+<h3 id="q4">Q4：多个认证类的调用顺序是怎样的？（高频）</h3>
+<ul>
+<li>按 <code>authentication_classes</code> 列表<strong>顺序</strong>依次调用 <code>authenticate()</code></li>
+<li>返回 <code>(user, auth)</code>：认证成功，<strong>立即停止</strong></li>
+<li>返回 <code>None</code>：不适用，<strong>继续下一个</strong></li>
+<li>抛出 <code>AuthenticationFailed</code>：失败，<strong>立即 401</strong></li>
+<li>全部返回 None：<code>request.user</code> = <code>AnonymousUser</code></li>
+<li>配置建议：最快的放前面（JWT > Session）</li>
+</ul>
+
+<h3 id="q5-jwt">Q5：如何实现 JWT 认证？</h3>
+<ul>
+<li>使用 <code>djangorestframework-simplejwt</code></li>
+<li><code>/api/token/</code> 获取 access_token + refresh_token</li>
+<li>请求带 <code>Authorization: Bearer &lt;access_token&gt;</code></li>
+<li>access_token 过期后用 refresh_token 刷新</li>
+</ul>
+
+<h3 id="q6viewset-generic-view">Q6：ViewSet 和 Generic View 的区别？</h3>
+<ul>
+<li><strong>Generic View</strong>：每个视图处理单个操作（如 ListCreateAPIView）</li>
+<li><strong>ViewSet</strong>：一个类包含所有 CRUD，配合 Router 自动生成 URL</li>
+<li>ViewSet 用 <code>@action</code> 添加自定义操作</li>
+</ul>
+
+<h3 id="q7">Q7：如何做接口分页？</h3>
+<ul>
+<li><strong>PageNumberPagination</strong>：基于页码，直观</li>
+<li><strong>LimitOffsetPagination</strong>：基于偏移量，灵活</li>
+<li><strong>CursorPagination</strong>：基于游标，大数据量最优（无 COUNT）</li>
+</ul>
+
+<h3 id="q8drf">Q8：DRF 如何处理异常？</h3>
+<ul>
+<li>自带 <code>exception_handler</code> 处理 <code>APIException</code> 及子类</li>
+<li>可自定义 <code>EXCEPTION_HANDLER</code> 统一格式化响应</li>
+<li><code>serializer.is_valid(raise_exception=True)</code> 自动抛出 ValidationError</li>
+</ul>
+
+<h3 id="q9-drf">Q9：如何优化 DRF 接口性能？</h3>
+<ol>
+<li><strong>数据库层</strong>：<code>select_related</code>（FK JOIN）、<code>prefetch_related</code>（M2M）</li>
+<li><strong>字段控制</strong>：<code>only()</code> / <code>defer()</code> 减少查询字段</li>
+<li><strong>分页</strong>：大数据量用 CursorPagination</li>
+<li><strong>缓存</strong>：热点数据用 Django cache 或 Redis</li>
+<li><strong>序列化器</strong>：按场景用不同 Serializer，避免过度查询</li>
+</ol>
+
+<h3 id="q10-api">Q10：如何实现 API 版本管理？</h3>
+<ul>
+<li><strong>URLPathVersioning</strong>（推荐）：<code>/api/v1/articles/</code></li>
+<li><strong>QueryParameterVersioning</strong>：<code>?version=v1</code></li>
+<li><strong>AcceptHeaderVersioning</strong>：Accept Header 中指定</li>
+<li>通过 <code>get_serializer_class()</code> 等方法切换版本逻辑</li>
+</ul>
+
+<h3 id="q11serializer">Q11：Serializer 的校验顺序？</h3>
+<pre><code>1. 字段类型校验（如 CharField 的 max_length）
+2. 字段的 validators 列表
+3. validate_&lt;field_name&gt;()  字段级别校验
+4. validate()              对象级别校验（多字段联合）
+</code></pre>
+
+<h3 id="q12">Q12：如何实现文件上传？</h3>
+<pre><code class="language-python">class FileUploadSerializer(serializers.Serializer):
+    file = serializers.FileField(max_length=10485760)  # 10MB
+
+    def validate_file(self, value):
+        if not value.name.endswith(('.jpg', '.png')):
+            raise serializers.ValidationError("仅支持图片格式")
+        return value
+
+class FileUploadView(APIView):
+    parser_classes = [MultiPartParser, FormParser]
+
+    def post(self, request):
+        serializer = FileUploadSerializer(data=request.data)
+        if serializer.is_valid():
+            file = serializer.validated_data['file']
+            # 处理文件...
+            return Response({'status': 'success'})
+        return Response(serializer.errors, status=400)
+</code></pre>
+
+<h3 id="q13drf-action">Q13：DRF 中 @action 装饰器的用法？</h3>
+<pre><code class="language-python">@action(detail=True, methods=['post'], url_path='publish',
+        permission_classes=[IsAdminUser])
+def publish(self, request, pk=None):
+    """detail=True: URL 含 pk → /articles/{pk}/publish/"""
+    pass
+
+@action(detail=False, methods=['get'], url_path='stats')
+def stats(self, request):
+    """detail=False: 不含 pk → /articles/stats/"""
+    pass
+</code></pre>
+<p>参数：<code>detail</code>（操作单对象/集合）、<code>methods</code>（HTTP 方法）、<code>url_path</code>（自定义路径）、<code>permission_classes</code>（自定义权限）。</p>
+
+<h3 id="q14">Q14：如何实现搜索和过滤？</h3>
+<pre><code class="language-python">class ArticleViewSet(ModelViewSet):
+    queryset = Article.objects.all()
+    serializer_class = ArticleSerializer
+
+    filterset_fields = ['category', 'status']   # 精确匹配
+    search_fields = ['title', 'content']         # 模糊搜索（icontains）
+    ordering_fields = ['created_at', 'views']    # 排序
+
+    # GET /articles/?category=tech&search=django&ordering=-views
+</code></pre>
+
+<h3 id="q15drf-renderer">Q15：DRF 的渲染器 (Renderer) 是什么？</h3>
+<p>渲染器将响应数据序列化为指定格式（JSON、HTML、XML）。</p>
+<pre><code class="language-python">REST_FRAMEWORK = {
+    'DEFAULT_RENDERER_CLASSES': [
+        'rest_framework.renderers.JSONRenderer',
+        # 'rest_framework.renderers.BrowsableAPIRenderer',  # 浏览器可视化
+    ]
+}
+</code></pre>
+
+<h3 id="q16">Q16：如何写单元测试？</h3>
+<pre><code class="language-python">from rest_framework.test import APITestCase
+from django.urls import reverse
+
+class ArticleAPITest(APITestCase):
+    def setUp(self):
+        self.user = User.objects.create_user(username='test', password='123')
+        self.client.force_authenticate(user=self.user)
+
+    def test_list_articles(self):
+        url = reverse('article-list')
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, 200)
+
+    def test_create_article(self):
+        url = reverse('article-list')
+        data = {'title': 'Test', 'content': 'Content'}
+        response = self.client.post(url, data, format='json')
+        self.assertEqual(response.status_code, 201)
+</code></pre>
+<hr />
+
+<h2 id="drf_3">附录：DRF 配置速查表</h2>
+<pre><code class="language-python"># settings.py 完整配置参考
+REST_FRAMEWORK = {
+    # 渲染器
+    'DEFAULT_RENDERER_CLASSES': [
+        'rest_framework.renderers.JSONRenderer',
+    ],
+
+    # 解析器
+    'DEFAULT_PARSER_CLASSES': [
+        'rest_framework.parsers.JSONParser',
+        'rest_framework.parsers.FormParser',
+        'rest_framework.parsers.MultiPartParser',
+    ],
+
+    # 认证
+    'DEFAULT_AUTHENTICATION_CLASSES': [
+        'rest_framework_simplejwt.authentication.JWTAuthentication',
+    ],
+
+    # 权限
+    'DEFAULT_PERMISSION_CLASSES': [
+        'rest_framework.permissions.IsAuthenticated',
+    ],
+
+    # 限流
+    'DEFAULT_THROTTLE_CLASSES': [
+        'rest_framework.throttling.AnonRateThrottle',
+        'rest_framework.throttling.UserRateThrottle',
+    ],
+    'DEFAULT_THROTTLE_RATES': {
+        'anon': '100/day',
+        'user': '1000/day',
+    },
+
+    # 分页
+    'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.PageNumberPagination',
+    'PAGE_SIZE': 10,
+
+    # 过滤
+    'DEFAULT_FILTER_BACKENDS': [
+        'django_filters.rest_framework.DjangoFilterBackend',
+        'rest_framework.filters.SearchFilter',
+        'rest_framework.filters.OrderingFilter',
+    ],
+
+    # 版本控制
+    'DEFAULT_VERSIONING_CLASS': 'rest_framework.versioning.URLPathVersioning',
+    'DEFAULT_VERSION': 'v1',
+
+    # 异常处理
+    'EXCEPTION_HANDLER': 'myproject.utils.custom_exception_handler',
+}
+</code></pre>
+<hr />
+<blockquote>
+<p><strong>学习建议：</strong>先掌握 Serializer 和 ViewSet 两个核心概念，理解请求生命周期，再逐步深入认证/权限/限流等安全机制，最后关注性能优化。面试中最常考：<strong>序列化器校验流程、JWT 认证流程、查询优化</strong>。</p>
+</blockquote>
+
+<script>
+// Scroll spy — highlight active sidebar item
+window.addEventListener('scroll', function() {
+    var links = document.querySelectorAll('.sidebar-toc a');
+    var scrollY = window.scrollY + 120;
+    var current = '';
+    for (var i = links.length - 1; i >= 0; i--) {
+        var target = document.getElementById(links[i].getAttribute('href').slice(1));
+        if (target && target.offsetTop <= scrollY) {
+            current = links[i];
+            break;
+        }
+    }
+    links.forEach(function(a) { a.style.fontWeight = 'normal'; a.style.color = '#555'; });
+    if (current) { current.style.fontWeight = 'bold'; current.style.color = '#0366d6'; }
+});
+</script>
+
+
+<script>
+document.querySelectorAll("pre>code").forEach(function(c){var p=c.parentNode;p.style.position="relative";var b=document.createElement("button");b.className="copy-btn";b.textContent="复制";p.appendChild(b);b.addEventListener("click",function(){var t=c.textContent;navigator.clipboard.writeText(t).then(function(){b.textContent="已复制";b.classList.add("copied");setTimeout(function(){b.textContent="复制";b.classList.remove("copied")},2000)}).catch(function(){var a=document.createElement("textarea");a.value=t;a.style.position="fixed";a.style.opacity="0";document.body.appendChild(a);a.select();document.execCommand("copy");document.body.removeChild(a);b.textContent="已复制";b.classList.add("copied");setTimeout(function(){b.textContent="复制";b.classList.remove("copied")},2000)})})})
+</script>
+</body>
+</html>

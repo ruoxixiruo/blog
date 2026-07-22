@@ -1,0 +1,537 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 5.4.2">
+  <link rel="apple-touch-icon" sizes="180x180" href="/blog/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/blog/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/blog/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/blog/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/blog/css/main.css">
+
+
+<link rel="stylesheet" href="/blog/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"ruoxixiruo.github.io","root":"/blog/","scheme":"Gemini","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":true,"show_result":true,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":true},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}};
+  </script>
+
+  <meta name="description" content="1，Gateway 源码架构总览Spring Cloud Gateway 基于 WebFlux（Reactor + Netty），核心组件分为三层： 12345678910111213141516171819┌──────────────────────────────────────────────┐│           RouteLocator（路由定位器）            ││  R">
+<meta property="og:type" content="article">
+<meta property="og:title" content="SpringCloudGateway源码学习">
+<meta property="og:url" content="https://ruoxixiruo.github.io/blog/2024/08/20/springcloud/SpringCloudGateway%E6%BA%90%E7%A0%81%E5%AD%A6%E4%B9%A0/index.html">
+<meta property="og:site_name" content="RUOXI-BLOG">
+<meta property="og:description" content="1，Gateway 源码架构总览Spring Cloud Gateway 基于 WebFlux（Reactor + Netty），核心组件分为三层： 12345678910111213141516171819┌──────────────────────────────────────────────┐│           RouteLocator（路由定位器）            ││  R">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2024-08-20T10:00:00.000Z">
+<meta property="article:modified_time" content="2026-07-22T02:51:55.000Z">
+<meta property="article:author" content="ruoxi">
+<meta property="article:tag" content="java">
+<meta property="article:tag" content="源码">
+<meta property="article:tag" content="springcloud">
+<meta property="article:tag" content="gateway">
+<meta name="twitter:card" content="summary">
+
+<link rel="canonical" href="https://ruoxixiruo.github.io/blog/2024/08/20/springcloud/SpringCloudGateway%E6%BA%90%E7%A0%81%E5%AD%A6%E4%B9%A0/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+
+  <title>SpringCloudGateway源码学习 | RUOXI-BLOG</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/blog/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">RUOXI-BLOG</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/blog/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/blog/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/blog/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/blog/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a>
+
+  </li>
+        <li class="menu-item menu-item-posts">
+
+    <a href="/blog/posts/" rel="section"><i class="fa fa-rss fa-fw"></i>posts</a>
+
+  </li>
+  </ul>
+</nav>
+
+
+
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+  <div class="reading-progress-bar"></div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://ruoxixiruo.github.io/blog/2024/08/20/springcloud/SpringCloudGateway%E6%BA%90%E7%A0%81%E5%AD%A6%E4%B9%A0/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/blog/images/avatar.gif">
+      <meta itemprop="name" content="ruoxi">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="RUOXI-BLOG">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          SpringCloudGateway源码学习
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2024-08-20 10:00:00" itemprop="dateCreated datePublished" datetime="2024-08-20T10:00:00+00:00">2024-08-20</time>
+            </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/blog/categories/java/" itemprop="url" rel="index"><span itemprop="name">java</span></a>
+                </span>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <h5 id="1，Gateway-源码架构总览"><a href="#1，Gateway-源码架构总览" class="headerlink" title="1，Gateway 源码架构总览"></a>1，Gateway 源码架构总览</h5><p>Spring Cloud Gateway 基于 WebFlux（Reactor + Netty），核心组件分为三层：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line">┌──────────────────────────────────────────────┐</span><br><span class="line">│           RouteLocator（路由定位器）            │</span><br><span class="line">│  RouteDefinitionRouteLocator                  │</span><br><span class="line">│  CachingRouteLocator                          │</span><br><span class="line">│  CompositeRouteLocator                        │</span><br><span class="line">├──────────────────────────────────────────────┤</span><br><span class="line">│    RoutePredicateHandlerMapping（路由匹配）     │</span><br><span class="line">│  Predicate → Route → WebHandler              │</span><br><span class="line">├──────────────────────────────────────────────┤</span><br><span class="line">│      FilteringWebHandler（过滤器链执行）        │</span><br><span class="line">│  GlobalFilter + GatewayFilter → 责任链         │</span><br><span class="line">└──────────────────────────────────────────────┘</span><br><span class="line"></span><br><span class="line"># 请求处理流程：</span><br><span class="line"># 1. DispatcherHandler —— 分发请求</span><br><span class="line"># 2. RoutePredicateHandlerMapping —— 匹配路由</span><br><span class="line"># 3. FilteringWebHandler —— 执行过滤器链</span><br><span class="line"># 4. NettyRoutingFilter —— 转发到下游</span><br><span class="line"># 5. 响应原路返回（逆序经过过滤器链）</span><br></pre></td></tr></table></figure>
+
+<span id="more"></span>
+
+<h5 id="2，自动配置入口"><a href="#2，自动配置入口" class="headerlink" title="2，自动配置入口"></a>2，自动配置入口</h5><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// ============ GatewayAutoConfiguration ============</span></span><br><span class="line"></span><br><span class="line"><span class="meta">@Configuration</span></span><br><span class="line"><span class="meta">@ConditionalOnProperty(name = &quot;spring.cloud.gateway.enabled&quot;, matchIfMissing = true)</span></span><br><span class="line"><span class="meta">@EnableConfigurationProperties</span></span><br><span class="line"><span class="meta">@AutoConfigureBefore(HttpHandlerAutoConfiguration.class)</span></span><br><span class="line"><span class="meta">@AutoConfigureAfter(&#123;GatewayLoadBalancerClientAutoConfiguration.class&#125;)</span></span><br><span class="line"><span class="meta">@ConditionalOnClass(DispatcherHandler.class)</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">GatewayAutoConfiguration</span> &#123;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// ★ 1. 路由定义定位器（从配置文件读取路由定义）</span></span><br><span class="line">    <span class="meta">@Bean</span></span><br><span class="line">    <span class="keyword">public</span> RouteDefinitionLocator <span class="title function_">routeDefinitionLocator</span><span class="params">(</span></span><br><span class="line"><span class="params">            GatewayProperties properties)</span> &#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">new</span> <span class="title class_">PropertiesRouteDefinitionLocator</span>(properties);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// ★ 2. 路由定位器（组装完整路由：定义 + Predicate + Filter）</span></span><br><span class="line">    <span class="meta">@Bean</span></span><br><span class="line">    <span class="keyword">public</span> RouteLocator <span class="title function_">routeDefinitionRouteLocator</span><span class="params">(</span></span><br><span class="line"><span class="params">            GatewayProperties properties,</span></span><br><span class="line"><span class="params">            List&lt;GatewayFilterFactory&gt; gatewayFilters,</span></span><br><span class="line"><span class="params">            List&lt;RoutePredicateFactory&gt; predicates,</span></span><br><span class="line"><span class="params">            RouteDefinitionLocator routeDefinitionLocator,</span></span><br><span class="line"><span class="params">            ConfigurationService configurationService)</span> &#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">new</span> <span class="title class_">RouteDefinitionRouteLocator</span>(</span><br><span class="line">            routeDefinitionLocator, predicates,</span><br><span class="line">            gatewayFilters, properties, configurationService);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// ★ 3. 缓存路由定位器</span></span><br><span class="line">    <span class="meta">@Bean</span></span><br><span class="line">    <span class="meta">@Primary</span></span><br><span class="line">    <span class="keyword">public</span> RouteLocator <span class="title function_">cachedCompositeRouteLocator</span><span class="params">(List&lt;RouteLocator&gt; routeLocators)</span> &#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">new</span> <span class="title class_">CachingRouteLocator</span>(</span><br><span class="line">            <span class="keyword">new</span> <span class="title class_">CompositeRouteLocator</span>(Flux.fromIterable(routeLocators)));</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// ★ 4. 路由断言处理器映射</span></span><br><span class="line">    <span class="meta">@Bean</span></span><br><span class="line">    <span class="keyword">public</span> RoutePredicateHandlerMapping <span class="title function_">routePredicateHandlerMapping</span><span class="params">(</span></span><br><span class="line"><span class="params">            FilteringWebHandler webHandler,</span></span><br><span class="line"><span class="params">            RouteLocator routeLocator,</span></span><br><span class="line"><span class="params">            GlobalCorsProperties globalCorsProperties,</span></span><br><span class="line"><span class="params">            Environment environment)</span> &#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">new</span> <span class="title class_">RoutePredicateHandlerMapping</span>(</span><br><span class="line">            webHandler, routeLocator,</span><br><span class="line">            globalCorsProperties, environment);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// ★ 5. 过滤器 WebHandler</span></span><br><span class="line">    <span class="meta">@Bean</span></span><br><span class="line">    <span class="keyword">public</span> FilteringWebHandler <span class="title function_">filteringWebHandler</span><span class="params">(List&lt;GlobalFilter&gt; globalFilters)</span> &#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">new</span> <span class="title class_">FilteringWebHandler</span>(globalFilters);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// ★ 6. 注册所有内置 Predicate Factory</span></span><br><span class="line">    <span class="meta">@Bean</span></span><br><span class="line">    <span class="keyword">public</span> RoutePredicateFactory <span class="title function_">pathRoutePredicateFactory</span><span class="params">()</span> &#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">new</span> <span class="title class_">PathRoutePredicateFactory</span>();</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="meta">@Bean</span></span><br><span class="line">    <span class="keyword">public</span> RoutePredicateFactory <span class="title function_">hostRoutePredicateFactory</span><span class="params">()</span> &#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">new</span> <span class="title class_">HostRoutePredicateFactory</span>();</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="comment">// ... 其他 Predicate Factory</span></span><br><span class="line"></span><br><span class="line">    <span class="comment">// ★ 7. 注册所有内置 GatewayFilter Factory</span></span><br><span class="line">    <span class="meta">@Bean</span></span><br><span class="line">    <span class="keyword">public</span> GatewayFilterFactory <span class="title function_">stripPrefixGatewayFilterFactory</span><span class="params">()</span> &#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">new</span> <span class="title class_">StripPrefixGatewayFilterFactory</span>();</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="meta">@Bean</span></span><br><span class="line">    <span class="keyword">public</span> GatewayFilterFactory <span class="title function_">addRequestHeaderGatewayFilterFactory</span><span class="params">()</span> &#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">new</span> <span class="title class_">AddRequestHeaderGatewayFilterFactory</span>();</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="comment">// ... 其他 Filter Factory</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h5 id="3，RouteDefinition-——-路由定义"><a href="#3，RouteDefinition-——-路由定义" class="headerlink" title="3，RouteDefinition —— 路由定义"></a>3，RouteDefinition —— 路由定义</h5><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// ============ RouteDefinition —— 路由的配置模型 ============</span></span><br><span class="line"></span><br><span class="line"><span class="meta">@Validated</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">RouteDefinition</span> &#123;</span><br><span class="line">    <span class="meta">@NotEmpty</span></span><br><span class="line">    <span class="keyword">private</span> String id;                                  <span class="comment">// 路由 ID</span></span><br><span class="line"></span><br><span class="line">    <span class="meta">@NotEmpty</span></span><br><span class="line">    <span class="meta">@Valid</span></span><br><span class="line">    <span class="keyword">private</span> List&lt;PredicateDefinition&gt; predicates;     <span class="comment">// 断言列表</span></span><br><span class="line"></span><br><span class="line">    <span class="meta">@Valid</span></span><br><span class="line">    <span class="keyword">private</span> List&lt;FilterDefinition&gt; filters;            <span class="comment">// 过滤器列表</span></span><br><span class="line"></span><br><span class="line">    <span class="meta">@NotNull</span></span><br><span class="line">    <span class="keyword">private</span> URI uri;                                   <span class="comment">// 目标 URI（lb://service-user）</span></span><br><span class="line"></span><br><span class="line">    <span class="keyword">private</span> Map&lt;String, Object&gt; metadata;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">private</span> <span class="type">int</span> <span class="variable">order</span> <span class="operator">=</span> <span class="number">0</span>;                             <span class="comment">// 匹配优先级（越小越优先）</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// PredicateDefinition</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">PredicateDefinition</span> &#123;</span><br><span class="line">    <span class="keyword">private</span> String name;        <span class="comment">// Predicate Factory 名称（如 Path, Header）</span></span><br><span class="line">    <span class="keyword">private</span> Map&lt;String, String&gt; args = <span class="keyword">new</span> <span class="title class_">LinkedHashMap</span>&lt;&gt;();  <span class="comment">// 参数</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// FilterDefinition</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">FilterDefinition</span> &#123;</span><br><span class="line">    <span class="keyword">private</span> String name;        <span class="comment">// Filter Factory 名称（如 StripPrefix, AddRequestHeader）</span></span><br><span class="line">    <span class="keyword">private</span> Map&lt;String, String&gt; args = <span class="keyword">new</span> <span class="title class_">LinkedHashMap</span>&lt;&gt;();</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// ============ Route —— 运行时的路由对象 ============</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">Route</span> <span class="keyword">implements</span> <span class="title class_">Ordered</span> &#123;</span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">final</span> String id;</span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">final</span> URI uri;</span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">final</span> <span class="type">int</span> order;</span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">final</span> AsyncPredicate&lt;ServerWebExchange&gt; predicate;   <span class="comment">// ★ 断言函数</span></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">final</span> List&lt;GatewayFilter&gt; gatewayFilters;             <span class="comment">// ★ 过滤器列表</span></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">final</span> Map&lt;String, Object&gt; metadata;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 创建 Builder</span></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> Builder <span class="title function_">builder</span><span class="params">()</span> &#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">new</span> <span class="title class_">Builder</span>();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// ============ PropertiesRouteDefinitionLocator ============</span></span><br><span class="line"><span class="comment">// 从 application.yml 读取 RouteDefinition</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">PropertiesRouteDefinitionLocator</span> <span class="keyword">implements</span> <span class="title class_">RouteDefinitionLocator</span> &#123;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">final</span> GatewayProperties properties;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="keyword">public</span> Flux&lt;RouteDefinition&gt; <span class="title function_">getRouteDefinitions</span><span class="params">()</span> &#123;</span><br><span class="line">        <span class="comment">// ★ GatewayProperties 已通过 @ConfigurationProperties 绑定了 yaml 中的 routes 配置</span></span><br><span class="line">        <span class="keyword">return</span> Flux.fromIterable(<span class="built_in">this</span>.properties.getRoutes());</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h5 id="4，路由匹配核心-——-RoutePredicateHandlerMapping"><a href="#4，路由匹配核心-——-RoutePredicateHandlerMapping" class="headerlink" title="4，路由匹配核心 —— RoutePredicateHandlerMapping"></a>4，路由匹配核心 —— RoutePredicateHandlerMapping</h5><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// ============ RoutePredicateHandlerMapping ============</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">RoutePredicateHandlerMapping</span> <span class="keyword">extends</span> <span class="title class_">AbstractHandlerMapping</span> &#123;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">final</span> FilteringWebHandler webHandler;</span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">final</span> RouteLocator routeLocator;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="keyword">protected</span> Mono&lt;?&gt; getHandlerInternal(ServerWebExchange exchange) &#123;</span><br><span class="line">        <span class="comment">// 设置 Gateway 专用属性</span></span><br><span class="line">        exchange.getAttributes().put(GATEWAY_HANDLER_MAPPER_ATTR, getSimpleName());</span><br><span class="line"></span><br><span class="line">        <span class="comment">// ★ 核心：查找匹配的路由</span></span><br><span class="line">        <span class="keyword">return</span> lookupRoute(exchange)</span><br><span class="line">            .flatMap((Function&lt;Route, Mono&lt;?&gt;&gt;) r -&gt; &#123;</span><br><span class="line">                <span class="comment">// 移除之前的路由属性</span></span><br><span class="line">                exchange.getAttributes().remove(GATEWAY_PREDICATE_ROUTE_ATTR);</span><br><span class="line">                <span class="keyword">if</span> (logger.isDebugEnabled()) &#123;</span><br><span class="line">                    logger.debug(<span class="string">&quot;Mapping [&quot;</span> + getExchangeDesc(exchange)</span><br><span class="line">                        + <span class="string">&quot;] to &quot;</span> + r);</span><br><span class="line">                &#125;</span><br><span class="line"></span><br><span class="line">                <span class="comment">// ★ 将匹配的路由存入 exchange 属性</span></span><br><span class="line">                exchange.getAttributes().put(GATEWAY_ROUTE_ATTR, r);</span><br><span class="line"></span><br><span class="line">                <span class="comment">// ★ 返回 webHandler（FilteringWebHandler）</span></span><br><span class="line">                <span class="comment">//    Spring 框架会调用 webHandler.handle(exchange)</span></span><br><span class="line">                <span class="keyword">return</span> Mono.just(webHandler);</span><br><span class="line">            &#125;)</span><br><span class="line">            .switchIfEmpty(Mono.empty().then(Mono.fromRunnable(() -&gt; &#123;</span><br><span class="line">                <span class="comment">// 无匹配路由，返回 404</span></span><br><span class="line">                exchange.getAttributes().remove(GATEWAY_PREDICATE_ROUTE_ATTR);</span><br><span class="line">                <span class="keyword">if</span> (logger.isTraceEnabled()) &#123;</span><br><span class="line">                    logger.trace(<span class="string">&quot;No RouteDefinition found for [&quot;</span></span><br><span class="line">                        + getExchangeDesc(exchange) + <span class="string">&quot;]&quot;</span>);</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;)));</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// ★★★ 路由匹配的核心逻辑</span></span><br><span class="line">    <span class="keyword">protected</span> Mono&lt;Route&gt; <span class="title function_">lookupRoute</span><span class="params">(ServerWebExchange exchange)</span> &#123;</span><br><span class="line">        <span class="comment">// 1. ★ 获取所有路由（从 RouteLocator）</span></span><br><span class="line">        <span class="keyword">return</span> <span class="built_in">this</span>.routeLocator.getRoutes()</span><br><span class="line">            .concatMap(route -&gt;</span><br><span class="line">                Mono.just(route)</span><br><span class="line">                    .filterWhen(r -&gt; &#123;</span><br><span class="line">                        <span class="comment">// ★ 2. 设置当前路由 ID 到 exchange</span></span><br><span class="line">                        exchange.getAttributes().put(GATEWAY_PREDICATE_ROUTE_ATTR, r.getId());</span><br><span class="line"></span><br><span class="line">                        <span class="comment">// ★ 3. 执行路由的 Predicate 判断</span></span><br><span class="line">                        <span class="keyword">return</span> r.getPredicate().apply(exchange);</span><br><span class="line">                    &#125;)</span><br><span class="line">                    .doOnError(e -&gt;</span><br><span class="line">                        logger.error(<span class="string">&quot;Error applying predicate for route: &quot;</span> + route.getId(), e))</span><br><span class="line">                    .onErrorResume(e -&gt; Mono.empty())</span><br><span class="line">            )</span><br><span class="line">            .next();    <span class="comment">// ★ 4. 只取第一个匹配的路由</span></span><br><span class="line">            <span class="comment">// 类似短路：找到一个匹配就停止</span></span><br><span class="line"></span><br><span class="line">            <span class="comment">// .map() 包裹处理</span></span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h5 id="5，路由组装-——-RouteDefinitionRouteLocator"><a href="#5，路由组装-——-RouteDefinitionRouteLocator" class="headerlink" title="5，路由组装 —— RouteDefinitionRouteLocator"></a>5，路由组装 —— RouteDefinitionRouteLocator</h5><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// ============ RouteDefinitionRouteLocator ============</span></span><br><span class="line"><span class="comment">// ★ 将 RouteDefinition 转为 Route 对象</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">RouteDefinitionRouteLocator</span> <span class="keyword">implements</span> <span class="title class_">RouteLocator</span> &#123;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">final</span> RouteDefinitionLocator routeDefinitionLocator;</span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">final</span> Map&lt;String, RoutePredicateFactory&gt; predicates;</span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">final</span> Map&lt;String, GatewayFilterFactory&gt; gatewayFilterFactories;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="keyword">public</span> Flux&lt;Route&gt; <span class="title function_">getRoutes</span><span class="params">()</span> &#123;</span><br><span class="line">        <span class="comment">// 1. ★ 获取所有 RouteDefinition（从配置文件、服务发现等）</span></span><br><span class="line">        <span class="keyword">return</span> routeDefinitionLocator.getRouteDefinitions()</span><br><span class="line">            .map(<span class="built_in">this</span>::convertToRoute)        <span class="comment">// ★ 转换为 Route</span></span><br><span class="line">            .map(route -&gt; &#123;</span><br><span class="line">                <span class="keyword">if</span> (logger.isDebugEnabled()) &#123;</span><br><span class="line">                    logger.debug(<span class="string">&quot;RouteDefinition matched: &quot;</span> + route.getId());</span><br><span class="line">                &#125;</span><br><span class="line">                <span class="keyword">return</span> route;</span><br><span class="line">            &#125;);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// ★★★ RouteDefinition → Route 转换</span></span><br><span class="line">    <span class="keyword">private</span> Route <span class="title function_">convertToRoute</span><span class="params">(RouteDefinition routeDefinition)</span> &#123;</span><br><span class="line">        <span class="comment">// ★ 1. 组装 Predicate</span></span><br><span class="line">        <span class="comment">//    将 PredicateDefinition 列表合并为一个 AsyncPredicate</span></span><br><span class="line">        <span class="comment">//    所有 Predicate 必须同时满足（AND 逻辑）</span></span><br><span class="line">        AsyncPredicate&lt;ServerWebExchange&gt; predicate =</span><br><span class="line">            combinePredicates(routeDefinition);</span><br><span class="line"></span><br><span class="line">        <span class="comment">// ★ 2. 组装 GatewayFilter 列表</span></span><br><span class="line">        List&lt;GatewayFilter&gt; gatewayFilters =</span><br><span class="line">            getFilters(routeDefinition);</span><br><span class="line"></span><br><span class="line">        <span class="comment">// ★ 3. 构建 Route</span></span><br><span class="line">        <span class="keyword">return</span> Route.async(routeDefinition)</span><br><span class="line">            .asyncPredicate(predicate)</span><br><span class="line">            .replaceFilters(gatewayFilters)</span><br><span class="line">            .build();</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// ★ 合并所有断言</span></span><br><span class="line">    <span class="keyword">private</span> AsyncPredicate&lt;ServerWebExchange&gt; <span class="title function_">combinePredicates</span><span class="params">(</span></span><br><span class="line"><span class="params">            RouteDefinition routeDefinition)</span> &#123;</span><br><span class="line">        List&lt;PredicateDefinition&gt; predicates = routeDefinition.getPredicates();</span><br><span class="line">        <span class="keyword">if</span> (predicates == <span class="literal">null</span> || predicates.isEmpty()) &#123;</span><br><span class="line">            <span class="keyword">return</span> AsyncPredicate.from(exchange -&gt; <span class="literal">true</span>);</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        AsyncPredicate&lt;ServerWebExchange&gt; result = <span class="literal">null</span>;</span><br><span class="line">        <span class="keyword">for</span> (PredicateDefinition predicate : predicates) &#123;</span><br><span class="line">            <span class="comment">// ★ 从工厂 Map 中获取对应的 Predicate Factory</span></span><br><span class="line">            <span class="comment">//    如 Path → PathRoutePredicateFactory</span></span><br><span class="line">            RoutePredicateFactory&lt;Object&gt; factory =</span><br><span class="line">                <span class="built_in">this</span>.predicates.get(predicate.getName());</span><br><span class="line"></span><br><span class="line">            <span class="comment">// ★ 将 args 转换为 Config 对象</span></span><br><span class="line">            <span class="type">Object</span> <span class="variable">config</span> <span class="operator">=</span> factory.newConfig();</span><br><span class="line">            applyProperties(config, predicate.getArgs());</span><br><span class="line">            <span class="comment">// 处理 shortcut 语法：</span></span><br><span class="line">            <span class="comment">//   Path=/api/**  → config 的 path 字段 = /api/**</span></span><br><span class="line"></span><br><span class="line">            <span class="comment">// ★ 通过工厂创建 Predicate</span></span><br><span class="line">            AsyncPredicate&lt;ServerWebExchange&gt; p =</span><br><span class="line">                factory.applyAsync(config);</span><br><span class="line"></span><br><span class="line">            <span class="keyword">if</span> (result == <span class="literal">null</span>) &#123;</span><br><span class="line">                result = p;</span><br><span class="line">            &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">                <span class="comment">// ★ AND 合并</span></span><br><span class="line">                result = result.and(p);</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> result;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// ★ 组装过滤器列表</span></span><br><span class="line">    <span class="keyword">private</span> List&lt;GatewayFilter&gt; <span class="title function_">getFilters</span><span class="params">(RouteDefinition routeDefinition)</span> &#123;</span><br><span class="line">        List&lt;GatewayFilter&gt; filters = <span class="keyword">new</span> <span class="title class_">ArrayList</span>&lt;&gt;();</span><br><span class="line"></span><br><span class="line">        <span class="comment">// 1. 处理 filters 配置</span></span><br><span class="line">        <span class="keyword">for</span> (FilterDefinition filterDef : routeDefinition.getFilters()) &#123;</span><br><span class="line">            <span class="type">GatewayFilterFactory</span> <span class="variable">factory</span> <span class="operator">=</span></span><br><span class="line">                gatewayFilterFactories.get(filterDef.getName());</span><br><span class="line">            <span class="type">Object</span> <span class="variable">config</span> <span class="operator">=</span> factory.newConfig();</span><br><span class="line">            applyProperties(config, filterDef.getArgs());</span><br><span class="line">            <span class="type">GatewayFilter</span> <span class="variable">gatewayFilter</span> <span class="operator">=</span> factory.apply(config);</span><br><span class="line">            filters.add(gatewayFilter);</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="comment">// 2. ★ 添加默认过滤器（default-filters）</span></span><br><span class="line">        <span class="keyword">for</span> (FilterDefinition defaultFilter : gatewayProperties.getDefaultFilters()) &#123;</span><br><span class="line">            <span class="type">GatewayFilterFactory</span> <span class="variable">factory</span> <span class="operator">=</span></span><br><span class="line">                gatewayFilterFactories.get(defaultFilter.getName());</span><br><span class="line">            <span class="type">Object</span> <span class="variable">config</span> <span class="operator">=</span> factory.newConfig();</span><br><span class="line">            applyProperties(config, defaultFilter.getArgs());</span><br><span class="line">            filters.add(factory.apply(config));</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="comment">// 3. 按 @Order 排序</span></span><br><span class="line">        filters.sort(OrderComparator.INSTANCE);</span><br><span class="line"></span><br><span class="line">        <span class="keyword">return</span> filters;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h5 id="6，过滤器链执行-——-FilteringWebHandler"><a href="#6，过滤器链执行-——-FilteringWebHandler" class="headerlink" title="6，过滤器链执行 —— FilteringWebHandler"></a>6，过滤器链执行 —— FilteringWebHandler</h5><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// ============ FilteringWebHandler ============</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">FilteringWebHandler</span> <span class="keyword">implements</span> <span class="title class_">WebHandler</span> &#123;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">final</span> List&lt;GatewayFilter&gt; globalFilters;    <span class="comment">// ★ GlobalFilter 列表</span></span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="keyword">public</span> Mono&lt;Void&gt; <span class="title function_">handle</span><span class="params">(ServerWebExchange exchange)</span> &#123;</span><br><span class="line">        <span class="comment">// ★ 1. 获取匹配的路由</span></span><br><span class="line">        <span class="type">Route</span> <span class="variable">route</span> <span class="operator">=</span> exchange.getRequiredAttribute(GATEWAY_ROUTE_ATTR);</span><br><span class="line"></span><br><span class="line">        <span class="comment">// ★ 2. 获取路由级别的 GatewayFilter</span></span><br><span class="line">        List&lt;GatewayFilter&gt; gatewayFilters = route.getFilters();</span><br><span class="line"></span><br><span class="line">        <span class="comment">// ★ 3. 合并全局 GlobalFilter + 路由级 GatewayFilter</span></span><br><span class="line">        List&lt;GatewayFilter&gt; combined = <span class="keyword">new</span> <span class="title class_">ArrayList</span>&lt;&gt;(<span class="built_in">this</span>.globalFilters);</span><br><span class="line">        combined.addAll(gatewayFilters);</span><br><span class="line"></span><br><span class="line">        <span class="comment">// ★ 4. 按 @Order 排序</span></span><br><span class="line">        AnnotationAwareOrderComparator.sort(combined);</span><br><span class="line"></span><br><span class="line">        <span class="keyword">if</span> (logger.isDebugEnabled()) &#123;</span><br><span class="line">            logger.debug(<span class="string">&quot;Sorted gatewayFilterFactories: &quot;</span> + combined);</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="comment">// ★ 5. 构建默认过滤器链并执行</span></span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">new</span> <span class="title class_">DefaultGatewayFilterChain</span>(combined)</span><br><span class="line">            .filter(exchange);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// ============ DefaultGatewayFilterChain —— 过滤器链 ============</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">class</span> <span class="title class_">DefaultGatewayFilterChain</span> <span class="keyword">implements</span> <span class="title class_">GatewayFilterChain</span> &#123;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">final</span> <span class="type">int</span> index;</span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">final</span> List&lt;GatewayFilter&gt; filters;</span><br><span class="line"></span><br><span class="line">    DefaultGatewayFilterChain(List&lt;GatewayFilter&gt; filters) &#123;</span><br><span class="line">        <span class="built_in">this</span>.filters = filters;</span><br><span class="line">        <span class="built_in">this</span>.index = <span class="number">0</span>;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">private</span> <span class="title function_">DefaultGatewayFilterChain</span><span class="params">(DefaultGatewayFilterChain parent, <span class="type">int</span> index)</span> &#123;</span><br><span class="line">        <span class="built_in">this</span>.filters = parent.filters;</span><br><span class="line">        <span class="built_in">this</span>.index = index;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="keyword">public</span> Mono&lt;Void&gt; <span class="title function_">filter</span><span class="params">(ServerWebExchange exchange)</span> &#123;</span><br><span class="line">        <span class="keyword">return</span> Mono.defer(() -&gt; &#123;</span><br><span class="line">            <span class="keyword">if</span> (<span class="built_in">this</span>.index &lt; filters.size()) &#123;</span><br><span class="line">                <span class="type">GatewayFilter</span> <span class="variable">filter</span> <span class="operator">=</span> filters.get(<span class="built_in">this</span>.index);</span><br><span class="line"></span><br><span class="line">                <span class="comment">// ★ 创建下一个链节点（index + 1）</span></span><br><span class="line">                <span class="type">DefaultGatewayFilterChain</span> <span class="variable">chain</span> <span class="operator">=</span></span><br><span class="line">                    <span class="keyword">new</span> <span class="title class_">DefaultGatewayFilterChain</span>(<span class="built_in">this</span>, <span class="built_in">this</span>.index + <span class="number">1</span>);</span><br><span class="line"></span><br><span class="line">                <span class="comment">// ★ 递归执行下一个过滤器</span></span><br><span class="line">                <span class="comment">//    每个过滤器内部调用 chain.filter(exchange) 传递到下一个</span></span><br><span class="line">                <span class="keyword">return</span> filter.filter(exchange, chain);</span><br><span class="line">            &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">                <span class="comment">// ★ 链尾：返回空（所有过滤器执行完毕）</span></span><br><span class="line">                <span class="keyword">return</span> Mono.empty();</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h5 id="7，GlobalFilter-→-GatewayFilter-适配"><a href="#7，GlobalFilter-→-GatewayFilter-适配" class="headerlink" title="7，GlobalFilter → GatewayFilter 适配"></a>7，GlobalFilter → GatewayFilter 适配</h5><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// Gateway 的内部过滤器统一使用 GatewayFilter 接口</span></span><br><span class="line"><span class="comment">// GlobalFilter 需要适配为 GatewayFilter</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">GatewayFilterAdapter</span> <span class="keyword">implements</span> <span class="title class_">GatewayFilter</span> &#123;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">final</span> GlobalFilter delegate;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="keyword">public</span> Mono&lt;Void&gt; <span class="title function_">filter</span><span class="params">(ServerWebExchange exchange, GatewayFilterChain chain)</span> &#123;</span><br><span class="line">        <span class="comment">// ★ GlobalFilter.filter() 只接收 exchange 和 chain</span></span><br><span class="line">        <span class="comment">//    但 GatewayFilter.filter() 返回 Mono&lt;Void&gt;，直接可作链式传递</span></span><br><span class="line">        <span class="keyword">return</span> <span class="built_in">this</span>.delegate.filter(exchange, chain);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 在 FilteringWebHandler 构造时完成适配：</span></span><br><span class="line"><span class="keyword">public</span> <span class="title function_">FilteringWebHandler</span><span class="params">(List&lt;GlobalFilter&gt; globalFilters)</span> &#123;</span><br><span class="line">    <span class="built_in">this</span>.globalFilters = globalFilters.stream()</span><br><span class="line">        .map(GatewayFilterAdapter::<span class="keyword">new</span>)           <span class="comment">// ★ GlobalFilter → GatewayFilter</span></span><br><span class="line">        .collect(Collectors.toList());</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h5 id="8，内置过滤器执行顺序"><a href="#8，内置过滤器执行顺序" class="headerlink" title="8，内置过滤器执行顺序"></a>8，内置过滤器执行顺序</h5><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># Gateway 请求处理过滤器链（按 order 排序）：</span></span><br><span class="line"></span><br><span class="line">RemoveCachedBodyFilter          order = -2147483648 (HIGHEST_PRECEDENCE)</span><br><span class="line">  │  缓存请求体（后续过滤器可重复读）</span><br><span class="line">  │</span><br><span class="line">AdaptCachedBodyGlobalFilter     order = -2147482648</span><br><span class="line">  │</span><br><span class="line">NettyWriteResponseFilter        order = -1</span><br><span class="line">  │  将响应写回客户端</span><br><span class="line">  │</span><br><span class="line">ForwardPathFilter               order = 0</span><br><span class="line">  │  处理路径转发</span><br><span class="line">  │</span><br><span class="line">GatewayMetricsFilter            order = 0</span><br><span class="line">  │  记录网关指标</span><br><span class="line">  │</span><br><span class="line">RouteToRequestUrlFilter         order = 10000</span><br><span class="line">  │  将 Route URI 设置为 Request URI</span><br><span class="line">  │</span><br><span class="line">LoadBalancerClientFilter        order = 10100</span><br><span class="line">  │  通过 LoadBalancer 选择实例（lb:// → http://IP:Port）</span><br><span class="line">  │</span><br><span class="line">NettyRoutingFilter             order = LOWEST_PRECEDENCE</span><br><span class="line">  │  ★ 真正发送 HTTP 请求到下游服务</span><br><span class="line">  │</span><br><span class="line">ForwardRoutingFilter           order = LOWEST_PRECEDENCE</span><br><span class="line">  │  处理 forward:// 协议</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// ============ NettyRoutingFilter —— 真正发起 HTTP 请求 ============</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">NettyRoutingFilter</span> <span class="keyword">implements</span> <span class="title class_">GlobalFilter</span>, Ordered &#123;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">final</span> HttpClient httpClient;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="keyword">public</span> Mono&lt;Void&gt; <span class="title function_">filter</span><span class="params">(ServerWebExchange exchange, GatewayFilterChain chain)</span> &#123;</span><br><span class="line">        <span class="comment">// ★ 1. 获取目标 URL（经过 LoadBalancerClientFilter 已替换为真实 IP:Port）</span></span><br><span class="line">        <span class="type">URI</span> <span class="variable">requestUrl</span> <span class="operator">=</span> exchange.getRequiredAttribute(GATEWAY_REQUEST_URL_ATTR);</span><br><span class="line"></span><br><span class="line">        <span class="comment">// ★ 2. 构建 Reactor Netty 的 HttpClient 请求</span></span><br><span class="line">        HttpClient.<span class="type">RequestSender</span> <span class="variable">sender</span> <span class="operator">=</span> httpClient</span><br><span class="line">            .headers(headers -&gt; &#123;</span><br><span class="line">                headers.add(exchange.getRequest().getHeaders());</span><br><span class="line">            &#125;)</span><br><span class="line">            .request(exchange.getRequest().getMethod())</span><br><span class="line">            .uri(requestUrl);</span><br><span class="line"></span><br><span class="line">        <span class="comment">// ★ 3. 发送请求并获取响应</span></span><br><span class="line">        <span class="keyword">return</span> sender.sendHeaders()</span><br><span class="line">            .then(sender.send(exchange.getRequest().getBody()))</span><br><span class="line">            .responseConnection((response, connection) -&gt; &#123;</span><br><span class="line">                <span class="comment">// ★ 4. 将下游响应写回客户端</span></span><br><span class="line">                exchange.getResponse().setStatusCode(response.status());</span><br><span class="line">                exchange.getResponse().getHeaders().addAll(response.responseHeaders());</span><br><span class="line">                <span class="keyword">return</span> exchange.getResponse().writeWith(connection.inbound());</span><br><span class="line">            &#125;);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="keyword">public</span> <span class="type">int</span> <span class="title function_">getOrder</span><span class="params">()</span> &#123;</span><br><span class="line">        <span class="keyword">return</span> RouteToRequestUrlFilter.ROUTE_TO_URL_FILTER_ORDER + <span class="number">1</span>;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h5 id="9，LoadBalancer-集成-——-LoadBalancerClientFilter"><a href="#9，LoadBalancer-集成-——-LoadBalancerClientFilter" class="headerlink" title="9，LoadBalancer 集成 —— LoadBalancerClientFilter"></a>9，LoadBalancer 集成 —— LoadBalancerClientFilter</h5><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// ============ LoadBalancerClientFilter ============</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">LoadBalancerClientFilter</span> <span class="keyword">implements</span> <span class="title class_">GlobalFilter</span>, Ordered &#123;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">final</span> LoadBalancerClient loadBalancer;</span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">final</span> LoadBalancerProperties properties;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="keyword">public</span> Mono&lt;Void&gt; <span class="title function_">filter</span><span class="params">(ServerWebExchange exchange, GatewayFilterChain chain)</span> &#123;</span><br><span class="line">        <span class="type">URI</span> <span class="variable">url</span> <span class="operator">=</span> exchange.getAttribute(GATEWAY_REQUEST_URL_ATTR);</span><br><span class="line"></span><br><span class="line">        <span class="comment">// ★ 1. 检查是否为 lb:// 协议</span></span><br><span class="line">        <span class="keyword">if</span> (!<span class="string">&quot;lb&quot;</span>.equals(url.getScheme())) &#123;</span><br><span class="line">            <span class="keyword">return</span> chain.filter(exchange);      <span class="comment">// 非 lb 协议，跳过</span></span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="comment">// ★ 2. 获取服务名</span></span><br><span class="line">        <span class="type">String</span> <span class="variable">serviceName</span> <span class="operator">=</span> url.getHost();</span><br><span class="line"></span><br><span class="line">        <span class="comment">// ★ 3. 通过 LoadBalancer 选择一个实例</span></span><br><span class="line">        <span class="keyword">return</span> choose(serviceName, exchange)</span><br><span class="line">            .flatMap(serviceInstance -&gt; &#123;</span><br><span class="line">                <span class="comment">// ★ 4. 替换 URI：lb://service-user/user/1</span></span><br><span class="line">                <span class="comment">//            → http://192.168.1.100:8080/user/1</span></span><br><span class="line">                <span class="type">URI</span> <span class="variable">requestUrl</span> <span class="operator">=</span> reconstructURI(serviceInstance, url);</span><br><span class="line"></span><br><span class="line">                <span class="comment">// ★ 5. 设置新的 URL 到 exchange 属性</span></span><br><span class="line">                exchange.getAttributes().put(GATEWAY_REQUEST_URL_ATTR, requestUrl);</span><br><span class="line"></span><br><span class="line">                <span class="comment">// ★ 6. 继续执行下一个过滤器（NettyRoutingFilter）</span></span><br><span class="line">                <span class="keyword">return</span> chain.filter(exchange);</span><br><span class="line">            &#125;);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">private</span> URI <span class="title function_">reconstructURI</span><span class="params">(ServiceInstance instance, URI original)</span> &#123;</span><br><span class="line">        <span class="keyword">return</span> LoadBalancerUriTools.reconstructURI(instance, original);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="keyword">public</span> <span class="type">int</span> <span class="title function_">getOrder</span><span class="params">()</span> &#123;</span><br><span class="line">        <span class="keyword">return</span> LOAD_BALANCER_CLIENT_FILTER_ORDER;     <span class="comment">// 10100</span></span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h5 id="10，Predicate-Factory-实现示例"><a href="#10，Predicate-Factory-实现示例" class="headerlink" title="10，Predicate Factory 实现示例"></a>10，Predicate Factory 实现示例</h5><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// ============ PathRoutePredicateFactory ============</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">PathRoutePredicateFactory</span></span><br><span class="line">        <span class="keyword">extends</span> <span class="title class_">AbstractRoutePredicateFactory</span>&lt;PathRoutePredicateFactory.Config&gt; &#123;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="title function_">PathRoutePredicateFactory</span><span class="params">()</span> &#123;</span><br><span class="line">        <span class="built_in">super</span>(Config.class);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Data</span></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">class</span> <span class="title class_">Config</span> &#123;</span><br><span class="line">        <span class="keyword">private</span> List&lt;String&gt; patterns;     <span class="comment">// 路径模式列表</span></span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="keyword">public</span> List&lt;String&gt; <span class="title function_">shortcutFieldOrder</span><span class="params">()</span> &#123;</span><br><span class="line">        <span class="keyword">return</span> Collections.singletonList(<span class="string">&quot;patterns&quot;</span>);</span><br><span class="line">        <span class="comment">// 支持快捷键：Path=/user/**,/admin/** → patterns = [/user/**, /admin/**]</span></span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="keyword">public</span> Predicate&lt;ServerWebExchange&gt; <span class="title function_">apply</span><span class="params">(Config config)</span> &#123;</span><br><span class="line">        <span class="comment">// ★ 将路径模式转为 PathMatcher 列表</span></span><br><span class="line">        <span class="keyword">final</span> List&lt;PathMatcher&gt; pathMatchers = config.getPatterns().stream()</span><br><span class="line">            .map(pattern -&gt; <span class="keyword">new</span> <span class="title class_">PathMatcher</span>(pattern, <span class="literal">true</span>))</span><br><span class="line">            .collect(Collectors.toList());</span><br><span class="line"></span><br><span class="line">        <span class="keyword">return</span> exchange -&gt; &#123;</span><br><span class="line">            <span class="type">String</span> <span class="variable">path</span> <span class="operator">=</span> exchange.getRequest().getURI().getRawPath();</span><br><span class="line">            <span class="comment">// ★ 遍历匹配（任一模式匹配即可）</span></span><br><span class="line">            <span class="keyword">for</span> (PathMatcher matcher : pathMatchers) &#123;</span><br><span class="line">                <span class="keyword">if</span> (matcher.matches(path)) &#123;</span><br><span class="line">                    <span class="keyword">return</span> <span class="literal">true</span>;</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;</span><br><span class="line">            <span class="keyword">return</span> <span class="literal">false</span>;</span><br><span class="line">        &#125;;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h5 id="11，Gateway-启动流程"><a href="#11，Gateway-启动流程" class="headerlink" title="11，Gateway 启动流程"></a>11，Gateway 启动流程</h5><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// Gateway 没有独立的启动过程，在 Spring 容器 refresh 时被集成</span></span><br><span class="line"></span><br><span class="line"><span class="comment">// 流程串讲：</span></span><br><span class="line"><span class="comment">// 1. GatewayAutoConfiguration 注册所有 Bean</span></span><br><span class="line"><span class="comment">//    → RouteLocator, FilteringWebHandler, RoutePredicateHandlerMapping</span></span><br><span class="line"></span><br><span class="line"><span class="comment">// 2. AbstractHandlerMapping.initApplicationContext() 在 refresh 时调用</span></span><br><span class="line"><span class="comment">//    → RoutePredicateHandlerMapping 被初始化</span></span><br><span class="line"><span class="comment">//    → 通过 RouteLocator 预先加载所有路由</span></span><br><span class="line"></span><br><span class="line"><span class="comment">// 3. 请求到达</span></span><br><span class="line"><span class="comment">//    → DispatcherHandler.getHandler()</span></span><br><span class="line"><span class="comment">//    → RoutePredicateHandlerMapping.getHandlerInternal()</span></span><br><span class="line"><span class="comment">//    → lookupRoute() 匹配</span></span><br><span class="line"><span class="comment">//    → 返回 FilteringWebHandler</span></span><br><span class="line"></span><br><span class="line"><span class="comment">// 4. DispatcherHandler.handle(handler)</span></span><br><span class="line"><span class="comment">//    → FilteringWebHandler.handle()</span></span><br><span class="line"><span class="comment">//    → 执行过滤器链</span></span><br><span class="line"><span class="comment">//    → NettyRoutingFilter 转发请求</span></span><br><span class="line"><span class="comment">//    → 响应返回</span></span><br></pre></td></tr></table></figure>
+
+<h5 id="12，自定义扩展点"><a href="#12，自定义扩展点" class="headerlink" title="12，自定义扩展点"></a>12，自定义扩展点</h5><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// ============ 1. 自定义 Predicate Factory ============</span></span><br><span class="line"></span><br><span class="line"><span class="meta">@Component</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">UserTypeRoutePredicateFactory</span></span><br><span class="line">        <span class="keyword">extends</span> <span class="title class_">AbstractRoutePredicateFactory</span>&lt;UserTypeRoutePredicateFactory.Config&gt; &#123;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="title function_">UserTypeRoutePredicateFactory</span><span class="params">()</span> &#123;</span><br><span class="line">        <span class="built_in">super</span>(Config.class);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Data</span></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">class</span> <span class="title class_">Config</span> &#123;</span><br><span class="line">        <span class="keyword">private</span> String userType;           <span class="comment">// VIP / NORMAL</span></span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="keyword">public</span> Predicate&lt;ServerWebExchange&gt; <span class="title function_">apply</span><span class="params">(Config config)</span> &#123;</span><br><span class="line">        <span class="keyword">return</span> exchange -&gt; &#123;</span><br><span class="line">            <span class="type">String</span> <span class="variable">type</span> <span class="operator">=</span> exchange.getRequest()</span><br><span class="line">                .getHeaders().getFirst(<span class="string">&quot;X-User-Type&quot;</span>);</span><br><span class="line">            <span class="keyword">return</span> config.getUserType().equalsIgnoreCase(type);</span><br><span class="line">        &#125;;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="keyword">public</span> List&lt;String&gt; <span class="title function_">shortcutFieldOrder</span><span class="params">()</span> &#123;</span><br><span class="line">        <span class="keyword">return</span> List.of(<span class="string">&quot;userType&quot;</span>);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// yaml 中使用：</span></span><br><span class="line"><span class="comment">// predicates:</span></span><br><span class="line"><span class="comment">//   - UserType=VIP</span></span><br></pre></td></tr></table></figure>
+
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// ============ 2. 自定义 GatewayFilter Factory（带短路）============</span></span><br><span class="line"></span><br><span class="line"><span class="meta">@Component</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">ValidateCodeGatewayFilterFactory</span></span><br><span class="line">        <span class="keyword">extends</span> <span class="title class_">AbstractGatewayFilterFactory</span>&lt;Object&gt; &#123;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="keyword">public</span> GatewayFilter <span class="title function_">apply</span><span class="params">(Object config)</span> &#123;</span><br><span class="line">        <span class="keyword">return</span> (exchange, chain) -&gt; &#123;</span><br><span class="line">            <span class="type">String</span> <span class="variable">code</span> <span class="operator">=</span> exchange.getRequest()</span><br><span class="line">                .getQueryParams().getFirst(<span class="string">&quot;code&quot;</span>);</span><br><span class="line">            <span class="keyword">if</span> (code == <span class="literal">null</span> || code.length() != <span class="number">6</span>) &#123;</span><br><span class="line">                <span class="comment">// ★ 验证失败，短路返回</span></span><br><span class="line">                exchange.getResponse().setStatusCode(HttpStatus.BAD_REQUEST);</span><br><span class="line">                <span class="type">String</span> <span class="variable">body</span> <span class="operator">=</span> <span class="string">&quot;&#123;\&quot;error\&quot;:\&quot;验证码无效\&quot;&#125;&quot;</span>;</span><br><span class="line">                <span class="type">DataBuffer</span> <span class="variable">buffer</span> <span class="operator">=</span> exchange.getResponse()</span><br><span class="line">                    .bufferFactory().wrap(body.getBytes());</span><br><span class="line">                <span class="keyword">return</span> exchange.getResponse().writeWith(Mono.just(buffer));</span><br><span class="line">            &#125;</span><br><span class="line">            <span class="keyword">return</span> chain.filter(exchange);      <span class="comment">// 验证通过，继续</span></span><br><span class="line">        &#125;;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h5 id="13，关键类速查"><a href="#13，关键类速查" class="headerlink" title="13，关键类速查"></a>13，关键类速查</h5><table>
+<thead>
+<tr>
+<th>类</th>
+<th>职责</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>GatewayAutoConfiguration</code></td>
+<td>自动配置入口，注册所有 Bean</td>
+</tr>
+<tr>
+<td><code>RouteDefinition</code></td>
+<td>路由配置模型（id + predicates + filters + uri）</td>
+</tr>
+<tr>
+<td><code>Route</code></td>
+<td>运行时路由对象（Predicate + Filter 列表）</td>
+</tr>
+<tr>
+<td><code>RouteDefinitionLocator</code></td>
+<td>路由定义定位器接口</td>
+</tr>
+<tr>
+<td><code>PropertiesRouteDefinitionLocator</code></td>
+<td>从 yaml 配置读取 RouteDefinition</td>
+</tr>
+<tr>
+<td><code>DiscoveryClientRouteDefinitionLocator</code></td>
+<td>从注册中心自动生成路由</td>
+</tr>
+<tr>
+<td><code>RouteLocator</code></td>
+<td>运行时路由定位器接口</td>
+</tr>
+<tr>
+<td><code>RouteDefinitionRouteLocator</code></td>
+<td>RouteDefinition → Route（组装 Predicate + Filter）</td>
+</tr>
+<tr>
+<td><code>CachingRouteLocator</code></td>
+<td>缓存路由列表</td>
+</tr>
+<tr>
+<td><code>CompositeRouteLocator</code></td>
+<td>组合多个 RouteLocator</td>
+</tr>
+<tr>
+<td><code>RoutePredicateHandlerMapping</code></td>
+<td>路由匹配（请求 → 匹配 Route → 返回 WebHandler）</td>
+</tr>
+<tr>
+<td><code>FilteringWebHandler</code></td>
+<td>执行过滤器链</td>
+</tr>
+<tr>
+<td><code>DefaultGatewayFilterChain</code></td>
+<td>过滤器链实现（递归式责任链）</td>
+</tr>
+<tr>
+<td><code>GatewayFilterAdapter</code></td>
+<td>GlobalFilter → GatewayFilter 适配器</td>
+</tr>
+<tr>
+<td><code>NettyRoutingFilter</code></td>
+<td>真正发起 HTTP 请求到下游</td>
+</tr>
+<tr>
+<td><code>LoadBalancerClientFilter</code></td>
+<td>lb:// 负载均衡</td>
+</tr>
+<tr>
+<td><code>RoutePredicateFactory</code></td>
+<td>Predicate Factory 抽象类</td>
+</tr>
+<tr>
+<td><code>GatewayFilterFactory</code></td>
+<td>Filter Factory 抽象类</td>
+</tr>
+<tr>
+<td><code>GatewayProperties</code></td>
+<td>绑定 gateway 配置的 Properties</td>
+</tr>
+</tbody></table>
+
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/blog/tags/java/" rel="tag"># java</a>
+              <a href="/blog/tags/%E6%BA%90%E7%A0%81/" rel="tag"># 源码</a>
+              <a href="/blog/tags/springcloud/" rel="tag"># springcloud</a>
+              <a href="/blog/tags/gateway/" rel="tag"># gateway</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/blog/2024/08/15/springcloud/SpringCloudGateway%E5%AD%A6%E4%B9%A0/" rel="prev" title="SpringCloudGateway学习">
+      <i class="fa fa-chevron-left"></i> SpringCloudGateway学习
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/blog/2026/05/16/%E9%9D%A2%E8%AF%95%E9%A2%98/%E9%9D%A2%E8%AF%95%E9%A2%98/" rel="next" title="面试题整理">
+      面试题整理 <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-5"><a class="nav-link" href="#1%EF%BC%8CGateway-%E6%BA%90%E7%A0%81%E6%9E%B6%E6%9E%84%E6%80%BB%E8%A7%88"><span class="nav-number">1.</span> <span class="nav-text">1，Gateway 源码架构总览</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#2%EF%BC%8C%E8%87%AA%E5%8A%A8%E9%85%8D%E7%BD%AE%E5%85%A5%E5%8F%A3"><span class="nav-number">2.</span> <span class="nav-text">2，自动配置入口</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#3%EF%BC%8CRouteDefinition-%E2%80%94%E2%80%94-%E8%B7%AF%E7%94%B1%E5%AE%9A%E4%B9%89"><span class="nav-number">3.</span> <span class="nav-text">3，RouteDefinition —— 路由定义</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#4%EF%BC%8C%E8%B7%AF%E7%94%B1%E5%8C%B9%E9%85%8D%E6%A0%B8%E5%BF%83-%E2%80%94%E2%80%94-RoutePredicateHandlerMapping"><span class="nav-number">4.</span> <span class="nav-text">4，路由匹配核心 —— RoutePredicateHandlerMapping</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#5%EF%BC%8C%E8%B7%AF%E7%94%B1%E7%BB%84%E8%A3%85-%E2%80%94%E2%80%94-RouteDefinitionRouteLocator"><span class="nav-number">5.</span> <span class="nav-text">5，路由组装 —— RouteDefinitionRouteLocator</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#6%EF%BC%8C%E8%BF%87%E6%BB%A4%E5%99%A8%E9%93%BE%E6%89%A7%E8%A1%8C-%E2%80%94%E2%80%94-FilteringWebHandler"><span class="nav-number">6.</span> <span class="nav-text">6，过滤器链执行 —— FilteringWebHandler</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#7%EF%BC%8CGlobalFilter-%E2%86%92-GatewayFilter-%E9%80%82%E9%85%8D"><span class="nav-number">7.</span> <span class="nav-text">7，GlobalFilter → GatewayFilter 适配</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#8%EF%BC%8C%E5%86%85%E7%BD%AE%E8%BF%87%E6%BB%A4%E5%99%A8%E6%89%A7%E8%A1%8C%E9%A1%BA%E5%BA%8F"><span class="nav-number">8.</span> <span class="nav-text">8，内置过滤器执行顺序</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#9%EF%BC%8CLoadBalancer-%E9%9B%86%E6%88%90-%E2%80%94%E2%80%94-LoadBalancerClientFilter"><span class="nav-number">9.</span> <span class="nav-text">9，LoadBalancer 集成 —— LoadBalancerClientFilter</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#10%EF%BC%8CPredicate-Factory-%E5%AE%9E%E7%8E%B0%E7%A4%BA%E4%BE%8B"><span class="nav-number">10.</span> <span class="nav-text">10，Predicate Factory 实现示例</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#11%EF%BC%8CGateway-%E5%90%AF%E5%8A%A8%E6%B5%81%E7%A8%8B"><span class="nav-number">11.</span> <span class="nav-text">11，Gateway 启动流程</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#12%EF%BC%8C%E8%87%AA%E5%AE%9A%E4%B9%89%E6%89%A9%E5%B1%95%E7%82%B9"><span class="nav-number">12.</span> <span class="nav-text">12，自定义扩展点</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#13%EF%BC%8C%E5%85%B3%E9%94%AE%E7%B1%BB%E9%80%9F%E6%9F%A5"><span class="nav-number">13.</span> <span class="nav-text">13，关键类速查</span></a></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">ruoxi</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/blog/archives/">
+        
+          <span class="site-state-item-count">80</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/blog/categories/">
+          
+        <span class="site-state-item-count">17</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/blog/tags/">
+          
+        <span class="site-state-item-count">47</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2026</span>
+  <span class="with-love">
+    <i class="fa fa-code"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">ruoxi</span>
+</div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/blog/lib/anime.min.js"></script>
+  <script src="/blog/lib/velocity/velocity.min.js"></script>
+  <script src="/blog/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/blog/js/utils.js"></script>
+
+<script src="/blog/js/motion.js"></script>
+
+
+<script src="/blog/js/schemes/pisces.js"></script>
+
+
+<script src="/blog/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+</body>
+</html>

@@ -1,0 +1,1064 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>操作系统原理</title>
+<style>
+body {
+    transition: margin-left .25s ease;
+    font-family: -apple-system, "Noto Sans SC", "Microsoft YaHei", sans-serif;
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 20px 24px 60px;
+    line-height: 1.8;
+    color: #333;
+    background: #fff;
+}
+h1 { border-bottom: 2px solid #eee; padding-bottom: 10px; color: #222; }
+h2 { color: #333; margin-top: 32px; }
+h3 { color: #555; }
+a { color: #0366d6; text-decoration: none; }
+a:hover { text-decoration: underline; }
+pre {
+    background: #f6f8fa;
+    border-radius: 6px;
+    padding: 16px;
+    overflow-x: auto;
+    font-size: 14px;
+    line-height: 1.45;
+}
+code {
+    background: #f0f2f4;
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-size: 14px;
+}
+pre code { background: none; padding: 0; }
+blockquote {
+    border-left: 4px solid #ddd;
+    margin: 0;
+    padding: 0 16px;
+    color: #666;
+}
+table {
+    border-collapse: collapse;
+    width: 100%;
+    margin: 16px 0;
+}
+th, td {
+    border: 1px solid #ddd;
+    padding: 8px 12px;
+    text-align: left;
+}
+th { background: #f6f8fa; }
+img { max-width: 100%; }
+.back-link {
+    margin-bottom: 20px;
+    display: block;
+    color: #666;
+}
+.back-link:hover { color: #0366d6; }
+
+.sidebar-toc {
+    transition: left .25s ease;
+    position: fixed;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    width: 220px;
+    background: #f8f9fa;
+    border-right: 1px solid #e9ecef;
+    padding: 20px 0;
+    overflow-y: auto;
+    font-size: 13px;
+    z-index: 100;
+}
+.sidebar-toc a {
+    display: block;
+    padding: 6px 16px;
+    color: #555;
+    text-decoration: none;
+    border-left: 3px solid transparent;
+    line-height: 1.5;
+}
+.sidebar-toc a:hover {
+    background: #e9ecef;
+    color: #0366d6;
+    border-left-color: #0366d6;
+}
+.sidebar-toc .toc-h2 { padding-left: 16px; font-weight: 500; }
+.sidebar-toc .toc-h3 { padding-left: 32px; font-size: 12px; }
+body { margin-left: 240px; }
+
+
+.copy-btn {
+    position: absolute; top: 6px; right: 6px;
+    background: #e9ecef; border: none;
+    border-radius: 4px; padding: 3px 10px;
+    font-size: 12px; color: #555; cursor: pointer;
+    opacity: 0; transition: opacity 0.2s;
+    z-index: 1;
+}
+pre:hover .copy-btn { opacity: 1; }
+.copy-btn:hover { background: #d0d7de; }
+.copy-btn.copied { opacity: 1; background: #2da44e; color: #fff; }
+.copy-btn{position:absolute;top:6px;right:6px;background:#e9ecef;border:none;border-radius:4px;padding:3px 10px;font-size:12px;color:#555;cursor:pointer;opacity:0;transition:opacity .2s;z-index:1}pre:hover .copy-btn{opacity:1}.copy-btn:hover{background:#d0d7de}.copy-btn.copied{opacity:1;background:#2da44e;color:#fff}
+.copy-btn{position:absolute;top:6px;right:6px;background:#e9ecef;border:none;border-radius:4px;padding:3px 10px;font-size:12px;color:#555;cursor:pointer;opacity:0;transition:opacity .2s;z-index:1}pre:hover .copy-btn{opacity:1}.copy-btn:hover{background:#d0d7de}.copy-btn.copied{opacity:1;background:#2da44e;color:#fff}
+.copy-btn{position:absolute;top:6px;right:6px;background:#e9ecef;border:none;border-radius:4px;padding:3px 10px;font-size:12px;color:#555;cursor:pointer;opacity:0;transition:opacity .2s;z-index:1}pre:hover .copy-btn{opacity:1}.copy-btn:hover{background:#d0d7de}.copy-btn.copied{opacity:1;background:#2da44e;color:#fff}
+.sidebar-toggle-btn {
+  position: fixed;
+  left: 220px;
+  top: 0;
+  width: 28px;
+  height: 40px;
+  background: #f8f9fa;
+  border: 1px solid #e9ecef;
+  border-left: none;
+  border-radius: 0 4px 4px 0;
+  cursor: pointer;
+  font-size: 16px;
+  color: #555;
+  z-index: 101;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: left .25s, background .2s;
+  padding: 0;
+  line-height: 1;
+}
+.sidebar-toggle-btn:hover { background: #e9ecef; color: #0366d6; }
+.sidebar-collapsed .sidebar-toc { left: -220px; }
+.sidebar-collapsed .sidebar-toggle-btn { left: 0; }
+.sidebar-collapsed body, body.sidebar-collapsed { margin-left: 28px; }
+.sidebar-overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,.3);
+  z-index: 99;
+}
+@media (max-width: 768px) {
+  .sidebar-collapsed .sidebar-overlay { display: none; }
+  .sidebar-toc { left: -220px; }
+  .sidebar-toggle-btn { left: 0; }
+  body { margin-left: 28px; }
+}
+
+</style>
+</head>
+</head>
+<body>
+<nav class="sidebar-toc"><a class="toc-h2" href="#_2">一、操作系统概述</a><a class="toc-h3" href="#11">1.1 什么是操作系统？</a><a class="toc-h3" href="#12">1.2 用户态与内核态</a><a class="toc-h3" href="#13">1.3 系统调用</a><a class="toc-h2" href="#_3">二、进程管理</a><a class="toc-h3" href="#21-vs-vs">2.1 程序 vs 进程 —— 菜谱 vs 炒菜</a><a class="toc-h3" href="#22">2.2 进程的一生：五种状态</a><a class="toc-h3" href="#23-fork">2.3 fork() —— 细胞的自我复制</a><a class="toc-h3" href="#24">2.4 线程 —— 同一屋檐下的室友</a><a class="toc-h3" href="#25">2.5 协程 —— 一个人同时做多件事</a><a class="toc-h2" href="#cpu">三、CPU 调度</a><a class="toc-h3" href="#31-cpu">3.1 问题来了：谁先用 CPU？</a><a class="toc-h3" href="#32">3.2 常见调度算法（含通俗理解）</a><a class="toc-h2" href="#_5">四、进程同步与互斥</a><a class="toc-h3" href="#41">4.1 临界区 —— 卫生间里的锁</a><a class="toc-h3" href="#42">4.2 怎么实现互斥？</a><a class="toc-h3" href="#43">4.3 信号量 —— 停车场的车位计数器</a><a class="toc-h3" href="#44-vs">4.4 互斥锁 vs 自旋锁</a><a class="toc-h2" href="#_7">五、死锁</a><a class="toc-h3" href="#51">5.1 什么是死锁？</a><a class="toc-h3" href="#52">5.2 怎么处理死锁？</a><a class="toc-h2" href="#_11">六、内存管理</a><a class="toc-h3" href="#61">6.1 虚拟内存：每个程序都以为自己独占了整台电脑</a><a class="toc-h3" href="#62">6.2 分页——把面包切成片</a><a class="toc-h3" href="#63-tlb">6.3 TLB —— 翻译快表</a><a class="toc-h3" href="#64">6.4 缺页中断——内存不够谁来补？</a><a class="toc-h3" href="#65">6.5 没人要的页换谁出去？页面置换算法</a><a class="toc-h3" href="#66-thrashing">6.6 什么是颠簸（Thrashing）？</a><a class="toc-h3" href="#67-mmap">6.7 mmap —— 文件当内存用</a><a class="toc-h3" href="#68-malloc">6.8 malloc 背后的秘密</a><a class="toc-h2" href="#_12">七、文件系统</a><a class="toc-h3" href="#71">7.1 文件系统怎么组织数据？</a><a class="toc-h3" href="#72-inode">7.2 inode —— 文件的身份证</a><a class="toc-h3" href="#73-vs">7.3 硬链接 vs 软链接</a><a class="toc-h3" href="#74">7.4 停电后文件系统怎么恢复？</a><a class="toc-h2" href="#io">八、I/O 系统</a><a class="toc-h3" href="#81-cpu">8.1 CPU 怎么跟外部设备说话？</a><a class="toc-h3" href="#82">8.2 磁盘调度——给磁头规划最优路线</a><a class="toc-h3" href="#83-zero-copy">8.3 零拷贝（Zero-Copy）—— 数据不绕路</a><a class="toc-h2" href="#_13">九、中断 —— 操作系统的「手机通知」</a><a class="toc-h3" href="#91">9.1 中断是什么？</a><a class="toc-h3" href="#92">9.2 中断处理的分工</a><a class="toc-h2" href="#_14">十、常见面试题</a><a class="toc-h3" href="#101">10.1 基础篇</a><a class="toc-h3" href="#102">10.2 同步与死锁篇</a><a class="toc-h3" href="#103">10.3 内存管理篇</a><a class="toc-h3" href="#104">10.4 调度篇</a><a class="toc-h3" href="#105">10.5 文件系统篇</a><a class="toc-h3" href="#106">10.6 综合篇</a><a class="toc-h2" href="#_15">推荐阅读</a></nav>
+<button class="sidebar-toggle-btn" onclick="toggleSidebar()" title="切换侧栏">☰</button>
+
+<div class="sidebar-overlay" onclick="toggleSidebar()"></div>
+
+<script>
+function toggleSidebar() {
+  document.body.classList.toggle('sidebar-collapsed');
+  try { localStorage.setItem('sidebarCollapsed', document.body.classList.contains('sidebar-collapsed')); } catch(e) {}
+}
+(function() {
+  try {
+    if (localStorage.getItem('sidebarCollapsed') === 'true') {
+      document.body.classList.add('sidebar-collapsed');
+    }
+  } catch(e) {}
+})();
+</script>
+<a class="back-link" href="/blog/2026/05/16/面试题/面试题/">← 返回面试题目录</a>
+<h1 id=page-title>操作系统原理</h1>
+<h2 id="_2">一、操作系统概述</h2>
+<h3 id="11">1.1 什么是操作系统？</h3>
+<p><strong>操作系统是硬件之上的第一层软件</strong>，负责管理 CPU、内存、磁盘、外设等硬件资源，向上为应用程序提供统一接口。</p>
+<p><strong>四大职能：</strong></p>
+<ul>
+<li><strong>进程管理</strong>：调度 CPU，决定谁先运行</li>
+<li><strong>内存管理</strong>：分配与回收内存，虚拟内存映射</li>
+<li><strong>文件管理</strong>：组织磁盘数据，提供文件读写接口</li>
+<li><strong>设备管理</strong>：统一管理键盘、鼠标、网卡等外设</li>
+</ul>
+<blockquote>
+<p>常见操作系统：Windows、Linux、macOS、Android（基于 Linux）、iOS（基于 Darwin/XNU）</p>
+</blockquote>
+<h3 id="12">1.2 用户态与内核态</h3>
+<p><strong>用户态</strong>：应用程序运行的级别，权限受限，不能直接操作硬件或访问内核内存。<br />
+<strong>内核态</strong>：操作系统内核运行的级别，拥有最高权限，可执行任何指令。</p>
+<p><strong>为什么分两态？</strong> 防止用户程序直接操作硬件造成灾难——所有危险操作必须通过内核审批。CPU 通过状态寄存器的一个 bit 来区分当前所处模式。</p>
+<ul>
+<li>用户态 → 内核态：系统调用、中断、异常</li>
+<li>内核态 → 用户态：设置状态寄存器后返回</li>
+</ul>
+<h3 id="13">1.3 系统调用</h3>
+<p>系统调用是用户程序请求内核服务的唯一入口。</p>
+<pre><code>程序调用 open("test.txt")
+  → 触发系统调用（int 0x80 / syscall 指令）
+  → CPU 切换到内核态，内核检查权限
+  → 内核执行文件打开操作，返回文件描述符
+  → 切回用户态，程序拿到 fd
+</code></pre>
+<p><strong>常见系统调用：</strong></p>
+<table>
+<thead>
+<tr>
+<th>类别</th>
+<th>系统调用</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>进程管理</td>
+<td><code>fork()</code></td>
+<td>复制当前进程，创建子进程</td>
+</tr>
+<tr>
+<td>执行程序</td>
+<td><code>exec()</code></td>
+<td>用新程序替换当前进程映像</td>
+</tr>
+<tr>
+<td>文件 I/O</td>
+<td><code>read()</code> / <code>write()</code></td>
+<td>读写文件描述符</td>
+</tr>
+<tr>
+<td>等待进程</td>
+<td><code>wait()</code></td>
+<td>父进程等待子进程终止</td>
+</tr>
+<tr>
+<td>内存映射</td>
+<td><code>mmap()</code></td>
+<td>映射文件或匿名内存到虚拟地址</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="_3">二、进程管理</h2>
+<h3 id="21-vs-vs">2.1 程序 vs 进程</h3>
+<ul>
+<li><strong>程序</strong>：静态的指令和数据的集合，存储在磁盘上（如 <code>.exe</code>、<code>.elf</code>）</li>
+<li><strong>进程</strong>：程序的一次执行实例，包含代码段、数据段、堆栈、PCB（进程控制块）</li>
+</ul>
+<p>关系：一个程序可启动多个进程（如打开两个记事本），每个进程有独立的地址空间。</p>
+<h3 id="22">2.2 进程的一生：五种状态</h3>
+<p>进程在生命周期中经历五种状态，由调度器管理状态转换。</p>
+<pre><code>
+                    ┌──────────┐
+         创建成功    │  就绪态  │◄────────────────────────────┐
+  创建态 ──────────► │ (Ready) │                              │
+  (New)              └────┬─────┘                              │
+                          │                                    │
+                调度器选中  │  时间片耗尽                        │
+                          ▼                                    │
+                    ┌──────────┐    等待 I/O/事件      ┌───────┴───┐
+                    │  运行态  │ ───────────────────► │  阻塞态   │
+                    │ (Running)│                       │ (Blocked) │
+                    └────┬─────┘                       └─────┬─────┘
+                         │                                   │
+                         │ 执行完毕                   事件就绪 │
+                         ▼                                   │
+                    ┌──────────┐                             │
+                    │  终止态  │        ◄────────────────────┘
+                    │(Terminated)│       (唤醒后回到就绪，而非直接运行)
+                    └──────────┘
+
+    转换规则:
+      就绪 → 运行:  被调度器 (scheduler) 选中
+      运行 → 就绪:  时间片 (time slice) 耗尽，或被更高优先级进程抢占
+      运行 → 阻塞:  发起 I/O 请求 / 等待信号 / sleep()
+      阻塞 → 就绪:  I/O 完成 / 事件到达 / 信号到来
+      运行 → 终止:  正常退出 / 异常终止 / 被 kill
+</code></pre>
+<h3 id="23-fork">2.3 fork() —— 细胞的自我复制</h3>
+<p><code>fork()</code> 是 Linux 创建新进程的核心机制——<strong>把当前进程复制一份</strong>作为子进程，父子进程从 <code>fork()</code> 的下一条指令继续执行。区别在于返回值：父进程拿到子进程 PID，子进程拿到 0。</p>
+<p><strong>写时拷贝（COW, Copy-On-Write）</strong>：fork 后父子共享同一份物理内存页，均标记为只读。当任一方写入时，触发缺页中断，系统才真正复制该页。这使得 fork 极快——多数子进程紧接着 <code>exec()</code>，根本不修改原内存。</p>
+<blockquote>
+<p>fork 瞬间完成（只复制页表），真正的内存拷贝延迟到写入时才发生。</p>
+</blockquote>
+<h3 id="24">2.4 线程 —— 同一屋檐下的室友</h3>
+<p><strong>进程是资源分配单位，线程是 CPU 调度单位。</strong>同一进程的多个线程共享代码段、数据段、堆、文件描述符，但各自拥有独立的栈和寄存器上下文。</p>
+<table>
+<thead>
+<tr>
+<th></th>
+<th>进程</th>
+<th>线程</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>资源</strong></td>
+<td>独立地址空间</td>
+<td>共享进程地址空间</td>
+</tr>
+<tr>
+<td><strong>通信</strong></td>
+<td>IPC（管道、共享内存、消息队列）</td>
+<td>直接读写共享变量</td>
+</tr>
+<tr>
+<td><strong>创建开销</strong></td>
+<td>大（复制页表、分配 PCB）</td>
+<td>小（只需栈和 TCB）</td>
+</tr>
+<tr>
+<td><strong>隔离性</strong></td>
+<td>强（一个进程崩溃不影响其他）</td>
+<td>弱（一个线程奔溃全进程终止）</td>
+</tr>
+<tr>
+<td><strong>上下文切换</strong></td>
+<td>慢（切换地址空间，刷 TLB）</td>
+<td>快（同进程内不需切换页表）</td>
+</tr>
+</tbody>
+</table>
+<h3 id="25">2.5 协程 —— 用户态轻量级并发</h3>
+<p>协程是用户态控制的执行单元，<strong>自己决定何时让出 CPU</strong>（协作式），而非操作系统抢占。</p>
+<table>
+<thead>
+<tr>
+<th></th>
+<th>线程</th>
+<th>协程</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>调度者</strong></td>
+<td>操作系统（抢占式）</td>
+<td>用户代码（协作式）</td>
+</tr>
+<tr>
+<td><strong>切换开销</strong></td>
+<td>进入内核，~1-10us</td>
+<td>纯用户态，~几十 ns</td>
+</tr>
+<tr>
+<td><strong>栈大小</strong></td>
+<td>通常 1-8 MB</td>
+<td>通常几 KB</td>
+</tr>
+<tr>
+<td><strong>并发量</strong></td>
+<td>数百到数千</td>
+<td>数万到数十万</td>
+</tr>
+</tbody>
+</table>
+<p>Go 语言的 goroutine 是协程的工业化实现，通过 GPM 模型将大量 goroutine 映射到少量内核线程上。</p>
+<hr />
+<h2 id="cpu">三、CPU 调度</h2>
+<h3 id="31-cpu">3.1 调度层次</h3>
+<p>CPU 调度的核心问题：就绪队列里有多个进程，<strong>下一个让谁上 CPU？</strong></p>
+<p><strong>三级调度：</strong></p>
+<ul>
+<li><strong>高级调度（作业调度）</strong>：决定哪些程序从磁盘加载到内存——频率低</li>
+<li><strong>中级调度（内存调度）</strong>：内存不足时挂起/换出部分进程——频率中等</li>
+<li><strong>低级调度（进程调度）</strong>：从就绪队列中选进程上 CPU——每几毫秒一次</li>
+</ul>
+<h3 id="32">3.2 常见调度算法</h3>
+<h4 id="fcfs">FCFS（先来先服务）</h4>
+<p>非抢占，按到达顺序执行。缺点：长作业在前则短作业全被堵——<strong>护航效应</strong>（Convoy Effect）。</p>
+<h4 id="sjf">SJF（最短作业优先）</h4>
+<p>优先执行 CPU 需求最短的作业。平均等待时间最优，但需要预知作业长度（实际靠指数平均估计），且长作业可能<strong>饥饿</strong>。</p>
+<h4 id="rr">RR（时间片轮转）</h4>
+<p>每个进程分配固定时间片（通常 10-100ms），用完排到队尾。<strong>交互式系统的基础</strong>——保证响应时间。</p>
+<ul>
+<li>时间片太大 → 退化为 FCFS</li>
+<li>时间片太小 → 上下文切换开销占大头（一般要求切换开销 &lt; 1% 时间片）</li>
+</ul>
+<h4 id="_4">多级反馈队列（MLFQ）—— 现代 OS 的实用方案</h4>
+<p>无需预知作业长度，融合多种算法优势：</p>
+<pre><code>优先级 1（最高）: [时间片 10ms]  ← 新进程、I/O 密集型
+优先级 2:        [时间片 20ms]
+优先级 3:        [时间片 40ms]
+优先级 4（最低）: [时间片 80ms]  ← CPU 密集型长作业
+</code></pre>
+<p><strong>规则</strong>：高优先级优先调度；同优先级 RR；用完时间片降级。短作业在高优先级快速完成；长作业逐步降级但不会被饿死。</p>
+<h4 id="linux-cfs">Linux CFS（完全公平调度）</h4>
+<p>核心思想：如果 CPU 能分身，每个进程分一个。维护 <strong>vruntime（虚拟运行时间）</strong>——已运行时间按优先级加权。每次选 vruntime 最小的进程运行，用红黑树维护（O(log n) 插入/查找）。优先级高的进程 vruntime 增长慢，自然调度次数多。</p>
+<hr />
+<h2 id="_5">四、进程同步与互斥</h2>
+<h3 id="41">4.1 临界区</h3>
+<p><strong>临界区</strong>：访问共享资源的代码段。同一时刻只能有一个线程在执行临界区代码，否则产生竞态条件（race condition）。</p>
+<p><strong>互斥</strong>（Mutual Exclusion）：同一时刻最多一个线程在临界区。<br />
+<strong>同步</strong>（Synchronization）：协调线程间的执行顺序。</p>
+<p><strong>临界区访问的四条铁律：</strong></p>
+<ol>
+<li><strong>空闲让进</strong>：无人在临界区时，申请者可直接进入</li>
+<li><strong>忙则等待</strong>：临界区被占用时，其他线程在入口等待</li>
+<li><strong>有限等待</strong>：等待时间必须有上界（防止饥饿）</li>
+<li><strong>让权等待</strong>：进不去时应释放 CPU（防止忙等浪费）</li>
+</ol>
+<h3 id="42">4.2 怎么实现互斥？</h3>
+<h4 id="peterson">软件方法：Peterson 算法</h4>
+<p>两个进程通过共享标志位和 turn 变量协商进入临界区。缺点：仅适用于两个进程，在多核 CPU 上因内存重排序可能失效。</p>
+<h4 id="_6">硬件方法：原子指令</h4>
+<p>CPU 提供不可分割的原子指令，执行期间不会被中断。</p>
+<p><strong>CAS（Compare-And-Swap）</strong>是最核心的原子原语：</p>
+<pre><code class="language-c">// 原子操作：如果 *ptr == oldVal，则 *ptr = newVal 并返回 true
+//          否则返回 false，不修改 *ptr
+bool CAS(int *ptr, int oldVal, int newVal) {
+    if (*ptr == oldVal) {
+        *ptr = newVal;
+        return true;
+    }
+    return false;
+}
+</code></pre>
+<p>Java 的 <code>AtomicInteger</code>、Go 的 <code>sync/atomic</code> 包、C++ 的 <code>std::atomic</code> 底层均基于 CAS。自旋锁、无锁队列等高级并发结构也由 CAS 构建。</p>
+<h3 id="43">4.3 信号量</h3>
+<p>信号量是一个<strong>整数计数器</strong>，代表可用资源数。两个原子操作：</p>
+<pre><code class="language-c">P(sem)  // wait: 若 sem > 0 则 sem--；否则阻塞直到 sem > 0
+V(sem)  // signal: sem++，唤醒一个等待的线程
+</code></pre>
+<p><strong>三类信号量：</strong></p>
+<table>
+<thead>
+<tr>
+<th>类型</th>
+<th>初值</th>
+<th>用途</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>互斥信号量</td>
+<td>1</td>
+<td>临界区互斥（二进制信号量）</td>
+</tr>
+<tr>
+<td>计数信号量</td>
+<td>N</td>
+<td>管理 N 个同类资源</td>
+</tr>
+<tr>
+<td>同步信号量</td>
+<td>0</td>
+<td>约束执行顺序（先 V 后 P 可继续）</td>
+</tr>
+</tbody>
+</table>
+<p><strong>生产者-消费者问题</strong>：<code>empty=N</code>（空缓冲数），<code>full=0</code>（满缓冲数），<code>mutex=1</code>（缓冲区互斥）。</p>
+<p><strong>哲学家进餐</strong>：5 位哲学家围坐，每人一根筷子，需两根才能吃。同时拿左侧筷子则全部死锁。解法：限制最多 4 人同时上桌，或奇数编号先左后右、偶数先右后左。</p>
+<h3 id="44-vs">4.4 互斥锁 vs 自旋锁</h3>
+<table>
+<thead>
+<tr>
+<th></th>
+<th>互斥锁（Mutex）</th>
+<th>自旋锁（Spinlock）</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>等待方式</strong></td>
+<td>阻塞（调用者 sleep，释放 CPU）</td>
+<td>忙等（循环检测，不释放 CPU）</td>
+</tr>
+<tr>
+<td><strong>CPU 消耗</strong></td>
+<td>无（睡眠期间不消耗）</td>
+<td>高（持续自旋消耗 CPU）</td>
+</tr>
+<tr>
+<td><strong>适用场景</strong></td>
+<td>临界区长（&gt; 几次上下文切换开销），用户态</td>
+<td>临界区极短（几条指令），内核态</td>
+</tr>
+<tr>
+<td><strong>开销</strong></td>
+<td>上下文切换开销（~us 级）</td>
+<td>无切换，但浪费 CPU 周期</td>
+</tr>
+</tbody>
+</table>
+<p><strong>内核为什么偏爱自旋锁？</strong> 内核很多路径不能睡眠（如中断上下文），且临界区通常极短——自旋等待比 sleep/wakeup 更快。</p>
+<hr />
+<h2 id="_7">五、死锁</h2>
+<h3 id="51">5.1 什么是死锁？</h3>
+<p>死锁：两个或多个进程无限期等待对方释放资源，形成循环等待。</p>
+<p><strong>四个必要条件（缺一不可）：</strong></p>
+<table>
+<thead>
+<tr>
+<th>条件</th>
+<th>解释</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>互斥</strong></td>
+<td>资源一次只能分配一个进程</td>
+</tr>
+<tr>
+<td><strong>持有并等待</strong></td>
+<td>持有已有资源，同时等待新资源</td>
+</tr>
+<tr>
+<td><strong>不可抢占</strong></td>
+<td>已分配的资源不能被强制收回</td>
+</tr>
+<tr>
+<td><strong>循环等待</strong></td>
+<td>进程间形成资源等待环</td>
+</tr>
+</tbody>
+</table>
+<h3 id="52">5.2 怎么处理死锁？</h3>
+<h4 id="_8">预防：破坏四个条件之一</h4>
+<ul>
+<li><strong>一次申请所有资源</strong>（破坏持有并等待）：开始时一次性申请全部，拿不齐则一个不拿</li>
+<li><strong>资源顺序编号</strong>（破坏循环等待）：规定申请顺序，必须从小到大申请</li>
+<li>互斥和不可抢占一般难以破坏</li>
+</ul>
+<h4 id="_9">避免：银行家算法</h4>
+<p>每次分配前做模拟：如果按这个方案分配后，是否存在一个「安全序列」让所有进程都能执行完毕？不存在则拒绝分配。算法复杂度 O(mn^2)，实际系统很少用。</p>
+<h4 id="_10">检测与恢复</h4>
+<p>允许死锁发生，定期检测（资源分配图找环），发现后强行 kill 进程或回滚。</p>
+<h4 id="_10-ostrich">鸵鸟策略 —— 大多数 OS 的默认选择</h4>
+<p>假装死锁不会发生。Linux 和 Windows 默认都不做死锁处理——因为死锁概率低，而预防和避免的运行时开销太大。用户手动 kill 即可。</p>
+<hr />
+<h2 id="_11">六、内存管理</h2>
+<h3 id="61">6.1 虚拟内存：每个程序都以为自己独占了整台电脑</h3>
+<p>虚拟内存是操作系统最核心的抽象之一。<strong>每个进程看到的是完整、连续、私有的地址空间</strong>（32 位即 4GB），但实际物理内存可能更小、碎片化、且被多个进程共享。</p>
+<p><strong>虚拟地址映射流程图：</strong></p>
+<pre><code>
+  程序发出虚拟地址 (Virtual Address)
+         │
+         │  ┌─────────────────┐
+         │  │ VA = 页号 | 偏移 │  (例: 32位，高20位页号，低12位页内偏移)
+         │  └────────┬────────┘
+         │           │
+         ▼           ▼
+   ┌──────────────────────────────────────┐
+   │            MMU (内存管理单元)          │
+   │                                      │
+   │  ┌──────────┐    未命中    ┌────────┐│
+   │  │   TLB    │ ──────────► │  页表   ││
+   │  │ (快表)   │ ◄────────── │ (内存中) ││
+   │  │          │    加载      │        ││
+   │  └────┬─────┘             └───┬────┘│
+   │       │ 命中                  │     │
+   │       └──────────────────────┘     │
+   │                │                   │
+   │                ▼                   │
+   │    物理帧号 (Physical Frame #)     │
+   └────────────────┬──────────────────┘
+                    │
+                    ▼
+   ┌──────────────────────────────────────┐
+   │  物理地址 = 物理帧号 | 页内偏移       │
+   │            │                        │
+   │            ▼                        │
+   │      物理内存 (RAM)                  │
+   │  ┌────┬────┬────┬────┬────┬────┐   │
+   │  │帧0 │帧1 │帧2 │帧3 │帧4 │帧5 │   │
+   │  └────┴────┴────┴────┴────┴────┘   │
+   └─────────────────────────────────────┘
+
+   关键概念:
+     • 虚拟页 (VP)  →  物理帧 (PF)  映射由页表维护
+     • 每个进程有独立的页表 → 地址空间隔离
+     • 页表项包含: 物理帧号、有效位(在内存?)、权限位(R/W/X)、脏位、访问位
+     • 若有效位=0 → 缺页中断 (Page Fault)
+</code></pre>
+<p><strong>虚拟内存四大好处：</strong></p>
+<ol>
+<li><strong>隔离</strong>：进程 A 的页表看不到进程 B 的物理帧——天然沙箱</li>
+<li><strong>扩展</strong>：虚拟地址空间可远超物理内存（磁盘作后援）</li>
+<li><strong>简化</strong>：编译器和链接器只需处理统一的虚拟地址布局</li>
+<li><strong>共享</strong>：DLL/.so 共享库在物理内存只存一份，多进程页表指向同一帧</li>
+</ol>
+<h3 id="62">6.2 分页 —— 把面包切成片</h3>
+<p>分页将虚拟地址空间和物理内存都切为固定大小的块（通常 4KB），消除外部碎片。</p>
+<pre><code>虚拟地址 = 页号 (20 bits) + 页内偏移 (12 bits)    // 32位系统，4KB 页
+            │
+            │ 查页表 (Page Table)
+            ▼
+物理地址 = 帧号              + 页内偏移 (不变)
+</code></pre>
+<p>页表的本质：以页号为索引的数组，存储该页对应的物理帧号 + 标志位。</p>
+<p><strong>多级页表</strong>：32 位用两级（页目录 + 页表），64 位用四级（PGD → PUD → PMD → PTE）。多级页表按需分配中间页，大幅节省页表本身的内存开销。</p>
+<h3 id="63-tlb">6.3 TLB —— 翻译快表</h3>
+<p>页表存在内存中，每次内存访问需<strong>先查页表再取数据</strong>——两次访存，翻倍开销。</p>
+<p><strong>TLB（Translation Lookaside Buffer）</strong>是 MMU 内部的小型硬件缓存，存储最近翻译过的页表项。利用局部性原理，TLB 命中率通常 &gt; 99%。</p>
+<pre><code>TLB 命中:   1 个时钟周期拿到物理地址
+TLB 未命中: 查内存页表 (多级走 4 次访存)，可能数百周期
+上下文切换:  切换进程时通常刷新 TLB（或使用 ASID 避免刷新）
+</code></pre>
+<h3 id="64">6.4 缺页中断</h3>
+<p>当访问的虚拟页不在物理内存中（页表项有效位 = 0），触发<strong>缺页中断</strong>（Page Fault）：</p>
+<ol>
+<li>CPU 暂停当前指令，保存上下文</li>
+<li>操作系统查找该页在磁盘的位置（swap 区或文件映射）</li>
+<li>选择一个空闲物理帧（若没有则触发页面置换）</li>
+<li>从磁盘读入页面到该帧</li>
+<li>更新页表项（帧号 + 有效位置 1）</li>
+<li>从断点恢复执行——整个过程对程序透明</li>
+</ol>
+<p>缺页是操作系统「偷梁换柱」魔术的核心机制。偶尔缺页（如加载新 DLL）是正常的，频繁缺页则可能是内存不足（颠簸）。</p>
+<h3 id="65">6.5 页面置换算法</h3>
+<p>当物理内存满、新页需要加载时，必须选一页踢出去（换出到磁盘）。</p>
+<p><strong>页面置换算法决策流程：</strong></p>
+<pre><code>
+  需要加载新页 → 物理内存有空闲帧？
+                      │
+               ┌──────┴──────┐
+               │ 是          │ 否
+               ▼             ▼
+          直接加载      必须换出一页 (Victim Page)
+                              │
+                              ▼
+                    ┌─────────────────────┐
+                    │   置换算法选受害者    │
+                    │                     │
+                    │  OPT  → 将来最晚用到  │ ← 理论最优，不可实现
+                    │  FIFO → 最早进入的   │ ← 简单但有 Belady 异常
+                    │  LRU  → 最久未使用的  │ ← 近似 OPT，实现开销大
+                    │  Clock→ LRU 近似版   │ ← 实际系统首选
+                    └──────────┬──────────┘
+                               │
+                               ▼
+                    选中的页是否被修改过？
+                               │
+                        ┌──────┴──────┐
+                        │ 是 (脏页)   │ 否 (干净页)
+                        ▼             ▼
+                   写回磁盘         直接丢弃
+                   (慢，耗IO)       (快，无IO)
+                        │             │
+                        └──────┬──────┘
+                               ▼
+                    新页加载到该帧，更新页表
+</code></pre>
+<p><strong>各算法对比：</strong></p>
+<table>
+<thead>
+<tr>
+<th>算法</th>
+<th>策略</th>
+<th>特点</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>OPT</strong></td>
+<td>换出将来最晚被访问的页</td>
+<td>理论最优但需预知未来，作为性能标杆</td>
+</tr>
+<tr>
+<td><strong>FIFO</strong></td>
+<td>换出最先进入的页</td>
+<td>简单但存在 <strong>Belady 异常</strong>（分配更多帧反而缺页增加）</td>
+</tr>
+<tr>
+<td><strong>LRU</strong></td>
+<td>换出最久未被访问的页</td>
+<td>很好近似 OPT，但每次访问需更新链表，开销大</td>
+</tr>
+<tr>
+<td><strong>Clock</strong></td>
+<td>环形扫描，遇访问位=0则换出</td>
+<td>LRU 的硬件友好近似：每页一个访问位，时钟指针循环检查</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Clock 算法（二次机会）详解：</strong></p>
+<pre><code>  物理帧排成环形链表，指针 (hand) 指向最老的页。
+  每页有一个 R 位 (Reference bit = 访问位)。
+
+  需要换页时:
+    while (true):
+      检查指针所指的页:
+        if R == 0:
+          淘汰该页 (换出)
+          break
+        else:
+          R = 0          // 给第二次机会 (Second Chance)
+          指针向前移动
+
+  效果: 最近被访问过的页 (R=1) 免于被淘汰，
+       只有两次扫描之间都没被访问的页才被换出。
+</code></pre>
+<p><strong>Linux 的做法</strong>：改进的 Clock（基于 LRU 链表，区分活跃/非活跃链表、文件页/匿名页），配合后台 kswapd 守护进程异步回收页面。</p>
+<h3 id="66-thrashing">6.6 颠簸（Thrashing）</h3>
+<p><strong>颠簸</strong>：进程的工作集超出物理内存，导致系统频繁缺页换页，CPU 大部分时间花在等待磁盘 I/O 上，吞吐量断崖式下降。CPU 利用率看似高，实则全在内核换页代码中空转。</p>
+<ul>
+<li><strong>检测</strong>：缺页率飙升 + CPU 利用率急降</li>
+<li><strong>解决</strong>：减少并发进程数（中级调度换出整进程）、增大物理内存、优化程序局部性</li>
+</ul>
+<h3 id="67-mmap">6.7 mmap —— 文件当内存用</h3>
+<p><code>mmap()</code> 将磁盘文件映射到进程的虚拟地址空间，之后用指针直接访问文件内容，如同访问内存。</p>
+<p><strong>数据路径对比：</strong></p>
+<pre><code>传统 read():  磁盘 → 内核页缓存 → 用户缓冲区    (2 次拷贝)
+mmap:         磁盘 → 内核页缓存 (用户直接读写)   (1 次拷贝)
+</code></pre>
+<p>数据库（MongoDB、LMDB）、消息队列（Kafka 的零拷贝依赖 mmap）广泛使用。</p>
+<h3 id="68-malloc">6.8 malloc 背后的秘密</h3>
+<pre><code class="language-c">void *p = malloc(1024 * 1024 * 10);  // 申请 10 MB
+// 此时: 虚拟地址空间标记了 10MB，但物理内存一页未分配
+p[0] = 42;   // 第一次写入 → 缺页中断 → 实际分配第一页
+p[4096] = 42;  // 第二页的第一次写入 → 缺页中断 → 分配第二页
+// ...
+</code></pre>
+<p>这就是<strong>惰性分配（Lazy Allocation / Overcommit）</strong>。malloc 只修改虚拟地址空间的 VMA 结构体（vm_area_struct），物理页延迟到实际访问时才通过缺页中断分配。这使得程序可以「申请」远超物理内存的空间，只要不同时写入即可。</p>
+<p><strong>ptmalloc / jemalloc / tcmalloc</strong>：不同的用户态内存分配器实现，在减少碎片、多线程性能等方面各有优化。</p>
+<hr />
+<h2 id="_12">七、文件系统</h2>
+<h3 id="71">7.1 文件系统架构</h3>
+<p>Linux 文件系统采用分层设计，<strong>VFS（虚拟文件系统）</strong>作为统一抽象层：</p>
+<pre><code>用户程序 (open / read / write)
+          ↓
+    VFS (虚拟文件系统) —— 统一接口，屏蔽底层差异
+          ↓
+    具体文件系统: ext4 / XFS / NTFS / FAT32 / btrfs
+          ↓
+    通用块层 (BIO, 合并/排序 IO 请求)
+          ↓
+    IO 调度层 (mq-deadline / kyber / bfq)
+          ↓
+    磁盘驱动 / 磁盘硬件
+</code></pre>
+<p>VFS 的四个核心对象：<strong>super_block</strong>（文件系统元信息）、<strong>inode</strong>（文件实体）、<strong>dentry</strong>（目录项）、<strong>file</strong>（打开的文件实例）。</p>
+<h3 id="72-inode">7.2 inode —— 文件的身份证</h3>
+<p>inode（索引节点）存储文件除文件名外的所有元数据：</p>
+<ul>
+<li>类型（普通文件 / 目录 / 符号链接）、权限（rwx）</li>
+<li>所有者 ID、组 ID、文件大小</li>
+<li>三个时间戳：atime（访问）、mtime（修改）、ctime（元数据变更）</li>
+<li>数据块指针：12 个直接指针 + 1 个一级间接 + 1 个二级间接 + 1 个三级间接</li>
+<li>链接计数（指向此 inode 的硬链接数）</li>
+<li><strong>不含文件名</strong>——文件名存在目录项的 dentry 中，指向 inode 编号</li>
+</ul>
+<p><strong>inode 数据块寻址</strong>：12 个直接块覆盖 48KB（12 x 4KB），一级间接再覆盖 4MB（1024 x 4KB），二级间接覆盖 4GB，三级间接覆盖 4TB。95% 的文件 &lt; 48KB，直接用 12 个指针即够，无需间接开销。</p>
+<h3 id="73-vs">7.3 硬链接 vs 软链接</h3>
+<table>
+<thead>
+<tr>
+<th></th>
+<th>硬链接</th>
+<th>软链接（符号链接）</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>本质</strong></td>
+<td>多个目录项指向同一 inode</td>
+<td>一个存有目标路径的特殊文件</td>
+</tr>
+<tr>
+<td><strong>删原文件后</strong></td>
+<td>不影响（inode 仍存在，链接计数减 1）</td>
+<td>变为悬空断链（路径已无效）</td>
+</tr>
+<tr>
+<td><strong>跨文件系统</strong></td>
+<td>不可（inode 号仅在本 FS 有效）</td>
+<td>可（存的是路径字符串）</td>
+</tr>
+<tr>
+<td><strong>目录</strong></td>
+<td>不支持（防环路）</td>
+<td>支持</td>
+</tr>
+<tr>
+<td><strong>创建命令</strong></td>
+<td><code>ln source target</code></td>
+<td><code>ln -s source target</code></td>
+</tr>
+</tbody>
+</table>
+<h3 id="74">7.4 日志文件系统</h3>
+<p><strong>问题</strong>：写文件涉及多步操作（分配数据块、更新 inode、更新位图），中途断电会导致文件系统不一致。</p>
+<p><strong>日志（Journaling）</strong> 解决办法：操作前先记日志——</p>
+<ol>
+<li>将「即将执行的操作」写入日志区</li>
+<li>日志提交（commit），标记为有效</li>
+<li>执行实际操作（checkpoint）</li>
+<li>操作完成后清除日志</li>
+</ol>
+<p>重启恢复：已提交的日志重放（保证完整），未提交的丢弃（操作从不曾发生）。</p>
+<p>ext4 默认 <strong>ordered 模式</strong>：数据内容先写入，元数据的日志后提交——兼顾数据完整性和性能。</p>
+<p><strong>Copy-on-Write 文件系统</strong>（btrfs、ZFS）：不原地覆写，新数据写新位置后原子切换指针。天然防断电损坏，同时支持快照。</p>
+<hr />
+<h2 id="io">八、I/O 系统</h2>
+<h3 id="81-cpu">8.1 CPU 与设备的三种通信方式</h3>
+<table>
+<thead>
+<tr>
+<th>方式</th>
+<th>数据传输</th>
+<th>CPU 参与</th>
+<th>吞吐</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>轮询（Polling）</strong></td>
+<td>CPU 反复读设备状态寄存器</td>
+<td>全程占用，忙等</td>
+<td>低</td>
+</tr>
+<tr>
+<td><strong>中断（Interrupt）</strong></td>
+<td>设备就绪后发中断通知 CPU</td>
+<td>仅在中断处理时介入</td>
+<td>中</td>
+</tr>
+<tr>
+<td><strong>DMA</strong></td>
+<td>DMA 控制器直接设备↔内存搬运</td>
+<td>仅配置 DMA 时介入，传输完成发中断</td>
+<td>高</td>
+</tr>
+</tbody>
+</table>
+<p><strong>DMA 流程</strong>：CPU 配置 DMA 控制器（源地址、目标地址、字节数）→ DMA 执行传输 → 完成后中断通知 CPU。大块数据传输（磁盘 I/O、网络包）全靠 DMA 释放 CPU。</p>
+<h3 id="82">8.2 磁盘调度</h3>
+<p>机械硬盘（HDD）的核心瓶颈是<strong>寻道时间</strong>（磁头移动到目标磁道，~数 ms）。调度目标：最小化磁头移动距离。</p>
+<p><strong>SCAN（电梯算法）</strong>：磁头单向扫描到头再折返，顺路处理请求。<br />
+<strong>C-SCAN</strong>：仅单向处理，到头后快速归零再开始——内外圈请求公平。<br />
+<strong>LOOK / C-LOOK</strong>：SCAN/C-SCAN 的优化，不再走到尽头而是在最后一个请求处折返。</p>
+<p>SSD 无机械寻道，但仍有批量合并、排序请求的优化价值（减少 NAND 擦写）。</p>
+<h3 id="83-zero-copy">8.3 零拷贝（Zero-Copy）</h3>
+<p><strong>传统 sendfile 路径（无零拷贝优化）：</strong></p>
+<pre><code>磁盘 → 内核页缓存 → 用户缓冲区 → 内核 Socket 缓冲区 → 网卡
+        (DMA)        (CPU 拷贝)      (CPU 拷贝)        (DMA)
+→ 4 次上下文切换 + 4 次数据拷贝（2 次 DMA + 2 次 CPU）
+</code></pre>
+<p><strong>零拷贝 sendfile（DMA Scatter/Gather）：</strong></p>
+<pre><code>磁盘 → 内核页缓存 ────────────────────────────→ 网卡
+        (DMA)           (DMA Gather，直接传输)     (DMA)
+→ 2 次上下文切换 + 2 次数据拷贝（全是 DMA，无 CPU 拷贝）
+</code></pre>
+<p>数据根本不进入用户态。Nginx、Kafka 的高吞吐核心原因之一就是大量使用 <code>sendfile()</code>。前提：数据无需用户态修改（如静态文件服务、消息转发）。</p>
+<hr />
+<h2 id="_13">九、中断 —— 操作系统的「手机通知」</h2>
+<h3 id="91">9.1 中断是什么？</h3>
+<p>中断是 CPU 对异步事件的响应机制——外部事件或内部异常发生时，CPU 暂停当前执行流，转到中断处理程序，完成后恢复。</p>
+<ul>
+<li><strong>硬中断</strong>：来自硬件设备（键盘、网卡、定时器）</li>
+<li><strong>软中断 / 异常</strong>：来自 CPU 内部（除零、缺页、系统调用）</li>
+</ul>
+<h3 id="92">9.2 中断处理的分工</h3>
+<p>Linux 将中断处理拆为<strong>上半部</strong>和<strong>下半部</strong>：</p>
+<ul>
+<li><strong>上半部（Top Half）</strong>：中断发生时立即执行，屏蔽其他中断。只做最关键、最简短的操作（如记录数据到缓冲区、应答中断控制器）</li>
+<li><strong>下半部（Bottom Half）</strong>：延后执行的非紧急处理（如协议栈解析数据包）。实现方式：softirq、tasklet、工作队列（workqueue）</li>
+</ul>
+<p>目的：上半部尽可能短，减少中断屏蔽时间，提升系统响应性。</p>
+<hr />
+<h2 id="_14">十、常见面试题</h2>
+<h3 id="101">10.1 基础篇</h3>
+<p><strong>1. 进程和线程的区别？</strong></p>
+<p>进程是资源分配单位，线程是 CPU 调度单位。</p>
+<ul>
+<li>进程间地址空间隔离；线程共享进程地址空间</li>
+<li>进程通信需 IPC；线程可直接读写共享变量（需同步）</li>
+<li>创建/切换进程开销大（地址空间、页表）；线程轻量（同进程内不切换页表）</li>
+<li>进程崩溃互不影响；线程崩溃通常导致全进程终止</li>
+</ul>
+<p><strong>2. fork() 之后发生了什么？什么是写时拷贝？</strong></p>
+<p>fork 复制当前进程产生子进程。父子共享同一份物理内存页（标记只读），任一写入时触发缺页中断，由内核单独复制该页（COW）。fork + exec 组合中，子进程往往 fork 后立刻 exec，COW 使 fork 几乎零开销。</p>
+<p><strong>3. 孤儿进程和僵尸进程是什么？</strong></p>
+<ul>
+<li><strong>孤儿进程</strong>：父进程先于子进程终止。init 进程（PID=1）自动收养，子进程终止时 init 负责回收</li>
+<li><strong>僵尸进程</strong>：子进程已终止但父进程未调用 <code>wait()</code> 获取退出状态。PCB 仍在，占用 PID。大量僵尸会耗尽 PID 导致无法创建新进程</li>
+</ul>
+<p><strong>4. 进程间通信（IPC）有哪些方式？</strong></p>
+<table>
+<thead>
+<tr>
+<th>方式</th>
+<th>特点</th>
+<th>典型场景</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>管道（Pipe）</td>
+<td>单向，字节流，父子/兄弟进程</td>
+<td><code>ls | grep txt</code></td>
+</tr>
+<tr>
+<td>命名管道（FIFO）</td>
+<td>有文件名，任意进程可用</td>
+<td>无关进程通信</td>
+</tr>
+<tr>
+<td>共享内存</td>
+<td>最快（零拷贝），需配合信号量</td>
+<td>大数据量共享</td>
+</tr>
+<tr>
+<td>信号量</td>
+<td>计数器，控制资源访问</td>
+<td>配合共享内存的互斥/同步</td>
+</tr>
+<tr>
+<td>消息队列</td>
+<td>有类型的消息包，异步</td>
+<td>解耦生产者-消费者</td>
+</tr>
+<tr>
+<td>信号（Signal）</td>
+<td>异步通知，携带最少信息</td>
+<td><code>kill -9</code>、<code>SIGINT</code>、<code>SIGCHLD</code></td>
+</tr>
+<tr>
+<td>Socket</td>
+<td>跨主机通信</td>
+<td>网络编程、分布式系统</td>
+</tr>
+</tbody>
+</table>
+<h3 id="102">10.2 同步与死锁篇</h3>
+<p><strong>5. 死锁是什么？如何防止？</strong></p>
+<p>死锁 = 两个以上进程循环等待对方持有的资源。四个必要条件：互斥、持有并等待、不可抢占、循环等待。<strong>破坏任一条件即可预防死锁</strong>。常见手段：一次性申请全部资源、按编号顺序申请。</p>
+<p><strong>6. 优先级反转是怎么回事？</strong></p>
+<p>高优先级 H 等低优先级 L 释放锁；L 被中优先级 M 抢占，L 无法运行释放锁；H 被 M 无限阻塞——明明 H 优先级最高却在等待。</p>
+<p><strong>解决：优先级继承</strong>——L 持有锁期间，临时将其优先级提升到等待者中最高级别（H），释放锁后恢复。</p>
+<p><strong>7. 生产者-消费者问题怎么用信号量解？</strong></p>
+<p>三个信号量：<code>mutex=1</code>（缓冲区互斥），<code>empty=N</code>（空槽数），<code>full=0</code>（已填充数）。</p>
+<pre><code>生产者: P(empty) → P(mutex) → 放入数据 → V(mutex) → V(full)
+消费者: P(full)  → P(mutex) → 取出数据 → V(mutex) → V(empty)
+</code></pre>
+<h3 id="103">10.3 内存管理篇</h3>
+<p><strong>8. 虚拟内存到底是什么？有什么好处？</strong></p>
+<p>每个进程看到的是独立、连续的虚拟地址空间；背后由 MMU+页表映射到碎片化的物理内存（或磁盘）。好处：隔离保护、突破物理内存上限、简化开发、方便共享库。</p>
+<p><strong>9. 什么是缺页中断？</strong></p>
+<p>访问虚拟页不在物理内存中时触发。OS 暂停进程，从磁盘读入页面，更新页表，恢复执行。整个过程对程序透明，是虚拟内存实现的关键机制。</p>
+<p><strong>10. 页面置换算法有哪些？LRU 怎么实现？</strong></p>
+<ul>
+<li>OPT（最优，不可实现），FIFO（简单但有 Belady 异常），LRU（近似 OPT，实现开销大），Clock（LRU 近似，实际系统首选）</li>
+</ul>
+<p><strong>LRU 实现困难</strong>：需记录每次访问的顺序（链表），每次内存访问都要更新，开销太大。Clock 算法用硬件支持的访问位 + 循环指针近似 LRU，Linux、FreeBSD 均采用此方案。</p>
+<p><strong>11. malloc(1MB) 真的马上分了 1MB 吗？</strong></p>
+<p>不。malloc 仅在虚拟地址空间标记区域，物理页延迟到实际写入时才通过缺页中断分配。这称为「惰性分配」。因此进程的 VSS（虚拟内存）可远大于 RSS（常驻物理内存）。</p>
+<p><strong>12. 内部碎片 vs 外部碎片</strong></p>
+<ul>
+<li><strong>内部碎片</strong>：分配单位内未使用的空间（如分配 4KB 页只用 500 字节，剩余 3.5KB 浪费）</li>
+<li><strong>外部碎片</strong>：分散的空闲空间总和足够，但每块都不够大。分页机制消除了外部碎片</li>
+</ul>
+<h3 id="104">10.4 调度篇</h3>
+<p><strong>13. 时间片轮转（RR）中时间片设多大合适？</strong></p>
+<p>权衡：太大 → 退化为 FCFS，交互响应差；太小 → 上下文切换开销占比过高。经验公式：切换开销 &lt; 1% 时间片，通常 10-100ms。</p>
+<p><strong>14. 多级反馈队列好在哪里？</strong></p>
+<p>无需预知作业长短，自适应：短作业在高优先级短时间片快速完成，长作业逐步降级不会被饿死。兼具交互响应与吞吐量，是现代 OS 的实用方案。</p>
+<p><strong>15. Linux CFS 的 vruntime 是什么意思？</strong></p>
+<p>vruntime（虚拟运行时间）= 实际运行时间 x (基准优先级 / 当前进程优先级)。优先级高的增长慢，调度次数多。CFS 用红黑树维护 vruntime，每次选最小的运行，使各进程「虚拟时间」趋于一致，实现公平调度。</p>
+<h3 id="105">10.5 文件系统篇</h3>
+<p><strong>16. inode 是什么？</strong></p>
+<p>inode（索引节点）是 Unix 文件系统中描述文件的数据结构，存储权限、大小、时间戳、数据块位置等元数据——唯独不含文件名（文件名在目录项中指向 inode 号）。</p>
+<p><strong>17. 硬链接和软链接的区别？</strong></p>
+<p>硬链接：多目录项指向同一 inode。删原文件后硬链接仍有效（inode 链接计数 &gt; 0）。软链接：独立文件，内容为目标路径字符串。原文件删除后为断链。硬链接不可跨文件系统，软链接可以。</p>
+<p><strong>18. 什么是日志文件系统？</strong></p>
+<p>操作前先向日志区（journal）写入「即将做什么」，提交后再执行实际操作。崩溃后：已提交日志重放，未提交丢弃。ext4 默认 <strong>ordered</strong> 模式：数据先写，元数据日志后记，兼顾完整性与性能。</p>
+<h3 id="106">10.6 综合篇</h3>
+<p><strong>19. select / poll / epoll 有什么区别？</strong></p>
+<table>
+<thead>
+<tr>
+<th></th>
+<th>select</th>
+<th>poll</th>
+<th>epoll</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>原理</strong></td>
+<td>每次拷贝全部 fd 进内核，遍历检查</td>
+<td>同 select，但用动态数组</td>
+<td>内核维护红黑树 + 就绪链表，事件驱动</td>
+</tr>
+<tr>
+<td><strong>fd 上限</strong></td>
+<td>1024（FD_SETSIZE）</td>
+<td>无限制</td>
+<td>无限制</td>
+</tr>
+<tr>
+<td><strong>找到就绪 fd</strong></td>
+<td>O(n)，需遍历全部</td>
+<td>O(n)</td>
+<td>O(1)（直接返回就绪链表中的 fd）</td>
+</tr>
+</tbody>
+</table>
+<p>高并发场景（C10K/C100K）必须用 epoll。Nginx、Redis、Netty 的高并发能力都离不开 epoll / kqueue / IOCP 这类 IO 多路复用。</p>
+<p><strong>20. 零拷贝是什么意思？为什么重要？</strong></p>
+<p>零拷贝：数据从磁盘到网卡不经过用户态缓冲区，省去 CPU 拷贝。传统 send 路径 4 次拷贝（2 DMA + 2 CPU），<code>sendfile</code> 仅 2 次（全 DMA）。高吞吐 Web 服务器和消息队列的基础。</p>
+<p><strong>21. 从输入网址到页面渲染，OS 参与了多少？</strong></p>
+<p>全程参与：DNS 查询（内核协议栈封装 UDP）→ 建立 TCP 连接（三次握手由内核完成）→ 发送 HTTP 请求（TCP 分段、IP 路由、ARP 查询 MAC 均由内核处理）→ 接收数据（网卡中断 → DMA → 协议栈解包 → socket 接口返回）。浏览器不直接碰硬件，OS 在每一层提供服务。</p>
+<p><strong>22. Go 的 GPM 模型是什么？</strong></p>
+<p>G（Goroutine）→ P（Processor，逻辑处理器，持有 G 的本地队列）→ M（Machine，内核线程）。P 是调度核心：P 将本地队列中的 G 分配给 M 执行；G 阻塞时 M 被换下，P 带着其他 G 迁移到新 M，CPU 不空转。</p>
+<p><strong>23. 操作系统启动过程是怎样的？</strong></p>
+<p>BIOS/UEFI 自检 → 加载引导扇区（MBR/GPT）→ 引导程序（GRUB）→ 加载内核镜像到内存 → 内核初始化（中断描述符表、页表、调度器）→ 创建 init 进程（PID=1）→ systemd/init 启动用户态服务 → 登录界面。整个过程从固件到内核再到用户态，层层初始化。</p>
+<hr />
+<h2 id="_15">推荐阅读</h2>
+<ul>
+<li>《现代操作系统》（Andrew S. Tanenbaum）—— 操作系统教材经典</li>
+<li>《操作系统概念》（Silberschatz，俗称「恐龙书」）—— 面试题的主要来源</li>
+<li>《深入理解计算机系统》（CS:APP）—— 从程序员视角讲 OS，更实用</li>
+<li>Linux 内核源码（<code>kernel/sched/</code>、<code>mm/</code>、<code>fs/</code> 目录）—— 直接读代码</li>
+</ul>
+
+<script>
+// Scroll spy — highlight active sidebar item
+window.addEventListener('scroll', function() {
+    var links = document.querySelectorAll('.sidebar-toc a');
+    var scrollY = window.scrollY + 120;
+    var current = '';
+    for (var i = links.length - 1; i >= 0; i--) {
+        var target = document.getElementById(links[i].getAttribute('href').slice(1));
+        if (target && target.offsetTop <= scrollY) {
+            current = links[i];
+            break;
+        }
+    }
+    links.forEach(function(a) { a.style.fontWeight = 'normal'; a.style.color = '#555'; });
+    if (current) { current.style.fontWeight = 'bold'; current.style.color = '#0366d6'; }
+});
+</script>
+
+
+<script>
+document.querySelectorAll('pre > code').forEach(function(codeBlock, i) {
+    var pre = codeBlock.parentNode;
+    pre.style.position = 'relative';
+    var btn = document.createElement('button');
+    btn.className = 'copy-btn';
+    btn.textContent = '复制';
+    pre.appendChild(btn);
+    btn.addEventListener('click', function() {
+        var text = codeBlock.textContent;
+        navigator.clipboard.writeText(text).then(function() {
+            btn.textContent = '已复制';
+            btn.classList.add('copied');
+            setTimeout(function() {
+                btn.textContent = '复制';
+                btn.classList.remove('copied');
+            }, 2000);
+        }).catch(function() {
+            // Fallback
+            var ta = document.createElement('textarea');
+            ta.value = text; ta.style.position = 'fixed'; ta.style.opacity = '0';
+            document.body.appendChild(ta); ta.select();
+            document.execCommand('copy'); document.body.removeChild(ta);
+            btn.textContent = '已复制'; btn.classList.add('copied');
+            setTimeout(function() { btn.textContent = '复制'; btn.classList.remove('copied'); }, 2000);
+        });
+    });
+});
+</script>
+
+
+<script>document.querySelectorAll("pre>code").forEach(function(c){var p=c.parentNode;p.style.position="relative";var b=document.createElement("button");b.className="copy-btn";b.textContent="复制";p.appendChild(b);b.addEventListener("click",function(){var t=c.textContent;navigator.clipboard.writeText(t).then(function(){b.textContent="已复制";b.classList.add("copied");setTimeout(function(){b.textContent="复制";b.classList.remove("copied")},2000)}).catch(function(){var a=document.createElement("textarea");a.value=t;a.style.position="fixed";a.style.opacity="0";document.body.appendChild(a);a.select();document.execCommand("copy");document.body.removeChild(a);b.textContent="已复制";b.classList.add("copied");setTimeout(function(){b.textContent="复制";b.classList.remove("copied")},2000)})})})</script>
+</body>
+</html>

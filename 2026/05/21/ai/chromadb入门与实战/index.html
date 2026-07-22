@@ -1,0 +1,623 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 5.4.2">
+  <link rel="apple-touch-icon" sizes="180x180" href="/blog/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/blog/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/blog/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/blog/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/blog/css/main.css">
+
+
+<link rel="stylesheet" href="/blog/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"ruoxixiruo.github.io","root":"/blog/","scheme":"Gemini","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":true,"show_result":true,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":true},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}};
+  </script>
+
+  <meta name="description" content="1，ChromaDB 介绍">
+<meta property="og:type" content="article">
+<meta property="og:title" content="ChromaDB 入门与实战">
+<meta property="og:url" content="https://ruoxixiruo.github.io/blog/2026/05/21/ai/chromadb%E5%85%A5%E9%97%A8%E4%B8%8E%E5%AE%9E%E6%88%98/index.html">
+<meta property="og:site_name" content="RUOXI-BLOG">
+<meta property="og:description" content="1，ChromaDB 介绍">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2026-05-21T23:30:00.000Z">
+<meta property="article:modified_time" content="2026-07-22T02:51:55.000Z">
+<meta property="article:author" content="ruoxi">
+<meta property="article:tag" content="ChromaDB">
+<meta property="article:tag" content="向量数据库">
+<meta property="article:tag" content="AI">
+<meta name="twitter:card" content="summary">
+
+<link rel="canonical" href="https://ruoxixiruo.github.io/blog/2026/05/21/ai/chromadb%E5%85%A5%E9%97%A8%E4%B8%8E%E5%AE%9E%E6%88%98/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+
+  <title>ChromaDB 入门与实战 | RUOXI-BLOG</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/blog/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">RUOXI-BLOG</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/blog/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/blog/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/blog/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/blog/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a>
+
+  </li>
+        <li class="menu-item menu-item-posts">
+
+    <a href="/blog/posts/" rel="section"><i class="fa fa-rss fa-fw"></i>posts</a>
+
+  </li>
+  </ul>
+</nav>
+
+
+
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+  <div class="reading-progress-bar"></div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://ruoxixiruo.github.io/blog/2026/05/21/ai/chromadb%E5%85%A5%E9%97%A8%E4%B8%8E%E5%AE%9E%E6%88%98/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/blog/images/avatar.gif">
+      <meta itemprop="name" content="ruoxi">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="RUOXI-BLOG">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          ChromaDB 入门与实战
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2026-05-21 23:30:00" itemprop="dateCreated datePublished" datetime="2026-05-21T23:30:00+00:00">2026-05-21</time>
+            </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/blog/categories/ai/" itemprop="url" rel="index"><span itemprop="name">ai</span></a>
+                </span>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <h5 id="1，ChromaDB-介绍"><a href="#1，ChromaDB-介绍" class="headerlink" title="1，ChromaDB 介绍"></a>1，ChromaDB 介绍</h5><span id="more"></span>
+
+<p>ChromaDB 是一个开源的向量数据库，专为 AI 应用设计，尤其适合与大语言模型（LLM）配合使用。它提供了高效存储和检索向量嵌入的能力，是构建 RAG（检索增强生成）应用的核心组件。</p>
+<ul>
+<li><p>核心特性</p>
+<ul>
+<li><strong>开源免费</strong>：Apache 2.0 协议，可自托管</li>
+<li><strong>API 简洁</strong>：Python / JavaScript 客户端，几行代码即可上手</li>
+<li><strong>集成生态</strong>：与 LangChain、LlamaIndex、OpenAI 等无缝对接</li>
+<li><strong>支持多种嵌入</strong>：可搭配任何 embedding 模型使用</li>
+<li><strong>支持元数据过滤</strong>：在向量搜索的同时按 metadata 条件过滤</li>
+<li><strong>轻量部署</strong>：可嵌入模式（嵌入式应用）或客户端/服务器模式</li>
+</ul>
+</li>
+<li><p>适用场景</p>
+<ul>
+<li>RAG（检索增强生成）</li>
+<li>语义搜索 / 相似度匹配</li>
+<li>去重与聚类</li>
+<li>推荐系统</li>
+</ul>
+</li>
+</ul>
+<h5 id="2，安装"><a href="#2，安装" class="headerlink" title="2，安装"></a>2，安装</h5><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">pip install chromadb</span><br></pre></td></tr></table></figure>
+
+<p>最新版本使用：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> chromadb</span><br><span class="line"><span class="built_in">print</span>(chromadb.__version__)</span><br></pre></td></tr></table></figure>
+
+<h5 id="3，核心概念"><a href="#3，核心概念" class="headerlink" title="3，核心概念"></a>3，核心概念</h5><table>
+<thead>
+<tr>
+<th>概念</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>Collection</strong></td>
+<td>集合，类似于关系数据库中的表，用于组织文档和向量</td>
+</tr>
+<tr>
+<td><strong>Document</strong></td>
+<td>原始文本内容</td>
+</tr>
+<tr>
+<td><strong>Embedding</strong></td>
+<td>向量嵌入，文本经过 embedding 模型转换成的浮点数数组</td>
+</tr>
+<tr>
+<td><strong>Metadata</strong></td>
+<td>元数据，附加到文档上的键值对，用于结构化过滤</td>
+</tr>
+<tr>
+<td><strong>ID</strong></td>
+<td>每个文档的唯一标识符</td>
+</tr>
+</tbody></table>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">Collection (类比为表)</span><br><span class="line">├── Document 1 (id: &quot;doc1&quot;, text: &quot;...&quot;, embedding: [0.1, 0.2, ...], metadata: &#123;source: &quot;wiki&quot;&#125;)</span><br><span class="line">├── Document 2 (id: &quot;doc2&quot;, text: &quot;...&quot;, embedding: [0.3, 0.4, ...], metadata: &#123;source: &quot;news&quot;&#125;)</span><br><span class="line">└── Document 3 (id: &quot;doc3&quot;, text: &quot;...&quot;, embedding: [0.5, 0.6, ...], metadata: &#123;source: &quot;wiki&quot;&#125;)</span><br></pre></td></tr></table></figure>
+
+<h5 id="4，基本使用"><a href="#4，基本使用" class="headerlink" title="4，基本使用"></a>4，基本使用</h5><p><strong>4.1 创建客户端</strong></p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> chromadb</span><br><span class="line"></span><br><span class="line"><span class="comment"># 嵌入式模式（数据存在本地磁盘）</span></span><br><span class="line">client = chromadb.PersistentClient(path=<span class="string">&quot;./chroma_data&quot;</span>)</span><br><span class="line"></span><br><span class="line"><span class="comment"># 临时模式（仅存在于内存中，适合测试）</span></span><br><span class="line"><span class="comment"># client = chromadb.EphemeralClient()</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 客户端模式（连接远程 Chroma 服务）</span></span><br><span class="line"><span class="comment"># client = chromadb.HttpClient(host=&quot;localhost&quot;, port=8000)</span></span><br></pre></td></tr></table></figure>
+
+<p><strong>4.2 创建 / 获取集合</strong></p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 创建集合（自动生成 embedding 需要使用 sentence-transformers）</span></span><br><span class="line">collection = client.create_collection(name=<span class="string">&quot;my_collection&quot;</span>)</span><br><span class="line"></span><br><span class="line"><span class="comment"># 获取已存在的集合</span></span><br><span class="line">collection = client.get_collection(name=<span class="string">&quot;my_collection&quot;</span>)</span><br><span class="line"></span><br><span class="line"><span class="comment"># 删除集合</span></span><br><span class="line">client.delete_collection(name=<span class="string">&quot;my_collection&quot;</span>)</span><br><span class="line"></span><br><span class="line"><span class="comment"># 创建集合时指定 embedding 函数</span></span><br><span class="line">collection = client.create_collection(</span><br><span class="line">    name=<span class="string">&quot;my_collection&quot;</span>,</span><br><span class="line">    embedding_function=my_embedding_function</span><br><span class="line">)</span><br></pre></td></tr></table></figure>
+
+<p><strong>4.2.1 内置 Embedding 函数</strong></p>
+<p>ChromaDB 的 <code>chromadb.utils.embedding_functions</code> 模块提供了多种开箱即用的 embedding 方案：</p>
+<ul>
+<li><strong>默认 ONNX 模型（无需额外依赖）</strong></li>
+</ul>
+<p>不传 <code>embedding_function</code> 时自动使用，ChromaDB 内置了一个轻量 ONNX 模型，安装完 chromadb 直接用，无需额外下载大模型。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> chromadb.utils <span class="keyword">import</span> embedding_functions</span><br><span class="line"></span><br><span class="line">ef = embedding_functions.DefaultEmbeddingFunction()</span><br><span class="line"><span class="comment"># 或直接不传，创建集合时省略 embedding_function 参数即可</span></span><br></pre></td></tr></table></figure>
+
+<ul>
+<li><strong>Sentence Transformers（本地 HuggingFace 模型）</strong></li>
+</ul>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">ef = embedding_functions.SentenceTransformerEmbeddingFunction(</span><br><span class="line">    model_name=<span class="string">&quot;all-MiniLM-L6-v2&quot;</span>  <span class="comment"># 默认模型，384 维，速度快</span></span><br><span class="line">)</span><br><span class="line"><span class="comment"># 可换成其他模型：</span></span><br><span class="line"><span class="comment"># &quot;all-mpnet-base-v2&quot;   (768维，质量更高但更慢)</span></span><br><span class="line"><span class="comment"># &quot;BAAI/bge-small-zh-v1.5&quot; (中文模型)</span></span><br><span class="line"><span class="comment"># &quot;shibing624/text2vec-base-chinese&quot; (中文模型)</span></span><br></pre></td></tr></table></figure>
+
+<ul>
+<li><strong>OpenAI</strong></li>
+</ul>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">ef = embedding_functions.OpenAIEmbeddingFunction(</span><br><span class="line">    api_key=<span class="string">&quot;sk-xxx&quot;</span>,</span><br><span class="line">    model_name=<span class="string">&quot;text-embedding-ada-002&quot;</span>  <span class="comment"># 或 text-embedding-3-small / text-embedding-3-large</span></span><br><span class="line">)</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li><strong>Cohere</strong></li>
+</ul>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">ef = embedding_functions.CohereEmbeddingFunction(</span><br><span class="line">    api_key=<span class="string">&quot;cohere-api-key&quot;</span>,</span><br><span class="line">    model_name=<span class="string">&quot;embed-english-v3.0&quot;</span></span><br><span class="line">)</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li><strong>Google PaLM / Gemini</strong></li>
+</ul>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">ef = embedding_functions.GooglePalmEmbeddingFunction(</span><br><span class="line">    api_key=<span class="string">&quot;google-api-key&quot;</span>,</span><br><span class="line">    model_name=<span class="string">&quot;models/embedding-001&quot;</span></span><br><span class="line">)</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li><strong>Jina AI</strong></li>
+</ul>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">ef = embedding_functions.JinaEmbeddingFunction(</span><br><span class="line">    api_key=<span class="string">&quot;jina-api-key&quot;</span>,</span><br><span class="line">    model_name=<span class="string">&quot;jina-embeddings-v2-base-en&quot;</span></span><br><span class="line">)</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li><strong>HuggingFace API</strong></li>
+</ul>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">ef = embedding_functions.HuggingFaceEmbeddingFunction(</span><br><span class="line">    api_key=<span class="string">&quot;hf-api-key&quot;</span>,</span><br><span class="line">    model_name=<span class="string">&quot;BAAI/bge-small-en-v1.5&quot;</span></span><br><span class="line">)</span><br></pre></td></tr></table></figure>
+
+<p><strong>如果不传 embedding_function</strong>，ChromaDB 使用内置的 DefaultEmbeddingFunction（基于 ONNX 的轻量模型），适合快速试用。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 使用默认 embedding</span></span><br><span class="line">collection = client.create_collection(name=<span class="string">&quot;test&quot;</span>)</span><br><span class="line"><span class="comment"># 后面 add 时传 documents，会自动调用默认 embedding 模型转成向量</span></span><br></pre></td></tr></table></figure>
+
+<p><strong>4.2.2 配合 LangChain 的 embed_query / embed_documents</strong></p>
+<p>如果项目中已经用了 LangChain 的 embedding 模型（如 <code>HuggingFaceEmbeddings</code>、<code>OpenAIEmbeddings</code>），可以通过自定义 embedding 函数让 ChromaDB 复用同一个模型，确保两边向量空间一致。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> chromadb.api.types <span class="keyword">import</span> Documents, EmbeddingFunction, Embeddings</span><br><span class="line"><span class="keyword">from</span> langchain_huggingface <span class="keyword">import</span> HuggingFaceEmbeddings</span><br><span class="line"></span><br><span class="line"><span class="comment"># LangChain 的 embedding 模型</span></span><br><span class="line">lc_embeddings = HuggingFaceEmbeddings(model_name=<span class="string">&quot;all-MiniLM-L6-v2&quot;</span>)</span><br><span class="line"></span><br><span class="line"><span class="comment"># 包装成 ChromaDB 的 EmbeddingFunction</span></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">LangChainEmbeddingFunction</span>(<span class="title class_ inherited__">EmbeddingFunction</span>):</span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">__call__</span>(<span class="params">self, <span class="built_in">input</span>: Documents</span>) -&gt; Embeddings:</span><br><span class="line">        <span class="keyword">return</span> lc_embeddings.embed_documents(<span class="built_in">list</span>(<span class="built_in">input</span>))</span><br><span class="line"></span><br><span class="line"><span class="comment"># 创建集合时传入包装函数</span></span><br><span class="line">collection = client.create_collection(</span><br><span class="line">    name=<span class="string">&quot;my_collection&quot;</span>,</span><br><span class="line">    embedding_function=LangChainEmbeddingFunction()</span><br><span class="line">)</span><br><span class="line"></span><br><span class="line"><span class="comment"># 添加数据（自动调用 embed_documents）</span></span><br><span class="line">collection.add(</span><br><span class="line">    documents=[<span class="string">&quot;ChromaDB 是一个向量数据库&quot;</span>, <span class="string">&quot;LangChain 是一个 LLM 框架&quot;</span>],</span><br><span class="line">    ids=[<span class="string">&quot;doc1&quot;</span>, <span class="string">&quot;doc2&quot;</span>]</span><br><span class="line">)</span><br></pre></td></tr></table></figure>
+
+<p>如果想让 embed_query 生成的向量存入库中，或者用外部生成的向量来查询：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> langchain_huggingface <span class="keyword">import</span> HuggingFaceEmbeddings</span><br><span class="line"></span><br><span class="line">embeddings = HuggingFaceEmbeddings(model_name=<span class="string">&quot;all-MiniLM-L6-v2&quot;</span>)</span><br><span class="line"></span><br><span class="line"><span class="comment"># 1. 用 embed_documents 批量生成文档向量</span></span><br><span class="line">texts = [<span class="string">&quot;ChromaDB 是一个向量数据库&quot;</span>, <span class="string">&quot;LangChain 是一个 LLM 框架&quot;</span>]</span><br><span class="line">vectors = embeddings.embed_documents(texts)  <span class="comment"># 返回 [[vec1], [vec2]]</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 2. 存入库中（手动传 embeddings）</span></span><br><span class="line">collection = client.create_collection(name=<span class="string">&quot;my_collection&quot;</span>)</span><br><span class="line">collection.add(</span><br><span class="line">    embeddings=vectors,      <span class="comment"># 手动传入向量</span></span><br><span class="line">    documents=texts,</span><br><span class="line">    ids=[<span class="string">&quot;doc1&quot;</span>, <span class="string">&quot;doc2&quot;</span>]</span><br><span class="line">)</span><br><span class="line"></span><br><span class="line"><span class="comment"># 3. 用 embed_query 生成查询向量</span></span><br><span class="line">query = <span class="string">&quot;什么是向量数据库&quot;</span></span><br><span class="line">query_vector = embeddings.embed_query(query)  <span class="comment"># 返回单个向量 [vec]</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 4. 用向量查询（query_embeddings 需要二维列表）</span></span><br><span class="line">results = collection.query(</span><br><span class="line">    query_embeddings=[query_vector],</span><br><span class="line">    n_results=<span class="number">2</span>,</span><br><span class="line">    include=[<span class="string">&quot;documents&quot;</span>, <span class="string">&quot;distances&quot;</span>]</span><br><span class="line">)</span><br></pre></td></tr></table></figure>
+
+<p><strong>关键点</strong>：</p>
+<ul>
+<li><code>embed_documents</code> 返回的是二维列表（多条向量），用于存入 ChromaDB</li>
+<li><code>embed_query</code> 返回的是一维列表（单条向量），传入 <code>query_embeddings</code> 时需要包一层 <code>[]</code> 变成二维</li>
+<li>存入和查询必须用<strong>同一个 embedding 模型</strong>，否则向量空间不一致，相似度计算无意义</li>
+</ul>
+<p><strong>4.3 添加数据</strong></p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 添加文档（无需手动传 embedding，会自动调用 embedding function）</span></span><br><span class="line">collection.add(</span><br><span class="line">    documents=[</span><br><span class="line">        <span class="string">&quot;ChromaDB 是一个开源的向量数据库&quot;</span>,</span><br><span class="line">        <span class="string">&quot;向量数据库能够高效存储和检索向量嵌入&quot;</span>,</span><br><span class="line">        <span class="string">&quot;RAG 是检索增强生成的缩写&quot;</span>,</span><br><span class="line">    ],</span><br><span class="line">    metadatas=[</span><br><span class="line">        &#123;<span class="string">&quot;source&quot;</span>: <span class="string">&quot;manual&quot;</span>, <span class="string">&quot;category&quot;</span>: <span class="string">&quot;intro&quot;</span>&#125;,</span><br><span class="line">        &#123;<span class="string">&quot;source&quot;</span>: <span class="string">&quot;manual&quot;</span>, <span class="string">&quot;category&quot;</span>: <span class="string">&quot;concept&quot;</span>&#125;,</span><br><span class="line">        &#123;<span class="string">&quot;source&quot;</span>: <span class="string">&quot;wiki&quot;</span>, <span class="string">&quot;category&quot;</span>: <span class="string">&quot;concept&quot;</span>&#125;,</span><br><span class="line">    ],</span><br><span class="line">    ids=[<span class="string">&quot;doc1&quot;</span>, <span class="string">&quot;doc2&quot;</span>, <span class="string">&quot;doc3&quot;</span>]</span><br><span class="line">)</span><br><span class="line"></span><br><span class="line"><span class="comment"># 手动传入 embedding（跳过自动 embedding）</span></span><br><span class="line">collection.add(</span><br><span class="line">    embeddings=[[<span class="number">1.1</span>, <span class="number">2.3</span>, <span class="number">3.2</span>], [<span class="number">4.5</span>, <span class="number">6.7</span>, <span class="number">8.9</span>]],</span><br><span class="line">    documents=[<span class="string">&quot;手动 embedding 示例1&quot;</span>, <span class="string">&quot;手动 embedding 示例2&quot;</span>],</span><br><span class="line">    metadatas=[&#123;<span class="string">&quot;source&quot;</span>: <span class="string">&quot;manual&quot;</span>&#125;, &#123;<span class="string">&quot;source&quot;</span>: <span class="string">&quot;manual&quot;</span>&#125;],</span><br><span class="line">    ids=[<span class="string">&quot;manual1&quot;</span>, <span class="string">&quot;manual2&quot;</span>]</span><br><span class="line">)</span><br></pre></td></tr></table></figure>
+
+<p><strong>4.4 get vs query 的区别</strong></p>
+<p>ChromaDB 提供了两种获取数据的方式：<code>get()</code> 和 <code>query()</code>，用途完全不同。</p>
+<table>
+<thead>
+<tr>
+<th></th>
+<th><code>get()</code></th>
+<th><code>query()</code></th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>用途</strong></td>
+<td>精确查找，按条件筛数据</td>
+<td>语义搜索，找最相似的</td>
+</tr>
+<tr>
+<td><strong>检索方式</strong></td>
+<td>按 ID 或 metadata 精确匹配</td>
+<td>向量相似度（ANN 近似搜索）</td>
+</tr>
+<tr>
+<td><strong>必须参数</strong></td>
+<td>不传参数返回全部</td>
+<td><code>query_texts</code> 或 <code>query_embeddings</code></td>
+</tr>
+<tr>
+<td><strong>过滤</strong></td>
+<td><code>where</code> 精确筛选</td>
+<td><code>where</code> 可配合向量搜索</td>
+</tr>
+<tr>
+<td><strong>排序</strong></td>
+<td>无排序，按添加顺序返回</td>
+<td>按相似度（距离升序）排列</td>
+</tr>
+<tr>
+<td><strong>返回结构</strong></td>
+<td>平铺列表 <code>[结果1, 结果2]</code></td>
+<td>嵌套列表 <code>[[结果1, 结果2]]</code></td>
+</tr>
+</tbody></table>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># get：精确获取，不涉及向量计算</span></span><br><span class="line">data = collection.get(ids=[<span class="string">&quot;doc1&quot;</span>, <span class="string">&quot;doc2&quot;</span>])               <span class="comment"># 按 ID</span></span><br><span class="line">data = collection.get(where=&#123;<span class="string">&quot;source&quot;</span>: <span class="string">&quot;manual&quot;</span>&#125;)         <span class="comment"># 按条件</span></span><br><span class="line">data = collection.get(limit=<span class="number">10</span>, offset=<span class="number">0</span>)                  <span class="comment"># 分页</span></span><br><span class="line">all_data = collection.get()                                <span class="comment"># 全部</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># query：向量相似度搜索</span></span><br><span class="line">results = collection.query(</span><br><span class="line">    query_texts=[<span class="string">&quot;向量数据库&quot;</span>],</span><br><span class="line">    n_results=<span class="number">5</span>,</span><br><span class="line">    where=&#123;<span class="string">&quot;source&quot;</span>: <span class="string">&quot;manual&quot;</span>&#125;          <span class="comment"># 先过滤，再向量检索</span></span><br><span class="line">)</span><br></pre></td></tr></table></figure>
+
+<p>简单说：知道要找什么（已知 ID 或精确条件）→ <code>get()</code>；想搜和某段文本语义相似的 → <code>query()</code>。</p>
+<p><strong>4.5 查询数据</strong></p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 按文本查询（自动 embedding 后用向量相似度检索）</span></span><br><span class="line">results = collection.query(</span><br><span class="line">    query_texts=[<span class="string">&quot;什么是向量数据库&quot;</span>],</span><br><span class="line">    n_results=<span class="number">2</span>  <span class="comment"># 返回最相似的 2 条</span></span><br><span class="line">)</span><br><span class="line"></span><br><span class="line"><span class="comment"># 按向量查询</span></span><br><span class="line">results = collection.query(</span><br><span class="line">    query_embeddings=[[<span class="number">0.1</span>, <span class="number">0.2</span>, <span class="number">0.3</span>]],</span><br><span class="line">    n_results=<span class="number">2</span></span><br><span class="line">)</span><br><span class="line"></span><br><span class="line"><span class="comment"># 带元数据过滤的查询</span></span><br><span class="line">results = collection.query(</span><br><span class="line">    query_texts=[<span class="string">&quot;ChromaDB&quot;</span>],</span><br><span class="line">    n_results=<span class="number">5</span>,</span><br><span class="line">    where=&#123;<span class="string">&quot;source&quot;</span>: <span class="string">&quot;manual&quot;</span>&#125;  <span class="comment"># metadata 过滤</span></span><br><span class="line">)</span><br><span class="line"></span><br><span class="line"><span class="comment"># 更复杂的过滤条件</span></span><br><span class="line">results = collection.query(</span><br><span class="line">    query_texts=[<span class="string">&quot;向量数据库&quot;</span>],</span><br><span class="line">    n_results=<span class="number">5</span>,</span><br><span class="line">    where=&#123;</span><br><span class="line">        <span class="string">&quot;$and&quot;</span>: [</span><br><span class="line">            &#123;<span class="string">&quot;source&quot;</span>: &#123;<span class="string">&quot;$eq&quot;</span>: <span class="string">&quot;manual&quot;</span>&#125;&#125;,</span><br><span class="line">            &#123;<span class="string">&quot;category&quot;</span>: &#123;<span class="string">&quot;$ne&quot;</span>: <span class="string">&quot;concept&quot;</span>&#125;&#125;</span><br><span class="line">        ]</span><br><span class="line">    &#125;</span><br><span class="line">)</span><br><span class="line"></span><br><span class="line"><span class="built_in">print</span>(results)</span><br><span class="line"><span class="comment"># 输出结构：</span></span><br><span class="line"><span class="comment"># &#123;</span></span><br><span class="line"><span class="comment">#   &#x27;ids&#x27;: [[&#x27;doc1&#x27;, &#x27;doc3&#x27;]],</span></span><br><span class="line"><span class="comment">#   &#x27;distances&#x27;: [[0.123, 0.456]],</span></span><br><span class="line"><span class="comment">#   &#x27;metadatas&#x27;: [[&#123;...&#125;, &#123;...&#125;]],</span></span><br><span class="line"><span class="comment">#   &#x27;documents&#x27;: [[&#x27;...&#x27;, &#x27;...&#x27;]],</span></span><br><span class="line"><span class="comment">#   &#x27;embeddings&#x27;: None  # 默认不返回，可设置 include 控制</span></span><br><span class="line"><span class="comment"># &#125;</span></span><br></pre></td></tr></table></figure>
+
+<p><strong>4.6 更新与删除</strong></p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 更新文档</span></span><br><span class="line">collection.update(</span><br><span class="line">    ids=[<span class="string">&quot;doc1&quot;</span>],</span><br><span class="line">    documents=[<span class="string">&quot;ChromaDB 是一个开源的向量数据库（更新后）&quot;</span>],</span><br><span class="line">    metadatas=[&#123;<span class="string">&quot;source&quot;</span>: <span class="string">&quot;manual&quot;</span>, <span class="string">&quot;category&quot;</span>: <span class="string">&quot;intro&quot;</span>, <span class="string">&quot;updated&quot;</span>: <span class="literal">True</span>&#125;]</span><br><span class="line">)</span><br><span class="line"></span><br><span class="line"><span class="comment"># 如果 id 不存在，upsert 会插入新文档</span></span><br><span class="line">collection.upsert(</span><br><span class="line">    ids=[<span class="string">&quot;doc1&quot;</span>, <span class="string">&quot;doc_new&quot;</span>],</span><br><span class="line">    documents=[<span class="string">&quot;更新内容&quot;</span>, <span class="string">&quot;新插入的文档&quot;</span>],</span><br><span class="line">    metadatas=[&#123;<span class="string">&quot;source&quot;</span>: <span class="string">&quot;manual&quot;</span>&#125;, &#123;<span class="string">&quot;source&quot;</span>: <span class="string">&quot;wiki&quot;</span>&#125;]</span><br><span class="line">)</span><br><span class="line"></span><br><span class="line"><span class="comment"># 按 id 删除</span></span><br><span class="line">collection.delete(ids=[<span class="string">&quot;doc1&quot;</span>])</span><br><span class="line"></span><br><span class="line"><span class="comment"># 按元数据条件删除</span></span><br><span class="line">collection.delete(where=&#123;<span class="string">&quot;source&quot;</span>: <span class="string">&quot;manual&quot;</span>&#125;)</span><br></pre></td></tr></table></figure>
+
+<p><strong>4.7 查看集合信息</strong></p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 获取集合中文档数量</span></span><br><span class="line">count = collection.count()</span><br><span class="line"><span class="built_in">print</span>(<span class="string">f&quot;当前集合共有 <span class="subst">&#123;count&#125;</span> 条记录&quot;</span>)</span><br><span class="line"></span><br><span class="line"><span class="comment"># 获取集合名称</span></span><br><span class="line"><span class="built_in">print</span>(collection.name)</span><br><span class="line"></span><br><span class="line"><span class="comment"># 查看集合中所有数据</span></span><br><span class="line">all_data = collection.get()</span><br><span class="line"><span class="built_in">print</span>(<span class="string">f&quot;所有 ids: <span class="subst">&#123;all_data[<span class="string">&#x27;ids&#x27;</span>]&#125;</span>&quot;</span>)</span><br><span class="line"><span class="built_in">print</span>(<span class="string">f&quot;所有 metadata: <span class="subst">&#123;all_data[<span class="string">&#x27;metadatas&#x27;</span>]&#125;</span>&quot;</span>)</span><br><span class="line"><span class="built_in">print</span>(<span class="string">f&quot;所有 documents: <span class="subst">&#123;all_data[<span class="string">&#x27;documents&#x27;</span>]&#125;</span>&quot;</span>)</span><br><span class="line"></span><br><span class="line"><span class="comment"># 通过 id 获取特定数据</span></span><br><span class="line">data = collection.get(ids=[<span class="string">&quot;doc1&quot;</span>, <span class="string">&quot;doc2&quot;</span>])</span><br><span class="line"></span><br><span class="line"><span class="comment"># 通过 metadata 过滤获取</span></span><br><span class="line">data = collection.get(where=&#123;<span class="string">&quot;source&quot;</span>: <span class="string">&quot;manual&quot;</span>&#125;)</span><br><span class="line"></span><br><span class="line"><span class="comment"># 限制返回数量</span></span><br><span class="line">data = collection.get(limit=<span class="number">5</span>, offset=<span class="number">0</span>)</span><br></pre></td></tr></table></figure>
+
+<h5 id="5，高级用法"><a href="#5，高级用法" class="headerlink" title="5，高级用法"></a>5，高级用法</h5><p><strong>5.1 自定义 Embedding 函数</strong></p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> chromadb.api.types <span class="keyword">import</span> Documents, EmbeddingFunction, Embeddings</span><br><span class="line"></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">MyEmbeddingFunction</span>(<span class="title class_ inherited__">EmbeddingFunction</span>):</span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">__call__</span>(<span class="params">self, <span class="built_in">input</span>: Documents</span>) -&gt; Embeddings:</span><br><span class="line">        <span class="comment"># 用你的 embedding 模型将文本转为向量</span></span><br><span class="line">        <span class="comment"># 返回一个二维浮点数列表 [[0.1, 0.2, ...], ...]</span></span><br><span class="line">        <span class="keyword">return</span> [[<span class="number">0.0</span>] * <span class="number">384</span> <span class="keyword">for</span> _ <span class="keyword">in</span> <span class="built_in">range</span>(<span class="built_in">len</span>(<span class="built_in">input</span>))]</span><br><span class="line"></span><br><span class="line">collection = client.create_collection(</span><br><span class="line">    name=<span class="string">&quot;custom_embed&quot;</span>,</span><br><span class="line">    embedding_function=MyEmbeddingFunction()</span><br><span class="line">)</span><br></pre></td></tr></table></figure>
+
+<p><strong>5.2 过滤条件语法</strong></p>
+<p>ChromaDB 支持丰富的 <code>where</code> 过滤语法：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 等于</span></span><br><span class="line">where = &#123;<span class="string">&quot;key&quot;</span>: <span class="string">&quot;value&quot;</span>&#125;               <span class="comment"># key == value</span></span><br><span class="line">where = &#123;<span class="string">&quot;key&quot;</span>: &#123;<span class="string">&quot;$eq&quot;</span>: <span class="string">&quot;value&quot;</span>&#125;&#125;     <span class="comment"># 同上</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 不等于</span></span><br><span class="line">where = &#123;<span class="string">&quot;key&quot;</span>: &#123;<span class="string">&quot;$ne&quot;</span>: <span class="string">&quot;value&quot;</span>&#125;&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment"># 包含 / 不包含</span></span><br><span class="line">where = &#123;<span class="string">&quot;key&quot;</span>: &#123;<span class="string">&quot;$in&quot;</span>: [<span class="string">&quot;a&quot;</span>, <span class="string">&quot;b&quot;</span>, <span class="string">&quot;c&quot;</span>]&#125;&#125;</span><br><span class="line">where = &#123;<span class="string">&quot;key&quot;</span>: &#123;<span class="string">&quot;$nin&quot;</span>: [<span class="string">&quot;a&quot;</span>, <span class="string">&quot;b&quot;</span>]&#125;&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment"># 数值比较</span></span><br><span class="line">where = &#123;<span class="string">&quot;score&quot;</span>: &#123;<span class="string">&quot;$gt&quot;</span>: <span class="number">0.8</span>&#125;&#125;        <span class="comment"># 大于</span></span><br><span class="line">where = &#123;<span class="string">&quot;score&quot;</span>: &#123;<span class="string">&quot;$gte&quot;</span>: <span class="number">0.5</span>&#125;&#125;       <span class="comment"># 大于等于</span></span><br><span class="line">where = &#123;<span class="string">&quot;score&quot;</span>: &#123;<span class="string">&quot;$lt&quot;</span>: <span class="number">0.3</span>&#125;&#125;        <span class="comment"># 小于</span></span><br><span class="line">where = &#123;<span class="string">&quot;score&quot;</span>: &#123;<span class="string">&quot;$lte&quot;</span>: <span class="number">0.2</span>&#125;&#125;       <span class="comment"># 小于等于</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 逻辑组合</span></span><br><span class="line">where = &#123;<span class="string">&quot;$and&quot;</span>: [</span><br><span class="line">    &#123;<span class="string">&quot;source&quot;</span>: <span class="string">&quot;manual&quot;</span>&#125;,</span><br><span class="line">    &#123;<span class="string">&quot;score&quot;</span>: &#123;<span class="string">&quot;$gte&quot;</span>: <span class="number">0.5</span>&#125;&#125;</span><br><span class="line">]&#125;</span><br><span class="line"></span><br><span class="line">where = &#123;<span class="string">&quot;$or&quot;</span>: [</span><br><span class="line">    &#123;<span class="string">&quot;source&quot;</span>: <span class="string">&quot;wiki&quot;</span>&#125;,</span><br><span class="line">    &#123;<span class="string">&quot;source&quot;</span>: <span class="string">&quot;blog&quot;</span>&#125;</span><br><span class="line">]&#125;</span><br></pre></td></tr></table></figure>
+
+<p><strong>5.3 控制返回结果</strong></p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">results = collection.query(</span><br><span class="line">    query_texts=[<span class="string">&quot;向量数据库&quot;</span>],</span><br><span class="line">    n_results=<span class="number">3</span>,</span><br><span class="line">    <span class="comment"># 通过 include 参数控制返回哪些字段</span></span><br><span class="line">    include=[<span class="string">&quot;documents&quot;</span>, <span class="string">&quot;metadatas&quot;</span>, <span class="string">&quot;distances&quot;</span>, <span class="string">&quot;embeddings&quot;</span>]</span><br><span class="line">    <span class="comment"># 可选：documents, metadatas, distances, embeddings</span></span><br><span class="line">)</span><br><span class="line"></span><br><span class="line"><span class="comment"># distances 越小表示越相似</span></span><br><span class="line"><span class="keyword">for</span> i, (doc, dist) <span class="keyword">in</span> <span class="built_in">enumerate</span>(<span class="built_in">zip</span>(results[<span class="string">&quot;documents&quot;</span>][<span class="number">0</span>], results[<span class="string">&quot;distances&quot;</span>][<span class="number">0</span>])):</span><br><span class="line">    <span class="built_in">print</span>(<span class="string">f&quot;<span class="subst">&#123;i+<span class="number">1</span>&#125;</span>. (距离: <span class="subst">&#123;dist:<span class="number">.4</span>f&#125;</span>) <span class="subst">&#123;doc&#125;</span>&quot;</span>)</span><br></pre></td></tr></table></figure>
+
+<p><strong>5.4 集合的各种配置</strong></p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 在创建集合时指定 embedding 函数和距离算法</span></span><br><span class="line"><span class="keyword">from</span> chromadb.utils <span class="keyword">import</span> embedding_functions</span><br><span class="line"></span><br><span class="line">collection = client.create_collection(</span><br><span class="line">    name=<span class="string">&quot;my_collection&quot;</span>,</span><br><span class="line">    embedding_function=sentence_ef,</span><br><span class="line">    metadata=&#123;</span><br><span class="line">        <span class="string">&quot;hnsw:space&quot;</span>: <span class="string">&quot;cosine&quot;</span>,      <span class="comment"># 相似度算法: l2, ip, cosine</span></span><br><span class="line">        <span class="string">&quot;hnsw:construction_ef&quot;</span>: <span class="number">100</span>,  <span class="comment"># 构建索引时的搜索宽度，越大越精确</span></span><br><span class="line">        <span class="string">&quot;hnsw:M&quot;</span>: <span class="number">16</span>,                  <span class="comment"># 每个节点的最大连接数</span></span><br><span class="line">        <span class="string">&quot;hnsw:search_ef&quot;</span>: <span class="number">100</span>,         <span class="comment"># 查询时的搜索宽度</span></span><br><span class="line">    &#125;</span><br><span class="line">)</span><br><span class="line"></span><br><span class="line"><span class="comment"># 修改集合参数（仅部分参数支持运行时修改）</span></span><br><span class="line">collection.modify(</span><br><span class="line">    name=<span class="string">&quot;new_name&quot;</span>,  <span class="comment"># 重命名集合</span></span><br><span class="line">    metadata=&#123;        <span class="comment"># 更新元数据</span></span><br><span class="line">        <span class="string">&quot;hnsw:search_ef&quot;</span>: <span class="number">200</span></span><br><span class="line">    &#125;</span><br><span class="line">)</span><br></pre></td></tr></table></figure>
+
+<p><strong>5.5 批量操作与性能</strong></p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> time</span><br><span class="line"></span><br><span class="line"><span class="comment"># 批量添加大量数据</span></span><br><span class="line">documents = [<span class="string">f&quot;文档 <span class="subst">&#123;i&#125;</span>&quot;</span> <span class="keyword">for</span> i <span class="keyword">in</span> <span class="built_in">range</span>(<span class="number">10000</span>)]</span><br><span class="line">ids = [<span class="string">f&quot;id_<span class="subst">&#123;i&#125;</span>&quot;</span> <span class="keyword">for</span> i <span class="keyword">in</span> <span class="built_in">range</span>(<span class="number">10000</span>)]</span><br><span class="line">metadatas = [&#123;<span class="string">&quot;index&quot;</span>: i&#125; <span class="keyword">for</span> i <span class="keyword">in</span> <span class="built_in">range</span>(<span class="number">10000</span>)]</span><br><span class="line"></span><br><span class="line">start = time.time()</span><br><span class="line">collection.add(documents=documents, ids=ids, metadatas=metadatas)</span><br><span class="line"><span class="built_in">print</span>(<span class="string">f&quot;批量添加 10000 条耗时: <span class="subst">&#123;time.time() - start:<span class="number">.2</span>f&#125;</span>s&quot;</span>)</span><br></pre></td></tr></table></figure>
+
+<h5 id="6，启动-Chroma-服务端"><a href="#6，启动-Chroma-服务端" class="headerlink" title="6，启动 Chroma 服务端"></a>6，启动 Chroma 服务端</h5><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 安装后自带 CLI 启动</span></span><br><span class="line">chroma run</span><br><span class="line"></span><br><span class="line"><span class="comment"># 指定路径</span></span><br><span class="line">chroma run --path /path/to/chroma_data</span><br><span class="line"></span><br><span class="line"><span class="comment"># 指定端口</span></span><br><span class="line">chroma run --port 8000</span><br></pre></td></tr></table></figure>
+
+<p>客户端连接：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> chromadb</span><br><span class="line"></span><br><span class="line">client = chromadb.HttpClient(host=<span class="string">&quot;localhost&quot;</span>, port=<span class="number">8000</span>)</span><br><span class="line"></span><br><span class="line"><span class="comment"># 使用 auth token（如果启用了认证）</span></span><br><span class="line"><span class="comment"># client = chromadb.HttpClient(</span></span><br><span class="line"><span class="comment">#     host=&quot;localhost&quot;,</span></span><br><span class="line"><span class="comment">#     port=8000,</span></span><br><span class="line"><span class="comment">#     headers=&#123;&quot;Authorization&quot;: &quot;Bearer your-token&quot;&#125;</span></span><br><span class="line"><span class="comment"># )</span></span><br></pre></td></tr></table></figure>
+
+<h5 id="7，实战：构建简易-RAG-系统"><a href="#7，实战：构建简易-RAG-系统" class="headerlink" title="7，实战：构建简易 RAG 系统"></a>7，实战：构建简易 RAG 系统</h5><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> chromadb</span><br><span class="line"><span class="keyword">from</span> chromadb.utils <span class="keyword">import</span> embedding_functions</span><br><span class="line"></span><br><span class="line"><span class="comment"># 1. 初始化</span></span><br><span class="line">sentence_ef = embedding_functions.SentenceTransformerEmbeddingFunction(</span><br><span class="line">    model_name=<span class="string">&quot;all-MiniLM-L6-v2&quot;</span></span><br><span class="line">)</span><br><span class="line">client = chromadb.PersistentClient(path=<span class="string">&quot;./rag_demo&quot;</span>)</span><br><span class="line">collection = client.get_or_create_collection(</span><br><span class="line">    name=<span class="string">&quot;knowledge_base&quot;</span>,</span><br><span class="line">    embedding_function=sentence_ef</span><br><span class="line">)</span><br><span class="line"></span><br><span class="line"><span class="comment"># 2. 准备知识库</span></span><br><span class="line">knowledge_docs = [</span><br><span class="line">    <span class="string">&quot;Python 是一种解释型、面向对象的高级编程语言&quot;</span>,</span><br><span class="line">    <span class="string">&quot;ChromaDB 是一个开源的向量数据库，用于存储和检索向量嵌入&quot;</span>,</span><br><span class="line">    <span class="string">&quot;RAG 是 Retrieval-Augmented Generation 的缩写，即检索增强生成&quot;</span>,</span><br><span class="line">    <span class="string">&quot;Transformer 是一种基于自注意力机制的神经网络架构&quot;</span>,</span><br><span class="line">    <span class="string">&quot;向量嵌入是将文本、图像等数据转换成数值向量的技术&quot;</span>,</span><br><span class="line">]</span><br><span class="line"></span><br><span class="line">knowledge_ids = [<span class="string">f&quot;knowledge_<span class="subst">&#123;i&#125;</span>&quot;</span> <span class="keyword">for</span> i <span class="keyword">in</span> <span class="built_in">range</span>(<span class="built_in">len</span>(knowledge_docs))]</span><br><span class="line">knowledge_metadatas = [</span><br><span class="line">    &#123;<span class="string">&quot;topic&quot;</span>: <span class="string">&quot;python&quot;</span>, <span class="string">&quot;level&quot;</span>: <span class="string">&quot;basic&quot;</span>&#125;,</span><br><span class="line">    &#123;<span class="string">&quot;topic&quot;</span>: <span class="string">&quot;database&quot;</span>, <span class="string">&quot;level&quot;</span>: <span class="string">&quot;intermediate&quot;</span>&#125;,</span><br><span class="line">    &#123;<span class="string">&quot;topic&quot;</span>: <span class="string">&quot;ai&quot;</span>, <span class="string">&quot;level&quot;</span>: <span class="string">&quot;advanced&quot;</span>&#125;,</span><br><span class="line">    &#123;<span class="string">&quot;topic&quot;</span>: <span class="string">&quot;deep_learning&quot;</span>, <span class="string">&quot;level&quot;</span>: <span class="string">&quot;advanced&quot;</span>&#125;,</span><br><span class="line">    &#123;<span class="string">&quot;topic&quot;</span>: <span class="string">&quot;ai&quot;</span>, <span class="string">&quot;level&quot;</span>: <span class="string">&quot;intermediate&quot;</span>&#125;,</span><br><span class="line">]</span><br><span class="line"></span><br><span class="line">collection.add(</span><br><span class="line">    documents=knowledge_docs,</span><br><span class="line">    ids=knowledge_ids,</span><br><span class="line">    metadatas=knowledge_metadatas</span><br><span class="line">)</span><br><span class="line"></span><br><span class="line"><span class="comment"># 3. 检索</span></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">retrieve</span>(<span class="params">query, n_results=<span class="number">2</span></span>):</span><br><span class="line">    results = collection.query(</span><br><span class="line">        query_texts=[query],</span><br><span class="line">        n_results=n_results,</span><br><span class="line">        include=[<span class="string">&quot;documents&quot;</span>, <span class="string">&quot;distances&quot;</span>]</span><br><span class="line">    )</span><br><span class="line">    <span class="keyword">return</span> results[<span class="string">&quot;documents&quot;</span>][<span class="number">0</span>], results[<span class="string">&quot;distances&quot;</span>][<span class="number">0</span>]</span><br><span class="line"></span><br><span class="line"><span class="comment"># 4. 模拟 LLM 回答</span></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">generate_answer</span>(<span class="params">query, context_docs</span>):</span><br><span class="line">    context = <span class="string">&quot;\n&quot;</span>.join(context_docs)</span><br><span class="line">    <span class="keyword">return</span> <span class="string">f&quot;&quot;&quot;</span></span><br><span class="line"><span class="string">基于以下知识回答&quot;<span class="subst">&#123;query&#125;</span>&quot;：</span></span><br><span class="line"><span class="string"></span></span><br><span class="line"><span class="string">参考知识：</span></span><br><span class="line"><span class="string"><span class="subst">&#123;context&#125;</span></span></span><br><span class="line"><span class="string"></span></span><br><span class="line"><span class="string">回答：</span></span><br><span class="line"><span class="string"><span class="subst">&#123;query&#125;</span> 的相关解释请参考以上知识库内容。</span></span><br><span class="line"><span class="string">&quot;&quot;&quot;</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 5. 使用</span></span><br><span class="line">query = <span class="string">&quot;什么是 RAG？&quot;</span></span><br><span class="line">docs, distances = retrieve(query)</span><br><span class="line"></span><br><span class="line"><span class="built_in">print</span>(<span class="string">&quot;检索到的相关文档：&quot;</span>)</span><br><span class="line"><span class="keyword">for</span> doc, dist <span class="keyword">in</span> <span class="built_in">zip</span>(docs, distances):</span><br><span class="line">    <span class="built_in">print</span>(<span class="string">f&quot;  · <span class="subst">&#123;doc&#125;</span> (距离: <span class="subst">&#123;dist:<span class="number">.4</span>f&#125;</span>)&quot;</span>)</span><br><span class="line"></span><br><span class="line">answer = generate_answer(query, docs)</span><br><span class="line"><span class="built_in">print</span>(answer)</span><br></pre></td></tr></table></figure>
+
+<h5 id="8，与-LangChain-集成"><a href="#8，与-LangChain-集成" class="headerlink" title="8，与 LangChain 集成"></a>8，与 LangChain 集成</h5><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> langchain_chroma <span class="keyword">import</span> Chroma</span><br><span class="line"><span class="keyword">from</span> langchain_huggingface <span class="keyword">import</span> HuggingFaceEmbeddings</span><br><span class="line"><span class="keyword">from</span> langchain.schema <span class="keyword">import</span> Document</span><br><span class="line"></span><br><span class="line"><span class="comment"># 准备文档</span></span><br><span class="line">documents = [</span><br><span class="line">    Document(</span><br><span class="line">        page_content=<span class="string">&quot;ChromaDB 是一个开源向量数据库&quot;</span>,</span><br><span class="line">        metadata=&#123;<span class="string">&quot;source&quot;</span>: <span class="string">&quot;manual&quot;</span>&#125;</span><br><span class="line">    ),</span><br><span class="line">    Document(</span><br><span class="line">        page_content=<span class="string">&quot;LangChain 是一个用于构建 LLM 应用的框架&quot;</span>,</span><br><span class="line">        metadata=&#123;<span class="string">&quot;source&quot;</span>: <span class="string">&quot;docs&quot;</span>&#125;</span><br><span class="line">    ),</span><br><span class="line">]</span><br><span class="line"></span><br><span class="line"><span class="comment"># 初始化 embedding 模型</span></span><br><span class="line">embeddings = HuggingFaceEmbeddings(model_name=<span class="string">&quot;all-MiniLM-L6-v2&quot;</span>)</span><br><span class="line"></span><br><span class="line"><span class="comment"># 创建向量存储</span></span><br><span class="line">vector_store = Chroma.from_documents(</span><br><span class="line">    documents=documents,</span><br><span class="line">    embedding=embeddings,</span><br><span class="line">    persist_directory=<span class="string">&quot;./langchain_chroma&quot;</span></span><br><span class="line">)</span><br><span class="line"></span><br><span class="line"><span class="comment"># 检索</span></span><br><span class="line">retriever = vector_store.as_retriever(search_kwargs=&#123;<span class="string">&quot;k&quot;</span>: <span class="number">2</span>&#125;)</span><br><span class="line">results = retriever.invoke(<span class="string">&quot;什么是 ChromaDB？&quot;</span>)</span><br><span class="line"></span><br><span class="line"><span class="keyword">for</span> doc <span class="keyword">in</span> results:</span><br><span class="line">    <span class="built_in">print</span>(<span class="string">f&quot;内容: <span class="subst">&#123;doc.page_content&#125;</span>&quot;</span>)</span><br><span class="line">    <span class="built_in">print</span>(<span class="string">f&quot;元数据: <span class="subst">&#123;doc.metadata&#125;</span>&quot;</span>)</span><br></pre></td></tr></table></figure>
+
+<h5 id="9，注意事项"><a href="#9，注意事项" class="headerlink" title="9，注意事项"></a>9，注意事项</h5><ul>
+<li><strong>Embedding 模型一致性</strong>：查询时使用的 embedding 函数必须和添加数据时一致，否则相似度计算无意义</li>
+<li><strong>内存占用</strong>：大量数据时注意 PersistentClient 的数据目录空间</li>
+<li><strong>ID 唯一性</strong>：集合内每个文档的 id 必须唯一</li>
+<li><strong>批量操作性能</strong>：批量添加大量文档时，建议每批 100-1000 条</li>
+<li><strong>距离度量</strong>：cosine 适合语义相似度，l2 适合数值相似度，ip 适合向量方向匹配</li>
+<li><strong>数据持久化</strong>：EphemeralClient 数据在程序结束后丢失，生产环境应使用 PersistentClient 或 HttpClient</li>
+</ul>
+
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/blog/tags/ChromaDB/" rel="tag"># ChromaDB</a>
+              <a href="/blog/tags/%E5%90%91%E9%87%8F%E6%95%B0%E6%8D%AE%E5%BA%93/" rel="tag"># 向量数据库</a>
+              <a href="/blog/tags/AI/" rel="tag"># AI</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/blog/2026/05/16/mysql/mysql%E5%AD%A6%E4%B9%A0/" rel="prev" title="mysql学习">
+      <i class="fa fa-chevron-left"></i> mysql学习
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/blog/2026/06/05/csapp/%E6%B7%B1%E5%85%A5%E7%90%86%E8%A7%A3%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%B3%BB%E7%BB%9F-%E5%AE%8C%E6%95%B4%E6%95%99%E7%A8%8B/" rel="next" title="深入理解计算机系统——通俗易懂的学习教程">
+      深入理解计算机系统——通俗易懂的学习教程 <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-5"><a class="nav-link" href="#1%EF%BC%8CChromaDB-%E4%BB%8B%E7%BB%8D"><span class="nav-number">1.</span> <span class="nav-text">1，ChromaDB 介绍</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#2%EF%BC%8C%E5%AE%89%E8%A3%85"><span class="nav-number">2.</span> <span class="nav-text">2，安装</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#3%EF%BC%8C%E6%A0%B8%E5%BF%83%E6%A6%82%E5%BF%B5"><span class="nav-number">3.</span> <span class="nav-text">3，核心概念</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#4%EF%BC%8C%E5%9F%BA%E6%9C%AC%E4%BD%BF%E7%94%A8"><span class="nav-number">4.</span> <span class="nav-text">4，基本使用</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#5%EF%BC%8C%E9%AB%98%E7%BA%A7%E7%94%A8%E6%B3%95"><span class="nav-number">5.</span> <span class="nav-text">5，高级用法</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#6%EF%BC%8C%E5%90%AF%E5%8A%A8-Chroma-%E6%9C%8D%E5%8A%A1%E7%AB%AF"><span class="nav-number">6.</span> <span class="nav-text">6，启动 Chroma 服务端</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#7%EF%BC%8C%E5%AE%9E%E6%88%98%EF%BC%9A%E6%9E%84%E5%BB%BA%E7%AE%80%E6%98%93-RAG-%E7%B3%BB%E7%BB%9F"><span class="nav-number">7.</span> <span class="nav-text">7，实战：构建简易 RAG 系统</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#8%EF%BC%8C%E4%B8%8E-LangChain-%E9%9B%86%E6%88%90"><span class="nav-number">8.</span> <span class="nav-text">8，与 LangChain 集成</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#9%EF%BC%8C%E6%B3%A8%E6%84%8F%E4%BA%8B%E9%A1%B9"><span class="nav-number">9.</span> <span class="nav-text">9，注意事项</span></a></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">ruoxi</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/blog/archives/">
+        
+          <span class="site-state-item-count">80</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/blog/categories/">
+          
+        <span class="site-state-item-count">17</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/blog/tags/">
+          
+        <span class="site-state-item-count">47</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2026</span>
+  <span class="with-love">
+    <i class="fa fa-code"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">ruoxi</span>
+</div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/blog/lib/anime.min.js"></script>
+  <script src="/blog/lib/velocity/velocity.min.js"></script>
+  <script src="/blog/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/blog/js/utils.js"></script>
+
+<script src="/blog/js/motion.js"></script>
+
+
+<script src="/blog/js/schemes/pisces.js"></script>
+
+
+<script src="/blog/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+</body>
+</html>

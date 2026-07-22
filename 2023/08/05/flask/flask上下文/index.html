@@ -1,0 +1,463 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 5.4.2">
+  <link rel="apple-touch-icon" sizes="180x180" href="/blog/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/blog/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/blog/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/blog/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/blog/css/main.css">
+
+
+<link rel="stylesheet" href="/blog/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"ruoxixiruo.github.io","root":"/blog/","scheme":"Gemini","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":true,"show_result":true,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":true},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}};
+  </script>
+
+  <meta name="description" content="1，Flask 上下文概述Flask 中有两种上下文：  请求上下文（Request Context）：request 和 session 应用上下文（Application Context）：current_app 和 g  Flask 的设计中，请求和应用信息不是通过全局变量直接访问的，而是通过上下文机制将特定请求&#x2F;应用的数据绑定到当前线程（或协程）。这使得 Flask 支持多线程，且可以运行">
+<meta property="og:type" content="article">
+<meta property="og:title" content="flask上下文">
+<meta property="og:url" content="https://ruoxixiruo.github.io/blog/2023/08/05/flask/flask%E4%B8%8A%E4%B8%8B%E6%96%87/index.html">
+<meta property="og:site_name" content="RUOXI-BLOG">
+<meta property="og:description" content="1，Flask 上下文概述Flask 中有两种上下文：  请求上下文（Request Context）：request 和 session 应用上下文（Application Context）：current_app 和 g  Flask 的设计中，请求和应用信息不是通过全局变量直接访问的，而是通过上下文机制将特定请求&#x2F;应用的数据绑定到当前线程（或协程）。这使得 Flask 支持多线程，且可以运行">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2023-08-05T14:00:00.000Z">
+<meta property="article:modified_time" content="2026-07-22T02:51:55.000Z">
+<meta property="article:author" content="ruoxi">
+<meta property="article:tag" content="flask">
+<meta name="twitter:card" content="summary">
+
+<link rel="canonical" href="https://ruoxixiruo.github.io/blog/2023/08/05/flask/flask%E4%B8%8A%E4%B8%8B%E6%96%87/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+
+  <title>flask上下文 | RUOXI-BLOG</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/blog/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">RUOXI-BLOG</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/blog/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/blog/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/blog/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/blog/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a>
+
+  </li>
+        <li class="menu-item menu-item-posts">
+
+    <a href="/blog/posts/" rel="section"><i class="fa fa-rss fa-fw"></i>posts</a>
+
+  </li>
+  </ul>
+</nav>
+
+
+
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+  <div class="reading-progress-bar"></div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://ruoxixiruo.github.io/blog/2023/08/05/flask/flask%E4%B8%8A%E4%B8%8B%E6%96%87/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/blog/images/avatar.gif">
+      <meta itemprop="name" content="ruoxi">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="RUOXI-BLOG">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          flask上下文
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2023-08-05 14:00:00" itemprop="dateCreated datePublished" datetime="2023-08-05T14:00:00+00:00">2023-08-05</time>
+            </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/blog/categories/flask/" itemprop="url" rel="index"><span itemprop="name">flask</span></a>
+                </span>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <h5 id="1，Flask-上下文概述"><a href="#1，Flask-上下文概述" class="headerlink" title="1，Flask 上下文概述"></a>1，Flask 上下文概述</h5><p>Flask 中有两种上下文：</p>
+<ul>
+<li><strong>请求上下文（Request Context）</strong>：<code>request</code> 和 <code>session</code></li>
+<li><strong>应用上下文（Application Context）</strong>：<code>current_app</code> 和 <code>g</code></li>
+</ul>
+<p>Flask 的设计中，请求和应用信息不是通过全局变量直接访问的，而是通过上下文机制将特定请求/应用的数据绑定到当前线程（或协程）。这使得 Flask 支持多线程，且可以运行多个 Flask 应用实例。</p>
+<p>核心原理：Werkzeug 的 <code>LocalProxy</code> + <code>LocalStack</code>。</p>
+<span id="more"></span>
+
+<h5 id="2，请求上下文（Request-Context）"><a href="#2，请求上下文（Request-Context）" class="headerlink" title="2，请求上下文（Request Context）"></a>2，请求上下文（Request Context）</h5><p>请求上下文在每次请求到达时自动创建，请求结束时自动销毁。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> flask <span class="keyword">import</span> request, session</span><br><span class="line"></span><br><span class="line"><span class="comment"># request —— 当前请求对象（线程/协程隔离）</span></span><br><span class="line"><span class="comment"># session —— 当前请求的 session 数据（基于 Cookie 的客户端 session）</span></span><br></pre></td></tr></table></figure>
+
+<p><code>request</code> 包含的上下文物：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># —— 环境信息 ——</span></span><br><span class="line">request.method                      <span class="comment"># GET / POST / PUT / DELETE</span></span><br><span class="line">request.url                         <span class="comment"># http://example.com/path?q=1</span></span><br><span class="line">request.base_url                    <span class="comment"># http://example.com/path</span></span><br><span class="line">request.path                        <span class="comment"># /path</span></span><br><span class="line">request.full_path                   <span class="comment"># /path?q=1</span></span><br><span class="line">request.host                        <span class="comment"># example.com</span></span><br><span class="line">request.host_url                    <span class="comment"># http://example.com</span></span><br><span class="line">request.remote_addr                 <span class="comment"># 127.0.0.1</span></span><br><span class="line">request.user_agent                  <span class="comment"># 浏览器 User-Agent</span></span><br><span class="line">request.scheme                      <span class="comment"># http / https</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># —— 请求数据 ——</span></span><br><span class="line">request.args                        <span class="comment"># URL 查询参数（MultiDict）</span></span><br><span class="line">request.form                        <span class="comment"># 表单数据 POST</span></span><br><span class="line">request.json                        <span class="comment"># JSON 请求体</span></span><br><span class="line">request.get_json(silent=<span class="literal">True</span>)       <span class="comment"># 同上，True 时不抛异常</span></span><br><span class="line">request.data                        <span class="comment"># 原始请求体（bytes）</span></span><br><span class="line">request.files                       <span class="comment"># 上传文件</span></span><br><span class="line">request.values                      <span class="comment"># args + form 合并</span></span><br><span class="line">request.cookies                     <span class="comment"># Cookie 字典</span></span><br><span class="line">request.headers                     <span class="comment"># 请求头</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># —— 请求生命周期方法 ——</span></span><br><span class="line">request.is_json                     <span class="comment"># 是否 JSON 请求</span></span><br><span class="line">request.is_secure                   <span class="comment"># 是否 HTTPS</span></span><br><span class="line">request.is_multithread              <span class="comment"># 是否多线程</span></span><br><span class="line">request.is_multiprocess             <span class="comment"># 是否多进程</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># —— URL 路由信息 ——</span></span><br><span class="line">request.endpoint                    <span class="comment"># 匹配到的端点名称（视图函数名）</span></span><br><span class="line">request.view_args                   <span class="comment"># URL 变量 &#123;post_id: 1&#125;</span></span><br><span class="line">request.url_rule                    <span class="comment"># 匹配到的 URL Rule 对象</span></span><br><span class="line">request.blueprint                   <span class="comment"># 匹配到的蓝图名称</span></span><br></pre></td></tr></table></figure>
+
+<h5 id="3，应用上下文（Application-Context）"><a href="#3，应用上下文（Application-Context）" class="headerlink" title="3，应用上下文（Application Context）"></a>3，应用上下文（Application Context）</h5><p>应用上下文在应用启动后需要访问应用级资源时创建，典型的场景包括：</p>
+<ul>
+<li>请求处理期间</li>
+<li>CLI 命令执行时</li>
+<li>测试时</li>
+<li>手动推送时</li>
+</ul>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> flask <span class="keyword">import</span> current_app, g</span><br><span class="line"></span><br><span class="line"><span class="comment"># current_app —— 指向当前 Flask 应用实例（线程隔离的代理）</span></span><br><span class="line"><span class="comment"># g —— 请求级别的临时存储对象，每次请求重新创建</span></span><br></pre></td></tr></table></figure>
+
+<p><code>current_app</code> 常用场景：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> flask <span class="keyword">import</span> current_app</span><br><span class="line"></span><br><span class="line"><span class="comment"># 在非视图函数中访问应用配置</span></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">get_db_connection</span>():</span><br><span class="line">    db_url = current_app.config[<span class="string">&quot;DATABASE_URL&quot;</span>]</span><br><span class="line">    <span class="keyword">return</span> connect(db_url)</span><br><span class="line"></span><br><span class="line"><span class="comment"># 在蓝图或扩展中获取应用实例</span></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">send_admin_email</span>(<span class="params">subject, body</span>):</span><br><span class="line">    admin_email = current_app.config[<span class="string">&quot;ADMIN_EMAIL&quot;</span>]</span><br><span class="line">    <span class="comment"># 发送邮件...</span></span><br></pre></td></tr></table></figure>
+
+<h5 id="4，g-对象详解"><a href="#4，g-对象详解" class="headerlink" title="4，g 对象详解"></a>4，g 对象详解</h5><p><code>g</code> 是 Flask 提供的请求级全局变量，用于在同一请求的多个函数间共享数据。每次新请求到来时 <code>g</code> 会被重置为空对象。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> flask <span class="keyword">import</span> g</span><br><span class="line"></span><br><span class="line"><span class="comment"># ============ 典型用法：存储当前用户 ============</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">get_current_user</span>():</span><br><span class="line">    <span class="string">&quot;&quot;&quot;从数据库加载当前用户，并缓存到 g&quot;&quot;&quot;</span></span><br><span class="line">    <span class="keyword">if</span> <span class="string">&quot;user&quot;</span> <span class="keyword">not</span> <span class="keyword">in</span> g:</span><br><span class="line">        token = request.headers.get(<span class="string">&quot;Authorization&quot;</span>)</span><br><span class="line">        g.user = User.query.filter_by(token=token).first()</span><br><span class="line">    <span class="keyword">return</span> g.user</span><br><span class="line"></span><br><span class="line"><span class="comment"># 同一请求中多次调用 get_current_user() 只会查一次数据库</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># ============ 典型用法：数据库连接管理 ============</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">get_db</span>():</span><br><span class="line">    <span class="keyword">if</span> <span class="string">&quot;db&quot;</span> <span class="keyword">not</span> <span class="keyword">in</span> g:</span><br><span class="line">        g.db = connect_db()</span><br><span class="line">    <span class="keyword">return</span> g.db</span><br><span class="line"></span><br><span class="line"><span class="meta">@app.teardown_appcontext</span></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">close_db</span>(<span class="params">exception</span>):</span><br><span class="line">    <span class="string">&quot;&quot;&quot;请求结束时自动关闭数据库连接&quot;&quot;&quot;</span></span><br><span class="line">    db = g.pop(<span class="string">&quot;db&quot;</span>, <span class="literal">None</span>)</span><br><span class="line">    <span class="keyword">if</span> db <span class="keyword">is</span> <span class="keyword">not</span> <span class="literal">None</span>:</span><br><span class="line">        db.close()</span><br><span class="line"></span><br><span class="line"><span class="comment"># ============ 请求计时 ============</span></span><br><span class="line"></span><br><span class="line"><span class="meta">@app.before_request</span></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">start_timer</span>():</span><br><span class="line">    g.start_time = time.time()</span><br><span class="line"></span><br><span class="line"><span class="meta">@app.after_request</span></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">log_request_time</span>(<span class="params">response</span>):</span><br><span class="line">    elapsed = time.time() - g.get(<span class="string">&quot;start_time&quot;</span>, <span class="number">0</span>)</span><br><span class="line">    app.logger.info(<span class="string">f&quot;请求耗时: <span class="subst">&#123;elapsed:<span class="number">.4</span>f&#125;</span>s&quot;</span>)</span><br><span class="line">    <span class="keyword">return</span> response</span><br><span class="line"></span><br><span class="line"><span class="comment"># ============ 注意事项 ============</span></span><br><span class="line"><span class="comment"># g 的生命周期是一次请求，不同请求的 g 互不影响</span></span><br><span class="line"><span class="comment"># 不要在 g 中存储过于庞大的对象</span></span><br><span class="line"><span class="comment"># g 中的数据在请求结束后自动清除（下次请求 g 是全新对象）</span></span><br></pre></td></tr></table></figure>
+
+<h5 id="5，上下文的底层机制"><a href="#5，上下文的底层机制" class="headerlink" title="5，上下文的底层机制"></a>5，上下文的底层机制</h5><p>Flask 的上模型基于 Werkzeug 的两个核心类：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># Werkzeug Local —— 线程/协程隔离的存储</span></span><br><span class="line"><span class="keyword">from</span> werkzeug.local <span class="keyword">import</span> Local, LocalStack, LocalProxy</span><br><span class="line"></span><br><span class="line"><span class="comment"># Local 内部使用 __storage__ = &#123;thread_id: &#123;key: value&#125;&#125;</span></span><br><span class="line"><span class="comment"># 每个线程有独立的存储空间</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># LocalStack —— 线程隔离的栈结构</span></span><br><span class="line"><span class="comment"># push()  将对象压入当前线程的栈顶</span></span><br><span class="line"><span class="comment"># pop()   弹出栈顶对象</span></span><br><span class="line"><span class="comment"># top     获取栈顶对象（不弹出）</span></span><br></pre></td></tr></table></figure>
+
+<p>Flask 源码中的上下文栈：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># flask/globals.py（简化）</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">from</span> werkzeug.local <span class="keyword">import</span> LocalStack, LocalProxy</span><br><span class="line"></span><br><span class="line"><span class="comment"># 请求上下文栈（每个新请求 push，请求结束 pop）</span></span><br><span class="line">_request_ctx_stack = LocalStack()</span><br><span class="line"></span><br><span class="line"><span class="comment"># 应用上下文栈（需要访问应用实例时 push）</span></span><br><span class="line">_app_ctx_stack = LocalStack()</span><br><span class="line"></span><br><span class="line"><span class="comment"># 获取当前请求对象</span></span><br><span class="line">request = LocalProxy(<span class="keyword">lambda</span>: _request_ctx_stack.top.request)</span><br><span class="line"></span><br><span class="line"><span class="comment"># 获取当前 session</span></span><br><span class="line">session = LocalProxy(<span class="keyword">lambda</span>: _request_ctx_stack.top.session)</span><br><span class="line"></span><br><span class="line"><span class="comment"># 获取当前应用实例</span></span><br><span class="line">current_app = LocalProxy(<span class="keyword">lambda</span>: _app_ctx_stack.top.app)</span><br><span class="line"></span><br><span class="line"><span class="comment"># g 是应用上下文栈顶的 g 属性</span></span><br><span class="line">g = LocalProxy(<span class="keyword">lambda</span>: _app_ctx_stack.top.g)</span><br></pre></td></tr></table></figure>
+
+<h5 id="6，上下文生命周期"><a href="#6，上下文生命周期" class="headerlink" title="6，上下文生命周期"></a>6，上下文生命周期</h5><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># ============ 请求处理的完整上下文流程 ============</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 1. WSGI 服务器收到请求</span></span><br><span class="line"><span class="comment"># 2. Flask.wsgi_app() 被调用</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">with</span> app.request_context(environ):</span><br><span class="line">    <span class="comment"># 3. 请求上下文压入 _request_ctx_stack</span></span><br><span class="line">    <span class="comment"># 4. 应用上下文压入 _app_ctx_stack（如果当前栈为空）</span></span><br><span class="line">    <span class="comment">#    此时 request、session、current_app、g 都可用</span></span><br><span class="line"></span><br><span class="line">    response = app.full_dispatch_request()</span><br><span class="line">    <span class="comment"># 5. 路由匹配、视图执行、响应生成</span></span><br><span class="line"></span><br><span class="line">    <span class="comment"># 6. 请求上下文弹出 _request_ctx_stack</span></span><br><span class="line">    <span class="comment"># 7. 如果这是唯一引用，应用上下文也可能弹出</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 8. 返回响应给 WSGI 服务器</span></span><br></pre></td></tr></table></figure>
+
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># ============ 应用上下文的自动与手动管理 ============</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 场景一：请求中自动管理（无需手动操作）</span></span><br><span class="line"><span class="comment"># 每次 HTTP 请求到达时，Flask 自动推送应用上下文</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 场景二：CLI 命令中自动管理</span></span><br><span class="line"><span class="comment"># flask shell / flask run 等命令会自动推送应用上下文</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 场景三：手动推送（测试、脚本、后台任务）</span></span><br><span class="line">app = Flask(__name__)</span><br><span class="line"></span><br><span class="line"><span class="keyword">with</span> app.app_context():</span><br><span class="line">    <span class="comment"># 此时 current_app、g 可用</span></span><br><span class="line">    <span class="built_in">print</span>(current_app.name)</span><br><span class="line">    <span class="comment"># 注意：request、session 不可用（无请求上下文）</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">with</span> app.test_request_context(<span class="string">&quot;/&quot;</span>):</span><br><span class="line">    <span class="comment"># 此时 request、session 可用</span></span><br><span class="line">    <span class="comment"># 同时自动推送了应用上下文</span></span><br><span class="line">    <span class="built_in">print</span>(request.path)</span><br></pre></td></tr></table></figure>
+
+<h5 id="7，手动推送上下文"><a href="#7，手动推送上下文" class="headerlink" title="7，手动推送上下文"></a>7，手动推送上下文</h5><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> flask <span class="keyword">import</span> Flask, current_app, request</span><br><span class="line"></span><br><span class="line">app = Flask(__name__)</span><br><span class="line"></span><br><span class="line"><span class="comment"># ============ app_context() —— 推送应用上下文 ============</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">with</span> app.app_context():</span><br><span class="line">    <span class="comment"># 可以访问 current_app 和 g</span></span><br><span class="line">    <span class="built_in">print</span>(current_app.config[<span class="string">&quot;DEBUG&quot;</span>])</span><br><span class="line"></span><br><span class="line"><span class="comment"># 等价于：</span></span><br><span class="line">ctx = app.app_context()</span><br><span class="line">ctx.push()</span><br><span class="line"><span class="keyword">try</span>:</span><br><span class="line">    <span class="built_in">print</span>(current_app.config[<span class="string">&quot;DEBUG&quot;</span>])</span><br><span class="line"><span class="keyword">finally</span>:</span><br><span class="line">    ctx.pop()</span><br><span class="line"></span><br><span class="line"><span class="comment"># ============ request_context() —— 推送请求上下文 ============</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">with</span> app.test_request_context(<span class="string">&quot;/test?page=1&quot;</span>, method=<span class="string">&quot;POST&quot;</span>):</span><br><span class="line">    <span class="comment"># 自动包含应用上下文（无需额外 with app.app_context()）</span></span><br><span class="line">    <span class="built_in">print</span>(request.path)         <span class="comment"># /test</span></span><br><span class="line">    <span class="built_in">print</span>(request.args)         <span class="comment"># ImmutableMultiDict([(&quot;page&quot;, &quot;1&quot;)])</span></span><br><span class="line">    <span class="built_in">print</span>(request.method)       <span class="comment"># POST</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 模拟完整请求</span></span><br><span class="line"><span class="keyword">with</span> app.test_request_context(</span><br><span class="line">    <span class="string">&quot;/api/users&quot;</span>,</span><br><span class="line">    method=<span class="string">&quot;POST&quot;</span>,</span><br><span class="line">    data=<span class="string">&#x27;&#123;&quot;name&quot;: &quot;Alice&quot;&#125;&#x27;</span>,</span><br><span class="line">    content_type=<span class="string">&quot;application/json&quot;</span>,</span><br><span class="line">    headers=&#123;<span class="string">&quot;Authorization&quot;</span>: <span class="string">&quot;Bearer xyz&quot;</span>&#125;,</span><br><span class="line">):</span><br><span class="line">    <span class="built_in">print</span>(request.json)         <span class="comment"># &#123;&quot;name&quot;: &quot;Alice&quot;&#125;</span></span><br><span class="line">    <span class="built_in">print</span>(request.headers.get(<span class="string">&quot;Authorization&quot;</span>))</span><br><span class="line"></span><br><span class="line"><span class="comment"># ============ 同时推送所有上下文 ============</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">with</span> app.app_context():</span><br><span class="line">    <span class="keyword">with</span> app.test_request_context(<span class="string">&quot;/&quot;</span>):</span><br><span class="line">        <span class="comment"># 同时有 current_app、g、request、session</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 简写（test_request_context 内部会 push app_context）</span></span><br><span class="line"><span class="keyword">with</span> app.test_request_context(<span class="string">&quot;/&quot;</span>):</span><br><span class="line">    <span class="keyword">pass</span></span><br></pre></td></tr></table></figure>
+
+<h5 id="8，钩子中的上下文"><a href="#8，钩子中的上下文" class="headerlink" title="8，钩子中的上下文"></a>8，钩子中的上下文</h5><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> flask <span class="keyword">import</span> Flask, request, g, session, current_app</span><br><span class="line"></span><br><span class="line">app = Flask(__name__)</span><br><span class="line"></span><br><span class="line"><span class="comment"># 以下钩子在请求上下文内部执行，上下文物均可用</span></span><br><span class="line"></span><br><span class="line"><span class="meta">@app.before_first_request</span></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">setup</span>():</span><br><span class="line">    <span class="comment"># 第一次请求前执行（仅一次）</span></span><br><span class="line">    <span class="comment"># request / session 不可用（因为还没有具体请求）</span></span><br><span class="line">    <span class="comment"># current_app / g 可用（应用上下文已存在）</span></span><br><span class="line">    <span class="keyword">pass</span></span><br><span class="line"></span><br><span class="line"><span class="meta">@app.before_request</span></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">before</span>():</span><br><span class="line">    <span class="comment"># 每次请求前执行</span></span><br><span class="line">    <span class="comment"># request、session、current_app、g 全部可用</span></span><br><span class="line">    g.start_time = time.time()</span><br><span class="line"></span><br><span class="line"><span class="meta">@app.after_request</span></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">after</span>(<span class="params">response</span>):</span><br><span class="line">    <span class="comment"># 每次请求后执行（即使出错也会执行）</span></span><br><span class="line">    <span class="comment"># request、session、current_app、g 全部可用</span></span><br><span class="line">    <span class="keyword">return</span> response</span><br><span class="line"></span><br><span class="line"><span class="meta">@app.teardown_request</span></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">teardown</span>(<span class="params">exception</span>):</span><br><span class="line">    <span class="comment"># 请求销毁时执行</span></span><br><span class="line">    <span class="comment"># 如果 exception 不为 None，说明请求处理中发生了未捕获的异常</span></span><br><span class="line">    <span class="comment"># request、session、current_app、g 在此阶段仍可用</span></span><br><span class="line">    <span class="keyword">pass</span></span><br><span class="line"></span><br><span class="line"><span class="meta">@app.teardown_appcontext</span></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">teardown_appctx</span>(<span class="params">exception</span>):</span><br><span class="line">    <span class="comment"># 应用上下文销毁时执行</span></span><br><span class="line">    <span class="comment"># 适合在此清理资源（如关闭数据库连接）</span></span><br><span class="line">    db = g.pop(<span class="string">&quot;db&quot;</span>, <span class="literal">None</span>)</span><br><span class="line">    <span class="keyword">if</span> db:</span><br><span class="line">        db.close()</span><br></pre></td></tr></table></figure>
+
+<h5 id="9，多线程与上下文隔离"><a href="#9，多线程与上下文隔离" class="headerlink" title="9，多线程与上下文隔离"></a>9，多线程与上下文隔离</h5><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> threading</span><br><span class="line"><span class="keyword">from</span> flask <span class="keyword">import</span> Flask, request, g</span><br><span class="line"><span class="keyword">import</span> time</span><br><span class="line"></span><br><span class="line">app = Flask(__name__)</span><br><span class="line"></span><br><span class="line"><span class="comment"># Flask 基于 Werkzeug Local 实现线程隔离</span></span><br><span class="line"><span class="comment"># 不同线程的 request、session、g 互不影响</span></span><br><span class="line"></span><br><span class="line"><span class="meta">@app.route(<span class="params"><span class="string">&quot;/&quot;</span></span>)</span></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">index</span>():</span><br><span class="line">    g.user = <span class="string">f&quot;user_from_thread_<span class="subst">&#123;threading.current_thread().name&#125;</span>&quot;</span></span><br><span class="line">    <span class="built_in">print</span>(<span class="string">f&quot;线程 <span class="subst">&#123;threading.current_thread().name&#125;</span>: g.user = <span class="subst">&#123;g.user&#125;</span>&quot;</span>)</span><br><span class="line">    <span class="keyword">return</span> g.user</span><br><span class="line"></span><br><span class="line"><span class="comment"># 当多个线程同时访问 / 时，各线程有独立的 g.user</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># ============ 验证线程隔离 ============</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">simulate_request</span>(<span class="params">app, path, delay</span>):</span><br><span class="line">    <span class="keyword">with</span> app.test_request_context(path):</span><br><span class="line">        g.data = path</span><br><span class="line">        time.sleep(delay)                          <span class="comment"># 模拟处理时间</span></span><br><span class="line">        <span class="built_in">print</span>(<span class="string">f&quot;g.data = <span class="subst">&#123;g.data&#125;</span>&quot;</span>)</span><br><span class="line"></span><br><span class="line"><span class="comment"># 启动多个线程模拟并发请求</span></span><br><span class="line">threads = [</span><br><span class="line">    threading.Thread(target=simulate_request, args=(app, <span class="string">&quot;/thread-1&quot;</span>, <span class="number">0.5</span>)),</span><br><span class="line">    threading.Thread(target=simulate_request, args=(app, <span class="string">&quot;/thread-2&quot;</span>, <span class="number">0.3</span>)),</span><br><span class="line">]</span><br><span class="line"></span><br><span class="line"><span class="keyword">for</span> t <span class="keyword">in</span> threads:</span><br><span class="line">    t.start()</span><br><span class="line"><span class="keyword">for</span> t <span class="keyword">in</span> threads:</span><br><span class="line">    t.join()</span><br><span class="line"></span><br><span class="line"><span class="comment"># 输出：</span></span><br><span class="line"><span class="comment"># g.data = /thread-2</span></span><br><span class="line"><span class="comment"># g.data = /thread-1</span></span><br><span class="line"><span class="comment"># 两个值不同，证明隔离生效</span></span><br></pre></td></tr></table></figure>
+
+<h5 id="10，常见上下文错误与解决"><a href="#10，常见上下文错误与解决" class="headerlink" title="10，常见上下文错误与解决"></a>10，常见上下文错误与解决</h5><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># ============ 错误 1：在视图外使用 request ============</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># ❌ 错误：在模块级别使用 request</span></span><br><span class="line"><span class="comment"># from flask import request</span></span><br><span class="line"><span class="comment"># print(request.method)   # RuntimeError: Working outside of request context</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># ✅ 解决：确保在视图函数或钩子中访问</span></span><br><span class="line"><span class="meta">@app.route(<span class="params"><span class="string">&quot;/&quot;</span></span>)</span></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">index</span>():</span><br><span class="line">    <span class="built_in">print</span>(request.method)    <span class="comment"># OK: 在视图函数中</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># ✅ 解决：手动推送请求上下文</span></span><br><span class="line"><span class="keyword">with</span> app.test_request_context(<span class="string">&quot;/&quot;</span>):</span><br><span class="line">    <span class="built_in">print</span>(request.method)    <span class="comment"># OK</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># ============ 错误 2：在视图外使用 current_app ============</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># ❌ 错误</span></span><br><span class="line"><span class="comment"># from flask import current_app</span></span><br><span class="line"><span class="comment"># db_url = current_app.config[&quot;DATABASE_URL&quot;]  # RuntimeError</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># ✅ 解决：延迟访问</span></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">get_db_url</span>():</span><br><span class="line">    <span class="keyword">from</span> flask <span class="keyword">import</span> current_app</span><br><span class="line">    <span class="keyword">return</span> current_app.config[<span class="string">&quot;DATABASE_URL&quot;</span>]</span><br><span class="line"></span><br><span class="line"><span class="comment"># ✅ 解决：在 app.app_context() 中访问</span></span><br><span class="line"><span class="keyword">with</span> app.app_context():</span><br><span class="line">    db_url = current_app.config[<span class="string">&quot;DATABASE_URL&quot;</span>]</span><br><span class="line"></span><br><span class="line"><span class="comment"># ============ 错误 3：Celery 任务中上下文丢失 ============</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># ❌ 任务中直接使用 Flask 上下文会报错</span></span><br><span class="line"><span class="comment"># @celery.task</span></span><br><span class="line"><span class="comment"># def send_email():</span></span><br><span class="line"><span class="comment">#     email = current_app.config[&quot;ADMIN_EMAIL&quot;]  # RuntimeError</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># ✅ Celery 任务中无法使用 Flask 上下文，需要显式传递数据</span></span><br><span class="line"><span class="meta">@celery.task</span></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">send_email</span>(<span class="params">admin_email, recipient, subject, body</span>):</span><br><span class="line">    <span class="comment"># 不使用 current_app，数据由调用方传入</span></span><br><span class="line">    send_mail(subject, body, admin_email, [recipient])</span><br><span class="line"></span><br><span class="line"><span class="comment"># ✅ 或在任务中手动推送上下文（不推荐在 worker 中使用）</span></span><br><span class="line"><span class="meta">@celery.task</span></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">send_email</span>(<span class="params">app_config, recipient</span>):</span><br><span class="line">    <span class="keyword">with</span> app.app_context():</span><br><span class="line">        app.config.update(app_config)</span><br><span class="line">        <span class="comment"># 可使用 current_app</span></span><br></pre></td></tr></table></figure>
+
+<h5 id="11，Flask-SQLAlchemy-与上下文"><a href="#11，Flask-SQLAlchemy-与上下文" class="headerlink" title="11，Flask-SQLAlchemy 与上下文"></a>11，Flask-SQLAlchemy 与上下文</h5><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># Flask-SQLAlchemy 的 db.session 依赖应用上下文</span></span><br><span class="line"><span class="comment"># db.Model.query 需要应用上下文</span></span><br><span class="line"><span class="comment"># db.create_all() / db.drop_all() 需要应用上下文</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">from</span> flask <span class="keyword">import</span> Flask</span><br><span class="line"><span class="keyword">from</span> flask_sqlalchemy <span class="keyword">import</span> SQLAlchemy</span><br><span class="line"></span><br><span class="line">app = Flask(__name__)</span><br><span class="line">app.config[<span class="string">&quot;SQLALCHEMY_DATABASE_URI&quot;</span>] = <span class="string">&quot;sqlite:///app.db&quot;</span></span><br><span class="line">db = SQLAlchemy(app)</span><br><span class="line"></span><br><span class="line"><span class="comment"># ✅ 在请求中查询（有上下文）</span></span><br><span class="line"><span class="meta">@app.route(<span class="params"><span class="string">&quot;/users&quot;</span></span>)</span></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">users</span>():</span><br><span class="line">    <span class="keyword">return</span> <span class="built_in">str</span>(User.query.<span class="built_in">all</span>())   <span class="comment"># OK</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># ✅ 在脚本中查询（需要手动创建上下文）</span></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">init_db</span>():</span><br><span class="line">    <span class="keyword">with</span> app.app_context():</span><br><span class="line">        db.create_all()</span><br><span class="line"></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">create_admin</span>():</span><br><span class="line">    <span class="keyword">with</span> app.app_context():</span><br><span class="line">        admin = User(username=<span class="string">&quot;admin&quot;</span>)</span><br><span class="line">        db.session.add(admin)</span><br><span class="line">        db.session.commit()</span><br></pre></td></tr></table></figure>
+
+<h5 id="12，上下文最佳实践"><a href="#12，上下文最佳实践" class="headerlink" title="12，上下文最佳实践"></a>12，上下文最佳实践</h5><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># ============ 1. 用 g 存储请求级缓存 ============</span></span><br><span class="line"><span class="comment"># 避免重复计算、重复查询</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">get_current_user</span>():</span><br><span class="line">    <span class="keyword">if</span> <span class="string">&quot;user&quot;</span> <span class="keyword">not</span> <span class="keyword">in</span> g:</span><br><span class="line">        token = request.headers.get(<span class="string">&quot;Authorization&quot;</span>)</span><br><span class="line">        g.user = User.query.filter_by(token=token).first()</span><br><span class="line">    <span class="keyword">return</span> g.user</span><br><span class="line"></span><br><span class="line"><span class="comment"># ============ 2. 在 teardown_appcontext 中清理资源 ============</span></span><br><span class="line"></span><br><span class="line"><span class="meta">@app.teardown_appcontext</span></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">cleanup</span>(<span class="params">exception</span>):</span><br><span class="line">    db = g.pop(<span class="string">&quot;db&quot;</span>, <span class="literal">None</span>)</span><br><span class="line">    <span class="keyword">if</span> db <span class="keyword">is</span> <span class="keyword">not</span> <span class="literal">None</span>:</span><br><span class="line">        db.close()</span><br><span class="line"></span><br><span class="line"><span class="comment"># ============ 3. 延迟导入避免循环依赖 ============</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># ✅ 在函数内导入需要上下文的对象</span></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">helper</span>():</span><br><span class="line">    <span class="keyword">from</span> flask <span class="keyword">import</span> current_app</span><br><span class="line">    <span class="keyword">return</span> current_app.config[<span class="string">&quot;KEY&quot;</span>]</span><br><span class="line"></span><br><span class="line"><span class="comment"># ============ 4. 不要跨请求持有 g 的引用 ============</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># ❌ 错误：将 g 的引用保存到外部变量</span></span><br><span class="line"><span class="comment"># saved_g = g   # 下一次请求时这个引用已失效</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># ============ 5. 测试时正确设置上下文 ============</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> pytest</span><br><span class="line"></span><br><span class="line"><span class="meta">@pytest.fixture</span></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">app</span>():</span><br><span class="line">    app = create_app(<span class="string">&quot;testing&quot;</span>)</span><br><span class="line">    <span class="keyword">with</span> app.app_context():</span><br><span class="line">        db.create_all()</span><br><span class="line">        <span class="keyword">yield</span> app</span><br><span class="line">        db.drop_all()</span><br><span class="line"></span><br><span class="line"><span class="meta">@pytest.fixture</span></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">client</span>(<span class="params">app</span>):</span><br><span class="line">    <span class="keyword">return</span> app.test_client()</span><br></pre></td></tr></table></figure>
+
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/blog/tags/flask/" rel="tag"># flask</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/blog/2023/08/01/flask/flask%E6%96%87%E6%A1%A3/" rel="prev" title="flask文档">
+      <i class="fa fa-chevron-left"></i> flask文档
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/blog/2023/08/23/leetcode/leetcode%E5%88%B7%E9%A2%98-%E6%95%B0%E7%BB%84/" rel="next" title="leetcode刷题-数组">
+      leetcode刷题-数组 <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-5"><a class="nav-link" href="#1%EF%BC%8CFlask-%E4%B8%8A%E4%B8%8B%E6%96%87%E6%A6%82%E8%BF%B0"><span class="nav-number">1.</span> <span class="nav-text">1，Flask 上下文概述</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#2%EF%BC%8C%E8%AF%B7%E6%B1%82%E4%B8%8A%E4%B8%8B%E6%96%87%EF%BC%88Request-Context%EF%BC%89"><span class="nav-number">2.</span> <span class="nav-text">2，请求上下文（Request Context）</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#3%EF%BC%8C%E5%BA%94%E7%94%A8%E4%B8%8A%E4%B8%8B%E6%96%87%EF%BC%88Application-Context%EF%BC%89"><span class="nav-number">3.</span> <span class="nav-text">3，应用上下文（Application Context）</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#4%EF%BC%8Cg-%E5%AF%B9%E8%B1%A1%E8%AF%A6%E8%A7%A3"><span class="nav-number">4.</span> <span class="nav-text">4，g 对象详解</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#5%EF%BC%8C%E4%B8%8A%E4%B8%8B%E6%96%87%E7%9A%84%E5%BA%95%E5%B1%82%E6%9C%BA%E5%88%B6"><span class="nav-number">5.</span> <span class="nav-text">5，上下文的底层机制</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#6%EF%BC%8C%E4%B8%8A%E4%B8%8B%E6%96%87%E7%94%9F%E5%91%BD%E5%91%A8%E6%9C%9F"><span class="nav-number">6.</span> <span class="nav-text">6，上下文生命周期</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#7%EF%BC%8C%E6%89%8B%E5%8A%A8%E6%8E%A8%E9%80%81%E4%B8%8A%E4%B8%8B%E6%96%87"><span class="nav-number">7.</span> <span class="nav-text">7，手动推送上下文</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#8%EF%BC%8C%E9%92%A9%E5%AD%90%E4%B8%AD%E7%9A%84%E4%B8%8A%E4%B8%8B%E6%96%87"><span class="nav-number">8.</span> <span class="nav-text">8，钩子中的上下文</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#9%EF%BC%8C%E5%A4%9A%E7%BA%BF%E7%A8%8B%E4%B8%8E%E4%B8%8A%E4%B8%8B%E6%96%87%E9%9A%94%E7%A6%BB"><span class="nav-number">9.</span> <span class="nav-text">9，多线程与上下文隔离</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#10%EF%BC%8C%E5%B8%B8%E8%A7%81%E4%B8%8A%E4%B8%8B%E6%96%87%E9%94%99%E8%AF%AF%E4%B8%8E%E8%A7%A3%E5%86%B3"><span class="nav-number">10.</span> <span class="nav-text">10，常见上下文错误与解决</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#11%EF%BC%8CFlask-SQLAlchemy-%E4%B8%8E%E4%B8%8A%E4%B8%8B%E6%96%87"><span class="nav-number">11.</span> <span class="nav-text">11，Flask-SQLAlchemy 与上下文</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#12%EF%BC%8C%E4%B8%8A%E4%B8%8B%E6%96%87%E6%9C%80%E4%BD%B3%E5%AE%9E%E8%B7%B5"><span class="nav-number">12.</span> <span class="nav-text">12，上下文最佳实践</span></a></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">ruoxi</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/blog/archives/">
+        
+          <span class="site-state-item-count">80</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/blog/categories/">
+          
+        <span class="site-state-item-count">17</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/blog/tags/">
+          
+        <span class="site-state-item-count">47</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2026</span>
+  <span class="with-love">
+    <i class="fa fa-code"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">ruoxi</span>
+</div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/blog/lib/anime.min.js"></script>
+  <script src="/blog/lib/velocity/velocity.min.js"></script>
+  <script src="/blog/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/blog/js/utils.js"></script>
+
+<script src="/blog/js/motion.js"></script>
+
+
+<script src="/blog/js/schemes/pisces.js"></script>
+
+
+<script src="/blog/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+</body>
+</html>

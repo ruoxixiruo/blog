@@ -1,0 +1,1286 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Elasticsearch零基础入门教程</title>
+<style>
+body {
+    transition: margin-left .25s ease;
+    font-family: -apple-system, "Noto Sans SC", "Microsoft YaHei", sans-serif;
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 20px 24px 60px;
+    line-height: 1.8;
+    color: #333;
+    background: #fff;
+}
+h1 { border-bottom: 2px solid #eee; padding-bottom: 10px; color: #222; }
+h2 { color: #333; margin-top: 32px; }
+h3 { color: #555; }
+a { color: #0366d6; text-decoration: none; }
+a:hover { text-decoration: underline; }
+pre {
+    background: #f6f8fa;
+    border-radius: 6px;
+    padding: 16px;
+    overflow-x: auto;
+    font-size: 14px;
+    line-height: 1.45;
+}
+code {
+    background: #f0f2f4;
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-size: 14px;
+}
+pre code { background: none; padding: 0; }
+blockquote {
+    border-left: 4px solid #ddd;
+    margin: 0;
+    padding: 0 16px;
+    color: #666;
+}
+table {
+    border-collapse: collapse;
+    width: 100%;
+    margin: 16px 0;
+}
+th, td {
+    border: 1px solid #ddd;
+    padding: 8px 12px;
+    text-align: left;
+}
+th { background: #f6f8fa; }
+img { max-width: 100%; }
+.back-link {
+    margin-bottom: 20px;
+    display: block;
+    color: #666;
+}
+.back-link:hover { color: #0366d6; }
+
+.sidebar-toc {
+    transition: left .25s ease;
+    position: fixed;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    width: 220px;
+    background: #f8f9fa;
+    border-right: 1px solid #e9ecef;
+    padding: 20px 0;
+    overflow-y: auto;
+    font-size: 13px;
+    z-index: 100;
+}
+.sidebar-toc a {
+    display: block;
+    padding: 6px 16px;
+    color: #555;
+    text-decoration: none;
+    border-left: 3px solid transparent;
+    line-height: 1.5;
+}
+.sidebar-toc a:hover {
+    background: #e9ecef;
+    color: #0366d6;
+    border-left-color: #0366d6;
+}
+.sidebar-toc .toc-h2 { padding-left: 16px; font-weight: 500; }
+.sidebar-toc .toc-h3 { padding-left: 32px; font-size: 12px; }
+body { margin-left: 240px; }
+
+
+.copy-btn {
+    position: absolute; top: 6px; right: 6px;
+    background: #e9ecef; border: none;
+    border-radius: 4px; padding: 3px 10px;
+    font-size: 12px; color: #555; cursor: pointer;
+    opacity: 0; transition: opacity 0.2s;
+    z-index: 1;
+}
+pre:hover .copy-btn { opacity: 1; }
+.copy-btn:hover { background: #d0d7de; }
+.copy-btn.copied { opacity: 1; background: #2da44e; color: #fff; }
+.copy-btn{position:absolute;top:6px;right:6px;background:#e9ecef;border:none;border-radius:4px;padding:3px 10px;font-size:12px;color:#555;cursor:pointer;opacity:0;transition:opacity .2s;z-index:1}pre:hover .copy-btn{opacity:1}.copy-btn:hover{background:#d0d7de}.copy-btn.copied{opacity:1;background:#2da44e;color:#fff}
+.copy-btn{position:absolute;top:6px;right:6px;background:#e9ecef;border:none;border-radius:4px;padding:3px 10px;font-size:12px;color:#555;cursor:pointer;opacity:0;transition:opacity .2s;z-index:1}pre:hover .copy-btn{opacity:1}.copy-btn:hover{background:#d0d7de}.copy-btn.copied{opacity:1;background:#2da44e;color:#fff}
+.copy-btn{position:absolute;top:6px;right:6px;background:#e9ecef;border:none;border-radius:4px;padding:3px 10px;font-size:12px;color:#555;cursor:pointer;opacity:0;transition:opacity .2s;z-index:1}pre:hover .copy-btn{opacity:1}.copy-btn:hover{background:#d0d7de}.copy-btn.copied{opacity:1;background:#2da44e;color:#fff}
+.sidebar-toggle-btn {
+  position: fixed;
+  left: 220px;
+  top: 0;
+  width: 28px;
+  height: 40px;
+  background: #f8f9fa;
+  border: 1px solid #e9ecef;
+  border-left: none;
+  border-radius: 0 4px 4px 0;
+  cursor: pointer;
+  font-size: 16px;
+  color: #555;
+  z-index: 101;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: left .25s, background .2s;
+  padding: 0;
+  line-height: 1;
+}
+.sidebar-toggle-btn:hover { background: #e9ecef; color: #0366d6; }
+.sidebar-collapsed .sidebar-toc { left: -220px; }
+.sidebar-collapsed .sidebar-toggle-btn { left: 0; }
+.sidebar-collapsed body, body.sidebar-collapsed { margin-left: 28px; }
+.sidebar-overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,.3);
+  z-index: 99;
+}
+@media (max-width: 768px) {
+  .sidebar-collapsed .sidebar-overlay { display: none; }
+  .sidebar-toc { left: -220px; }
+  .sidebar-toggle-btn { left: 0; }
+  body { margin-left: 28px; }
+}
+
+</style>
+</head>
+</head>
+<body>
+<nav class="sidebar-toc"><a class="toc-h2" href="#1-es">1. 先搞懂：ES 到底是个啥？</a><a class="toc-h3" href="#_2">用大白话说</a><a class="toc-h3" href="#_3">一张表看懂区别</a><a class="toc-h3" href="#es">ES 到底解决了什么问题？</a><a class="toc-h3" href="#es-elk">ELK 技术栈</a><a class="toc-h2" href="#2">2. 核心概念 — 用大白话讲透</a><a class="toc-h3" href="#es_1">图书馆比喻</a><a class="toc-h3" href="#_4">对照公式</a><a class="toc-h3" href="#es_2">倒排索引 — ES 快的终极秘密</a><a class="toc-h2" href="#25">2.5. 架构图解（面试画图题的送分项）</a><a class="toc-h3" href="#251-es">2.5.1 集群架构</a><a class="toc-h3" href="#252">2.5.2 索引→分片→段</a><a class="toc-h3" href="#253-q9">2.5.3 写入全流程</a><a class="toc-h3" href="#254-q10">2.5.4 搜索全流程</a><a class="toc-h3" href="#255-es">2.5.5 段合并</a><a class="toc-h3" href="#256">2.5.6 核心数据结构全貌</a><a class="toc-h2" href="#3-10-es">3. 10 分钟装好 ES</a><a class="toc-h3" href="#docker30">Docker（推荐）</a><a class="toc-h3" href="#windows">Windows 直接装</a><a class="toc-h3" href="#kibana">装 Kibana</a><a class="toc-h2" href="#4-crud">4. 动手撸 CRUD</a><a class="toc-h3" href="#restful-api">RESTful API 格式速记</a><a class="toc-h3" href="#_5">实操：商品管理</a><a class="toc-h2" href="#5-es">5. 搜索：ES 的灵魂玩法</a><a class="toc-h3" href="#51">5.1 最简单的搜索</a><a class="toc-h3" href="#52-match-vs-term">5.2 match vs term</a><a class="toc-h3" href="#53-sql-where">5.3 布尔查询</a><a class="toc-h3" href="#54">5.4 分页 & 排序</a><a class="toc-h2" href="#6">6. 聚合：一秒钟出报表</a><a class="toc-h3" href="#61">6.1 桶聚合</a><a class="toc-h3" href="#62">6.2 指标聚合</a><a class="toc-h3" href="#63">6.3 嵌套聚合</a><a class="toc-h3" href="#64">6.4 聚合类型速查</a><a class="toc-h2" href="#7-20">7. 面试高频 20 问</a><a class="toc-h3" href="#_6">基础概念</a><a class="toc-h3" href="#_7">集群 & 架构</a><a class="toc-h3" href="#_8">写入 & 读取</a><a class="toc-h3" href="#_9">进阶</a><a class="toc-h2" href="#8-es">8. 面试官问"你在项目里怎么用 ES"</a><a class="toc-h3" href="#_10">应届生版</a><a class="toc-h3" href="#_11">有实习/工作版</a><a class="toc-h3" href="#_12">面试官可能追问</a><a class="toc-h2" href="#a-rest-api">附录A：常用 REST API 速查</a><a class="toc-h2" href="#bik">附录B：中文分词配置（ik）</a><a class="toc-h2" href="#c">附录C：推荐学习路径</a><a class="toc-h2" href="#d">附录D：进阶架构图</a><a class="toc-h3" href="#d1-jvm-lucene">D.1 节点内部结构</a><a class="toc-h3" href="#d2">D.2 数据目录布局</a><a class="toc-h3" href="#d3-ilm">D.3 ILM 索引生命周期</a><a class="toc-h3" href="#d4-master">D.4 集群状态 & 元数据</a></nav>
+<button class="sidebar-toggle-btn" onclick="toggleSidebar()" title="切换侧栏">☰</button>
+
+<div class="sidebar-overlay" onclick="toggleSidebar()"></div>
+
+<script>
+function toggleSidebar() {
+  document.body.classList.toggle('sidebar-collapsed');
+  try { localStorage.setItem('sidebarCollapsed', document.body.classList.contains('sidebar-collapsed')); } catch(e) {}
+}
+(function() {
+  try {
+    if (localStorage.getItem('sidebarCollapsed') === 'true') {
+      document.body.classList.add('sidebar-collapsed');
+    }
+  } catch(e) {}
+})();
+</script>
+<a class="back-link" href="/blog/2026/05/16/面试题/面试题/">← 返回面试题目录</a>
+<h1 id=page-title>Elasticsearch 零基础入门教程</h1>
+<blockquote>
+<p>像查字典一样搜数据 —— 从零到面试通关，这一篇就够了</p>
+<p>学习日期：2026-06-14 | 目标：看完就能在面试中聊清楚 ES，哪怕你之前一行代码都没写过</p>
+</blockquote>
+<hr />
+
+<h2 id="1-es">1. 先搞懂：ES 到底是个啥？</h2>
+<h3 id="_2">用大白话说</h3>
+<p>在淘宝搜"华为手机"，一两秒就出来一堆结果，还能按价格排序、按品牌筛选。后台如果用 MySQL 的 <code>LIKE '%华为手机%'</code>，数据一大就卡成狗——因为那是全表扫描。</p>
+<p><strong>ES 就像一本超级字典</strong>。传统数据库是"先告诉你第几页有什么内容"，ES 反过来——"告诉你哪个词出现在第几页"。搜起来直接翻字典，不用翻遍整本书。</p>
+<h3 id="_3">一张表看懂区别</h3>
+<table>
+<thead>
+<tr>
+<th>场景</th>
+<th>MySQL 的做法</th>
+<th>ES 的做法</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>搜商品</td>
+<td><code>SELECT * FROM goods WHERE name LIKE '%手机%'</code></td>
+<td><code>GET goods/_search</code> → 毫秒级返回 + 按相关性打分</td>
+</tr>
+<tr>
+<td>统计分类</td>
+<td><code>SELECT category, COUNT(*) FROM goods GROUP BY category</code></td>
+<td>一个聚合查询，瞬间出结果</td>
+</tr>
+<tr>
+<td>分词搜索</td>
+<td>做不到（只能前缀匹配）</td>
+<td>"华为手机" → 自动拆成 "华为" "手机" 两个词搜</td>
+</tr>
+</tbody>
+</table>
+<h3 id="es">ES 到底解决了什么问题？</h3>
+<pre><code>传统数据库搜东西：
+  用户搜 "苹果手机" → LIKE '%苹果手机%' → 逐行扫描 → 慢死
+
+ES 搜东西：
+  存的时候：苹果、手机、pro、256GB（提前拆好词）
+  搜的时候：苹果、手机（也拆词）
+  交叉匹配 → 毫秒级返回 → 还给你相关性打分
+</code></pre>
+<h3 id="es-elk">ELK 技术栈</h3>
+<pre><code>ELK 三件套：
+  Elasticsearch → 存数据 + 搜数据  ← 你学这个
+  Logstash      → 采集数据 + 清洗数据
+  Kibana        → 可视化图表 + 控制台
+</code></pre>
+<blockquote>
+<p>面试第一句话："ES 是一个基于 Lucene 的分布式搜索和分析引擎，核心是倒排索引，搜索速度比传统数据库快几个数量级。"</p>
+</blockquote>
+<hr />
+<h2 id="2">2. 核心概念 — 用大白话讲透</h2>
+<h3 id="es_1">图书馆比喻</h3>
+<table>
+<thead>
+<tr>
+<th>图书馆里的东西</th>
+<th>ES 里叫啥</th>
+<th>什么意思</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>整个图书馆系统</td>
+<td><strong>Cluster（集群）</strong></td>
+<td>一堆机器组成的 ES 集群</td>
+</tr>
+<tr>
+<td>一个书柜</td>
+<td><strong>Node（节点）</strong></td>
+<td>集群里的一台机器</td>
+</tr>
+<tr>
+<td>"科技类"那个书架</td>
+<td><strong>Index（索引）</strong></td>
+<td>一类数据的集合，类似 MySQL 的 Table</td>
+</tr>
+<tr>
+<td>一本书</td>
+<td><strong>Document（文档）</strong></td>
+<td>一条数据，类似 MySQL 里的一行</td>
+</tr>
+<tr>
+<td>一本厚书拆成几册放不同书柜</td>
+<td><strong>Shard（分片）</strong></td>
+<td>索引太大，拆成多份散到不同机器上</td>
+</tr>
+<tr>
+<td>每册再复印一份防丢</td>
+<td><strong>Replica（副本）</strong></td>
+<td>一台机器挂了，副本顶上，不影响用</td>
+</tr>
+</tbody>
+</table>
+<h3 id="_4">对照公式</h3>
+<pre><code>MySQL:   Database → Table    → Row     → Column
+ES:      Index    → (Type已废弃) → Document → Field
+
+面试场景直接记：
+  ES Index    ≈  MySQL Table
+  ES Document ≈  MySQL Row
+  ES Field    ≈  MySQL Column
+</code></pre>
+<h3 id="es_2">倒排索引 — ES 快的终极秘密</h3>
+<p>传统数据库像一本正常的书——目录说"第1页讲了苹果，第5页讲了手机"。你要搜"苹果手机"，得把所有页翻一遍。ES 的倒排索引则像一本反向字典：</p>
+<pre><code>正排索引（传统DB）:
+  第1页  → 苹果
+  第5页  → 手机
+  第10页 → 苹果、手机
+
+倒排索引（ES核心）:
+  苹果 → [第1页, 第10页]
+  手机 → [第5页, 第10页]
+
+搜 "苹果手机" → 拆成 "苹果" 和 "手机"
+  "苹果"的文档: [1, 10]
+  "手机"的文档: [5, 10]
+  取交集 → 第10页命中！
+  时间: O(1) 查词典，不用扫全表
+</code></pre>
+<pre><code>
+ASCII 流程图 — 倒排索引结构：
+
+  原始文档（3条）:
+  ┌──────────────────────────────────────────────────────────┐
+  │ Doc1: "华为 Mate 60 Pro 麒麟芯片"                       │
+  │ Doc2: "iPhone 15 Pro Max A17芯片"                       │
+  │ Doc3: "华为 P60 Pro 卫星通话"                            │
+  └──────────────────────────────────────────────────────────┘
+                              │
+                              ▼
+  ┌────────────────────── 分词 & 建立倒排 ──────────────────────┐
+  │                                                             │
+  │  华为 ──→ [Doc1, Doc3]        麒麟 ──→ [Doc1]              │
+  │  Mate ──→ [Doc1]              芯片 ──→ [Doc1, Doc2]        │
+  │  60   ──→ [Doc1]              Pro  ──→ [Doc1, Doc2, Doc3]  │
+  │  Pro  ──→ [Doc1, Doc2, Doc3]  Max  ──→ [Doc2]              │
+  │  iPhone──→ [Doc2]             P60  ──→ [Doc3]              │
+  │  15   ──→ [Doc2]              卫星 ──→ [Doc3]              │
+  │  A17  ──→ [Doc2]              通话 ──→ [Doc3]              │
+  └─────────────────────────────────────────────────────────────┘
+                              │
+                              ▼
+  搜索 "华为 Pro":
+    华为 → [Doc1, Doc3]       ←── O(1) 词典查找
+    Pro  → [Doc1, Doc2, Doc3] ←── O(1) 词典查找
+    取交集: [Doc1, Doc3]       ←── 内存 bitmap 交集，极快
+    返回 Doc1、Doc3，按相关性打分排序
+</code></pre>
+<blockquote>
+<p>面试金句："ES 的核心是倒排索引，它把文档中的每个词和文档 ID 建立映射关系。搜索时直接查词典就能定位到文档，时间复杂度 O(1)，不用扫全表，这就是 ES 快的根本原因。"</p>
+</blockquote>
+<hr />
+<h2 id="25">2.5. 架构图解（面试画图题的送分项）</h2>
+<blockquote>
+<p>面试官让你"画一下 ES 的架构"，下面这些 ASCII 图直接照着画。</p>
+</blockquote>
+<h3 id="251-es">2.5.1 集群架构全景图</h3>
+<pre><code>
+ASCII 流程图 — ES 集群架构：
+
+                         ┌──────────────┐
+                         │   客户端 /    │
+                         │  负载均衡     │
+                         └──────┬───────┘
+                                │
+          ┌─────────────────────┼─────────────────────┐
+          │                     │                     │
+          ▼                     ▼                     ▼
+  ┌───────────────┐   ┌───────────────┐   ┌───────────────┐
+  │  协调节点 1    │   │  协调节点 2    │   │  协调节点 3    │
+  │ (Coordinating)│   │ (Coordinating)│   │ (Coordinating)│
+  └───────┬───────┘   └───────┬───────┘   └───────┬───────┘
+          │                   │                   │
+          └───────────────────┼───────────────────┘
+                              │
+         ╔════════════════════╪════════════════════╗
+         ║              ES 集群内部                 ║
+         ╠════════════════════╪════════════════════╣
+         ║                    │                    ║
+         ║  ┌─────────────────┴─────────────────┐ ║
+         ║  │         Master 节点组              │ ║
+         ║  │   Master-Active ★  Master-Standby │ ║
+         ║  │   集群管理 / 分片分配 / 状态维护    │ ║
+         ║  └───────────────────────────────────┘ ║
+         ║                    │                    ║
+         ║  ┌─────────────────┴─────────────────┐ ║
+         ║  │          数据节点组                 │ ║
+         ║  │                                     │ ║
+         ║  │  ┌─ Hot Tier (SSD) ─────────────┐  │ ║
+         ║  │  │ Node1: P0,R2  Node2: P1,R0   │  │ ║
+         ║  │  │ Node3: P2,R1  (活跃读写)      │  │ ║
+         ║  │  └──────────────────────────────┘  │ ║
+         ║  │  ┌─ Warm Tier (HDD) ────────────┐  │ ║
+         ║  │  │ Node4: P3     Node5: P4       │  │ ║
+         ║  │  │ (只读, 减副本)                  │  │ ║
+         ║  │  └──────────────────────────────┘  │ ║
+         ║  │  ┌─ Cold Tier (Archive) ─────────┐  │ ║
+         ║  │  │ Node6: 可搜索快照, 部分挂载    │  │ ║
+         ║  │  └──────────────────────────────┘  │ ║
+         ║  └───────────────────────────────────┘ ║
+         ║                    │                    ║
+         ║  ┌─────────────────┴─────────────────┐ ║
+         ║  │         摄取节点 (Ingest)           │ ║
+         ║  │   数据预处理 / Pipeline 转换        │ ║
+         ║  └───────────────────────────────────┘ ║
+         ╚══════════════════════════════════════════╝
+
+  关键点:
+  - 协调节点: 路由请求到目标分片，聚合结果返回客户端
+  - Master: 管理集群状态（分片路由表/索引配置/模板），不处理数据读写
+  - 数据节点: 存数据 + 执行搜索/聚合，可做冷热分层（SSD→HDD→Archive）
+  - Zen Discovery: 节点自动发现，Master 选举（节点ID最小者当选）
+</code></pre>
+<h3 id="252">2.5.2 索引 → 分片 → 段（数据到底怎么存的）</h3>
+<pre><code>
+ASCII 流程图 — 索引/分片/段层次结构：
+
+  Index: goods (3 Primary Shards + 1 Replica each)
+  │
+  ├─ Primary Shard 0 ──→ Node 1            Replica Shard 0 ──→ Node 3
+  ├─ Primary Shard 1 ──→ Node 2            Replica Shard 1 ──→ Node 1
+  └─ Primary Shard 2 ──→ Node 3            Replica Shard 2 ──→ Node 2
+
+  ┌─ 单个 Shard 内部结构 ─────────────────────────────────────┐
+  │                                                            │
+  │  Translog (WAL, 防丢)                                       │
+  │  ┌──────────────────────────────────────────────────┐     │
+  │  │  op1: index doc1  op2: index doc2  op3: del doc5  │     │
+  │  └──────────────────────────────────────────────────┘     │
+  │                                                            │
+  │  Segments (不可变!)                                        │
+  │  ┌──────────┐ ┌──────────┐ ┌──────────┐ ┌──────────┐    │
+  │  │Segment_0 │ │Segment_1 │ │Segment_2 │ │Write Seg │    │
+  │  │(已提交)  │ │(已提交)  │ │(已提交)  │ │(内存→磁盘)│    │
+  │  │          │ │          │ │          │ │ refresh/s│    │
+  │  │ 倒排索引  │ │ 倒排索引  │ │ 倒排索引  │ │          │    │
+  │  │ DocVals  │ │ DocVals  │ │ DocVals  │ │ 每1s refresh│  │
+  │  │ _source  │ │ _source  │ │ _source  │ │ 生成新段   │    │
+  │  │ 删除标记  │ │ 删除标记  │ │ 删除标记  │ │          │    │
+  │  └──────────┘ └──────────┘ └──────────┘ └──────────┘    │
+  │                                                            │
+  │  Commit Point (segments_N 文件)                             │
+  │  └─ 记录哪些 Segment 已提交，flush 时更新                   │
+  └────────────────────────────────────────────────────────────┘
+
+  数据流:
+  write → Translog(先落盘) → 内存Buffer → refresh(1s) → 新Segment
+        → flush(30min/512MB) → fsync Segment → 截断Translog
+</code></pre>
+<h3 id="253-q9">2.5.3 写入全流程（面试必问 Q9 图解）</h3>
+<pre><code>
+ASCII 流程图 — 文档写入全流程：
+
+  客户端          协调节点          路由计算           主分片            副本分片
+    │                │                │                 │                 │
+    │  POST /goods   │                │                 │                 │
+    │───────────────→│                │                 │                 │
+    │                │                │                 │                 │
+    │                │ hash(_id)%3    │                 │                 │
+    │                │───────────────→│                 │                 │
+    │                │ ← Shard2,Node3 │                 │                 │
+    │                │                │                 │                 │
+    │                │ 转发请求 ──────────────────────→│                 │
+    │                │                │                 │                 │
+    │                │                │        ① 写Translog(先落盘!)      │
+    │                │                │        ② 写内存Buffer              │
+    │                │                │        ③ IndexWriter.addDocument()│
+    │                │                │        ④ 每1s refresh→新Segment   │
+    │                │                │        ⑤ 并行转发给副本 ─────────→│
+    │                │                │                 │ 副本执行同样流程 │
+    │                │                │                 │←── 副本ACK ────│
+    │                │  ←── ⑥返回成功 ──────────────────│                 │
+    │ ←── ⑦201 OK ──│                │                 │                 │
+    │                │                │                 │                 │
+    │                │    === 异步 Flush (30min/512MB触发) ===            │
+    │                │                │        ⑧ fsync Segments 到磁盘    │
+    │                │                │        ⑨ 截断 Translog            │
+    │                │                │                 │                 │
+
+  记忆口诀: 路由算分片 → 写Translog → 写内存 → 发副本 → 返回成功
+           → 等1秒可搜索 → 等30分落磁盘
+</code></pre>
+<h3 id="254-q10">2.5.4 搜索全流程（面试必问 Q10 图解）</h3>
+<pre><code>
+ASCII 流程图 — 搜索两阶段（Query Then Fetch）：
+
+  客户端               协调节点              各分片(Lucene)
+    │                     │                      │
+    │  GET /goods/_search │                      │
+    │────────────────────→│                      │
+    │                     │                      │
+    │  ╔════ Phase 1: Query（查ID+打分）══════╗  │
+    │  ║                 │                      │  ║
+    │  ║                 │  广播查询到所有分片──────→║
+    │  ║                 │                      │  ║
+    │  ║                 │          查倒排索引 + 打分│
+    │  ║                 │          返回 TopN ID   │  ║
+    │  ║                 │←─── 各分片返回 ─────────║
+    │  ╚══════════════════════════════════════════╝  │
+    │                     │                      │
+    │  ╔════ Phase 2: Fetch（捞完整文档）════════╗  │
+    │  ║                 │                      │  ║
+    │  ║    合并排序, 确定全局 TopN                │  ║
+    │  ║                 │                      │  ║
+    │  ║    按ID去对应分片捞 _source ──────────────→║
+    │  ║                 │←─── 返回完整JSON ──────║
+    │  ╚══════════════════════════════════════════╝  │
+    │                     │                      │
+    │  (可选) Phase 3: Aggregation 聚合            │
+    │    广播聚合请求 → 各分片局部聚合 → 协调节点Reduce│
+    │                     │                      │
+    │←── hits+agg ───────│                      │
+    │                     │                      │
+
+  面试话术: "搜索分两阶段——Query Phase 协调节点广播到所有分片，
+  每个分片用倒排索引查 Top N 返回 ID+分数；Fetch Phase 合并排序后
+  去对应分片捞完整 _source。有聚合时还有第三阶段 Aggregation Phase。"
+</code></pre>
+<h3 id="255-es">2.5.5 段合并（为什么 ES 不会无限涨文件）</h3>
+<pre><code>
+ASCII 流程图 — 段合并 (TieredMergePolicy):
+
+  每次 refresh 生成小 Segment:
+  ┌──────┐ ┌──────┐ ┌──────┐ ┌──────┐ ┌──────┐
+  │seg_1 │ │seg_2 │ │seg_3 │ │seg_4 │ │seg_5 │
+  │10doc │ │15doc │ │12doc │ │18doc │ │20doc │
+  └──┬───┘ └──┬───┘ └──┬───┘ └──┬───┘ └──┬───┘
+     │        │        │        │        │
+     └───┬────┘        │        └───┬────┘
+         │             │            │
+         ▼             │            ▼
+   ┌──────────┐        │     ┌──────────┐
+   │merged_1  │        │     │merged_2  │
+   │55 docs   │        │     │50 docs   │
+   │(物理删除)│        │     │(物理删除)│
+   └────┬─────┘        │     └────┬─────┘
+        │              │          │
+        └──────┬───────┘          │
+               │                  │
+               ▼                  │
+         ┌──────────┐             │
+         │merged_L  │←────────────┘
+         │105 docs  │
+         │(最终大段)│
+         └──────────┘
+
+  一句话: 每1s的refresh产生小段，后台TieredMergePolicy自动
+  把N个小段合并成大段，同时物理删除已标记(deleted)的文档。
+</code></pre>
+<h3 id="256">2.5.6 核心数据结构全貌</h3>
+<pre><code>
+ASCII 流程图 — ES 核心数据结构分层：
+
+  ┌── 逻辑层 (你操作的) ──────────────────────────────────────┐
+  │                                                           │
+  │  Cluster ──→ Node ──→ Index ──→ Alias ──→ Document       │
+  │  (集群)      (节点)    (索引)     (别名)     (文档)        │
+  └──────────────────────────┬────────────────────────────────┘
+                             │
+                             ▼
+  ┌── 物理层 (ES内部怎么存) ──────────────────────────────────┐
+  │                                                           │
+  │  Index ──→ Primary Shard ──→ Segment (不可变!)             │
+  │       │                    │                              │
+  │       ├──→ Replica Shard   ├──→ 倒排索引 (搜索)           │
+  │       └──→ Translog (WAL)  ├──→ Doc Values (排序/聚合)    │
+  │                            ├──→ Stored Fields (_source)   │
+  │                            ├──→ BKD Tree (数值/日期范围)   │
+  │                            └──→ HNSW Graph (向量/kNN)     │
+  └───────────────────────────────────────────────────────────┘
+
+  终极口诀:  逻辑上 集群→节点→索引→文档
+            物理上 索引→分片→段→倒排+DocValues
+            倒排管搜索，DocValues管排序聚合
+</code></pre>
+<hr />
+<h2 id="3-10-es">3. 10 分钟装好 ES，跑起来！</h2>
+<h3 id="docker30">Docker（推荐，30 秒搞定）</h3>
+<pre><code class="language-bash"># 单节点，适合学习
+docker run -d \
+  --name elasticsearch \
+  -p 9200:9200 \
+  -p 9300:9300 \
+  -e "discovery.type=single-node" \
+  -e "xpack.security.enabled=false" \
+  elasticsearch:8.12.0
+
+# 验证
+curl http://localhost:9200
+</code></pre>
+<h3 id="windows">Windows 直接装</h3>
+<ol>
+<li>去 <a href="https://www.elastic.co/downloads/elasticsearch">elastic.co/downloads/elasticsearch</a> 下载 ZIP</li>
+<li>解压，双击 <code>bin\elasticsearch.bat</code></li>
+<li>浏览器打开 <code>http://localhost:9200</code></li>
+</ol>
+<h3 id="kibana">装个 Kibana（可视化控制台，强烈推荐）</h3>
+<pre><code class="language-bash">docker run -d --name kibana -p 5601:5601 --link elasticsearch kibana:8.12.0
+# 打开 http://localhost:5601 → Dev Tools → 在里面敲命令
+</code></pre>
+<blockquote>
+<p>本文后续所有命令，你在 <strong>Kibana Dev Tools</strong> 或 <strong>Postman / curl</strong> 里都能跑。</p>
+</blockquote>
+<hr />
+<h2 id="4-crud">4. 动手撸 CRUD</h2>
+<h3 id="restful-api">RESTful API 格式速记</h3>
+<pre><code>请求格式:  &lt;HTTP方法&gt; /&lt;索引名&gt;/_doc/&lt;文档ID&gt;
+
+  POST  /goods/_doc       → 新增（自动生成 ID）
+  PUT   /goods/_doc/1     → 新增/覆盖（指定 ID）
+  GET   /goods/_doc/1     → 查询一条
+  POST  /goods/_update/1  → 更新
+  DELETE /goods/_doc/1    → 删除
+  DELETE /goods           → 删除整个索引
+</code></pre>
+<h3 id="_5">实操：商品管理</h3>
+<pre><code class="language-json">// 1. 新增一个商品（POST，自动 ID）
+POST /goods/_doc
+{
+  "title": "华为 Mate 60 Pro",
+  "price": 6999,
+  "brand": "华为",
+  "category": "手机",
+  "description": "麒麟芯片 卫星通话 超强影像",
+  "tags": ["5G", "旗舰", "拍照"],
+  "stock": 100,
+  "created_at": "2024-01-15"
+}
+
+// 返回: { "_id": "abc123", "result": "created" }
+
+// 2. 指定 ID 新增
+PUT /goods/_doc/1
+{
+  "title": "iPhone 15 Pro Max",
+  "price": 9999,
+  "brand": "Apple",
+  "category": "手机",
+  "description": "A17 Pro 芯片 钛金属边框",
+  "tags": ["5G", "旗舰"],
+  "stock": 50,
+  "created_at": "2024-01-15"
+}
+
+// 3. 查一条
+GET /goods/_doc/1
+
+// 4. 部分更新
+POST /goods/_update/1
+{
+  "doc": {
+    "price": 8999,
+    "stock": 30
+  }
+}
+
+// 5. 删除一条
+DELETE /goods/_doc/1
+
+// 6. 检查是否存在
+HEAD /goods/_doc/1
+// 200 = 存在, 404 = 不存在
+
+// 7. 批量导入（bulk）
+POST /_bulk
+{"index": {"_index": "goods", "_id": "1"}}
+{"title": "iPhone 15", "price": 7999, "brand": "Apple"}
+{"index": {"_index": "goods", "_id": "2"}}
+{"title": "Mate 60 Pro", "price": 6999, "brand": "华为"}
+{"index": {"_index": "goods", "_id": "3"}}
+{"title": "小米 14 Pro", "price": 4999, "brand": "小米"}
+</code></pre>
+<blockquote>
+<p>注意：bulk 的 JSON 每行一个，不能格式化换行，最后要有一个空行。</p>
+</blockquote>
+<hr />
+<h2 id="5-es">5. 搜索：ES 的灵魂玩法</h2>
+<h3 id="51">5.1 最简单的搜索</h3>
+<pre><code class="language-json">// 搜索所有
+GET /goods/_search
+
+// 搜名字里带"手机"的
+GET /goods/_search
+{
+  "query": {
+    "match": {
+      "title": "手机"
+    }
+  }
+}
+</code></pre>
+<h3 id="52-match-vs-term">5.2 match vs term（面试必问！记住这个就不怕了）</h3>
+<pre><code class="language-json">// match：会先分词再搜索（analyzed）
+// 搜 "华为手机" → 拆成 "华为" 和 "手机" → OR 搜索
+GET /goods/_search
+{
+  "query": {
+    "match": {
+      "title": "华为手机"
+    }
+  }
+}
+
+// match_phrase：必须连续匹配，顺序不变
+// "华为手机" 必须紧挨着出现
+GET /goods/_search
+{
+  "query": {
+    "match_phrase": {
+      "title": "华为手机"
+    }
+  }
+}
+
+// term：精确匹配，不分词
+// 用于 keyword 类型字段，如品牌名 "华为" 完全一致
+GET /goods/_search
+{
+  "query": {
+    "term": {
+      "brand.keyword": "华为"
+    }
+  }
+}
+
+// terms：多值匹配，相当于 SQL 的 IN
+GET /goods/_search
+{
+  "query": {
+    "terms": {
+      "brand.keyword": ["华为", "Apple"]
+    }
+  }
+}
+</code></pre>
+<blockquote>
+<p>一句话记住：<code>match</code> 会分词，搜"华为手机"能匹配到"华为 Mate 60 手机"。<code>term</code> 不分词，必须完全一样。<code>keyword</code> 类型的 field 不会分词，存的就是原始值。</p>
+</blockquote>
+<h3 id="53-sql-where">5.3 布尔查询（组合条件，相当于 SQL 的 WHERE）</h3>
+<pre><code class="language-json">// 价格在 5000-8000 之间，品牌是华为或Apple，排除小米
+GET /goods/_search
+{
+  "query": {
+    "bool": {
+      "must": [                    // 必须满足（AND）
+        { "range": { "price": { "gte": 5000, "lte": 8000 } } }
+      ],
+      "should": [                  // 应该满足（OR，加分）
+        { "term": { "brand.keyword": "华为" } },
+        { "term": { "brand.keyword": "Apple" } }
+      ],
+      "must_not": [                // 必须不满足（NOT）
+        { "term": { "brand.keyword": "小米" } }
+      ],
+      "filter": [                  // 过滤（不参与打分，更快）
+        { "term": { "category.keyword": "手机" } }
+      ]
+    }
+  }
+}
+</code></pre>
+<table>
+<thead>
+<tr>
+<th>子句</th>
+<th>含义</th>
+<th>影响打分</th>
+<th>缓存</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>must</code></td>
+<td>必须匹配（AND）</td>
+<td>影响</td>
+<td>否</td>
+</tr>
+<tr>
+<td><code>should</code></td>
+<td>应该匹配（OR）</td>
+<td>影响</td>
+<td>否</td>
+</tr>
+<tr>
+<td><code>must_not</code></td>
+<td>必须不匹配（NOT）</td>
+<td>不影响</td>
+<td>是</td>
+</tr>
+<tr>
+<td><code>filter</code></td>
+<td>精确过滤，不参与打分</td>
+<td>不影响</td>
+<td>自动缓存</td>
+</tr>
+</tbody>
+</table>
+<blockquote>
+<p>面试话术："filter 不参与相关性评分，ES 会缓存 filter 结果，所以对高频查询的性能更好。"</p>
+</blockquote>
+<h3 id="54">5.4 分页 & 排序</h3>
+<pre><code class="language-json">GET /goods/_search
+{
+  "query": { "match_all": {} },
+  "from": 0,              // 跳过前 N 条
+  "size": 20,             // 返回 N 条
+  "sort": [
+    { "price": "asc" },   // 按价格升序
+    { "created_at": "desc" }
+  ],
+  "_source": ["title", "price", "brand"]  // 只返回指定字段
+}
+</code></pre>
+<blockquote>
+<p>深分页问题：<code>from + size</code> 之和超过 10000 默认会报错。解决方案：<code>search_after</code> 或 <code>scroll</code> API。</p>
+</blockquote>
+<hr />
+<h2 id="6">6. 聚合：一秒钟出报表</h2>
+<p>聚合（Aggregation）相当于 SQL 的 <code>GROUP BY</code>，但强大得多 —— 可以一键分组 + 统计 + 排序 + 取 TOP N。</p>
+<h3 id="61">6.1 桶聚合（分组统计）</h3>
+<pre><code class="language-json">// 按品牌分组，统计每个品牌有多少商品
+GET /goods/_search
+{
+  "size": 0,                    // 不需要文档，只看统计结果
+  "aggs": {
+    "by_brand": {
+      "terms": {
+        "field": "brand.keyword",
+        "size": 10
+      }
+    }
+  }
+}
+
+// 等价 SQL:
+// SELECT brand, COUNT(*) FROM goods GROUP BY brand LIMIT 10;
+</code></pre>
+<h3 id="62">6.2 指标聚合（计算）</h3>
+<pre><code class="language-json">// 平均价格、最高价、最低价
+GET /goods/_search
+{
+  "size": 0,
+  "aggs": {
+    "avg_price": { "avg": { "field": "price" } },
+    "max_price": { "max": { "field": "price" } },
+    "min_price": { "min": { "field": "price" } },
+    "sum_stock": { "sum": { "field": "stock" } }
+  }
+}
+</code></pre>
+<h3 id="63">6.3 嵌套聚合（分组后计算）</h3>
+<pre><code class="language-json">// 每个品牌 → 平均价格 → 按平均价格排序
+GET /goods/_search
+{
+  "size": 0,
+  "aggs": {
+    "by_brand": {
+      "terms": {
+        "field": "brand.keyword",
+        "order": { "avg_price": "desc" }
+      },
+      "aggs": {
+        "avg_price": { "avg": { "field": "price" } },
+        "top_hits": {
+          "top_hits": { "_source": ["title"], "size": 3 }
+        }
+      }
+    }
+  }
+}
+
+// 等价 SQL:
+// SELECT brand, AVG(price) FROM goods GROUP BY brand ORDER BY AVG(price) DESC;
+// 同时还拿了每个品牌的前3个商品！
+</code></pre>
+<h3 id="64">6.4 聚合类型速查</h3>
+<table>
+<thead>
+<tr>
+<th>聚合类型</th>
+<th>用途</th>
+<th>例子</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>terms</code></td>
+<td>分组统计</td>
+<td>按品牌分组</td>
+</tr>
+<tr>
+<td><code>avg / sum / max / min</code></td>
+<td>数值计算</td>
+<td>平均价格</td>
+</tr>
+<tr>
+<td><code>range</code></td>
+<td>区间分组</td>
+<td>0-5000, 5000-10000</td>
+</tr>
+<tr>
+<td><code>date_histogram</code></td>
+<td>按时间间隔分组</td>
+<td>按天统计订单量</td>
+</tr>
+<tr>
+<td><code>top_hits</code></td>
+<td>取每组前 N 条</td>
+<td>每个品牌取 top3</td>
+</tr>
+<tr>
+<td><code>cardinality</code></td>
+<td>近似去重计数</td>
+<td>统计 UV</td>
+</tr>
+<tr>
+<td><code>percentiles</code></td>
+<td>百分位数</td>
+<td>P99 延迟</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="7-20">7. 面试高频 20 问（带答案，直接背）</h2>
+<h3 id="_6">基础概念</h3>
+<p><strong>Q1: ES 的索引和 MySQL 的索引有什么区别？</strong></p>
+<blockquote>
+<p>这两个"索引"是两码事。MySQL 的索引是 B+ 树数据结构，让数据库查询更快。ES 的 Index 是一类数据的逻辑容器（类似 Database/Table），它内部用倒排索引来实现搜索加速。面试时一定要说清楚这个区别，很多人在这翻车。</p>
+</blockquote>
+<p><strong>Q2: 什么是倒排索引？</strong></p>
+<blockquote>
+<p>把文档中的词（term）和文档 ID 建立映射。比如 "苹果" → [doc1, doc5, doc10]。搜索时直接查词 → 找到文档列表 → 取交集/并集。时间 O(1) 查词典，不用扫全表。</p>
+</blockquote>
+<p><strong>Q3: ES 为什么近实时？</strong></p>
+<blockquote>
+<p>写入数据后，默认每 1 秒执行一次 <code>refresh</code>，把内存中的数据写入一个新的 Segment 并打开，此时数据才能被搜索到。所以有最多 1 秒的延迟。这叫 Near Real-Time (NRT)。</p>
+</blockquote>
+<p><strong>Q4: ES 的数据可靠性如何保证？</strong></p>
+<blockquote>
+<p>通过 Translog（事务日志）。写入时先记录 Translog 到磁盘，再写内存 Buffer。即使宕机，重启后从 Translog 恢复数据。默认每个请求都 fsync Translog（<code>durability=request</code>）。</p>
+</blockquote>
+<h3 id="_7">集群 & 架构</h3>
+<p><strong>Q5: Master 节点和 Data 节点的区别？</strong></p>
+<blockquote>
+<p>Master 节点负责集群管理（创建/删除索引、分配分片、维护集群状态），不处理数据读写。Data 节点负责存储数据、执行搜索和聚合。一般小集群可以混用，生产环境必须分离。</p>
+</blockquote>
+<p><strong>Q6: 什么是分片？什么是副本？</strong></p>
+<blockquote>
+<p>分片（Primary Shard）：把一个大索引用 <code>hash(_id) % 分片数</code> 切成多份，分散到不同节点上，实现分布式存储和并行搜索。副本（Replica）：每个主分片的拷贝，用于容灾和分担读压力。</p>
+</blockquote>
+<p><strong>Q7: 分片数怎么定？</strong></p>
+<blockquote>
+<p>主分片数创建后不可改。经验公式：节点数的 1.5-3 倍。一个分片控制在 10-50GB 之间。比如 5 个数据节点，分片数可以设 10。日志场景可以更多。</p>
+</blockquote>
+<p><strong>Q8: ES 如何选主？</strong></p>
+<blockquote>
+<p>基于 Bully 算法变体。所有 master-eligible 节点互相 ping，节点 ID 最小的成为 Master。需要 <code>discovery.seed_hosts</code> 配置种子节点列表。ES 7 以后不需要 <code>minimum_master_nodes</code>。</p>
+</blockquote>
+<h3 id="_8">写入 & 读取</h3>
+<p><strong>Q9: 写一个文档的完整流程？</strong></p>
+<blockquote>
+<p>见 <a href="#253-q9">2.5.3 写入全流程</a>。</p>
+<ol>
+<li>客户端发请求到协调节点</li>
+<li>协调节点根据 _id hash 算出目标分片号</li>
+<li>转发给主分片所在节点</li>
+<li>主分片：写 Translog → 写内存 Buffer → 转发给副本</li>
+<li>所有副本写完 → 主分片返回成功</li>
+<li>协调节点返回给客户端</li>
+<li>1s 后 refresh → 可搜索</li>
+<li>30min 或 512MB 后 flush → 磁盘 commit</li>
+</ol>
+</blockquote>
+<p><strong>Q10: 搜索一个文档的完整流程？</strong></p>
+<blockquote>
+<p>见 <a href="#254-q10">2.5.4 搜索全流程</a>。</p>
+<p>Query Phase（查询阶段）: 协调节点 → 广播给所有相关分片 → 每个分片返回 Top N 文档 ID + Score</p>
+<p>Fetch Phase（获取阶段）: 协调节点 → 合并排序 → 确定全局 Top N → 去对应分片拉完整文档</p>
+</blockquote>
+<p><strong>Q11: 如何优化写入性能？</strong></p>
+<blockquote>
+<p>
+- 用 <code>_bulk</code> API 批量写入
+- 提高 <code>refresh_interval</code>（比如改成 30s）
+- 写入期间把副本数设为 0，写完再改回来
+- 关闭 <code>_all</code> / <code>_source</code>（如果不需要）
+- Translog 改成 <code>async</code> 模式（牺牲一点可靠性）</p>
+</blockquote>
+<p><strong>Q12: 如何优化搜索性能？</strong></p>
+<blockquote>
+<p>
+- <code>filter</code> 代替 <code>must</code>（不参与评分 + 缓存）
+- <code>_source</code> 只返回需要的字段
+- 减少返回条数（<code>size</code> 不要太大）
+- 用 <code>routing</code> 路由到指定分片，避免全分片搜索
+- 冷热分离（SSD 热数据 + HDD 冷数据）</p>
+</blockquote>
+<h3 id="_9">进阶</h3>
+<p><strong>Q13: ES 如何处理分词？</strong></p>
+<blockquote>
+<p>存的时候用 Analyzer 分词。默认 <code>standard</code> 分词器：按空格和标点拆，转小写。中文需要装 <code>ik</code> 分词器（"华为手机" → "华为"、"手机"、"华为手机"）。</p>
+</blockquote>
+<p><strong>Q14: keyword 和 text 的区别？</strong></p>
+<blockquote>
+<p><code>text</code>：会分词，用于全文搜索。不支持排序和聚合。
+<code>keyword</code>：不分词，存原始值。用于精确匹配、排序、聚合。
+字符串字段 ES 默认同时创建两种：<code>field</code> (text) 和 <code>field.keyword</code>。</p>
+</blockquote>
+<p><strong>Q15: ES 怎么保证分布式一致性？</strong></p>
+<blockquote>
+<p>写操作：主分片先写，等所有活跃副本写完才返回成功（<code>wait_for_active_shards</code>）。
+读操作：默认从主分片读（强一致），也可以从副本读（最终一致）。
+集群状态：Master 两阶段提交发布 Cluster State。</p>
+</blockquote>
+<p><strong>Q16: ES 和 MySQL 如何同步数据？</strong></p>
+<blockquote>
+<p>方案：Canal / Maxwell 监听 MySQL binlog → 解析成 JSON → 写 Kafka → 消费写入 ES。或者直接用 Logstash 的 JDBC input 定时全量/增量同步。</p>
+</blockquote>
+<p><strong>Q17: ES 的段合并是什么？为什么需要？</strong></p>
+<blockquote>
+<p>见 <a href="#255-es">2.5.5 段合并</a>。</p>
+<p>每个 refresh 生成一个新的 immutable Segment。Segment 太多会降低搜索性能。ES 后台自动把多个小 Segment 合并成大 Segment（TieredMergePolicy），合并时顺便物理删除已标记删除的文档。</p>
+</blockquote>
+<p><strong>Q18: 深分页问题怎么解决？</strong></p>
+<blockquote>
+<p><code>from + size</code> 超过 10000 会报错或性能极差。解决方案：
+- <code>search_after</code>：用上一页最后一条的 sort value 做游标，实时翻页
+- <code>scroll</code>：生成快照游标，适合全量导出，不适合实时翻页</p>
+</blockquote>
+<p><strong>Q19: ES 有哪些节点类型？</strong></p>
+<blockquote>
+<p>Master / Data / Coordinating / Ingest / ML / Transform / Remote-eligible。最常用的是 Master + Data + Coordinating。</p>
+</blockquote>
+<p><strong>Q20: 你在项目里怎么用 ES 的？</strong></p>
+<blockquote>
+<p>见下一节。</p>
+</blockquote>
+<hr />
+<h2 id="8-es">8. 面试官问"你在项目里怎么用 ES"——这么说就对了</h2>
+<h3 id="_10">应届生 / 自学项目版</h3>
+<blockquote>
+<p>"我在做 XX 电商项目时，用 ES 实现了商品搜索功能。MySQL 用 <code>LIKE '%keyword%'</code> 太慢，改用 ES 后搜索响应从 2 秒降到 50 毫秒。我负责建索引、写搜索接口、配置中文分词（ik），还做了搜索建议和高亮。同步方案用的 Logstash 定时从 MySQL 拉数据。"</p>
+</blockquote>
+<h3 id="_11">有实习/工作版（更可信）</h3>
+<blockquote>
+<p>"项目中用 ES 做日志分析，每天有 500GB 日志写入。我们做了冷热分离：近 7 天日志放 SSD（2 副本），超过 7 天的迁移到 HDD（0 副本）。用 ILM 自动管理索引生命周期。遇到过写入瓶颈，通过增大 bulk size、降低 refresh 频率、调整 translog 参数解决了。"</p>
+</blockquote>
+<h3 id="_12">面试官可能追问的问题 & 你怎么接</h3>
+<table>
+<thead>
+<tr>
+<th>追问</th>
+<th>你的回答</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>"多少数据量？"</td>
+<td>"每天 100GB，索引 30 亿条文档，5 个数据节点，20 个分片"</td>
+</tr>
+<tr>
+<td>"遇到过什么问题？"</td>
+<td>"ES 集群脑裂，加了 <code>minimum_master_nodes</code> 配置解决（ES7 之前）。还有一次字段类型冲突，后来统一了 mapping。"</td>
+</tr>
+<tr>
+<td>"和 Solr 比有什么优势？"</td>
+<td>"ES 分布式更容易，RESTful API 开发友好，生态（ELK）更好。"</td>
+</tr>
+<tr>
+<td>"怎么监控？"</td>
+<td>"用 Kibana 的 Stack Monitoring 看集群健康，重要指标告警用 Watcher。"</td>
+</tr>
+<tr>
+<td>"怎么备份？"</td>
+<td>"定时 <code>snapshot</code> 到 S3/NFS，用 SLM 自动化快照策略，保留最近 30 天。"</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="a-rest-api">附录A：常用 REST API 速查</h2>
+<pre><code class="language-bash"># 集群健康
+GET /_cluster/health
+
+# 节点列表
+GET /_cat/nodes?v
+
+# 索引列表
+GET /_cat/indices?v
+
+# 分片分配
+GET /_cat/shards?v
+
+# 查看 mapping
+GET /goods/_mapping
+
+# 查看 setting
+GET /goods/_settings
+
+# 刷新索引（立即可搜索）
+POST /goods/_refresh
+
+# 强制段合并（只读场景）
+POST /goods/_forcemerge?max_num_segments=1
+
+# 查看分析效果
+GET /_analyze
+{
+  "text": "华为 Mate 60 Pro",
+  "analyzer": "standard"
+}
+
+# 查看线程池
+GET /_cat/thread_pool?v
+</code></pre>
+<h2 id="bik">附录B：中文分词配置（ik）</h2>
+<pre><code class="language-json">// 创建索引时指定 ik 分词器
+PUT /goods
+{
+  "settings": {
+    "number_of_shards": 3,
+    "number_of_replicas": 1,
+    "analysis": {
+      "analyzer": {
+        "ik_max_word_analyzer": {
+          "type": "custom",
+          "tokenizer": "ik_max_word"
+        }
+      }
+    }
+  },
+  "mappings": {
+    "properties": {
+      "title": {
+        "type": "text",
+        "analyzer": "ik_max_word",
+        "search_analyzer": "ik_smart"
+      },
+      "price": { "type": "integer" },
+      "brand": { "type": "keyword" },
+      "tags": { "type": "keyword" },
+      "stock": { "type": "integer" },
+      "created_at": { "type": "date" }
+    }
+  }
+}
+
+// ik_max_word: 最细粒度，搜 "华为手机" → "华为"、"手机"、"华为手机"
+// ik_smart:   粗粒度，搜 "华为手机" → "华为手机"
+// 写入用 ik_max_word（召回率高），搜索用 ik_smart（准确率好）
+</code></pre>
+<h2 id="c">附录C：推荐学习路径</h2>
+<pre><code>第1天：看完本文 → 装好 ES + Kibana → 跑 CRUD
+第2天：掌握 match / term / bool / filter → 跑各种搜索
+第3天：掌握聚合（terms, avg, date_histogram）
+第4天：理解 Mapping 和 Analyzer → 配中文分词
+第5天：理解分片/副本/节点 → 画一遍架构图
+第6天：过一遍面试题 → 模拟问答
+</code></pre>
+<hr />
+<blockquote>
+<p>核心心法：面试官问 ES，你只要说清楚 <strong>"倒排索引是啥 → 分布式怎么搞 → 遇到啥问题怎么解决"</strong> 这条线，就远超 90% 的候选人。</p>
+</blockquote>
+<hr />
+<h2 id="d">附录D：进阶架构图（面试加分项）</h2>
+<h3 id="d1-jvm-lucene">D.1 节点内部结构（JVM + 线程池 + Lucene 引擎）</h3>
+<pre><code>
+ASCII 流程图 — 单个 ES 节点内部结构：
+
+  ┌──────────────────────────────────────────────────────┐
+  │                  单个 ES 节点                         │
+  │                                                       │
+  │  ┌─ JVM Heap (堆内存) ────────────────────────────┐  │
+  │  │  FST词典缓存  │  FieldData  │  Query Cache     │  │
+  │  │  RequestCache │  IndexWriter Buffer             │  │
+  │  └────────────────────────────────────────────────┘  │
+  │                                                       │
+  │  ┌─ Off-Heap (OS管理) ────────────────────────────┐  │
+  │  │  Page Cache (页缓存)  │  mmap I/O              │  │
+  │  └────────────────────────────────────────────────┘  │
+  │                                                       │
+  │  ┌─ 线程池 (资源隔离!) ───────────────────────────┐  │
+  │  │  search │ index/bulk │ get │ refresh │ flush   │  │
+  │  └────────────────────────────────────────────────┘  │
+  │       │            │                                  │
+  │       ▼            ▼                                  │
+  │  ┌─ Apache Lucene 引擎 ───────────────────────────┐  │
+  │  │  IndexWriter  │  IndexSearcher                  │  │
+  │  │  Analyzer(分词)│  MergeScheduler                │  │
+  │  └──────────────────┬─────────────────────────────┘  │
+  │                     │                                 │
+  │                     ▼                                 │
+  │              磁盘 (data/)                              │
+  └──────────────────────────────────────────────────────┘
+
+  面试金句: "ES 节点内部有独立的线程池做资源隔离，search 和 bulk
+  互不影响。JVM Heap 缓存倒排词典和 Query Cache，Off-Heap 利用 OS
+  的 Page Cache 加速 IO。底层所有读写最终都经过 Apache Lucene。"
+</code></pre>
+<h3 id="d2">D.2 数据目录布局（磁盘上到底长什么样）</h3>
+<pre><code>
+ASCII 流程图 — 磁盘目录布局：
+
+  data/
+  └── &lt;cluster_name&gt;/
+      └── nodes/
+          └── 0/
+              ├── node.lock
+              └── indices/
+                  └── &lt;index_uuid&gt;/
+                      ├── _state/
+                      ├── 0/  (分片目录)
+                      │   ├── index/
+                      │   │   ├── segments_N        ← Commit Point
+                      │   │   ├── _0.cfe / _0.cfs   ← Segment 元数据
+                      │   │   ├── _0.tim            ← 词项字典
+                      │   │   ├── _0.doc            ← 文档频率/位置
+                      │   │   ├── _0.dvd / _0.dvm   ← Doc Values
+                      │   │   ├── _0.dim / _0.dii   ← BKD 数值索引
+                      │   │   ├── _0.fdt / _0.fdx   ← _source 原始 JSON
+                      │   │   └── _0.vec            ← 向量索引 (kNN)
+                      │   └── translog/
+                      └── 1/  (副本分片)
+                          └── ...
+
+  每个 Segment 由以下文件组成:
+  .tim — 词项字典    .doc — 文档频率    .pos — 位置(短语查询)
+  .dvd — Doc Values  .dim — BKD数值索引 .fdt — _source原始JSON
+  .vec — 向量索引
+</code></pre>
+<h3 id="d3-ilm">D.3 ILM 索引生命周期（自动冷热迁移）</h3>
+<pre><code>
+ASCII 流程图 — ILM 索引生命周期自动管理：
+
+  ┌──────────┐     ┌──────────┐     ┌──────────┐     ┌──────────┐
+  │  Hot     │────→│  Warm    │────→│  Cold    │────→│  Delete  │
+  │          │     │          │     │          │     │          │
+  │ SSD      │     │ HDD      │     │ Archive  │     │ 到期删除  │
+  │ 活跃写入 │     │ 只读     │     │ 可搜索快照│     │          │
+  │ 实时搜索 │     │ 减副本   │     │ 部分挂载 │     │ 60-90天  │
+  │          │     │ ForceMerge│    │          │     │          │
+  │ Rollover:│     │          │     │          │     │          │
+  │ 30天/50GB│     │          │     │          │     │          │
+  └──────────┘     └──────────┘     └──────────┘     └──────────┘
+
+  面试话术: "日志场景用 ILM 自动管理——Hot 阶段在 SSD 写入，
+  30天或50GB后 Rollover 到 Warm 只读索引，ForceMerge 成1个段
+  节省资源，Cold 阶段挂载为可搜索快照，最终到期自动删除。"
+</code></pre>
+<h3 id="d4-master">D.4 集群状态 & 元数据（Master 在管什么）</h3>
+<pre><code>
+ASCII 流程图 — 集群状态与 Master 职责：
+
+  ┌─── Cluster State (集群大脑, Master持有) ───────────────┐
+  │                                                         │
+  │  ┌──────────────┐  ┌──────────────┐  ┌──────────────┐  │
+  │  │ 集群名/节点列表│  │ 分片路由表   │  │ 索引配置     │  │
+  │  └──────────────┘  └──────────────┘  └──────────────┘  │
+  │  ┌──────────────┐  ┌──────────────┐                    │
+  │  │ 索引模板     │  │ Mapping 元数据│                    │
+  │  └──────────────┘  └──────────────┘                    │
+  └────────────────────────┬────────────────────────────────┘
+                           │
+              Master Node  │ ① 处理变更
+                           ▼
+                    Cluster State
+                           │
+                           │ ② 两阶段提交 → 发布到所有节点
+                           ▼
+              ┌─────────────────────────┐
+              │       全部节点            │
+              │  (各节点看到一致视图)      │
+              └─────────────────────────┘
+                           │
+          ┌────────────────┼────────────────┐
+          ▼                ▼                ▼
+   ┌────────────┐  ┌────────────┐  ┌────────────┐
+   │ ILM 自动迁移│  │ SLM 自动快照│  │ Watcher告警 │
+   └────────────┘  └────────────┘  └────────────┘
+   (监听集群状态自动触发)
+
+  面试金句: "集群状态是 ES 的大脑，存在 Master 上，包含路由表、
+  索引配置、模板等。任何变更都经 Master 两阶段提交发布到全部节点，
+  保证各节点视图一致。ILM、SLM、Watcher 都监听集群状态自动触发。"
+</code></pre>
+
+<script>
+// Scroll spy — highlight active sidebar item
+window.addEventListener('scroll', function() {
+    var links = document.querySelectorAll('.sidebar-toc a');
+    var scrollY = window.scrollY + 120;
+    var current = '';
+    for (var i = links.length - 1; i >= 0; i--) {
+        var target = document.getElementById(links[i].getAttribute('href').slice(1));
+        if (target && target.offsetTop <= scrollY) {
+            current = links[i];
+            break;
+        }
+    }
+    links.forEach(function(a) { a.style.fontWeight = 'normal'; a.style.color = '#555'; });
+    if (current) { current.style.fontWeight = 'bold'; current.style.color = '#0366d6'; }
+});
+</script>
+
+
+<script>
+document.querySelectorAll("pre>code").forEach(function(c){var p=c.parentNode;p.style.position="relative";var b=document.createElement("button");b.className="copy-btn";b.textContent="复制";p.appendChild(b);b.addEventListener("click",function(){var t=c.textContent;navigator.clipboard.writeText(t).then(function(){b.textContent="已复制";b.classList.add("copied");setTimeout(function(){b.textContent="复制";b.classList.remove("copied")},2000)}).catch(function(){var a=document.createElement("textarea");a.value=t;a.style.position="fixed";a.style.opacity="0";document.body.appendChild(a);a.select();document.execCommand("copy");document.body.removeChild(a);b.textContent="已复制";b.classList.add("copied");setTimeout(function(){b.textContent="复制";b.classList.remove("copied")},2000)})})})
+</script>
+</body>
+</html>

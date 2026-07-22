@@ -1,0 +1,979 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>面试题 - MySQL</title>
+<style>
+body {
+    transition: margin-left .25s ease;
+    font-family: -apple-system, "Noto Sans SC", "Microsoft YaHei", sans-serif;
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 20px 24px 60px;
+    line-height: 1.8;
+    color: #333;
+    background: #fff;
+}
+h1 { border-bottom: 2px solid #eee; padding-bottom: 10px; color: #222; }
+h2 { color: #333; margin-top: 32px; }
+h3 { color: #555; }
+a { color: #0366d6; text-decoration: none; }
+a:hover { text-decoration: underline; }
+pre {
+    background: #f6f8fa;
+    border-radius: 6px;
+    padding: 16px;
+    overflow-x: auto;
+    font-size: 14px;
+    line-height: 1.45;
+}
+code {
+    background: #f0f2f4;
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-size: 14px;
+}
+pre code { background: none; padding: 0; }
+blockquote {
+    border-left: 4px solid #ddd;
+    margin: 0;
+    padding: 0 16px;
+    color: #666;
+}
+table {
+    border-collapse: collapse;
+    width: 100%;
+    margin: 16px 0;
+}
+th, td {
+    border: 1px solid #ddd;
+    padding: 8px 12px;
+    text-align: left;
+}
+th { background: #f6f8fa; }
+img { max-width: 100%; }
+.back-link {
+    margin-bottom: 20px;
+    display: block;
+    color: #666;
+}
+.back-link:hover { color: #0366d6; }
+
+.sidebar-toc {
+    transition: left .25s ease;
+    position: fixed;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    width: 220px;
+    background: #f8f9fa;
+    border-right: 1px solid #e9ecef;
+    padding: 20px 0;
+    overflow-y: auto;
+    font-size: 13px;
+    z-index: 100;
+}
+.sidebar-toc a {
+    display: block;
+    padding: 6px 16px;
+    color: #555;
+    text-decoration: none;
+    border-left: 3px solid transparent;
+    line-height: 1.5;
+}
+.sidebar-toc a:hover {
+    background: #e9ecef;
+    color: #0366d6;
+    border-left-color: #0366d6;
+}
+.sidebar-toc .toc-h3 { padding-left: 20px; font-size: 12px; }
+body { margin-left: 240px; }
+
+
+.copy-btn {
+    position: absolute; top: 6px; right: 6px;
+    background: #e9ecef; border: none;
+    border-radius: 4px; padding: 3px 10px;
+    font-size: 12px; color: #555; cursor: pointer;
+    opacity: 0; transition: opacity 0.2s;
+    z-index: 1;
+}
+pre:hover .copy-btn { opacity: 1; }
+.copy-btn:hover { background: #d0d7de; }
+.copy-btn.copied { opacity: 1; background: #2da44e; color: #fff; }
+.copy-btn{position:absolute;top:6px;right:6px;background:#e9ecef;border:none;border-radius:4px;padding:3px 10px;font-size:12px;color:#555;cursor:pointer;opacity:0;transition:opacity .2s;z-index:1}pre:hover .copy-btn{opacity:1}.copy-btn:hover{background:#d0d7de}.copy-btn.copied{opacity:1;background:#2da44e;color:#fff}
+.copy-btn{position:absolute;top:6px;right:6px;background:#e9ecef;border:none;border-radius:4px;padding:3px 10px;font-size:12px;color:#555;cursor:pointer;opacity:0;transition:opacity .2s;z-index:1}pre:hover .copy-btn{opacity:1}.copy-btn:hover{background:#d0d7de}.copy-btn.copied{opacity:1;background:#2da44e;color:#fff}
+.copy-btn{position:absolute;top:6px;right:6px;background:#e9ecef;border:none;border-radius:4px;padding:3px 10px;font-size:12px;color:#555;cursor:pointer;opacity:0;transition:opacity .2s;z-index:1}pre:hover .copy-btn{opacity:1}.copy-btn:hover{background:#d0d7de}.copy-btn.copied{opacity:1;background:#2da44e;color:#fff}
+.sidebar-toggle-btn {
+  position: fixed;
+  left: 220px;
+  top: 0;
+  width: 28px;
+  height: 40px;
+  background: #f8f9fa;
+  border: 1px solid #e9ecef;
+  border-left: none;
+  border-radius: 0 4px 4px 0;
+  cursor: pointer;
+  font-size: 16px;
+  color: #555;
+  z-index: 101;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: left .25s, background .2s;
+  padding: 0;
+  line-height: 1;
+}
+.sidebar-toggle-btn:hover { background: #e9ecef; color: #0366d6; }
+.sidebar-collapsed .sidebar-toc { left: -220px; }
+.sidebar-collapsed .sidebar-toggle-btn { left: 0; }
+.sidebar-collapsed body, body.sidebar-collapsed { margin-left: 28px; }
+.sidebar-overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,.3);
+  z-index: 99;
+}
+@media (max-width: 768px) {
+  .sidebar-collapsed .sidebar-overlay { display: none; }
+  .sidebar-toc { left: -220px; }
+  .sidebar-toggle-btn { left: 0; }
+  body { margin-left: 28px; }
+}
+
+</style>
+</head>
+</head>
+<body>
+<nav class="sidebar-toc"><a class="toc-h3" href="#1">1. 索引的底层数据结构?</a><a class="toc-h3" href="#2">2. 聚簇索引和非聚簇索引的区别?</a><a class="toc-h3" href="#3">3. 最左前缀原则?</a><a class="toc-h3" href="#4-acid">4. 事务四大特性(ACID)?</a><a class="toc-h3" href="#5">5. 事务隔离级别及解决的问题?</a><a class="toc-h3" href="#6-mvcc">6. MVCC 原理?</a><a class="toc-h3" href="#7-sql">7. SQL 优化思路?</a><a class="toc-h3" href="#8-innodb-myisam">8. InnoDB 和 MyISAM 的区别?</a><a class="toc-h3" href="#9">9. 为什么建议用自增主键?</a><a class="toc-h3" href="#10-varchar-char">10. varchar 和 char 的区别?</a><a class="toc-h3" href="#11">11. 索引失效的情况有哪些?</a><a class="toc-h3" href="#12-explain">12. EXPLAIN 输出中各字段的含义?</a><a class="toc-h3" href="#13">13. 覆盖索引是什么?</a><a class="toc-h3" href="#14-redo-logundo-logbinlog">14. redo log、undo log、binlog 的区别?</a><a class="toc-h3" href="#15">15. 大表怎么优化?</a><a class="toc-h3" href="#16-sql">16. 一条 SQL 的执行过程?</a><a class="toc-h3" href="#17-countcount1countcolumn">17. count(*)、count(1)、count(column) 的区别?</a><a class="toc-h3" href="#18-select">18. 为什么不建议用 SELECT *?</a><a class="toc-h3" href="#19-icp">19. 什么是索引下推(ICP)?</a><a class="toc-h3" href="#20-mysql-80">20. MySQL 8.0 有哪些重要新特性?</a><a class="toc-h3" href="#21">21. 线上突然出现大量慢查询,怎么排查和应急?</a><a class="toc-h3" href="#22">22. 订单表上亿级别,查询变慢如何优化?</a><a class="toc-h3" href="#23-mysql">23. MySQL 主从复制原理是什么?</a><a class="toc-h3" href="#24">24. 分库分表怎么做?有哪些坑?</a><a class="toc-h3" href="#25-mysql">25. MySQL 主从延迟的排查与解决？</a></nav>
+<button class="sidebar-toggle-btn" onclick="toggleSidebar()" title="切换侧栏">☰</button>
+
+<div class="sidebar-overlay" onclick="toggleSidebar()"></div>
+
+<script>
+function toggleSidebar() {
+  document.body.classList.toggle('sidebar-collapsed');
+  try { localStorage.setItem('sidebarCollapsed', document.body.classList.contains('sidebar-collapsed')); } catch(e) {}
+}
+(function() {
+  try {
+    if (localStorage.getItem('sidebarCollapsed') === 'true') {
+      document.body.classList.add('sidebar-collapsed');
+    }
+  } catch(e) {}
+})();
+</script>
+<a class="back-link" href="/blog/2026/05/16/面试题/面试题/">← 返回面试题目录</a>
+<h1 id=page-title>MySQL</h1>
+<h3 id="1">1. 索引的底层数据结构?</h3>
+<p>MySQL 索引底层是 <strong>B+ 树</strong>--一种多叉平衡搜索树。</p>
+<p>B+ 树适合索引:非叶子节点只存 key,叶子节点存数据,树矮(3-4层存千万数据)减少磁盘IO。</p>
+<pre><code>B+ 树结构示意(3 层):
+
+         [10 | 20 | 30]          ← 非叶子节点(只存索引 key)
+        /    |    |    \
+     [5|8] [12|15] [22|28] [35|40]  ← 非叶子节点
+     /  \   /  \    /  \    /  \
+    □→□→□ □→□→□ □→□→□ □→□→□   ← 叶子节点(存完整数据,双向链表)
+</code></pre>
+<p>核心好处:
+- 树很矮(3-4 层就能存千万级数据),磁盘 IO 次数少--每次查一层就是一次磁盘 IO
+- 叶子节点是双向链表 → 范围查询(<code>WHERE id BETWEEN 1 AND 100</code>)找到起点后顺着链表扫一遍就行,不用反复从根节点出发</p>
+<blockquote>
+<p><strong>扩展</strong>:B+ 树非叶子节点只存 key,树更矮;Hash 索引不支持范围查询和排序;InnoDB 节点 16KB 匹配磁盘预读。</p>
+</blockquote>
+<h3 id="2">2. 聚簇索引和非聚簇索引的区别?</h3>
+<ul>
+<li><strong>聚簇索引</strong>:数据按索引顺序物理存储,叶子节点存整行数据</li>
+<li><strong>非聚簇索引(二级索引)</strong>:叶子节点只存<strong>主键值</strong>,需回聚簇索引查完整数据("回表")</li>
+</ul>
+<pre><code>聚簇索引:WHERE id = 5 → 一次查找
+非聚簇索引(回表):WHERE name = '张三' → name索引拿id → 再走聚簇索引
+</code></pre>
+<p>索引覆盖的列不需要回表。</p>
+<blockquote>
+<p><strong>扩展</strong>:无显式主键时 InnoDB 按 PRIMARY KEY → UNIQUE NOT NULL → 隐藏 row_id 选聚簇索引,row_id 无序易页分裂,建议始终显式定义主键。</p>
+</blockquote>
+<h3 id="3">3. 最左前缀原则?</h3>
+<p>联合索引 <code>(a, b, c)</code> 先按 a 排序,a 相同再按 b,b 相同再按 c。跳过前导列查询则索引无效。</p>
+<ul>
+<li>能用索引:<code>WHERE a=1</code>、<code>WHERE a=1 AND b=2</code>、<code>WHERE a=1 AND b=2 AND c=3</code></li>
+<li>不能用:<code>WHERE b=2</code>、<code>WHERE c=3</code>(跳过前导列)</li>
+<li>部分能用:<code>WHERE a=1 AND c=3</code>--a 可定位范围,c 在该范围内乱序不可用</li>
+</ul>
+<blockquote>
+<p><strong>扩展</strong>:范围查询右边列失效--<code>WHERE a=1 AND b&gt;2 AND c=3</code> 中 c 不能走索引。建索引时 <code>=</code> 列放前面,范围列放后面。ORDER BY/GROUP BY 也遵循最左前缀。</p>
+</blockquote>
+<h3 id="4-acid">4. 事务四大特性(ACID)?</h3>
+<p>事务是"要么全做,要么全不做"的操作单元。</p>
+<ul>
+<li><strong>原子性(A)</strong>:操作不可分割,失败靠 undo log 回滚</li>
+<li><strong>一致性(C)</strong>:事务前后数据符合业务规则,是 A+I+D 共同作用的结果(目的)</li>
+<li><strong>隔离性(I)</strong>:并发事务互不影响,靠 MVCC + 锁实现</li>
+<li><strong>持久性(D)</strong>:提交后永久保存,靠 redo log 保证</li>
+</ul>
+<blockquote>
+<p><strong>扩展</strong>:一致性是目的,A+I+D 是手段。原子性关注操作不可分割,一致性关注数据符合规则。</p>
+</blockquote>
+<h3 id="5">5. 事务隔离级别及解决的问题?</h3>
+<p>隔离级别解决三种"并发读"的问题:</p>
+<table>
+<thead>
+<tr>
+<th>级别</th>
+<th>脏读</th>
+<th>不可重复读</th>
+<th>幻读</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>READ UNCOMMITTED</td>
+<td>✗</td>
+<td>✗</td>
+<td>✗</td>
+</tr>
+<tr>
+<td>READ COMMITTED</td>
+<td>✓</td>
+<td>✗</td>
+<td>✗</td>
+</tr>
+<tr>
+<td>REPEATABLE READ(InnoDB 默认)</td>
+<td>✓</td>
+<td>✓</td>
+<td>✓</td>
+</tr>
+<tr>
+<td>SERIALIZABLE</td>
+<td>✓</td>
+<td>✓</td>
+<td>✓</td>
+</tr>
+</tbody>
+</table>
+<p>三种问题:
+- <strong>脏读</strong>:读到未提交数据,提交后可能回滚
+- <strong>不可重复读</strong>:同一事务两次读同一行值不同(被修改)
+- <strong>幻读</strong>:同一事务两次查范围,行数不同(被插入/删除)</p>
+<p>InnoDB 默认 RR,通过 MVCC(快照读)解决脏读/不可重复读,通过间隙锁(当前读)解决幻读。</p>
+<blockquote>
+<p><strong>扩展</strong>:MySQL InnoDB 默认 RR,PostgreSQL/Oracle 默认 RC;MySQL 5.0前 binlog 用 STATEMENT 格式,RR 避免主从不一致。</p>
+</blockquote>
+<h3 id="6-mvcc">6. MVCC 原理?</h3>
+<p>MVCC 通过版本链实现读不阻塞写、写不阻塞读。</p>
+<p>每行有 <code>trx_id</code>(最后修改事务ID)和 <code>roll_pointer</code>(指向前版本指针),形成版本链。ReadView 记录活跃事务列表,据此判断版本可见性:trx_id 是自己或已提交且小于最小活跃ID → 可见;是活跃事务 → 不可见,沿版本链查找。</p>
+<blockquote>
+<p><strong>扩展</strong>:RC 每次查询生成新 ReadView,RR 只在第一次查询时生成;<code>SELECT ... FOR UPDATE</code> 是当前读会加锁。</p>
+</blockquote>
+<h3 id="7-sql">7. SQL 优化思路?</h3>
+<pre><code>SQL 优化三部曲:
+┌──────────────┐    ┌──────────────┐    ┌──────────────┐
+│ 1. 定位问题  │ → │ 2. 分析原因  │ → │ 3. 实施优化  │
+│ 慢查询日志   │    │ EXPLAIN      │    │ 加索引/改SQL │
+│ 监控告警     │    │ 查看执行计划  │    │ 分库分表     │
+└──────────────┘    └──────────────┘    └──────────────┘
+</code></pre>
+<ol>
+<li>
+<p><strong>定位问题</strong>:开启慢查询日志(<code>long_query_time</code> 设阈值),用 <code>mysqldumpslow</code> 或 pt-query-digest 分析,找出高频/高耗时的 SQL。配合监控看 QPS、CPU、IO 等指标</p>
+</li>
+<li>
+<p><strong>EXPLAIN 分析</strong>:重点关注以下字段:</p>
+</li>
+<li><code>type</code>:访问类型,<code>ALL</code>(全表扫描)必须优化</li>
+<li><code>key</code>:实际使用的索引,和 <code>possible_keys</code> 不一致说明选错了</li>
+<li><code>rows</code>:预估扫描行数,越大越慢</li>
+<li>
+<p><code>Extra</code>:<code>Using filesort</code>(额外排序)、<code>Using temporary</code>(临时表)都是坏信号</p>
+</li>
+<li>
+<p><strong>优化手段</strong>:</p>
+</li>
+<li>加合适的索引(覆盖索引优先)</li>
+<li>改写 SQL(避免 <code>SELECT *</code>、避免索引列上套函数、避免隐式类型转换)</li>
+<li>大表考虑分库分表</li>
+<li>冷热数据分离(历史数据归档)</li>
+</ol>
+<blockquote>
+<p><strong>扩展</strong>:优化器可能选错索引,用 <code>ANALYZE TABLE</code> 更新统计信息或 <code>FORCE INDEX</code> 强制索引;SQL 外可读写分离、缓存、数据异构。</p>
+</blockquote>
+<h3 id="8-innodb-myisam">8. InnoDB 和 MyISAM 的区别?</h3>
+<table>
+<thead>
+<tr>
+<th></th>
+<th>InnoDB</th>
+<th>MyISAM</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>事务</td>
+<td>支持</td>
+<td>不支持</td>
+</tr>
+<tr>
+<td>锁粒度</td>
+<td>行锁</td>
+<td>表锁</td>
+</tr>
+<tr>
+<td>外键</td>
+<td>支持</td>
+<td>不支持</td>
+</tr>
+<tr>
+<td>崩溃恢复</td>
+<td>支持(redo log)</td>
+<td>不支持</td>
+</tr>
+<tr>
+<td>数据存储</td>
+<td>表空间(.ibd)</td>
+<td>三个文件(.frm .MYD .MYI)</td>
+</tr>
+<tr>
+<td>适用场景</td>
+<td>写多/事务</td>
+<td>读多/无事务要求</td>
+</tr>
+</tbody>
+</table>
+<p>关键理解:InnoDB 有 redo log + undo log 支持事务,MyISAM 没有;InnoDB 行锁 vs MyISAM 表锁,并发写差距大;MyISAM <code>COUNT(*)</code> 快(缓存行数),InnoDB 需扫描。MySQL 5.5 后默认 InnoDB。</p>
+<blockquote>
+<p><strong>扩展</strong>:Memory/Archive/TokuDB 为特殊场景引擎;MyISAM 表锁是并发写瓶颈。</p>
+</blockquote>
+<h3 id="9">9. 为什么建议用自增主键?</h3>
+<pre><code>自增主键插入(追加到末尾):
+[1][2][3][_] → insert 4 → [1][2][3][4]   ← 直接追加,干净利落
+
+UUID 主键插入(随机位置):
+[1][2][5][_] → insert 3 → [1][2][_][_]   ← 页满了!必须分裂
+                           [3][5][_][_]   ← 数据被撕成两页
+</code></pre>
+<p>B+ 树数据按主键顺序存。自增主键追加到末尾不破坏布局;UUID 随机插入导致页分裂(碎片化、页利用率低、性能下降)。</p>
+<blockquote>
+<p><strong>扩展</strong>:分布式场景用有序分布式ID(雪花算法、号段模式),趋势递增减轻页分裂。</p>
+</blockquote>
+<h3 id="10-varchar-char">10. <code>varchar</code> 和 <code>char</code> 的区别?</h3>
+<ul>
+<li><code>char(n)</code>:定长,存不满也占 n 字符空间</li>
+<li><code>varchar(n)</code>:变长,存多少占多少(多 1-2 字节记录长度)</li>
+</ul>
+<pre><code>存储对比(假设存 &quot;abc&quot;):
+CHAR(10):    [a][b][c][ ][ ][ ][ ][ ][ ][ ]    ← 10 个字符,后面填空格
+VARCHAR(10): [3][a][b][c]                       ← 1 字节长度 + 实际 3 字符
+</code></pre>
+<p>什么时候用谁:
+- 固定长度(MD5、手机号、身份证、状态码)→ char
+- 变化长度(姓名、地址、标题、简介)→ varchar
+- char 存不满填空格,查询时自动去尾部空格</p>
+<blockquote>
+<p><strong>扩展</strong>:varchar 最大 65535 字节(一行总大小限制);≤255 用 1 字节记长度,&gt;255 用 2 字节;TEXT 类型存单独区域,行里只放指针。</p>
+</blockquote>
+<h3 id="11">11. 索引失效的情况有哪些?</h3>
+<p><strong>核心:索引失效的本质是数据对索引不再有序。</strong></p>
+<pre><code>索引是排好序的 → 能二分查找 → 快
+索引失效 → 只能全表扫描 → 慢
+</code></pre>
+<p>常见失效场景:</p>
+<ol>
+<li>
+<p><strong>索引列套函数/计算</strong>:<code>WHERE YEAR(create_time) = 2024</code> 破坏排序,改成范围查询可用索引</p>
+</li>
+<li>
+<p><strong>隐式类型转换</strong>:<code>WHERE phone = 13800000000</code>(phone 是 varchar),相当于套函数</p>
+</li>
+<li>
+<p><strong>LIKE <code>%xxx</code></strong>:<code>%</code> 在开头无法用索引,<code>xxx%</code> 可以</p>
+</li>
+<li>
+<p><strong>OR 中有非索引列</strong>:<code>WHERE a=1 OR b=2</code>,b 无索引则全表扫描</p>
+</li>
+<li>
+<p><strong>联合索引不满足最左前缀</strong>:跳过前面的列</p>
+</li>
+<li>
+<p><strong>范围查询右边列失效</strong>:<code>WHERE a&gt;1 AND b=2</code>,b 不再有序</p>
+</li>
+</ol>
+<blockquote>
+<p><strong>扩展</strong>:<code>!=</code>、<code>NOT IN</code>、<code>IS NULL</code> 有时不用索引,因优化器计算代价后可能选全表扫描;数据量小时全表扫描更快。</p>
+</blockquote>
+<h3 id="12-explain">12. EXPLAIN 输出中各字段的含义?</h3>
+<p>EXPLAIN 是 SQL 的"体检报告",重点关注:</p>
+<pre><code>EXPLAIN SELECT * FROM user WHERE name = '张三'\G
+
+           id: 1
+  select_type: SIMPLE
+        table: user
+         type: ref                    ← 访问类型
+possible_keys: idx_name               ← 候选索引
+          key: idx_name               ← 实际选的索引
+      key_len: 152
+          ref: const
+         rows: 3                      ← 预估扫描行数
+        Extra: Using index condition  ← 额外信息
+</code></pre>
+<p>重点字段解读:
+- <strong>type</strong>（最重要）：访问类型，从好到差 <code>system &gt; const &gt; eq_ref &gt; ref &gt; range &gt; index &gt; ALL</code>
+  - <code>ALL</code>：全表扫描，必须警觉
+  - <code>index</code>：全索引扫描（不理想）
+  - <code>range</code>：索引范围扫描（<code>&gt;</code> <code>&lt;</code> <code>BETWEEN</code>）
+  - <code>ref</code>：非唯一索引查找（常见）</p>
+<ul>
+<li><strong>Extra</strong>（第二重要）：</li>
+<li><code>Using index</code>:覆盖索引,赞</li>
+<li><code>Using filesort</code>:额外排序,不太好</li>
+<li><code>Using temporary</code>:用了临时表,需要优化</li>
+<li><code>Using where</code>:Server 层做了过滤</li>
+</ul>
+<blockquote>
+<p><strong>扩展</strong>:EXPLAIN 的 rows 是<strong>预估值</strong>,不一定准确(基于统计信息采样)。如果预估行数和实际差距大,用 <code>ANALYZE TABLE</code> 更新统计信息。MySQL 8.0.18+ 支持 <code>EXPLAIN ANALYZE</code>,会真正执行 SQL 并输出实际耗时和各步骤时间,比 EXPLAIN 更精确。<code>EXPLAIN FORMAT=JSON</code> 输出更详细的 JSON 格式,能看到查询成本(cost)信息。</p>
+</blockquote>
+<h3 id="13">13. 覆盖索引是什么?</h3>
+<p>查询需要的列全部包含在索引里,不需要回表去查数据行。</p>
+<pre><code>普通查询(回表):
+SELECT age FROM user WHERE name = '张三';
+  1 走 name 索引 → 叶子节点拿到 id=5
+  2 拿 id=5 回到聚簇索引 → 叶子节点拿 age 字段
+  共两次 B+ 树查找
+
+覆盖索引(不回表):
+SELECT name, age FROM user WHERE name = '张三';
+  建 (name, age) 联合索引
+  1 走 (name, age) 索引 → 叶子节点同时有 name 和 age
+  共一次 B+ 树查找,EXPLAIN 显示 Using index
+</code></pre>
+<p>就像你去图书馆查"张三的年龄"--非覆盖索引先查目录找到书的位置,再去书架取书。覆盖索引直接在目录里写了年龄,不用再去找书。</p>
+<blockquote>
+<p><strong>扩展</strong>:覆盖索引不是一种索引类型,而是一种<strong>查询优化效果</strong>。任何索引(普通索引、唯一索引、联合索引)只要"覆盖"了查询需要的列就是覆盖索引。实际开发中不要为了覆盖每一个查询都建一个联合索引--索引维护有成本,只在核心的高频查询上用。另外,<code>SELECT *</code> 几乎不可能用覆盖索引,这也是不推荐它的重要原因。</p>
+</blockquote>
+<h3 id="14-redo-logundo-logbinlog">14. redo log、undo log、binlog 的区别?</h3>
+<table>
+<thead>
+<tr>
+<th>日志</th>
+<th>作用</th>
+<th>所属层</th>
+<th>通俗解释</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>redo log</td>
+<td>保证持久性,宕机恢复</td>
+<td>InnoDB 引擎层</td>
+<td>施工日志--记了"哪个数据页的第几个字节改成了什么"</td>
+</tr>
+<tr>
+<td>undo log</td>
+<td>保证原子性,事务回滚</td>
+<td>InnoDB 引擎层</td>
+<td>撤销记录--记了"改之前的值是什么"</td>
+</tr>
+<tr>
+<td>binlog</td>
+<td>主从复制,数据恢复</td>
+<td>MySQL Server 层</td>
+<td>操作录像--记了所有修改数据的 SQL</td>
+</tr>
+</tbody>
+</table>
+<pre><code>两阶段提交流程(保证 redo log 和 binlog 一致):
+
+1 执行器调引擎更新数据
+2 引擎写 undo log(准备回滚方案)
+3 引擎更新数据页(在内存中)
+4 引擎写 redo log → prepare 状态          ← 第一阶段
+5 执行器写 binlog                          ← 两阶段之间
+6 引擎提交 redo log → commit 状态          ← 第二阶段
+7 事务完成
+
+如果6之前崩溃:redo log 是 prepare 且 binlog 不完整 → 回滚
+如果6之后崩溃:redo log 是 commit 且 binlog 完整 → 重放恢复
+</code></pre>
+<p>redo log 是<strong>循环写</strong>(固定大小,写满了就刷盘后重新写),binlog 是<strong>追加写</strong>(文件写满换下一个)。所以 redo log 很快,适合高频刷盘。</p>
+<blockquote>
+<p><strong>扩展</strong>:为什么需要两阶段提交?假设没有两阶段提交--先写 binlog 再写 redo log:写完 binlog 后崩溃,主库 redo log 没记录所以数据没更新,但从库重放 binlog 会更新,导致主从不一致。反之先写 redo log 再写 binlog:写完 redo log 后崩溃,主库恢复后数据已更新,但 binlog 没记录,从库不会更新。两阶段提交保证了二者要么都写要么都不写。</p>
+</blockquote>
+<h3 id="15">15. 大表怎么优化?</h3>
+<pre><code>大表优化演进路线:
+
+数据量:千万级 → 亿级 → 十亿级
+   ↓          ↓        ↓
+SQL+索引   读写分离  分库分表+ES
+   ↓          ↓        ↓
+够用了      够用了    终极方案
+</code></pre>
+<p><strong>单表优化(先做这个)</strong>:
+- 合适的索引(最省成本,效果立竿见影)
+- 避免 <code>SELECT *</code>,减少数据传输
+- 冷热数据分离--3 个月前的数据归档到历史表</p>
+<p><strong>读写分离(单表扛不住时)</strong>:
+- 一主多从,主库写、从库读
+- 复杂报表、数据分析走从库,不影响主库的线上交易</p>
+<p><strong>分库分表(读写分离还不够时)</strong>:
+- 垂直拆分:按列拆--订单基础信息(id/金额/时间)一张表,订单扩展(备注/标签/附件)另一张表
+- 水平拆分:按行拆--<code>user_id % 16</code> 分 16 个库,或按时间范围分区</p>
+<p><strong>数据异构(终极手段)</strong>:
+- 订单数据同步到 Elasticsearch,复杂搜索走 ES
+- 热点数据同步到 Redis,扛高并发读
+- binlog → Canal → Kafka → 下游系统 实时同步</p>
+<blockquote>
+<p><strong>扩展</strong>：分库分表带来跨分片查询、分布式事务、全局 ID、数据迁移问题；ShardingSphere 可屏蔽部分复杂度，但跨分片 JOIN 和排序聚合仍棘手。</p>
+</blockquote>
+<h3 id="16-sql">16. 一条 SQL 的执行过程?</h3>
+<pre><code>一条 SELECT 的完整旅程:
+
+客户端
+  │ TCP 连接
+  ▼
+连接器 ─── 认证(用户名/密码),分配线程
+  │
+  ▼
+查询缓存 ─── MySQL 8.0 已移除(弊大于利)
+  │
+  ▼
+分析器 ─── 词法分析 + 语法分析,生成 AST(抽象语法树)
+  │         检查表名、列名是否存在
+  ▼
+优化器 ─── 决定用哪个索引、Join 顺序、怎么排序
+  │         生成执行计划(关键环节!)
+  ▼
+执行器 ─── 调用存储引擎接口,逐行扫描/过滤
+  │         返回结果给客户端
+  ▼
+存储引擎 ─── 从磁盘/内存中读取数据页
+  (InnoDB)
+</code></pre>
+<p>优化器是核心，基于统计信息（索引区分度、表大小）计算各方案成本，选最低成本执行。</p>
+<blockquote>
+<p><strong>扩展</strong>：客户端到 MySQL 连接昂贵（TCP 握手 + 认证 + 线程分配），用连接池复用；查询缓存在更新频繁时基本无效，MySQL 8.0 已移除；瓶颈在优化器和执行器。</p>
+</blockquote>
+<h3 id="17-countcount1countcolumn">17. <code>count(*)</code>、<code>count(1)</code>、<code>count(column)</code> 的区别?</h3>
+<pre><code>count(*): 统计所有行(包括 NULL 行),MySQL 专门优化过,选最小的索引遍历
+count(1): 效果同 count(*),每一行拿 1 出来计数,优化器也会优化成 count(*)
+count(col):统计该列非 NULL 的行数,会忽略 NULL 值
+
+性能对比(有二级索引时):
+count(*) ≈ count(1)  &gt;  count(主键)  &gt;  count(无索引列)
+    ↑                  ↑                ↑
+  走最小二级索引    走主键索引(大)    全表扫描(最慢)
+</code></pre>
+<ul>
+<li><code>count(*)</code>：MySQL 优化器自动选最小索引遍历</li>
+<li><code>count(column)</code>：统计该列非 NULL 行数</li>
+<li><code>count(1)</code>：和 <code>count(*)</code> 效果完全一样</li>
+</ul>
+<p>所以统计总行数用 <code>count(*)</code>,想知道某列有多少非空值用 <code>count(column)</code>。</p>
+<blockquote>
+<p><strong>扩展</strong>：MyISAM <code>COUNT(*)</code> 是 O(1)（维护计数器），InnoDB 是 O(n)（MVCC 需扫描）；<code>COUNT(DISTINCT col)</code> 走索引去重统计。</p>
+</blockquote>
+<h3 id="18-select">18. 为什么不建议用 <code>SELECT *</code>?</h3>
+<pre><code>SELECT * FROM user WHERE id = 100;
+  → 返回 id, name, age, email, avatar, address, phone, ...
+  → 假设实际只需要 name 和 email
+
+SELECT name, email FROM user WHERE id = 100;
+  → 只返回 name, email
+  → 如果 (id, name, email) 是联合索引 → 覆盖索引,不回表!
+</code></pre>
+<p>四个问题:
+1. <strong>覆盖索引失效</strong>：<code>*</code> 含索引无列必须回表，指定列可能走覆盖索引
+2. <strong>网络+内存浪费</strong>：不需列也在传输，有 TEXT/BLOB 时更严重
+3. <strong>表结构变更风险</strong>：加/删/改列，依赖 <code>*</code> 的代码直接挂
+4. <strong>解析开销</strong>：每多字段多一步反序列化</p>
+<blockquote>
+<p><strong>扩展</strong>：例外是某些 ORM 的 <code>findById</code>；但列表查询应单独定义 DTO/投影查询，不要复用 <code>findById</code>。</p>
+</blockquote>
+<h3 id="19-icp">19. 什么是索引下推(ICP)?</h3>
+<p>ICP(Index Condition Pushdown)是 MySQL 5.6+ 优化——把 Server 层过滤逻辑下推到引擎层，在索引遍历时过滤。</p>
+<pre><code>没有 ICP:
+SELECT * FROM user WHERE name LIKE '张%' AND age &gt; 20;
+  (name, age) 联合索引
+  1 引擎:通过索引找出所有 name LIKE '张%' 的行(100 行)
+  2 引擎 → 100 行全部返回给 Server 层
+  3 Server 层过滤 age &gt; 20 → 剩 20 行
+  问题:80 行白回表了
+
+有 ICP:
+SELECT * FROM user WHERE name LIKE '张%' AND age &gt; 20;
+  (name, age) 联合索引
+  1 引擎:通过索引扫描 name LIKE '张%' 的行
+  2 引擎直接在索引里检查 age &gt; 20(索引里有 age!)
+  3 只有满足 age &gt; 20 的 20 行返回给 Server 层
+  好处:少了 80 次回表
+</code></pre>
+<p>就像工厂质检前移——在生产线就把不合格挑出来，不搬仓库再检查。</p>
+<blockquote>
+<p><strong>扩展</strong>：ICP 前提是索引包含该列；EXPLAIN 的 Extra 显示 <code>Using index condition</code> 表示用了 ICP。</p>
+</blockquote>
+<h3 id="20-mysql-80">20. MySQL 8.0 有哪些重要新特性?</h3>
+<pre><code>MySQL 5.7 → 8.0 核心升级:
+
+┌─────────────────┐
+│ 原子 DDL         │ ← DDL 不再&quot;半途而废&quot;
+│ 窗口函数         │ ← 排名/累计一行搞定
+│ CTE              │ ← 复杂查询拆成多步
+│ 隐藏索引         │ ← 删索引前先&quot;隐身&quot;试试
+│ 降序索引         │ ← ORDER BY DESC 能走索引了
+│ utf8mb4 默认     │ ← 原生支持 emoji 😀
+│ 直方图统计       │ ← 优化器更聪明
+│ 不可见列         │ ← SELECT * 时不可见
+└─────────────────┘
+</code></pre>
+<p>重点解读:
+- <strong>原子 DDL</strong>：<code>ALTER TABLE</code> 出错全回滚，不会残缺
+- <strong>窗口函数</strong>：<code>ROW_NUMBER()</code> <code>RANK()</code> <code>SUM() OVER(PARTITION BY ...)</code>，一行搞定排名/累计
+- <strong>CTE</strong>：<code>WITH cte AS (SELECT ...)</code> 比子查询可读性好，递归 CTE 可查树形结构
+- <strong>隐藏索引</strong>：<code>ALTER INDEX idx_name INVISIBLE</code> 让优化器忽略但不删除
+- <strong>降序索引</strong>：<code>ORDER BY a ASC, b DESC</code> 能完美走索引</p>
+<blockquote>
+<p><strong>扩展</strong>：MySQL 8.0 引入直方图统计（<code>ANALYZE TABLE ... UPDATE HISTOGRAM</code>）让优化器更准确估算；8.0.18+ Hash Join 解决大表 JOIN 问题；8.4 LTS 是下一个长期支持版本。</p>
+</blockquote>
+<h3 id="21">21. 线上突然出现大量慢查询,怎么排查和应急?</h3>
+<pre><code>线上慢查询排查全流程:
+
+  🚨 告警:大量慢查询
+       │
+       ▼
+  ┌──────────────┐
+  │ 1. 紧急止损   │ ← 先止血,再找原因
+  └──────┬───────┘
+         │ SHOW FULL PROCESSLIST
+         │ KILL 长事务/锁等待查询
+         │ 切换读流量到从库
+         │ 必要时限流/降级
+         ▼
+  ┌──────────────┐
+  │ 2. 定位根因   │ ← 找到真正的凶手
+  └──────┬───────┘
+         │ 慢查询日志 + pt-query-digest
+         │ EXPLAIN 分析执行计划
+         │ 监控:QPS/CPU/IO/连接数/锁等待
+         ▼
+  ┌──────────────┐
+  │ 3. 修复上线   │ ← 彻底解决
+  └──────────────┘
+</code></pre>
+<p><strong>紧急止损（第一优先级）</strong>:</p>
+<ol>
+<li><code>SHOW FULL PROCESSLIST</code> → KILL 长时间锁住的查询</li>
+<li>确认是否有 DDL 在跑（会拿元数据锁阻塞读写）</li>
+<li>切换部分读流量到只读副本</li>
+<li>服务端开启限流/熔断/降级</li>
+</ol>
+<p><strong>定位根因</strong>:
+1. 慢查询日志用 <code>pt-query-digest</code> 分析，找高频/高耗时 SQL
+2. 对嫌疑 SQL 跑 <code>EXPLAIN</code>——type=ALL? 索引失效? Using temporary?
+3. 查监控：连接数是否打满? CPU/磁盘 IO 是否撑住?</p>
+<p><strong>常见原因与修复</strong>:</p>
+<table>
+<thead>
+<tr>
+<th>现象</th>
+<th>可能原因</th>
+<th>修复</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>type=ALL</td>
+<td>缺失索引</td>
+<td>加索引</td>
+</tr>
+<tr>
+<td>key 与 possible_keys 不一致</td>
+<td>索引失效(隐式转换/函数)</td>
+<td>改写 SQL</td>
+</tr>
+<tr>
+<td>Using filesort</td>
+<td>排序不能利用索引</td>
+<td>调整索引或去掉排序</td>
+</tr>
+<tr>
+<td>大量锁等待</td>
+<td>行锁/间隙锁冲突</td>
+<td>减少长事务、拆分大事务</td>
+</tr>
+<tr>
+<td>统计信息不准</td>
+<td>优化器选错索引</td>
+<td><code>ANALYZE TABLE</code></td>
+</tr>
+</tbody>
+</table>
+<blockquote>
+<p><strong>扩展</strong>：<code>pt-query-digest</code> 分析慢查询日志按耗时排序；<code>sys</code> 库提供 <code>sys.schema_unused_indexes</code>、<code>sys.schema_index_statistics</code> 等视图；线上加索引用 <code>ALGORITHM=INPLACE, LOCK=NONE</code> 避免锁表。</p>
+</blockquote>
+<h3 id="22">22. 订单表上亿级别,查询变慢如何优化?</h3>
+<pre><code>上亿订单表优化演进路线:
+
+数据量         方案                       成本
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+千万级    →   SQL+索引优化              ★☆☆ 低
+           →   归档历史数据              ★☆☆ 低
+亿级      →   读写分离(一主多从)       ★★☆ 中
+           →   分库分表                  ★★★ 高
+十亿级    →   数据异构(ES/ClickHouse) ★★★ 高
+</code></pre>
+<p><strong>第一阶段--SQL + 索引优化(零成本,首选)</strong>:</p>
+<ul>
+<li>核心查询用覆盖索引避免回表</li>
+<li>查询强制带时间范围条件(订单查询几乎总知道大概的时间范围)</li>
+<li>3 个月前的历史数据定期归档到归档表,保持热表数据量可控</li>
+</ul>
+<p><strong>第二阶段--读写分离</strong>:
+- 一主多从:主库处理写入,从库分担查询
+- 复杂报表、导出、数据分析走从库,不影响线上交易(主库)</p>
+<p><strong>第三阶段--分库分表</strong>:
+- 选分片键:订单表通常按 <code>user_id</code> 取模(买家查自己的订单)或按时间范围(商户/运营查某月订单)
+  - Hash(user_id % 64):均匀分布,但跨分片查所有用户的订单困难
+  - Range(按月):方便时间范围查询,但可能有热点(最新月份访问量最高)
+- 中间件选型:ShardingSphere-JDBC(客户端分片,无中心化)或 MyCat(代理模式)</p>
+<p><strong>第四阶段--数据异构</strong>:</p>
+<ul>
+<li>订单数据通过 binlog → Canal → MQ → ES 实时同步</li>
+<li>复杂搜索(多条件组合、模糊搜索、聚合统计)都走 ES,MySQL 只负责单行/简单查询</li>
+<li>更极端的分析场景可以用 ClickHouse/TiDB 代替 ES</li>
+</ul>
+<blockquote>
+<p><strong>扩展</strong>:外卖/电商场景下的订单表一个常见做法是<strong>冷热分离</strong>--近 3 个月数据在 MySQL,3 个月以上数据在 Hive/归档库。用户查历史订单走单独的归档服务,查询速度要求可以低一些。另一个思路是用<strong>订单号设计</strong>来规避分库分表--订单号里编码了用户 ID 或时间信息,这样凭订单号就能直接定位到分片,不需要跨分片查。比如订单号 <code>20240609123456</code> + user_id 后 4 位 → 直接路由到对应分片。</p>
+</blockquote>
+<hr />
+<h3 id="23-mysql">23. MySQL 主从复制原理是什么?</h3>
+<p>主从复制就是<strong>给主库配一个替身</strong>--主库干完什么活,从库照着做一遍。这样读操作可以分担到从库,数据也多了一份备份。</p>
+<p><strong>三大步骤</strong>:</p>
+<pre><code>1 主库把数据变更写入 binlog(二进制日志)
+2 从库的 I/O 线程拉取 binlog 内容,写到自己的 relay log(中继日志)
+3 从库的 SQL 线程读取 relay log,重放 SQL→数据进从库
+
+主库                              从库
+  写入数据                           I/O 线程 ──拉──▶ binlog
+    │                                  │
+    ▼                                  ▼
+  binlog  ──────────────拉取────────▶ relay log
+                                        │
+                                        ▼
+                                    SQL 线程重放
+                                        │
+                                        ▼
+                                    数据进从库
+</code></pre>
+<p><strong>三种复制模式</strong>:</p>
+<table>
+<thead>
+<tr>
+<th>模式</th>
+<th>原理</th>
+<th>可靠性</th>
+<th>性能</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>异步复制(默认)</strong></td>
+<td>主库写完 binlog 就返回,不等从库确认</td>
+<td>可能丢数据</td>
+<td>最快</td>
+</tr>
+<tr>
+<td><strong>半同步(semi-sync)</strong></td>
+<td>主库写完 binlog,等至少一个从库收到后确认才返回</td>
+<td>高</td>
+<td>中等</td>
+</tr>
+<tr>
+<td><strong>全同步(组复制 MGR)</strong></td>
+<td>多数节点确认后才提交</td>
+<td>最高</td>
+<td>最慢</td>
+</tr>
+</tbody>
+</table>
+<pre><code>异步:主库写完就返 → 最快,但从库挂了会丢
+半同步:等一个从库收到再返 → 折中
+全同步:等多数从库确认再返 → 最可靠但最慢
+</code></pre>
+<p><strong>主从延迟原因和解决</strong>:</p>
+<pre><code>延迟原因:
+  - 从库性能比主库差(最常见)
+  - 主库大事务(一个事务改千万行,从库回放也很慢)
+  - 从库还要处理大量读请求,SQL 线程忙不过来
+  - 网络延迟
+
+解决:
+  - MySQL 5.7+ 并行复制(多个 SQL 线程并行回放)
+  - 从库硬件升级(至少不比主库差太多)
+  - 大事务拆分
+  - 读路由到主库(对延迟敏感的读直接读主库)
+</code></pre>
+<blockquote>
+<p><strong>扩展</strong>:判断延迟大小用 <code>SHOW SLAVE STATUS</code> 看 <code>Seconds_Behind_Master</code> 字段。MySQL 8.0 的并行复制(基于 WRITESET)能按"没冲突的事务并行回放"--两个事务改的是不同行就同时执行,大幅降低延迟。如果延迟太大,可以考虑读写分离中间件(ShardingSphere/ProxySQL)自动路由--延迟敏感的读自动转主库,省去业务层判断的麻烦。</p>
+</blockquote>
+<hr />
+<h3 id="24">24. 分库分表怎么做?有哪些坑?</h3>
+<p>当单表数据量超过千万级、单库 QPS 达到瓶颈时,需要分库分表。本质是用<strong>空间 + 路由规则</strong>换<strong>单机性能上限</strong>。</p>
+<p><strong>拆分方式</strong>:</p>
+<pre><code>1 垂直拆分(按业务拆分)
+   订单库、用户库、商品库--各管各的
+   优点:简单,业务边界清晰
+   缺点:跨库 Join 变复杂
+
+2 水平拆分(按数据行拆分)
+   订单表 → order_0, order_1, order_2, order_3
+   通过分片键路由
+
+   分片算法:
+   - 哈希取模:order_id % 4 → 均匀分布,但扩容时要重新哈希
+   - 一致性哈希:加节点时只影响相邻节点
+   - 范围分片:1-1000w → 表0,1000w-2000w → 表1,扩容简单但可能热点
+</code></pre>
+<p><strong>分库分表后的 5 大挑战及方案</strong>:</p>
+<pre><code>1 分布式 ID(不能用自增主键了!)
+   方案:雪花算法(Snowflake)最常用
+   结构:1bit + 41bit时间戳 + 10bit机器ID + 12bit序列号
+   也可用美团 Leaf(号段模式 / Snowflake 模式)
+
+2 跨库 Join
+   方案:
+   - 应用层 Join(先查 A 表拿到 ID,再查 B 表)
+   - 冗余字段(把常用字段冗余存到每个分片)
+   - 异构索引(ES 做宽表搜索,ES 拿 ID → 回各分片取完整数据)
+
+3 跨分片事务(改一个订单要同时改两个分片)
+   方案:
+   - 尽量避免跨分片事务(通过分片键设计让相关数据在同一分片)
+   - 必须跨分片 → 分布式事务(Seata AT / TCC / 本地消息表)
+
+4 分页/排序/聚合
+   问题:SELECT ... ORDER BY create_time LIMIT 10 OFFSET 100
+         → 需要从每个分片取 110 条,在内存中合并排序
+   方案:
+   - ShardingSphere 自动做结果归并
+   - 用 ES 做查询(ES 负责搜索,MySQL 只做主键查询)
+
+5 扩容
+   问题:4 个分片 → 8 个分片,数据要重新哈希迁移
+   方案:
+   - 停机扩容(简单粗暴,不丢数据但中断服务)
+   - 平滑扩容(一致性哈希 + 双写 + 灰度切流)
+</code></pre>
+<p><strong>选型建议</strong>:</p>
+<pre><code>数据量 &lt; 500w → 不用分,索引优化即可
+数据量 500w-2000w → 考虑分区表(MySQL 原生分区,不需中间件)
+数据量 &gt; 2000w 或 QPS 瓶颈 → 分库分表
+</code></pre>
+<blockquote>
+<p><strong>扩展</strong>:ShardingSphere(Apache 顶级项目)是目前最主流的分库分表中间件--JDBC 层代理,对业务代码几乎无侵入。分片键是分库分表中最重要的设计决策--一旦确定,之后的扩容、查询都围绕它展开。比如订单表用 <code>user_id</code> 分片还是 <code>order_id</code> 分片?用 <code>user_id</code>→用户查自己订单快(只查一个分片),但按订单号查要扫所有分片。通常做法是两个都建映射:<code>order_id</code> 里存 <code>user_id</code>,或单独建一张 <code>order_id→user_id</code> 映射表。</p>
+</blockquote>
+<h3 id="25-mysql">25. MySQL 主从延迟的排查与解决？</h3>
+<p><strong>排查步骤</strong>：</p>
+<pre><code class="language-sql">-- Step1: 查看从库延迟值
+SHOW SLAVE STATUS\G
+  Seconds_Behind_Master: 120  -- 延迟120秒
+
+-- Step2: 查看从库 SQL 线程状态
+SHOW PROCESSLIST;
+-- 关注: System lock、Waiting for table flush
+
+-- Step3: 查看主从 binlog 位置差距
+SHOW MASTER STATUS;   -- 主库写入位点
+SHOW SLAVE STATUS\G   -- 从库执行位点
+</code></pre>
+<p><strong>常见原因</strong>：
+- 从库 SQL 线程执行慢（大事务在从库回放耗时）
+- 从库 QPS 高于主库（读写都在从库）
+- 网络延迟
+- 从库硬件差（磁盘 IO 瓶颈）</p>
+<p><strong>解决方案</strong>：</p>
+<table>
+<thead>
+<tr>
+<th>方案</th>
+<th>适用场景</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>并行复制（多线程从库）</td>
+<td>大事务频繁</td>
+</tr>
+<tr>
+<td>读写分离 + 延迟从库</td>
+<td>需要强一致读</td>
+</tr>
+<tr>
+<td>半同步复制</td>
+<td>允许极小延迟</td>
+</tr>
+<tr>
+<td>改用 PXC/Orchestrator</td>
+<td>延迟敏感业务</td>
+</tr>
+</tbody>
+</table>
+<blockquote>
+<p><strong>扩展</strong>：<code>seconds_behind_master=0</code> 不代表无延迟（只代表 SQL 线程跟上了）；MySQL 8.0.26+ 默认逻辑时钟并行复制（<code>slave_parallel_type=LOGICAL_CLOCK</code>）；真正强一致读只能读主库。</p>
+</blockquote>
+
+<script>
+// Scroll spy — highlight active sidebar item
+window.addEventListener('scroll', function() {
+    var links = document.querySelectorAll('.sidebar-toc a');
+    var scrollY = window.scrollY + 120;
+    var current = '';
+    for (var i = links.length - 1; i >= 0; i--) {
+        var target = document.getElementById(links[i].getAttribute('href').slice(1));
+        if (target && target.offsetTop <= scrollY) {
+            current = links[i];
+            break;
+        }
+    }
+    links.forEach(function(a) { a.style.fontWeight = 'normal'; a.style.color = '#555'; });
+    if (current) { current.style.fontWeight = 'bold'; current.style.color = '#0366d6'; }
+});
+</script>
+
+
+<script>
+document.querySelectorAll('pre > code').forEach(function(codeBlock, i) {
+    var pre = codeBlock.parentNode;
+    pre.style.position = 'relative';
+    var btn = document.createElement('button');
+    btn.className = 'copy-btn';
+    btn.textContent = '复制';
+    pre.appendChild(btn);
+    btn.addEventListener('click', function() {
+        var text = codeBlock.textContent;
+        navigator.clipboard.writeText(text).then(function() {
+            btn.textContent = '已复制';
+            btn.classList.add('copied');
+            setTimeout(function() {
+                btn.textContent = '复制';
+                btn.classList.remove('copied');
+            }, 2000);
+        }).catch(function() {
+            // Fallback
+            var ta = document.createElement('textarea');
+            ta.value = text; ta.style.position = 'fixed'; ta.style.opacity = '0';
+            document.body.appendChild(ta); ta.select();
+            document.execCommand('copy'); document.body.removeChild(ta);
+            btn.textContent = '已复制'; btn.classList.add('copied');
+            setTimeout(function() { btn.textContent = '复制'; btn.classList.remove('copied'); }, 2000);
+        });
+    });
+});
+</script>
+
+
+<script>document.querySelectorAll("pre>code").forEach(function(c){var p=c.parentNode;p.style.position="relative";var b=document.createElement("button");b.className="copy-btn";b.textContent="复制";p.appendChild(b);b.addEventListener("click",function(){var t=c.textContent;navigator.clipboard.writeText(t).then(function(){b.textContent="已复制";b.classList.add("copied");setTimeout(function(){b.textContent="复制";b.classList.remove("copied")},2000)}).catch(function(){var a=document.createElement("textarea");a.value=t;a.style.position="fixed";a.style.opacity="0";document.body.appendChild(a);a.select();document.execCommand("copy");document.body.removeChild(a);b.textContent="已复制";b.classList.add("copied");setTimeout(function(){b.textContent="复制";b.classList.remove("copied")},2000)})})})</script>
+</body>
+</html>

@@ -1,0 +1,617 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>面试题 - FastAPI</title>
+<style>
+body {
+    transition: margin-left .25s ease;
+    font-family: -apple-system, "Noto Sans SC", "Microsoft YaHei", sans-serif;
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 20px 24px 60px;
+    line-height: 1.8;
+    color: #333;
+    background: #fff;
+}
+h1 { border-bottom: 2px solid #eee; padding-bottom: 10px; color: #222; }
+h2 { color: #333; margin-top: 32px; }
+h3 { color: #555; }
+a { color: #0366d6; text-decoration: none; }
+a:hover { text-decoration: underline; }
+pre {
+    background: #f6f8fa;
+    border-radius: 6px;
+    padding: 16px;
+    overflow-x: auto;
+    font-size: 14px;
+    line-height: 1.45;
+}
+code {
+    background: #f0f2f4;
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-size: 14px;
+}
+pre code { background: none; padding: 0; }
+blockquote {
+    border-left: 4px solid #ddd;
+    margin: 0;
+    padding: 0 16px;
+    color: #666;
+}
+table {
+    border-collapse: collapse;
+    width: 100%;
+    margin: 16px 0;
+}
+th, td {
+    border: 1px solid #ddd;
+    padding: 8px 12px;
+    text-align: left;
+}
+th { background: #f6f8fa; }
+img { max-width: 100%; }
+.back-link {
+    margin-bottom: 20px;
+    display: block;
+    color: #666;
+}
+.back-link:hover { color: #0366d6; }
+
+.sidebar-toc {
+    transition: left .25s ease;
+    position: fixed;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    width: 220px;
+    background: #f8f9fa;
+    border-right: 1px solid #e9ecef;
+    padding: 20px 0;
+    overflow-y: auto;
+    font-size: 13px;
+    z-index: 100;
+}
+.sidebar-toc a {
+    display: block;
+    padding: 6px 16px;
+    color: #555;
+    text-decoration: none;
+    border-left: 3px solid transparent;
+    line-height: 1.5;
+}
+.sidebar-toc a:hover {
+    background: #e9ecef;
+    color: #0366d6;
+    border-left-color: #0366d6;
+}
+.sidebar-toc .toc-h3 { padding-left: 20px; font-size: 12px; }
+body { margin-left: 240px; }
+
+
+.copy-btn {
+    position: absolute; top: 6px; right: 6px;
+    background: #e9ecef; border: none;
+    border-radius: 4px; padding: 3px 10px;
+    font-size: 12px; color: #555; cursor: pointer;
+    opacity: 0; transition: opacity 0.2s;
+    z-index: 1;
+}
+pre:hover .copy-btn { opacity: 1; }
+.copy-btn:hover { background: #d0d7de; }
+.copy-btn.copied { opacity: 1; background: #2da44e; color: #fff; }
+.copy-btn{position:absolute;top:6px;right:6px;background:#e9ecef;border:none;border-radius:4px;padding:3px 10px;font-size:12px;color:#555;cursor:pointer;opacity:0;transition:opacity .2s;z-index:1}pre:hover .copy-btn{opacity:1}.copy-btn:hover{background:#d0d7de}.copy-btn.copied{opacity:1;background:#2da44e;color:#fff}
+.copy-btn{position:absolute;top:6px;right:6px;background:#e9ecef;border:none;border-radius:4px;padding:3px 10px;font-size:12px;color:#555;cursor:pointer;opacity:0;transition:opacity .2s;z-index:1}pre:hover .copy-btn{opacity:1}.copy-btn:hover{background:#d0d7de}.copy-btn.copied{opacity:1;background:#2da44e;color:#fff}
+.copy-btn{position:absolute;top:6px;right:6px;background:#e9ecef;border:none;border-radius:4px;padding:3px 10px;font-size:12px;color:#555;cursor:pointer;opacity:0;transition:opacity .2s;z-index:1}pre:hover .copy-btn{opacity:1}.copy-btn:hover{background:#d0d7de}.copy-btn.copied{opacity:1;background:#2da44e;color:#fff}
+.sidebar-toggle-btn {
+  position: fixed;
+  left: 220px;
+  top: 0;
+  width: 28px;
+  height: 40px;
+  background: #f8f9fa;
+  border: 1px solid #e9ecef;
+  border-left: none;
+  border-radius: 0 4px 4px 0;
+  cursor: pointer;
+  font-size: 16px;
+  color: #555;
+  z-index: 101;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: left .25s, background .2s;
+  padding: 0;
+  line-height: 1;
+}
+.sidebar-toggle-btn:hover { background: #e9ecef; color: #0366d6; }
+.sidebar-collapsed .sidebar-toc { left: -220px; }
+.sidebar-collapsed .sidebar-toggle-btn { left: 0; }
+.sidebar-collapsed body, body.sidebar-collapsed { margin-left: 28px; }
+.sidebar-overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,.3);
+  z-index: 99;
+}
+@media (max-width: 768px) {
+  .sidebar-collapsed .sidebar-overlay { display: none; }
+  .sidebar-toc { left: -220px; }
+  .sidebar-toggle-btn { left: 0; }
+  body { margin-left: 28px; }
+}
+
+</style>
+</head>
+</head>
+<body>
+<nav class="sidebar-toc"><a class="toc-h3" href="#1-fastapi-flask-django">1. FastAPI 和 Flask / Django 的区别?</a><a class="toc-h3" href="#2-fastapi">2. FastAPI 为什么这么快?</a><a class="toc-h3" href="#3">3. 路径参数和查询参数有什么区别?</a><a class="toc-h3" href="#4-pydantic-fastapi">4. Pydantic 在 FastAPI 中的作用?</a><a class="toc-h3" href="#5-depends">5. 依赖注入(Depends)是什么?怎么用?</a><a class="toc-h3" href="#6-middlewaredepends">6. 中间件(Middleware)和依赖(Depends)的区别?</a><a class="toc-h3" href="#7-fastapi">7. FastAPI 的事件生命周期?</a><a class="toc-h3" href="#8-cors">8. 怎么处理 CORS?</a><a class="toc-h3" href="#9">9. 怎么返回不同类型的响应?怎么设状态码?</a><a class="toc-h3" href="#10-fastapi">10. FastAPI 怎么做后台任务?</a><a class="toc-h3" href="#11-websocket">11. WebSocket 怎么支持?</a><a class="toc-h3" href="#12-fastapi">12. FastAPI 怎么做请求限流?</a><a class="toc-h3" href="#13">13. 怎么上传文件?</a><a class="toc-h3" href="#14-fastapi">14. FastAPI 怎么部署?</a><a class="toc-h3" href="#15-fastapi">15. FastAPI 怎么组织大型项目?</a><a class="toc-h3" href="#16-fastapi">16. FastAPI 中如何做接口版本管理?</a><a class="toc-h3" href="#17-fastapi">17. FastAPI 如何处理大量并发请求?</a><a class="toc-h3" href="#18-fastapi">18. FastAPI 如何做请求追踪?</a><a class="toc-h3" href="#19-fastapi">19. FastAPI 如何做接口版本管理？</a></nav>
+<button class="sidebar-toggle-btn" onclick="toggleSidebar()" title="切换侧栏">☰</button>
+
+<div class="sidebar-overlay" onclick="toggleSidebar()"></div>
+
+<script>
+function toggleSidebar() {
+  document.body.classList.toggle('sidebar-collapsed');
+  try { localStorage.setItem('sidebarCollapsed', document.body.classList.contains('sidebar-collapsed')); } catch(e) {}
+}
+(function() {
+  try {
+    if (localStorage.getItem('sidebarCollapsed') === 'true') {
+      document.body.classList.add('sidebar-collapsed');
+    }
+  } catch(e) {}
+})();
+</script>
+<a class="back-link" href="/blog/2026/05/16/面试题/面试题/">← 返回面试题目录</a>
+<h1 id=page-title>FastAPI</h1>
+<h3 id="1-fastapi-flask-django">1. FastAPI 和 Flask / Django 的区别?</h3>
+<table>
+<thead>
+<tr>
+<th>特性</th>
+<th>FastAPI</th>
+<th>Flask</th>
+<th>Django</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>异步支持</td>
+<td>原生 <code>async/await</code></td>
+<td>需扩展(Quart)或线程池</td>
+<td>3.1+ 部分支持</td>
+</tr>
+<tr>
+<td>性能</td>
+<td>极高(Starlette + uvloop)</td>
+<td>一般</td>
+<td>一般</td>
+</tr>
+<tr>
+<td>数据校验</td>
+<td>Pydantic 自动校验</td>
+<td>需手动或插件</td>
+<td>DRF Serializer</td>
+</tr>
+<tr>
+<td>API 文档</td>
+<td>自动生成 Swagger/ReDoc</td>
+<td>需插件</td>
+<td>DRF 自带</td>
+</tr>
+<tr>
+<td>类型提示</td>
+<td>一等公民</td>
+<td>可选</td>
+<td>可选</td>
+</tr>
+<tr>
+<td>适用场景</td>
+<td>API 服务、微服务、AI 服务</td>
+<td>小型应用、原型</td>
+<td>全栈大型应用</td>
+</tr>
+</tbody>
+</table>
+<p>一句话总结:Django 像精装修大 house,Flask 像毛坯房自己装,FastAPI 像现代公寓--省心、快速、类型安全。</p>
+<blockquote>
+<p><strong>扩展</strong>:FastAPI 基于 Starlette(ASGI 框架)和 Pydantic(数据校验),这两者分别提供高性能 HTTP 处理和类型安全。2025 年 FastAPI 已成为 Python 新项目的 API 开发首选,GitHub Star 增长最快。</p>
+</blockquote>
+<h3 id="2-fastapi">2. FastAPI 为什么这么快?</h3>
+<pre><code>请求 → ASGI Server (Uvicorn + uvloop)
+     → Starlette (高性能 HTTP 处理)
+     → Pydantic (Rust 核心编译型校验)
+     → 业务逻辑 (async/await 协程)
+</code></pre>
+<ul>
+<li><strong>Starlette</strong>:高性能 ASGI 框架做底层,异步非阻塞</li>
+<li><strong>uvloop</strong>:替代 asyncio 默认事件循环(基于 libuv,接近 Node.js 性能)</li>
+<li><strong>Pydantic v2</strong>:编译型校验(Rust 核心),比纯 Python 快 5-50 倍</li>
+<li><strong>并发模型</strong>:async/await 协程,单线程处理成千上万连接</li>
+</ul>
+<p>实际压测中,FastAPI 的性能可以和 Node.js、Go 的 Web 框架掰手腕。</p>
+<blockquote>
+<p><strong>扩展</strong>:uvloop 只能在 Linux/macOS 上用(基于 libuv),Windows 上自动退化为 asyncio 原生事件循环。Pydantic v2 用 Rust 重写了核心校验逻辑,是 v1 性能飞跃的关键。</p>
+</blockquote>
+<h3 id="3">3. 路径参数和查询参数有什么区别?</h3>
+<pre><code class="language-python">@app.get(&quot;/users/{user_id}&quot;)          # 路径参数:RESTful,必传
+async def get_user(user_id: int):     # 自动校验类型
+    ...
+
+@app.get(&quot;/users&quot;)                     # 查询参数:可选,有默认值
+async def list_users(page: int = 1, size: int = 10):
+    ...
+</code></pre>
+<p>路径参数是 URL 的一部分(<code>/users/42</code>),用于<strong>标识资源</strong>。查询参数在 <code>?</code> 后面(<code>/users?page=1&amp;size=10</code>),用于<strong>过滤、排序、分页</strong>--同一个资源的不同"视图"。</p>
+<blockquote>
+<p><strong>扩展</strong>:FastAPI 支持路径参数枚举:<code>@app.get("/items/{category}")</code> 中 <code>category: ItemCategory</code>(枚举类型)会自动生成下拉选择的 Swagger 文档。查询参数还可以用 <code>Query()</code> 添加校验(<code>min_length</code>、<code>regex</code> 等)。</p>
+</blockquote>
+<h3 id="4-pydantic-fastapi">4. Pydantic 在 FastAPI 中的作用?</h3>
+<p>Pydantic 是 FastAPI 的「安检员」和「翻译官」:</p>
+<pre><code>请求 JSON → Pydantic 反序列化 + 校验(不通过返回 422)
+          → 业务逻辑处理
+          → Pydantic 序列化 → JSON 响应
+</code></pre>
+<pre><code class="language-python">from pydantic import BaseModel, Field
+
+class UserCreate(BaseModel):
+    name: str = Field(..., min_length=2, max_length=50)   # 自动校验长度
+    age: int = Field(..., ge=0, le=150)                    # 自动校验范围
+    email: str                                             # 自动校验格式
+
+@app.post(&quot;/users&quot;)
+async def create_user(user: UserCreate):   # 入参自动校验 + 转换
+    return user.model_dump()               # 出参自动序列化
+</code></pre>
+<p>请求体自动校验,不符合规则直接返回 422 错误给客户端。自动生成 JSON Schema,Swagger 文档同步更新。告别手写 <code>if not isinstance(age, int)</code> 的苦日子。</p>
+<blockquote>
+<p><strong>扩展</strong>:Pydantic v2 新增 <code>model_validate()</code> 和 <code>model_dump()</code> 替代 v1 的 <code>parse_obj()</code> 和 <code>dict()</code>。<code>BaseModel</code> 支持嵌套模型、可选字段(<code>Optional[str] = None</code>)、联合类型(<code>str | int</code>)。<code>computed_field</code> 可以定义计算属性(不来自输入,但出现在输出中)。</p>
+</blockquote>
+<h3 id="5-depends">5. 依赖注入(Depends)是什么?怎么用?</h3>
+<p>FastAPI 的招牌功能--通过 <code>Depends()</code> 把公共逻辑抽成「依赖函数」,需要的地方注入即可:</p>
+<pre><code>请求进入 → FastAPI 解析依赖树
+         → get_db() 提供数据库连接
+         → get_current_user(get_db) 验证身份
+         → 视图函数(user, db)
+         → 依赖清理(yield 后的 finally 部分)
+</code></pre>
+<pre><code class="language-python">async def get_db():
+    db = SessionLocal()
+    try:
+        yield db          # yield 前的在请求前执行
+    finally:
+        db.close()        # yield 后的在请求结束后执行
+
+@app.get(&quot;/users/me&quot;)
+async def read_me(
+    db = Depends(get_db),               # 注入数据库连接
+    user = Depends(get_current_user)    # 注入当前用户
+):
+    return user
+</code></pre>
+<p><strong>依赖可以嵌套</strong>--<code>get_current_user</code> 依赖 token,<code>read_me</code> 依赖 <code>get_current_user</code> 和 <code>get_db</code>。FastAPI 自动解析依赖树,按顺序执行。</p>
+<blockquote>
+<p><strong>扩展</strong>:依赖可以带参数(<code>Depends(partial_func)</code>),可以声明为类(<code>class CommonQueryParams</code>)。<code>Security()</code> 是加强版 <code>Depends()</code>,专门用于认证场景,支持 OAuth2 作用域。依赖结果可以被缓存--同一次请求中多次请求同一个依赖不会重复执行。</p>
+</blockquote>
+<h3 id="6-middlewaredepends">6. 中间件(Middleware)和依赖(Depends)的区别?</h3>
+<table>
+<thead>
+<tr>
+<th></th>
+<th>中间件</th>
+<th>依赖</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>作用范围</td>
+<td>全局,每个请求都经过</td>
+<td>按路由/路由组注入</td>
+</tr>
+<tr>
+<td>执行时机</td>
+<td>请求处理前/后,包裹整个应用</td>
+<td>在执行视图函数前</td>
+</tr>
+<tr>
+<td>典型用途</td>
+<td>CORS、日志、请求计时、异常捕获</td>
+<td>鉴权、DB 连接、权限校验</td>
+</tr>
+<tr>
+<td>实现</td>
+<td><code>@app.middleware("http")</code></td>
+<td><code>Depends()</code></td>
+</tr>
+</tbody>
+</table>
+<pre><code>请求 → 中间件 → 路由匹配 → 依赖 → 视图函数 → 依赖清理 → 中间件返回
+</code></pre>
+<p>中间件是「门卫」--所有请求进来都要过。依赖是「前台」--按需分配给特定接口。</p>
+<blockquote>
+<p><strong>扩展</strong>:中间件中可以修改请求和响应,但要注意性能--每个请求都多一层。依赖通过 yield 实现类似中间件的请求/响应包装,但仅在指定路由生效。异常处理:依赖中的异常会传播到视图,中间件可以全局捕获。</p>
+</blockquote>
+<h3 id="7-fastapi">7. FastAPI 的事件生命周期?</h3>
+<pre><code class="language-python"># FastAPI 官方推荐(0.93+)
+from contextlib import asynccontextmanager
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    # startup: 初始化 DB 连接池、加载 ML 模型
+    await init_db()
+    yield
+    # shutdown: 关闭连接、释放资源
+    await close_db()
+
+app = FastAPI(lifespan=lifespan)
+</code></pre>
+<p>FastAPI 没有 Flask 的 <code>before_request</code> / <code>after_request</code> 钩子。替代方案是用<strong>依赖的 yield 模式</strong>(类似 <code>try-finally</code>)实现请求级别的设置和清理。</p>
+<blockquote>
+<p><strong>扩展</strong>:FastAPI 0.93+ 用 <code>lifespan</code> 替代废弃的 <code>@app.on_event("startup")</code>,可显式控制事件顺序。</p>
+</blockquote>
+<h3 id="8-cors">8. 怎么处理 CORS?</h3>
+<pre><code class="language-python">from fastapi.middleware.cors import CORSMiddleware
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=[&quot;https://example.com&quot;],  # 指定域名,生产环境不要用 [&quot;*&quot;]
+    allow_methods=[&quot;GET&quot;, &quot;POST&quot;],
+    allow_headers=[&quot;*&quot;],
+    allow_credentials=True,
+)
+</code></pre>
+<blockquote>
+<p><strong>扩展</strong>:<code>allow_origins=["*"]</code> 与 <code>allow_credentials=True</code> 不能同时使用,需凭证时必须指定域名。</p>
+</blockquote>
+<h3 id="9">9. 怎么返回不同类型的响应?怎么设状态码?</h3>
+<pre><code class="language-python">from fastapi import status
+from fastapi.responses import JSONResponse, FileResponse, StreamingResponse
+
+@app.post(&quot;/items&quot;, status_code=status.HTTP_201_CREATED)  # 默认 200,可改
+async def create_item(item: Item):
+    return item                    # Pydantic 模型 → 自动序列化 JSON
+
+@app.get(&quot;/download&quot;)
+async def download():
+    return FileResponse(&quot;file.pdf&quot;)  # 文件下载
+
+@app.get(&quot;/stream&quot;)
+async def stream():
+    return StreamingResponse(data_generator())  # 流式响应(SSE / AI 逐字输出)
+</code></pre>
+<blockquote>
+<p><strong>扩展</strong>:<code>StreamingResponse</code> 用于流式输出;<code>response_model</code> 过滤响应字段隐藏敏感信息。</p>
+</blockquote>
+<h3 id="10-fastapi">10. FastAPI 怎么做后台任务?</h3>
+<pre><code class="language-python">from fastapi import BackgroundTasks
+
+@app.post(&quot;/register&quot;)
+async def register(email: str, background_tasks: BackgroundTasks):
+    background_tasks.add_task(send_email, email, &quot;欢迎注册&quot;)
+    return {&quot;msg&quot;: &quot;注册成功&quot;}  # 立即返回,发邮件在后台执行
+</code></pre>
+<p>后台任务在<strong>响应返回之后</strong>执行。适合发邮件、写日志等不阻塞用户的操作。</p>
+<blockquote>
+<p><strong>扩展</strong>:<code>BackgroundTasks</code> 任务在进程内,进程崩溃则丢失;持久化/重试/定时需用 Celery 或 ARQ。</p>
+</blockquote>
+<h3 id="11-websocket">11. WebSocket 怎么支持?</h3>
+<pre><code class="language-python">from fastapi import WebSocket
+
+@app.websocket(&quot;/ws&quot;)
+async def websocket_endpoint(websocket: WebSocket):
+    await websocket.accept()         # 接受连接
+    while True:
+        data = await websocket.receive_text()
+        await websocket.send_text(f&quot;你说了: {data}&quot;)
+</code></pre>
+<p>FastAPI 原生支持 WebSocket,不需要额外插件。适合聊天、实时推送、协作编辑等场景。</p>
+<blockquote>
+<p><strong>扩展</strong>:长连接需管理连接数和心跳;Nginx 需配置 <code>Upgrade</code> 头支持;多实例广播用 Redis Pub/Sub。</p>
+</blockquote>
+<h3 id="12-fastapi">12. FastAPI 怎么做请求限流?</h3>
+<p>FastAPI 没有内置限流,常用方案:</p>
+<ul>
+<li><strong>slowapi</strong>:基于 <code>limits</code> 库,用法类似 flask-limiter,依赖注入使用</li>
+<li><strong>Redis + 滑动窗口</strong>:自己实现或使用 <code>fastapi-limiter</code>,分布式限流更准确</li>
+<li><strong>依赖注入方式</strong>:写一个 <code>rate_limit</code> 依赖,在需要的路由注入</li>
+</ul>
+<pre><code class="language-python">from slowapi import Limiter
+limiter = Limiter(key_func=get_remote_address)
+
+@app.get(&quot;/api/limited&quot;)
+@limiter.limit(&quot;5/minute&quot;)    # 每分钟 5 次
+async def limited_endpoint(request: Request):
+    ...
+</code></pre>
+<blockquote>
+<p><strong>扩展</strong>:网关层限流(Nginx/Kong/APISIX)比应用层高效,两者配合使用是最佳实践。</p>
+</blockquote>
+<h3 id="13">13. 怎么上传文件?</h3>
+<pre><code class="language-python">from fastapi import UploadFile, File
+
+@app.post(&quot;/upload&quot;)
+async def upload(file: UploadFile = File(...)):
+    contents = await file.read()                      # 读到内存(小文件)
+    # 或流式写磁盘(大文件)
+    with open(f&quot;uploads/{file.filename}&quot;, &quot;wb&quot;) as f:
+        while chunk := await file.read(1024 * 1024):   # 每次读 1MB
+            f.write(chunk)
+    return {&quot;filename&quot;: file.filename, &quot;size&quot;: file.size}
+</code></pre>
+<p><code>UploadFile</code> 是异步文件接口,支持流式读取,不会一次加载全部内容到内存。</p>
+<blockquote>
+<p><strong>扩展</strong>:小文件在内存,大文件溢写到磁盘;多文件用 <code>List[UploadFile]</code>;需校验大小和类型。</p>
+</blockquote>
+<h3 id="14-fastapi">14. FastAPI 怎么部署?</h3>
+<pre><code>Nginx(反向代理 + 静态文件 + SSL 终结)
+   ↓
+Gunicorn(进程管理,多 worker)
+   ↓ UvicornWorker(ASGI worker)
+FastAPI 应用
+</code></pre>
+<pre><code class="language-bash"># 单进程开发:uvicorn main:app --reload
+# 多进程生产:gunicorn -k uvicorn.workers.UvicornWorker -w 4 main:app
+</code></pre>
+<p>推荐用 Gunicorn + UvicornWorker 管理多进程,Nginx 在前做反代。Docker 部署时别忘了 <code>--host 0.0.0.0</code>。</p>
+<blockquote>
+<p><strong>扩展</strong>:worker数 = <code>(2 * CPU核数) + 1</code>;静态文件交Nginx/CDN;HTTPS证书在Nginx/Ingress处理。</p>
+</blockquote>
+<h3 id="15-fastapi">15. FastAPI 怎么组织大型项目?</h3>
+<pre><code>app/
+├── main.py              # 入口:创建 app、注册路由、挂载中间件
+├── api/v1/              # 路由层(薄层,只做路由分发和参数解析)
+│   ├── users.py
+│   └── items.py
+├── models/              # SQLAlchemy / SQLModel 数据库模型
+├── schemas/             # Pydantic 请求/响应模型
+├── services/            # 业务逻辑层(核心逻辑在这里)
+├── dependencies/        # 可复用的 Depends 依赖
+└── core/
+    ├── config.py        # 配置管理(pydantic-settings)
+    └── database.py      # 数据库引擎和连接
+</code></pre>
+<p>路由用 <code>APIRouter</code> 分模块,然后在 <code>main.py</code> 中 <code>app.include_router(users.router)</code>。核心原则:<strong>路由薄薄一层,逻辑下沉到 service 层</strong>。</p>
+<blockquote>
+<p><strong>扩展</strong>:<code>APIRouter</code> 支持 <code>prefix</code> 和 <code>tags</code> 自动分组到 Swagger;多版本API用不同前缀共存。</p>
+</blockquote>
+<hr />
+<h3 id="16-fastapi">16. FastAPI 中如何做接口版本管理?</h3>
+<p>FastAPI 支持 URL 路径前缀(APIRouter(prefix='/api/v1'))、请求头版本、查询参数。
+常用路径前缀:最直观、路由清晰、可同时运行多版本。</p>
+<h3 id="17-fastapi">17. FastAPI 如何处理大量并发请求?</h3>
+<p>核心:异步架构 + 连接池 + 限流 + 水平扩展。</p>
+<pre><code class="language-python"># 1. 数据库连接池
+from sqlalchemy.ext.asyncio import create_async_engine
+
+engine = create_async_engine(
+    &quot;postgresql+asyncpg://...&quot;,
+    pool_size=20,        # 常驻连接
+    max_overflow=10,     # 峰值额外连接
+    pool_pre_ping=True   # 连接健康检查
+)
+
+# 2. Redis 连接池
+from redis.asyncio import Redis
+redis = Redis(connection_pool=ConnectionPool(max_connections=100))
+
+# 3. 并发限制
+from asyncio import Semaphore
+semaphore = Semaphore(100)  # 最多 100 并发
+
+@app.get(&quot;/api/data&quot;)
+async def get_data():
+    async with semaphore:
+        return await fetch_from_db()
+</code></pre>
+<p>其他优化:uvicorn worker数=(2*CPU核数+1)、用 uvloop 替代 asyncio、静态资源走 CDN、慢操作丢给 Celery。</p>
+<blockquote>
+<p><strong>扩展</strong>:压测工具用 <code>locust</code> 或 <code>wrk</code>;监控用 Prometheus + Grafana;瓶颈通常是数据库而非 FastAPI 本身。</p>
+</blockquote>
+<h3 id="18-fastapi">18. FastAPI 如何做请求追踪?</h3>
+<p>请求追踪通过 <code>request_id</code> 贯穿全链路。用中间件生成 ID 并注入日志。</p>
+<pre><code class="language-python">import uuid
+from fastapi import Request
+import structlog
+
+@app.middleware(&quot;http&quot;)
+async def add_request_id(request: Request, call_next):
+    request_id = request.headers.get(&quot;X-Request-ID&quot;) or str(uuid.uuid4())
+    request.state.request_id = request_id
+
+    # 绑定到 structlog 上下文
+    structlog.contextvars.bind_contextvars(request_id=request_id)
+
+    response = await call_next(request)
+    response.headers[&quot;X-Request-ID&quot;] = request_id
+    return response
+
+# 日志自动带 request_id
+logger = structlog.get_logger()
+logger.info(&quot;处理请求&quot;, path=request.url.path)  # 自动带 request_id 字段
+</code></pre>
+<p>日志格式推荐 JSON(结构化),对接 ELK 或 Datadog。跨服务传递时把 <code>X-Request-ID</code> 放到 HTTP 头或 gRPC metadata。</p>
+<blockquote>
+<p><strong>扩展</strong>:分布式追踪用 OpenTelemetry+Jaeger;<code>structlog</code> 比标准库 <code>logging</code> 更适合结构化日志;生产环境必须做请求追踪。</p>
+</blockquote>
+<h3 id="19-fastapi">19. FastAPI 如何做接口版本管理？</h3>
+<p>FastAPI 不强制版本策略，常用三种方式：</p>
+<pre><code class="language-python"># 方式1: 路径版本（最直观）
+@app.get(&quot;/v1/items&quot;)
+def list_items_v1(): ...
+
+@app.get(&quot;/v2/items&quot;)
+def list_items_v2(): ...
+
+# 方式2: Header 版本（RESTful 风格）
+from fastapi import Header
+@app.get(&quot;/items&quot;, headers={&quot;API-Version&quot;: &quot;2024-01&quot;})
+def list_items(v: str = Header(..., alias=&quot;API-Version&quot;)):
+    if v == &quot;2024-01&quot;:
+        return v1_impl()
+    return v2_impl()
+</code></pre>
+<p><strong>推荐</strong>：路径版本更清晰，Nginx 路由也好配置。版本迭代时旧版本用 <code>Deprecated=True</code> 标记：</p>
+<pre><code class="language-python">from fastapi import Deprecations
+app = FastAPI(deprecated=True)  # 全局标记，或在路由层
+</code></pre>
+<blockquote>
+<p><strong>扩展</strong>：FastAPI 基于 OpenAPI，Swagger UI 自动显示版本差异；Netflix/Zalando 等公司用路径版本；Google/AWS 用 Header 版本。</p>
+</blockquote>
+
+<script>
+// Scroll spy — highlight active sidebar item
+window.addEventListener('scroll', function() {
+    var links = document.querySelectorAll('.sidebar-toc a');
+    var scrollY = window.scrollY + 120;
+    var current = '';
+    for (var i = links.length - 1; i >= 0; i--) {
+        var target = document.getElementById(links[i].getAttribute('href').slice(1));
+        if (target && target.offsetTop <= scrollY) {
+            current = links[i];
+            break;
+        }
+    }
+    links.forEach(function(a) { a.style.fontWeight = 'normal'; a.style.color = '#555'; });
+    if (current) { current.style.fontWeight = 'bold'; current.style.color = '#0366d6'; }
+});
+</script>
+
+
+<script>
+document.querySelectorAll('pre > code').forEach(function(codeBlock, i) {
+    var pre = codeBlock.parentNode;
+    pre.style.position = 'relative';
+    var btn = document.createElement('button');
+    btn.className = 'copy-btn';
+    btn.textContent = '复制';
+    pre.appendChild(btn);
+    btn.addEventListener('click', function() {
+        var text = codeBlock.textContent;
+        navigator.clipboard.writeText(text).then(function() {
+            btn.textContent = '已复制';
+            btn.classList.add('copied');
+            setTimeout(function() {
+                btn.textContent = '复制';
+                btn.classList.remove('copied');
+            }, 2000);
+        }).catch(function() {
+            // Fallback
+            var ta = document.createElement('textarea');
+            ta.value = text; ta.style.position = 'fixed'; ta.style.opacity = '0';
+            document.body.appendChild(ta); ta.select();
+            document.execCommand('copy'); document.body.removeChild(ta);
+            btn.textContent = '已复制'; btn.classList.add('copied');
+            setTimeout(function() { btn.textContent = '复制'; btn.classList.remove('copied'); }, 2000);
+        });
+    });
+});
+</script>
+
+
+<script>document.querySelectorAll("pre>code").forEach(function(c){var p=c.parentNode;p.style.position="relative";var b=document.createElement("button");b.className="copy-btn";b.textContent="复制";p.appendChild(b);b.addEventListener("click",function(){var t=c.textContent;navigator.clipboard.writeText(t).then(function(){b.textContent="已复制";b.classList.add("copied");setTimeout(function(){b.textContent="复制";b.classList.remove("copied")},2000)}).catch(function(){var a=document.createElement("textarea");a.value=t;a.style.position="fixed";a.style.opacity="0";document.body.appendChild(a);a.select();document.execCommand("copy");document.body.removeChild(a);b.textContent="已复制";b.classList.add("copied");setTimeout(function(){b.textContent="复制";b.classList.remove("copied")},2000)})})})</script>
+</body>
+</html>

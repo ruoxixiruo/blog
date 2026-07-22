@@ -1,0 +1,1561 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>K8s学习文档</title>
+<style>
+body {
+    transition: margin-left .25s ease;
+    font-family: -apple-system, "Noto Sans SC", "Microsoft YaHei", sans-serif;
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 20px 24px 60px;
+    line-height: 1.8;
+    color: #333;
+    background: #fff;
+}
+h1 { border-bottom: 2px solid #eee; padding-bottom: 10px; color: #222; }
+h2 { color: #333; margin-top: 32px; }
+h3 { color: #555; }
+a { color: #0366d6; text-decoration: none; }
+a:hover { text-decoration: underline; }
+pre {
+    background: #f6f8fa;
+    border-radius: 6px;
+    padding: 16px;
+    overflow-x: auto;
+    font-size: 14px;
+    line-height: 1.45;
+}
+code {
+    background: #f0f2f4;
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-size: 14px;
+}
+pre code { background: none; padding: 0; }
+blockquote {
+    border-left: 4px solid #ddd;
+    margin: 0;
+    padding: 0 16px;
+    color: #666;
+}
+table {
+    border-collapse: collapse;
+    width: 100%;
+    margin: 16px 0;
+}
+th, td {
+    border: 1px solid #ddd;
+    padding: 8px 12px;
+    text-align: left;
+}
+th { background: #f6f8fa; }
+img { max-width: 100%; }
+.back-link {
+    margin-bottom: 20px;
+    display: block;
+    color: #666;
+}
+.back-link:hover { color: #0366d6; }
+
+.sidebar-toc {
+    transition: left .25s ease;
+    position: fixed;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    width: 220px;
+    background: #f8f9fa;
+    border-right: 1px solid #e9ecef;
+    padding: 20px 0;
+    overflow-y: auto;
+    font-size: 13px;
+    z-index: 100;
+}
+.sidebar-toc a {
+    display: block;
+    padding: 6px 16px;
+    color: #555;
+    text-decoration: none;
+    border-left: 3px solid transparent;
+    line-height: 1.5;
+}
+.sidebar-toc a:hover {
+    background: #e9ecef;
+    color: #0366d6;
+    border-left-color: #0366d6;
+}
+.sidebar-toc .toc-h2 { padding-left: 16px; font-weight: 500; }
+.sidebar-toc .toc-h3 { padding-left: 32px; font-size: 12px; }
+body { margin-left: 240px; }
+
+
+.copy-btn {
+    position: absolute; top: 6px; right: 6px;
+    background: #e9ecef; border: none;
+    border-radius: 4px; padding: 3px 10px;
+    font-size: 12px; color: #555; cursor: pointer;
+    opacity: 0; transition: opacity 0.2s;
+    z-index: 1;
+}
+pre:hover .copy-btn { opacity: 1; }
+.copy-btn:hover { background: #d0d7de; }
+.copy-btn.copied { opacity: 1; background: #2da44e; color: #fff; }
+.sidebar-toggle-btn {
+  position: fixed;
+  left: 220px;
+  top: 0;
+  width: 28px;
+  height: 40px;
+  background: #f8f9fa;
+  border: 1px solid #e9ecef;
+  border-left: none;
+  border-radius: 0 4px 4px 0;
+  cursor: pointer;
+  font-size: 16px;
+  color: #555;
+  z-index: 101;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: left .25s, background .2s;
+  padding: 0;
+  line-height: 1;
+}
+.sidebar-toggle-btn:hover { background: #e9ecef; color: #0366d6; }
+.sidebar-collapsed .sidebar-toc { left: -220px; }
+.sidebar-collapsed .sidebar-toggle-btn { left: 0; }
+.sidebar-collapsed body, body.sidebar-collapsed { margin-left: 28px; }
+.sidebar-overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,.3);
+  z-index: 99;
+}
+@media (max-width: 768px) {
+  .sidebar-collapsed .sidebar-overlay { display: none; }
+  .sidebar-toc { left: -220px; }
+  .sidebar-toggle-btn { left: 0; }
+  body { margin-left: 28px; }
+}
+
+</style>
+</head>
+<body>
+<nav class="sidebar-toc"><a class="toc-h2" href="#1">1. Kubernetes 概述</a><a class="toc-h3" href="#11">1.1 什么是 Kubernetes</a><a class="toc-h3" href="#12">1.2 核心优势</a><a class="toc-h3" href="#13">1.3 架构总览</a><a class="toc-h2" href="#2">2. 核心架构</a><a class="toc-h3" href="#21-control-plane">2.1 Control Plane 组件</a><a class="toc-h3" href="#22-worker-node">2.2 Worker Node 组件</a><a class="toc-h3" href="#23">2.3 架构通信流程</a><a class="toc-h2" href="#3">3. 核心资源对象</a><a class="toc-h3" href="#31-pod">3.1 Pod</a><a class="toc-h3" href="#32-workload">3.2 Workload 控制器</a><a class="toc-h3" href="#33-service">3.3 Service</a><a class="toc-h3" href="#34-ingress">3.4 Ingress</a><a class="toc-h3" href="#35-config">3.5 ConfigMap &amp; Secret</a><a class="toc-h3" href="#36-pv-pvc">3.6 PV &amp; PVC（存储）</a><a class="toc-h2" href="#4">4. 网络模型</a><a class="toc-h3" href="#41">4.1 网络模型规则</a><a class="toc-h3" href="#42">4.2 CNI 插件</a><a class="toc-h3" href="#43">4.3 Service 通信模型</a><a class="toc-h2" href="#5">5. 调度系统</a><a class="toc-h3" href="#51">5.1 调度流程</a><a class="toc-h3" href="#52">5.2 调度策略</a><a class="toc-h3" href="#53">5.3 节点亲和性 / 污点容忍</a><a class="toc-h2" href="#6">6. 存储体系</a><a class="toc-h3" href="#61-volume">6.1 Volume 类型</a><a class="toc-h3" href="#62-pv-pvc">6.2 PV &amp; PVC 生命周期</a><a class="toc-h3" href="#63">6.3 StorageClass 动态供给</a><a class="toc-h2" href="#7">7. 安全体系</a><a class="toc-h3" href="#71-rbac">7.1 RBAC</a><a class="toc-h3" href="#72-namespace">7.2 Namespace 隔离</a><a class="toc-h3" href="#73-network-policy">7.3 NetworkPolicy</a><a class="toc-h3" href="#74">7.4 ServiceAccount</a><a class="toc-h2" href="#8">8. 配置管理</a><a class="toc-h3" href="#81-configmap">8.1 ConfigMap</a><a class="toc-h3" href="#82-secret">8.2 Secret</a><a class="toc-h2" href="#9">9. 日志与监控</a><a class="toc-h3" href="#91">9.1 监控体系（Prometheus）</a><a class="toc-h3" href="#92">9.2 日志收集（EFK）</a><a class="toc-h3" href="#93">9.3 事件管理</a><a class="toc-h2" href="#10_1">10. 包管理（Helm）</a><a class="toc-h3" href="#101-helm">10.1 Helm 基础概念</a><a class="toc-h3" href="#102">10.2 常用命令</a><a class="toc-h2" href="#11_1">11. 集群部署</a><a class="toc-h3" href="#111">11.1 部署方式对比</a><a class="toc-h3" href="#112">11.2 kubeadm 部署步骤</a><a class="toc-h2" href="#12_1">12. 日常运维</a><a class="toc-h3" href="#121">12.1 kubectl 常用命令</a><a class="toc-h3" href="#122">12.2 Pod 排错流程</a><a class="toc-h3" href="#123">12.3 节点维护（drain/cordon）</a><a class="toc-h2" href="#13_1">13. 高可用架构</a><a class="toc-h3" href="#131">13.1 控制面高可用</a><a class="toc-h3" href="#132">13.2 etcd 高可用</a><a class="toc-h2" href="#14-kubernetes-vs-docker-swarm-vs-mesos">14. Kubernetes vs Docker Swarm vs Mesos</a><a class="toc-h3" href="#141">14.1 对比表格</a><a class="toc-h2" href="#15_1">15. 高频面试题</a><a class="toc-h3" href="#q1">Q1：Kubernetes 核心组件有哪些？</a><a class="toc-h3" href="#q2-etcd">Q2：etcd 在 K8s 中的作用？</a><a class="toc-h3" href="#q3-pod">Q3：Pod 是如何创建的？</a><a class="toc-h3" href="#q4-deployment">Q4：Deployment 如何实现滚动更新？</a><a class="toc-h3" href="#q5-service">Q5：Service 有哪些类型？</a><a class="toc-h3" href="#q6">Q6：Ingress 和 Service 的区别？</a><a class="toc-h3" href="#q7-cni">Q7：CNI 网络模型原理？</a><a class="toc-h3" href="#q8">Q8：PV 和 PVC 是什么关系？</a><a class="toc-h3" href="#q9">Q9：如何实现蓝绿发布和灰度发布？</a><a class="toc-h3" href="#q10">Q10：kube-proxy 的三种模式？</a><a class="toc-h2" href="#_2">附录：常用命令速查</a></nav>
+<button class="sidebar-toggle-btn" onclick="toggleSidebar()" title="切换侧栏">☰</button>
+
+<div class="sidebar-overlay" onclick="toggleSidebar()"></div>
+
+<script>
+function toggleSidebar() {
+  document.body.classList.toggle('sidebar-collapsed');
+  try { localStorage.setItem('sidebarCollapsed', document.body.classList.contains('sidebar-collapsed')); } catch(e) {}
+}
+(function() {
+  try {
+    if (localStorage.getItem('sidebarCollapsed') === 'true') {
+      document.body.classList.add('sidebar-collapsed');
+    }
+  } catch(e) {}
+})();
+</script>
+<a class="back-link" href="/blog/2026/05/16/面试题/面试题/">← 返回面试题目录</a>
+<h1 id=page-title>Kubernetes (K8s) 面试学习文档</h1>
+<blockquote>
+<p>📅 整理日期：2026-06-27 | 🎯 目标：系统掌握 Kubernetes 核心原理、架构设计与面试高频考点</p>
+</blockquote>
+<hr />
+
+<h2 id="1">1. Kubernetes 概述</h2>
+<h3 id="11">1.1 什么是 Kubernetes</h3>
+<p><strong>Kubernetes</strong>（简称 K8s）是 Google 开源的<strong>容器编排平台</strong>，用于自动化部署、扩展和管理容器化应用。它是 CNCF（Cloud Native Computing Foundation）的毕业项目，当前业界容器编排的事实标准。</p>
+<p><strong>核心职责</strong>：将多台服务器聚合成一台"逻辑服务器"，提供声明式 API 管理应用的部署、伸缩、服务发现、负载均衡、滚动更新和自愈。</p>
+<blockquote>
+<p><strong>面试话术</strong>：Kubernetes 本质上是一个<strong>声明式 + 控制器模式</strong>的系统。用户描述"想要什么状态"，控制器不断对比实际状态与期望状态，通过调谐循环（Reconcile Loop）驱动物理状态向期望状态逼近。</p>
+</blockquote>
+
+<h3 id="12">1.2 核心优势</h3>
+<table>
+<thead>
+<tr>
+<th>特性</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>服务发现与负载均衡</strong></td>
+<td>内置 DNS + Service 抽象，自动分发流量</td>
+</tr>
+<tr>
+<td><strong>自动伸缩</strong></td>
+<td>HPA（Pod 水平伸缩）、VPA（垂直伸缩）、Cluster Autoscaler</td>
+</tr>
+<tr>
+<td><strong>自愈能力</strong></td>
+<td>自动重启失败的容器、替换节点故障的 Pod</td>
+</tr>
+<tr>
+<td><strong>滚动更新 &amp; 回滚</strong></td>
+<td>Deployment 零停机更新，随时回滚到历史版本</td>
+</tr>
+<tr>
+<td><strong>存储编排</strong></td>
+<td>PV/PVC/StorageClass 动态挂载存储卷</td>
+</tr>
+<tr>
+<td><strong>配置管理</strong></td>
+<td>ConfigMap &amp; Secret 实现配置与镜像分离</td>
+</tr>
+<tr>
+<td><strong>声明式 API</strong></td>
+<td>YAML 描述期望状态，控制器自动调谐</td>
+</tr>
+</tbody>
+</table>
+
+<h3 id="13">1.3 架构总览</h3>
+<pre><code>+---------------------------------------------------------------------+
+|                       Kubernetes Cluster                             |
++---------------------------------------------------------------------+
+|                                                                      |
+|  +---------------------------+   +-----------------------------+    |
+|  |     Control Plane         |   |      Worker Node            |    |
+|  |  (Master Node(s))         |   |  (x N)                      |    |
+|  |                           |   |                             |    |
+|  |  +---------------------+  |   |  +-----------------------+  |    |
+|  |  |   API Server (kube- |  |   |  |   kubelet             |  |    |
+|  |  |   apiserver)        |&lt;-----+--|   (节点代理)           |  |    |
+|  |  +---------------------+  |   |  +-----------------------+  |    |
+|  |        |                  |   |  |   kube-proxy          |  |    |
+|  |  +---------------------+  |   |  |   (网络代理/负载均衡)  |  |    |
+|  |  |   Scheduler         |  |   |  +-----------------------+  |    |
+|  |  |   (调度器)           |  |   |  |   Container Runtime  |  |    |
+|  |  +---------------------+  |   |  |   (containerd/docker) |  |    |
+|  |        |                  |   |  +-----------------------+  |    |
+|  |  +---------------------+  |   |  |   Pods (业务容器)      |  |    |
+|  |  | Controller Manager  |  |   |  |   [c1] [c2] ...       |  |    |
+|  |  |   (控制器管理器)      |  |   |  +-----------------------+  |    |
+|  |  +---------------------+  |   +-----------------------------+    |
+|  |        |                  |                                      |
+|  |  +---------------------+  |                                      |
+|  |  |   etcd              |  |   kubectl / Helm / API Client        |
+|  |  |   (分布式 KV 存储)   |  |        |                            |
+|  |  +---------------------+  |        |                            |
+|  +---------------------------+  +-----+----------------------------+
+|                                                                      |
++---------------------------------------------------------------------+
+</code></pre>
+<hr />
+
+<h2 id="2">2. 核心架构</h2>
+<h3 id="21-control-plane">2.1 Control Plane 组件</h3>
+<table>
+<thead>
+<tr>
+<th>组件</th>
+<th>说明</th>
+<th>关键点</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>kube-apiserver</strong></td>
+<td>集群的网关，所有组件通信的中枢</td>
+<td>唯一与 etcd 交互的组件；提供 RESTful API；认证/授权/准入控制</td>
+</tr>
+<tr>
+<td><strong>etcd</strong></td>
+<td>分布式 KV 存储，保存集群全部数据</td>
+<td>基于 Raft 一致性协议；需要定期备份；建议 SSD 存储</td>
+</tr>
+<tr>
+<td><strong>kube-scheduler</strong></td>
+<td>为未调度的 Pod 选择合适的 Node</td>
+<td>调度算法：预选（Predicates）+ 优选（Priorities）</td>
+</tr>
+<tr>
+<td><strong>kube-controller-manager</strong></td>
+<td>运行所有控制器（Deployment/ReplicaSet/Node 等）</td>
+<td>控制器模式的核心，约 30+ 个控制器</td>
+</tr>
+<tr>
+<td><strong>cloud-controller-manager</strong></td>
+<td>云厂商集成（LB/Storage/Route）</td>
+<td>可选组件，自建集群不部署</td>
+</tr>
+</tbody>
+</table>
+
+<h3 id="22-worker-node">2.2 Worker Node 组件</h3>
+<table>
+<thead>
+<tr>
+<th>组件</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>kubelet</strong></td>
+<td>节点代理，负责管理 Pod 的生命周期，向 API Server 注册节点并上报状态</td>
+</tr>
+<tr>
+<td><strong>kube-proxy</strong></td>
+<td>网络代理，实现 Service 的负载均衡（iptables/IPVS/userspace 模式）</td>
+</tr>
+<tr>
+<td><strong>Container Runtime</strong></td>
+<td>容器运行时（containerd / CRI-O / Docker），负责拉取镜像、启停容器</td>
+</tr>
+</tbody>
+</table>
+
+<h3 id="23">2.3 架构通信流程</h3>
+<pre><code>                     etcd
+                       ^
+                       | watch / write
+                       v
+    +----------+    +---------+    +----------+
+    | Scheduler+--&gt;|   API   |&lt;---+Controller |
+    +----------+   |  Server |    +----------+
+         |          +----+----+          ^
+    watch|               |               |watch
+         v               v               |
+    +----------+    +---------+          |
+    | kubelet  |&lt;---|  Node   |----------+
+    | on Node  |    | Network |
+    +----------+    +---------+
+
+    Communication flow:
+    1. All components talk ONLY to API Server (no direct peer-to-peer)
+    2. kubelet watches API Server for Pod assignments on its Node
+    3. Scheduler watches unscheduled Pods, binds them to Nodes
+    4. Controller watches resources, ensures desired state
+</code></pre>
+<blockquote>
+<p><strong>面试话术</strong>：K8s 所有组件只与 API Server 通信，不直接交互。API Server 是集群的"总线"，也是唯一读写 etcd 的组件。这种去耦合架构使得任意组件可以独立扩缩。</p>
+</blockquote>
+<hr />
+
+<h2 id="3">3. 核心资源对象</h2>
+<h3 id="31-pod">3.1 Pod</h3>
+<p><strong>Pod</strong> 是 K8s 最小的可部署单元，封装一个或多个容器。同 Pod 的容器共享网络栈（同一 IP/端口空间）和存储卷（共享 Volume）。</p>
+<pre><code class="language-yaml">apiVersion: v1
+kind: Pod
+metadata:
+  name: nginx-pod
+  labels:
+    app: nginx
+spec:
+  containers:
+    - name: nginx
+      image: nginx:1.25
+      ports:
+        - containerPort: 80
+      resources:
+        requests:
+          cpu: "100m"
+          memory: "128Mi"
+        limits:
+          cpu: "500m"
+          memory: "256Mi"
+</code></pre>
+<p><strong>关键特性</strong>：</p>
+<ul>
+<li>Pod 是"逻辑主机"，不是单个进程</li>
+<li>Sidecar 模式：同一 Pod 放入辅助容器（日志收集、代理等）</li>
+<li>Pod 是"脆弱的"——应通过 Workload 控制器管理，不要直接创建</li>
+</ul>
+
+<h3 id="32-workload">3.2 Workload 控制器</h3>
+<table>
+<thead>
+<tr>
+<th>控制器</th>
+<th>说明</th>
+<th>适用场景</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Deployment</strong></td>
+<td>无状态应用，管理 ReplicaSet</td>
+<td>Web 服务、API 服务（最常用）</td>
+</tr>
+<tr>
+<td><strong>StatefulSet</strong></td>
+<td>有状态应用，保持 Pod 身份和存储</td>
+<td>数据库、消息队列、ZooKeeper</td>
+</tr>
+<tr>
+<td><strong>DaemonSet</strong></td>
+<td>每个 Node 运行一个 Pod</td>
+<td>日志采集（Fluentd）、监控（Node Exporter）</td>
+</tr>
+<tr>
+<td><strong>Job</strong></td>
+<td>一次性任务</td>
+<td>数据迁移、批处理</td>
+</tr>
+<tr>
+<td><strong>CronJob</strong></td>
+<td>定时任务</td>
+<td>定时备份、清理日志</td>
+</tr>
+<tr>
+<td><strong>ReplicaSet</strong></td>
+<td>确保指定数量的 Pod 运行</td>
+<td>一般不直接使用，被 Deployment 管理</td>
+</tr>
+</tbody>
+</table>
+
+<pre><code class="language-yaml">apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: nginx-deployment
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: nginx
+  template:
+    metadata:
+      labels:
+        app: nginx
+    spec:
+      containers:
+        - name: nginx
+          image: nginx:1.25
+          ports:
+            - containerPort: 80
+          resources:
+            requests:
+              cpu: "100m"
+              memory: "128Mi"
+            limits:
+              cpu: "200m"
+              memory: "256Mi"
+</code></pre>
+
+<h3 id="33-service">3.3 Service</h3>
+<p><strong>Service</strong> 为一组 Pod 提供稳定的网络入口（VIP），实现服务发现和负载均衡。</p>
+<table>
+<thead>
+<tr>
+<th>Service 类型</th>
+<th>说明</th>
+<th>访问方式</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>ClusterIP</strong></td>
+<td>分配集群内部虚拟 IP</td>
+<td>集群内访问（默认）</td>
+</tr>
+<tr>
+<td><strong>NodePort</strong></td>
+<td>在每个 Node 上暴露端口</td>
+<td>集群外访问：<code>&lt;NodeIP&gt;:&lt;NodePort&gt;</code></td>
+</tr>
+<tr>
+<td><strong>LoadBalancer</strong></td>
+<td>云厂商 LB 集成</td>
+<td>公网访问（需云平台支持）</td>
+</tr>
+<tr>
+<td><strong>ExternalName</strong></td>
+<td>CNAME 到外部域名</td>
+<td>访问外部服务</td>
+</tr>
+</tbody>
+</table>
+
+<pre><code class="language-yaml">apiVersion: v1
+kind: Service
+metadata:
+  name: nginx-service
+spec:
+  type: ClusterIP
+  selector:
+    app: nginx
+  ports:
+    - port: 80
+      targetPort: 80
+</code></pre>
+
+<h3 id="34-ingress">3.4 Ingress</h3>
+<p><strong>Ingress</strong> 是七层（HTTP/HTTPS）路由，提供域名和路径级别的流量分发。</p>
+<pre><code class="language-yaml">apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: my-ingress
+spec:
+  ingressClassName: nginx
+  rules:
+    - host: api.example.com
+      http:
+        paths:
+          - path: /users
+            pathType: Prefix
+            backend:
+              service:
+                name: user-service
+                port:
+                  number: 80
+          - path: /orders
+            pathType: Prefix
+            backend:
+              service:
+                name: order-service
+                port:
+                  number: 80
+    - host: admin.example.com
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: admin-service
+                port:
+                  number: 80
+</code></pre>
+
+<h3 id="35-config">3.5 ConfigMap &amp; Secret</h3>
+<pre><code class="language-yaml">apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: app-config
+data:
+  app.properties: |
+    database.url=jdbc:mysql://db:3306/app
+    log.level=INFO
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: app-secret
+type: Opaque
+data:
+  password: cGFzc3dvcmQxMjM=  # base64 encoded
+</code></pre>
+
+<h3 id="36-pv-pvc">3.6 PV &amp; PVC（存储）</h3>
+<pre><code class="language-yaml"># PV — 由管理员创建
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: nfs-pv
+spec:
+  capacity:
+    storage: 10Gi
+  accessModes:
+    - ReadWriteMany
+  nfs:
+    server: nfs-server.local
+    path: /exports/data
+---
+# PVC — 由用户申请
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: app-pvc
+spec:
+  accessModes:
+    - ReadWriteMany
+  resources:
+    requests:
+      storage: 5Gi
+</code></pre>
+<hr />
+
+<h2 id="4">4. 网络模型</h2>
+<h3 id="41">4.1 网络模型规则</h3>
+<p>K8s 网络模型要求（CNI 规范）：</p>
+<ol>
+<li>所有 Pod 可以不使用 NAT 直接通信（跨 Node 互通）</li>
+<li>所有 Node 可以不使用 NAT 直接访问所有 Pod</li>
+<li>Pod 自己看到的 IP 和他人看到的 IP 相同（扁平网络）</li>
+</ol>
+
+<h3 id="42">4.2 CNI 插件</h3>
+<table>
+<thead>
+<tr>
+<th>CNI 插件</th>
+<th>网络模式</th>
+<th>特点</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Flannel</strong></td>
+<td>VXLAN / host-gw</td>
+<td>简单易用，性能一般，不支持 NetworkPolicy</td>
+</tr>
+<tr>
+<td><strong>Calico</strong></td>
+<td>BGP / IPIP</td>
+<td>支持 NetworkPolicy，性能好，复杂配置</td>
+</tr>
+<tr>
+<td><strong>Cilium</strong></td>
+<td>eBPF</td>
+<td>高性能，支持 L7 策略和服务网格，新兴方案</td>
+</tr>
+<tr>
+<td><strong>Weave</strong></td>
+<td>VXLAN + fast datapath</td>
+<td>简单易用，内建 DNS</td>
+</tr>
+</tbody>
+</table>
+
+<h3 id="43">4.3 Service 通信模型</h3>
+<pre><code>                    +-----------+
+                    |   Client  |
+                    +-----+-----+
+                          |
+                    ClusterIP: 10.0.0.1
+                          |
+                  +-------v--------+
+                  |   kube-proxy   |
+                  |  (iptables OR  |
+                  |   IPVS)        |
+                  +-------+--------+
+                          |
+             +------------+-------------+
+             |            |             |
+             v            v             v
+         +--------+  +--------+  +--------+
+         | Pod A  |  | Pod B  |  | Pod C  |
+         | Node-1 |  | Node-2 |  | Node-3 |
+         +--------+  +--------+  +--------+
+
+    kube-proxy mode comparison:
+      userspace  : userspace proxy (legacy, slow)
+      iptables   : kernel-space NAT rules (default, medium)
+      ipvs       : kernel-space L4 LB (fast, consistent hash)
+</code></pre>
+<hr />
+
+<h2 id="5">5. 调度系统</h2>
+<h3 id="51">5.1 调度流程</h3>
+<pre><code>+----------+    +-----------+    +----------+    +----------+
+| Unsched  |    |   Pre-   |    |  Priority|    |  Bind to |
+| Pod Watch|--&gt;|  filter   |--&gt;|   Score   |--&gt;|   Node    |
++----------+   (Predicates)    (Priorities)    +----------+
+
+Filter (Predicates):
+  - PodFitsResources (CPU/Memory 充足)
+  - PodMatchNodeSelector (节点选择器)
+  - PodFitsHostPorts (端口不冲突)
+  - NoDiskConflict (存储卷不冲突)
+  - CheckNodeCondition (节点健康)
+
+Score (Priorities):
+  - LeastRequestedPriority (资源利用率低的优先)
+  - BalancedResourceAllocation (CPU/内存平衡)
+  - ImageLocalityPriority (已有镜像的节点优先)
+  - NodeAffinityPriority (亲和性规则)
+</code></pre>
+
+<h3 id="52">5.2 调度策略</h3>
+<table>
+<thead>
+<tr>
+<th>概念</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>nodeSelector</strong></td>
+<td>最简单的节点选择，匹配 Label</td>
+</tr>
+<tr>
+<td><strong>nodeAffinity</strong></td>
+<td>节点亲和性，支持 required（硬）和 preferred（软）</td>
+</tr>
+<tr>
+<td><strong>podAffinity</strong></td>
+<td>Pod 亲和性，同拓扑键上靠近部署</td>
+</tr>
+<tr>
+<td><strong>podAntiAffinity</strong></td>
+<td>Pod 反亲和性，同拓扑键上分散部署</td>
+</tr>
+<tr>
+<td><strong>Taints &amp; Tolerations</strong></td>
+<td>节点打污点，Pod 容忍才能调度</td>
+</tr>
+</tbody>
+</table>
+
+<h3 id="53">5.3 节点亲和性 / 污点容忍</h3>
+<pre><code class="language-yaml">apiVersion: v1
+kind: Pod
+metadata:
+  name: gpu-pod
+spec:
+  affinity:
+    nodeAffinity:
+      requiredDuringSchedulingIgnoredDuringExecution:
+        nodeSelectorTerms:
+          - matchExpressions:
+              - key: gpu-type
+                operator: In
+                values:
+                  - "nvidia-a100"
+  tolerations:
+    - key: "gpu"
+      operator: "Exists"
+      effect: "NoSchedule"
+  containers:
+    - name: gpu-container
+      image: nvidia/cuda:12.0
+</code></pre>
+<hr />
+
+<h2 id="6">6. 存储体系</h2>
+<h3 id="61-volume">6.1 Volume 类型</h3>
+<table>
+<thead>
+<tr>
+<th>Volume 类型</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>emptyDir</strong></td>
+<td>Pod 生命周期内的临时存储，Pod 删除即清理</td>
+</tr>
+<tr>
+<td><strong>hostPath</strong></td>
+<td>挂载节点文件系统路径</td>
+</tr>
+<tr>
+<td><strong>configMap</strong></td>
+<td>将 ConfigMap 挂载为文件</td>
+</tr>
+<tr>
+<td><strong>secret</strong></td>
+<td>将 Secret 挂载为文件</td>
+</tr>
+<tr>
+<td><strong>persistentVolumeClaim</strong></td>
+<td>持久化存储（由 PVC 绑定 PV）</td>
+</tr>
+<tr>
+<td><strong>nfs</strong></td>
+<td>NFS 网络存储</td>
+</tr>
+</tbody>
+</table>
+
+<h3 id="62-pv-pvc">6.2 PV &amp; PVC 生命周期</h3>
+<pre><code>  Provision (静态/动态)
+       |
++------v-------+
+|    PV        |   &lt;--- 集群资源（由管理员或 StorageClass 创建）
++------+-------+
+       |
+   Bind (PVC 匹配 PV)
+       |
++------v-------+
+|  PVC(Pod使用) |   &lt;--- 用户请求存储
++------+-------+
+       |
+   使用中 (In Use)
+       |
+   Release (删除 PVC)
+       |
++------v-------+
+|   PV(Released)|
++------+-------+
+       |
+  Reclaim (回收策略)
+  +-----+-----+------+
+  |  Retain   | Delete| Recycle(已废弃)
+  |(保留数据)  | (删除)| (清空数据)
+</code></pre>
+
+<h3 id="63">6.3 StorageClass 动态供给</h3>
+<pre><code class="language-yaml">apiVersion: storage.k8s.io/v1
+kind: StorageClass
+metadata:
+  name: fast-ssd
+provisioner: kubernetes.io/gce-pd  # 或 nfs.csi.k8s.io 等
+parameters:
+  type: pd-ssd
+  replication-type: regional-pd
+reclaimPolicy: Delete
+allowVolumeExpansion: true
+mountOptions:
+  - discard
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: fast-pvc
+spec:
+  storageClassName: fast-ssd
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 100Gi
+</code></pre>
+<hr />
+
+<h2 id="7">7. 安全体系</h2>
+<h3 id="71-rbac">7.1 RBAC</h3>
+<p>基于角色的访问控制（RBAC）是 K8s 默认授权模式。</p>
+<pre><code class="language-yaml"># 创建 ServiceAccount
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: my-sa
+---
+# 创建 Role
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  namespace: default
+  name: pod-reader
+rules:
+  - apiGroups: [""]
+    resources: ["pods"]
+    verbs: ["get", "watch", "list"]
+---
+# 绑定
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: read-pods
+  namespace: default
+subjects:
+  - kind: ServiceAccount
+    name: my-sa
+    namespace: default
+roleRef:
+  kind: Role
+  name: pod-reader
+  apiGroup: rbac.authorization.k8s.io
+</code></pre>
+
+<h3 id="72-namespace">7.2 Namespace 隔离</h3>
+<p>Namespace 实现<strong>逻辑隔离</strong>（非网络隔离），适用于多环境、多团队场景。默认提供四个初始 Namespace：</p>
+<ul>
+<li><code>default</code> — 默认命名空间</li>
+<li><code>kube-system</code> — 系统组件</li>
+<li><code>kube-public</code> — 公共资源（所有用户可读）</li>
+<li><code>kube-node-lease</code> — 节点心跳租约</li>
+</ul>
+
+<h3 id="73-network-policy">7.3 NetworkPolicy</h3>
+<pre><code class="language-yaml">apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: deny-all
+  namespace: production
+spec:
+  podSelector: {}
+  policyTypes:
+    - Ingress
+    - Egress
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: allow-api
+spec:
+  podSelector:
+    matchLabels:
+      app: api
+  ingress:
+    - from:
+        - podSelector:
+            matchLabels:
+              app: frontend
+      ports:
+        - port: 8080
+</code></pre>
+
+<h3 id="74">7.4 ServiceAccount</h3>
+<ul>
+<li>每个 Namespace 自动创建 <code>default</code> ServiceAccount</li>
+<li>ServiceAccount 关联 Secret（包含 CA 证书和 Token）</li>
+<li>Token 挂载到 Pod 的 <code>/var/run/secrets/kubernetes.io/serviceaccount/</code></li>
+<li>用于 Pod 与 API Server 的认证</li>
+</ul>
+<hr />
+
+<h2 id="8">8. 配置管理</h2>
+<h3 id="81-configmap">8.1 ConfigMap</h3>
+<pre><code class="language-yaml">apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: app-config
+data:
+  # 键值对
+  database.url: "jdbc:mysql://db:3306/app"
+  log.level: "INFO"
+
+  # 文件内容
+  nginx.conf: |
+    server {
+        listen 80;
+        server_name example.com;
+    }
+</code></pre>
+<pre><code class="language-yaml"># Pod 中使用 ConfigMap
+spec:
+  containers:
+    - name: app
+      envFrom:
+        - configMapRef:
+            name: app-config
+      volumeMounts:
+        - name: config
+          mountPath: /etc/config
+  volumes:
+    - name: config
+      configMap:
+        name: app-config
+</code></pre>
+<p><strong>注意</strong>：ConfigMap 更新后，挂载为文件会自动更新（<code>--sync-period</code>），环境变量方式不会热更新。</p>
+
+<h3 id="82-secret">8.2 Secret</h3>
+<pre><code class="language-yaml">apiVersion: v1
+kind: Secret
+metadata:
+  name: db-credentials
+type: Opaque
+stringData:
+  username: admin
+  password: s3cr3t
+---
+# Pod 中使用
+spec:
+  containers:
+    - name: app
+      env:
+        - name: DB_USERNAME
+          valueFrom:
+            secretKeyRef:
+              name: db-credentials
+              key: username
+        - name: DB_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: db-credentials
+              key: password
+</code></pre>
+<hr />
+
+<h2 id="9">9. 日志与监控</h2>
+<h3 id="91">9.1 监控体系（Prometheus）</h3>
+<pre><code>+-------------+     +----------+     +-----------+
+|  kube-state |     |  Node    |     |  cAdvisor |
+|  -metrics   |     | Exporter |     | (内置kubelet)
++------+------+     +----+-----+     +-----+-----+
+       |                 |                 |
+       +--------+--------+---------+------+
+                |          |         |
+          +-----v----------v---------v----+
+          |        Prometheus Server       |
+          |    (scrape + store + alert)    |
+          +----+--------+--------+--------+
+               |        |        |
+         +-----v-+  +---v----+  +v--------+
+         |Grafana|  |Alert   |  |Long-term |
+         |Dashboard| |Manager |  |Storage   |
+         +-------+  +--------+  +----------+
+</code></pre>
+
+<table>
+<thead>
+<tr>
+<th>组件</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Prometheus Server</strong></td>
+<td>时序数据库 + 抓取器 + 告警引擎</td>
+</tr>
+<tr>
+<td><strong>kube-state-metrics</strong></td>
+<td>集群层面的指标（Pod/Deployment/Node 状态）</td>
+</tr>
+<tr>
+<td><strong>node_exporter</strong></td>
+<td>节点层面的指标（CPU/内存/磁盘/网络）</td>
+</tr>
+<tr>
+<td><strong>cAdvisor</strong></td>
+<td>容器层面的指标（内置在 kubelet 中）</td>
+</tr>
+<tr>
+<td><strong>Grafana</strong></td>
+<td>可视化仪表盘</td>
+</tr>
+<tr>
+<td><strong>AlertManager</strong></td>
+<td>告警路由、去重、通知</td>
+</tr>
+</tbody>
+</table>
+
+<h3 id="92">9.2 日志收集（EFK）</h3>
+<pre><code>    +---------+      +---------+      +----------+
+    |         |      |         |      |          |
+    | Pod A   |      | Pod B   |      | Pod C    |
+    | (stdout)|      | (stdout)|      | (stdout) |
+    +----+----+      +----+----+      +-----+----+
+         |                |                 |
+         |   +------------+-----+-----------+
+         |   |                  |
+    +----v---v----+       +----v-------+
+    | Filebeat /  |       |            |
+    | Fluentd     +------&gt;|   Elastic  |
+    | (DaemonSet) |       |   Search   |
+    +-------------+       +-----+------+
+                               |
+                          +----v------+
+                          |  Kibana    |
+                          | (可视化)    |
+                          +-----------+
+</code></pre>
+
+<h3 id="93">9.3 事件管理</h3>
+<pre><code class="language-bash"># 查看事件
+kubectl get events --sort-by='.lastTimestamp'
+
+# 持续跟踪事件
+kubectl get events --watch
+
+# 查看特定 Namespace 的事件
+kubectl get events -n kube-system
+</code></pre>
+<hr />
+
+<h2 id="10_1">10. 包管理（Helm）</h2>
+<h3 id="101-helm">10.1 Helm 基础概念</h3>
+<table>
+<thead>
+<tr>
+<th>概念</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Chart</strong></td>
+<td>Helm 包，包含应用部署所需的所有 K8s 资源 YAML 模板</td>
+</tr>
+<tr>
+<td><strong>Release</strong></td>
+<td>Chart 在集群中的一个部署实例</td>
+</tr>
+<tr>
+<td><strong>Repository</strong></td>
+<td>Chart 仓库（类似 Docker Hub 或 Maven 仓库）</td>
+</tr>
+<tr>
+<td><strong>Values</strong></td>
+<td>模板参数值，支持覆盖默认配置</td>
+</tr>
+</tbody>
+</table>
+
+<h3 id="102">10.2 常用命令</h3>
+<pre><code class="language-bash"># 添加仓库
+helm repo add bitnami https://charts.bitnami.com/bitnami
+
+# 搜索 Chart
+helm search repo nginx
+
+# 安装 Release
+helm install my-nginx bitnami/nginx --version 18.0.0
+
+# 自定义 Values
+helm install my-app ./my-chart \
+  --set replicaCount=3 \
+  --values custom-values.yaml
+
+# 升级 Release
+helm upgrade my-nginx bitnami/nginx
+
+# 回滚
+helm rollback my-nginx 1
+
+# 查看 Release 列表
+helm list
+
+# 卸载
+helm uninstall my-nginx
+</code></pre>
+<hr />
+
+<h2 id="11_1">11. 集群部署</h2>
+<h3 id="111">11.1 部署方式对比</h3>
+<table>
+<thead>
+<tr>
+<th>工具</th>
+<th>难度</th>
+<th>适用场景</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>kubeadm</strong></td>
+<td>中</td>
+<td>生产环境推荐，官方工具</td>
+</tr>
+<tr>
+<td><strong>minikube</strong></td>
+<td>低</td>
+<td>本地开发测试</td>
+</tr>
+<tr>
+<td><strong>kind</strong></td>
+<td>低</td>
+<td>CI/CD 环境，Docker in Docker</td>
+</tr>
+<tr>
+<td><strong>K3s</strong></td>
+<td>低</td>
+<td>边缘计算、物联网</td>
+</tr>
+<tr>
+<td><strong>二进制部署</strong></td>
+<td>高</td>
+<td>深入学习、定制化场景</td>
+</tr>
+<tr>
+<td><strong>云厂商托管</strong></td>
+<td>低</td>
+<td>TKE / AKS / EKS / GKE 等</td>
+</tr>
+</tbody>
+</table>
+
+<h3 id="112">11.2 kubeadm 部署步骤</h3>
+<pre><code class="language-bash"># 1. 所有节点：安装 containerd 和 kubeadm/kubelet/kubectl
+cat &lt;&lt;EOF | sudo tee /etc/yum.repos.d/kubernetes.repo
+[kubernetes]
+name=Kubernetes
+baseurl=https://pkgs.k8s.io/core:/stable:/v1.28/rpm/
+enabled=1
+gpgcheck=1
+gpgkey=https://pkgs.k8s.io/core:/stable:/v1.28/rpm/repodata/repomd.xml.key
+EOF
+
+sudo yum install -y kubelet kubeadm kubectl --disableexcludes=kubernetes
+sudo systemctl enable --now kubelet
+
+# 2. 控制面节点：初始化集群
+sudo kubeadm init \
+  --apiserver-advertise-address=192.168.1.10 \
+  --pod-network-cidr=10.244.0.0/16 \
+  --service-cidr=10.96.0.0/12
+
+# 3. 配置 kubectl
+mkdir -p $HOME/.kube
+sudo cp -i /etc/kubernetes/admin.conf $HOME/.kube/config
+sudo chown $(id -u):$(id -g) $HOME/.kube/config
+
+# 4. 安装 CNI 插件（Calico）
+kubectl apply -f https://docs.tigera.io/calico/latest/manifests/calico.yaml
+
+# 5. 工作节点加入
+sudo kubeadm join 192.168.1.10:6443 --token &lt;token&gt; --discovery-token-ca-cert-hash sha256:&lt;hash&gt;
+</code></pre>
+<hr />
+
+<h2 id="12_1">12. 日常运维</h2>
+<h3 id="121">12.1 kubectl 常用命令</h3>
+<pre><code class="language-bash"># 基础操作
+kubectl get pods -o wide                            # 查看 Pod 详情
+kubectl get pods --all-namespaces                   # 查看所有 NS 的 Pod
+kubectl describe pod &lt;name&gt;                         # Pod 详细信息
+kubectl logs -f &lt;pod-name&gt;                          # 跟踪日志
+kubectl logs &lt;pod-name&gt; -c &lt;container-name&gt;         # 多容器 Pod 指定容器
+kubectl exec -it &lt;pod-name&gt; -- /bin/sh               # 进入 Pod
+
+# 资源操作
+kubectl apply -f deployment.yaml                    # 声明式创建/更新
+kubectl delete -f deployment.yaml                   # 删除资源
+kubectl edit deployment &lt;name&gt;                      # 在线编辑
+
+# 调试
+kubectl port-forward pod/nginx 8080:80              # 端口转发
+kubectl cp /local/path &lt;pod&gt;:/remote/path           # 文件拷贝
+kubectl top pods                                     # 查看资源使用
+kubectl get events --sort-by='.lastTimestamp'       # 查看事件
+</code></pre>
+
+<h3 id="122">12.2 Pod 排错流程</h3>
+<pre><code>Pod 状态异常排错：
+
+1. Pending ──&gt; 检查资源不足 / 节点选择器 / PVC 未绑定
+   kubectl describe pod &lt;name&gt;
+   kubectl get events
+
+2. ImagePullBackOff ──&gt; 检查镜像名/标签 / 仓库认证 / 网络
+   kubectl describe pod &lt;name&gt; | grep -A5 Events
+
+3. CrashLoopBackOff ──&gt; 应用启动失败
+   kubectl logs &lt;name&gt;
+   kubectl logs --previous &lt;name&gt;   # 查看上次重启日志
+
+4. Running 但不通 ──&gt; 检查 Service / NetworkPolicy / 端口
+   kubectl exec -it &lt;name&gt; -- curl localhost:&lt;port&gt;
+   kubectl port-forward &lt;name&gt; &lt;local&gt;:&lt;remote&gt;
+
+5. Evicted ──&gt; 节点资源不足被驱逐
+   kubectl describe node &lt;node&gt; | grep -A5 Conditions
+</code></pre>
+
+<h3 id="123">12.3 节点维护（drain/cordon）</h3>
+<pre><code class="language-bash"># 节点维护流程
+kubectl cordon &lt;node-name&gt;          # 标记不可调度（已有 Pod 继续运行）
+kubectl drain &lt;node-name&gt;           # 驱逐 Pod + cordon
+
+# 维护完成后恢复
+kubectl uncordon &lt;node-name&gt;        # 恢复调度
+
+# Delete Node
+kubectl delete node &lt;node-name&gt;     # 从集群中移除节点
+</code></pre>
+<hr />
+
+<h2 id="13_1">13. 高可用架构</h2>
+<h3 id="131">13.1 控制面高可用</h3>
+<pre><code>                    +-------------------+
+                    |    Load Balancer   |  &lt;--- 对外 VIP / LB
+                    |   (HAProxy/Nginx)  |
+                    +--------+----------+
+                             |
+             +---------------+---------------+
+             |               |               |
+    +--------v-------+  +---v--------+  +---v--------+
+    | Control Plane 1|  |Control Pln2|  |Control Pln3|
+    |                |  |            |  |            |
+    | kube-apiserver |  |kube-apiserv|  |kube-apiserv|
+    | kube-scheduler |  |kube-schedul|  |kube-schedul|
+    | kube-ctrl-mgr  |  |kube-ctrl-mg|  |kube-ctrl-mg|
+    | etcd (member)  |  |etcd (member|  |etcd (member|
+    +----------------+  +------------+  +------------+
+
+    Key: Control Plane 组件可通过 leader election 实现高可用
+         API Server 无状态，水平扩展
+         etcd 通过 Raft 保证数据一致性
+</code></pre>
+
+<h3 id="132">13.2 etcd 高可用</h3>
+<pre><code class="language-yaml"># etcd 集群推荐配置
+- 奇数节点（3 或 5），容忍 (N-1)/2 个节点故障
+- SSD 存储，推荐 NVMe
+- 独立的磁盘 IO，不与 API Server 共享
+- 定期快照备份
+- 网络延迟 &lt; 10ms（跨 AZ 部署需注意）
+</code></pre>
+
+<pre><code class="language-bash"># etcd 快照备份
+ETCDCTL_API=3 etcdctl --endpoints=https://127.0.0.1:2379 \
+  --cacert=/etc/kubernetes/pki/etcd/ca.crt \
+  --cert=/etc/kubernetes/pki/etcd/server.crt \
+  --key=/etc/kubernetes/pki/etcd/server.key \
+  snapshot save /backup/etcd-snapshot-$(date +%Y%m%d).db
+
+# etcd 快照恢复
+ETCDCTL_API=3 etcdctl snapshot restore /backup/etcd-snapshot.db \
+  --data-dir=/var/lib/etcd-restored
+</code></pre>
+<hr />
+
+<h2 id="14-kubernetes-vs-docker-swarm-vs-mesos">14. Kubernetes vs Docker Swarm vs Mesos</h2>
+<h3 id="141">14.1 对比表格</h3>
+<table>
+<thead>
+<tr>
+<th>对比项</th>
+<th>Kubernetes</th>
+<th>Docker Swarm</th>
+<th>Apache Mesos</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>安装部署</strong></td>
+<td>复杂</td>
+<td>简单</td>
+<td>复杂</td>
+</tr>
+<tr>
+<td><strong>社区生态</strong></td>
+<td>最活跃</td>
+<td>已衰退</td>
+<td>较少</td>
+</tr>
+<tr>
+<td><strong>伸缩速度</strong></td>
+<td>秒级</td>
+<td>秒级</td>
+<td>秒级</td>
+</tr>
+<tr>
+<td><strong>负载均衡</strong></td>
+<td>Service/Ingress</td>
+<td>内置 DNS + VIP</td>
+<td>Marathon-LB</td>
+</tr>
+<tr>
+<td><strong>服务发现</strong></td>
+<td>DNS + ENV</td>
+<td>DNS + VIP</td>
+<td>DNS + 第三方</td>
+</tr>
+<tr>
+<td><strong>滚动更新</strong></td>
+<td>原生支持</td>
+<td>原生支持</td>
+<td>需配置</td>
+</tr>
+<tr>
+<td><strong>网络模型</strong></td>
+<td>CNI 插件丰富</td>
+<td>Overlay 网络</td>
+<td>Calico / 第三方</td>
+</tr>
+<tr>
+<td><strong>存储编排</strong></td>
+<td>PV/PVC/StorageClass</td>
+<td>Volume 挂载</td>
+<td>Persistent Volumes</td>
+</tr>
+<tr>
+<td><strong>学习曲线</strong></td>
+<td>陡峭</td>
+<td>平缓</td>
+<td>陡峭</td>
+</tr>
+<tr>
+<td><strong>生产采用率</strong></td>
+<td>最高（~80%）</td>
+<td>极低（&lt;5%）</td>
+<td>低（大数据场景）</td>
+</tr>
+</tbody>
+</table>
+<hr />
+
+<h2 id="15_1">15. 高频面试题</h2>
+
+<h3 id="q1">Q1：Kubernetes 核心组件有哪些？</h3>
+<p><strong>Control Plane</strong>：kube-apiserver（网关）、etcd（存储）、kube-scheduler（调度）、kube-controller-manager（控制器）。<br />
+<strong>Worker Node</strong>：kubelet（节点代理）、kube-proxy（网络代理）、Container Runtime（容器运行时）。</p>
+
+<h3 id="q2-etcd">Q2：etcd 在 K8s 中的作用？</h3>
+<p>集群的<strong>唯一数据源</strong>，存储所有资源对象的状态。基于 Raft 保证一致性，建议奇数节点部署。只有 API Server 直接与 etcd 交互，其他组件通过 API Server 间接读写。</p>
+
+<h3 id="q3-pod">Q3：Pod 是如何创建的？</h3>
+<pre><code>1. kubectl apply -f pod.yaml --&gt; API Server
+2. API Server 认证/授权/准入 --&gt; 写入 etcd
+3. Scheduler 通过 watch 发现未调度 Pod --&gt; 选择 Node --&gt; 回写绑定信息
+4. Node 上的 kubelet watch 到 Pod 绑定到本节点
+5. kubelet 通知 Container Runtime 拉取镜像并启动容器
+6. kubelet 持续上报 Pod 状态给 API Server
+</code></pre>
+
+<h3 id="q4-deployment">Q4：Deployment 如何实现滚动更新？</h3>
+<pre><code>滚动更新策略：
+  maxSurge: 25%       # 可超出期望副本数的最大比例
+  maxUnavailable: 25% # 更新中最大不可用比例
+
+流程：
+  1. 创建新 ReplicaSet，初始 replicas=0
+  2. 渐进增加新 RS 的 replicas
+  3. 渐进减少旧 RS 的 replicas
+  4. 直到新 RS 完全替换旧 RS
+
+回滚：
+  kubectl rollout undo deployment/nginx-deployment
+  kubectl rollout history deployment/nginx-deployment
+</code></pre>
+
+<h3 id="q5-service">Q5：Service 有哪些类型？</h3>
+<table>
+<thead>
+<tr>
+<th>类型</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>ClusterIP</strong></td>
+<td>集群内部虚拟 IP，仅集群内访问</td>
+</tr>
+<tr>
+<td><strong>NodePort</strong></td>
+<td>在每个节点上暴露端口，外部可访问</td>
+</tr>
+<tr>
+<td><strong>LoadBalancer</strong></td>
+<td>云厂商负载均衡器（如 CLB/ALB）</td>
+</tr>
+<tr>
+<td><strong>ExternalName</strong></td>
+<td>CNAME 映射到外部域名</td>
+</tr>
+</tbody>
+</table>
+
+<h3 id="q6">Q6：Ingress 和 Service 的区别？</h3>
+<ul>
+<li><strong>Service</strong>：四层（L4）负载均衡，基于 IP + 端口，工作在内核空间（iptables/IPVS）</li>
+<li><strong>Ingress</strong>：七层（L7）路由，基于 HTTP 域名、路径，工作在用户空间</li>
+<li>Ingress 依赖 Ingress Controller（如 Nginx、Traefik）实现</li>
+<li>生产中通常 Service + Ingress 配合使用</li>
+</ul>
+
+<h3 id="q7-cni">Q7：CNI 网络模型原理？</h3>
+<p>K8s 要求所有 Pod 无需 NAT 直接互通。CNI 插件在 Pod 创建时：创建 veth pair（一端在 Pod 内，一端在宿主机网卡），分配 Pod IP，配置路由规则。跨节点通信通过 Overlay（VXLAN）或 BGP 实现。</p>
+
+<h3 id="q8">Q8：PV 和 PVC 是什么关系？</h3>
+<p><strong>PV</strong> 是集群存储资源（管理员预先分配或 StorageClass 动态供给）。<strong>PVC</strong> 是用户的存储需求声明。PVC 根据存储大小、访问模式、StorageClass 匹配 PV，绑定后 Pod 通过 PVC 挂载使用。绑定是<strong>一对一</strong>的。</p>
+
+<h3 id="q9">Q9：如何实现蓝绿发布和灰度发布？</h3>
+<pre><code class="language-yaml"># 蓝绿发布 — 两个独立的 Deployment + Service 切换
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: app-blue  # 当前运行版本
+spec:
+  replicas: 5
+  selector:
+    matchLabels:
+      app: my-app
+      version: blue
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: app-green  # 新版本，验证后切换
+spec:
+  replicas: 5
+  selector:
+    matchLabels:
+      app: my-app
+      version: green
+---
+# Service selector 从 blue 切换到 green 完成发布
+apiVersion: v1
+kind: Service
+metadata:
+  name: my-app
+spec:
+  selector:
+    app: my-app
+    version: green  # 切换点
+</code></pre>
+
+<pre><code class="language-yaml"># 灰度发布 — Service Mesh 或 Ingress 权重路由
+# (通过 Istio VirtualService 或 Nginx Ingress Canary 实现)
+</code></pre>
+
+<h3 id="q10">Q10：kube-proxy 的三种模式？</h3>
+<table>
+<thead>
+<tr>
+<th>模式</th>
+<th>原理</th>
+<th>特点</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>userspace</strong></td>
+<td>用户态代理监听端口</td>
+<td>性能差，已废弃</td>
+</tr>
+<tr>
+<td><strong>iptables</strong></td>
+<td>内核态 NAT 规则</td>
+<td>默认模式，规则多时性能下降</td>
+</tr>
+<tr>
+<td><strong>IPVS</strong></td>
+<td>内核态 L4 负载均衡</td>
+<td>性能最好，支持多种调度算法（rr/wrr/lc等）</td>
+</tr>
+</tbody>
+</table>
+<hr />
+
+<blockquote>
+<p><strong>学习建议</strong>：Kubernetes 学习路径建议：先掌握 <strong>Pod/Deployment/Service/Ingress</strong> 四大核心资源 -> 理解<strong>控制器模式</strong>（调谐循环）-> 深入学习<strong>网络模型</strong>（CNI）和<strong>调度器</strong> -> 最后掌握<strong>RBAC/存储/监控</strong>等运维体系。搭配实际集群操作（建议用 KinD 或 Minikube 本地搭建）加深理解。</p>
+</blockquote>
+
+<script>
+// Scroll spy — highlight active sidebar item
+window.addEventListener('scroll', function() {
+    var links = document.querySelectorAll('.sidebar-toc a');
+    var scrollY = window.scrollY + 120;
+    var current = '';
+    for (var i = links.length - 1; i >= 0; i--) {
+        var target = document.getElementById(links[i].getAttribute('href').slice(1));
+        if (target && target.offsetTop <= scrollY) {
+            current = links[i];
+            break;
+        }
+    }
+    links.forEach(function(a) { a.style.fontWeight = 'normal'; a.style.color = '#555'; });
+    if (current) { current.style.fontWeight = 'bold'; current.style.color = '#0366d6'; }
+});
+</script>
+
+<script>
+document.querySelectorAll('pre > code').forEach(function(codeBlock, i) {
+    var pre = codeBlock.parentNode;
+    pre.style.position = 'relative';
+    var btn = document.createElement('button');
+    btn.className = 'copy-btn';
+    btn.textContent = '复制';
+    pre.appendChild(btn);
+    btn.addEventListener('click', function() {
+        var text = codeBlock.textContent;
+        navigator.clipboard.writeText(text).then(function() {
+            btn.textContent = '已复制';
+            btn.classList.add('copied');
+            setTimeout(function() {
+                btn.textContent = '复制';
+                btn.classList.remove('copied');
+            }, 2000);
+        }).catch(function() {
+            var ta = document.createElement('textarea');
+            ta.value = text; ta.style.position = 'fixed'; ta.style.opacity = '0';
+            document.body.appendChild(ta); ta.select();
+            document.execCommand('copy'); document.body.removeChild(ta);
+            btn.textContent = '已复制'; btn.classList.add('copied');
+            setTimeout(function() { btn.textContent = '复制'; btn.classList.remove('copied'); }, 2000);
+        });
+    });
+});
+</script>
+</body>
+</html>

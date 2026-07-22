@@ -1,0 +1,619 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>面试题 - Python进阶</title>
+<style>
+body {
+    transition: margin-left .25s ease;
+    font-family: -apple-system, "Noto Sans SC", "Microsoft YaHei", sans-serif;
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 20px 24px 60px;
+    line-height: 1.8;
+    color: #333;
+    background: #fff;
+}
+h1 { border-bottom: 2px solid #eee; padding-bottom: 10px; color: #222; }
+h2 { color: #333; margin-top: 32px; }
+h3 { color: #555; }
+a { color: #0366d6; text-decoration: none; }
+a:hover { text-decoration: underline; }
+pre {
+    background: #f6f8fa;
+    border-radius: 6px;
+    padding: 16px;
+    overflow-x: auto;
+    font-size: 14px;
+    line-height: 1.45;
+}
+code {
+    background: #f0f2f4;
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-size: 14px;
+}
+pre code { background: none; padding: 0; }
+blockquote {
+    border-left: 4px solid #ddd;
+    margin: 0;
+    padding: 0 16px;
+    color: #666;
+}
+table {
+    border-collapse: collapse;
+    width: 100%;
+    margin: 16px 0;
+}
+th, td {
+    border: 1px solid #ddd;
+    padding: 8px 12px;
+    text-align: left;
+}
+th { background: #f6f8fa; }
+img { max-width: 100%; }
+.back-link {
+    margin-bottom: 20px;
+    display: block;
+    color: #666;
+}
+.back-link:hover { color: #0366d6; }
+
+.sidebar-toc {
+    transition: left .25s ease;
+    position: fixed;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    width: 220px;
+    background: #f8f9fa;
+    border-right: 1px solid #e9ecef;
+    padding: 20px 0;
+    overflow-y: auto;
+    font-size: 13px;
+    z-index: 100;
+}
+.sidebar-toc a {
+    display: block;
+    padding: 6px 16px;
+    color: #555;
+    text-decoration: none;
+    border-left: 3px solid transparent;
+    line-height: 1.5;
+}
+.sidebar-toc a:hover {
+    background: #e9ecef;
+    color: #0366d6;
+    border-left-color: #0366d6;
+}
+.sidebar-toc .toc-h3 { padding-left: 20px; font-size: 12px; }
+body { margin-left: 240px; }
+
+
+.copy-btn {
+    position: absolute; top: 6px; right: 6px;
+    background: #e9ecef; border: none;
+    border-radius: 4px; padding: 3px 10px;
+    font-size: 12px; color: #555; cursor: pointer;
+    opacity: 0; transition: opacity 0.2s;
+    z-index: 1;
+}
+pre:hover .copy-btn { opacity: 1; }
+.copy-btn:hover { background: #d0d7de; }
+.copy-btn.copied { opacity: 1; background: #2da44e; color: #fff; }
+.copy-btn{position:absolute;top:6px;right:6px;background:#e9ecef;border:none;border-radius:4px;padding:3px 10px;font-size:12px;color:#555;cursor:pointer;opacity:0;transition:opacity .2s;z-index:1}pre:hover .copy-btn{opacity:1}.copy-btn:hover{background:#d0d7de}.copy-btn.copied{opacity:1;background:#2da44e;color:#fff}
+.copy-btn{position:absolute;top:6px;right:6px;background:#e9ecef;border:none;border-radius:4px;padding:3px 10px;font-size:12px;color:#555;cursor:pointer;opacity:0;transition:opacity .2s;z-index:1}pre:hover .copy-btn{opacity:1}.copy-btn:hover{background:#d0d7de}.copy-btn.copied{opacity:1;background:#2da44e;color:#fff}
+.copy-btn{position:absolute;top:6px;right:6px;background:#e9ecef;border:none;border-radius:4px;padding:3px 10px;font-size:12px;color:#555;cursor:pointer;opacity:0;transition:opacity .2s;z-index:1}pre:hover .copy-btn{opacity:1}.copy-btn:hover{background:#d0d7de}.copy-btn.copied{opacity:1;background:#2da44e;color:#fff}
+.sidebar-toggle-btn {
+  position: fixed;
+  left: 220px;
+  top: 0;
+  width: 28px;
+  height: 40px;
+  background: #f8f9fa;
+  border: 1px solid #e9ecef;
+  border-left: none;
+  border-radius: 0 4px 4px 0;
+  cursor: pointer;
+  font-size: 16px;
+  color: #555;
+  z-index: 101;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: left .25s, background .2s;
+  padding: 0;
+  line-height: 1;
+}
+.sidebar-toggle-btn:hover { background: #e9ecef; color: #0366d6; }
+.sidebar-collapsed .sidebar-toc { left: -220px; }
+.sidebar-collapsed .sidebar-toggle-btn { left: 0; }
+.sidebar-collapsed body, body.sidebar-collapsed { margin-left: 28px; }
+.sidebar-overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,.3);
+  z-index: 99;
+}
+@media (max-width: 768px) {
+  .sidebar-collapsed .sidebar-overlay { display: none; }
+  .sidebar-toc { left: -220px; }
+  .sidebar-toggle-btn { left: 0; }
+  body { margin-left: 28px; }
+}
+
+</style>
+</head>
+</head>
+<body>
+<nav class="sidebar-toc"><a class="toc-h3" href="#1-asyncawait">1. async/await 的本质是什么?</a><a class="toc-h3" href="#2-asyncio">2. asyncio 事件循环是怎么工作的?</a><a class="toc-h3" href="#3-asynciogather-vs-asynciowait">3. asyncio.gather() vs asyncio.wait() 的区别?</a><a class="toc-h3" href="#4-timesleep">4. 为什么协程里不能用 time.sleep()?</a><a class="toc-h3" href="#5-dataclass">5. dataclass 解决了什么问题?</a><a class="toc-h3" href="#6-matchcase-if-elif-python-310">6. match/case 比 if-elif 强在哪?(Python 3.10+)</a><a class="toc-h3" href="#7-__new__-__init__">7. __new__ 和 __init__ 的区别?</a><a class="toc-h3" href="#8-context-manager">8. 什么是上下文管理器(Context Manager)?</a><a class="toc-h3" href="#9-typevar">9. 什么是 TypeVar 和泛型?</a><a class="toc-h3" href="#10-async-def-def">10. async def 和普通 def 有什么区别?</a><a class="toc-h3" href="#11-asynciocreate_task-await">11. asyncio.create_task() 和直接 await 有什么区别?</a><a class="toc-h3" href="#12-asynciorun">12. 什么是 asyncio.run()?为什么不能嵌套调用?</a><a class="toc-h3" href="#13">13. 如何在异步代码中调用同步阻塞函数?</a><a class="toc-h3" href="#14">14. 如何取消一个异步任务?</a><a class="toc-h3" href="#15-__await__-__aenter__-__aexit__">15. 解释 __await__ 和 __aenter__ / __aexit__</a><a class="toc-h3" href="#16">16. 异步编程常见陷阱和最佳实践</a><a class="toc-h3" href="#17-python">17. Python 如何实现协程间的通信?</a><a class="toc-h3" href="#18">18. 如何诊断异步代码的性能瓶颈?</a><a class="toc-h3" href="#19-python">19. Python 项目如何排查内存泄漏？</a></nav>
+<button class="sidebar-toggle-btn" onclick="toggleSidebar()" title="切换侧栏">☰</button>
+
+<div class="sidebar-overlay" onclick="toggleSidebar()"></div>
+
+<script>
+function toggleSidebar() {
+  document.body.classList.toggle('sidebar-collapsed');
+  try { localStorage.setItem('sidebarCollapsed', document.body.classList.contains('sidebar-collapsed')); } catch(e) {}
+}
+(function() {
+  try {
+    if (localStorage.getItem('sidebarCollapsed') === 'true') {
+      document.body.classList.add('sidebar-collapsed');
+    }
+  } catch(e) {}
+})();
+</script>
+<a class="back-link" href="/blog/2026/05/16/面试题/面试题/">← 返回面试题目录</a>
+<h1 id=page-title>Python 进阶</h1>
+<h3 id="1-asyncawait">1. async/await 的本质是什么?</h3>
+<p><code>async def</code> 定义一个协程函数,调用它返回一个 coroutine 对象,不会立即执行。<code>await</code> 挂起当前协程,把控制权交还给事件循环(Event Loop),让其他协程运行。</p>
+<pre><code>async def fetch(url):       # 只是&quot;定义&quot;了一个协程
+    data = await http.get(url)  # await 让出控制权,等 IO 完成再回来
+    return data
+
+coro = fetch(url)           # 返回 coroutine 对象,还没执行!
+result = await coro         # await 才开始执行
+</code></pre>
+<p>就像餐厅里只有一个服务员(单线程),一个客人看菜单(IO 等待)的时候,服务员不会傻站着等,而是去服务其他客人。<code>await</code> 就是"服务员,我去看菜单了,你先忙别的"。</p>
+<blockquote>
+<p><strong>扩展</strong>:Python 3.11 引入了 <code>asyncio.TaskGroup</code>,比 <code>gather</code> 更安全--一个任务失败会自动取消其他任务。协程本质是用户态协作式调度,不会像线程那样被操作系统随机切换,所以不存在竞态条件(但有协程间的逻辑交错)。</p>
+</blockquote>
+<h3 id="2-asyncio">2. asyncio 事件循环是怎么工作的?</h3>
+<p>事件循环就像一个<strong>任务调度器</strong>,维护一个待执行协程队列:</p>
+<pre><code>while True:
+    取一个 ready 的协程
+    执行到 await → 挂起,注册回调(IO 完成时唤醒)
+    检查 IO 事件 → 完成的把对应协程放回 ready 队列
+    取下一个 ready 的协程
+</code></pre>
+<pre><code class="language-python">async def main():
+    # create_task 立即调度,不阻塞
+    task1 = asyncio.create_task(fetch_data(url1))
+    task2 = asyncio.create_task(fetch_data(url2))
+    result1, result2 = await task1, await task2  # 并发等待
+
+asyncio.run(main())
+</code></pre>
+<p><code>create_task</code> 把协程包装成 Task 放进事件循环,多个 Task 并发跑。如果不用 <code>create_task</code> 直接 <code>await</code>,就变成顺序执行了。</p>
+<blockquote>
+<p><strong>扩展</strong>:<code>asyncio.Queue</code> 是协程间通信的安全队列,支持生产者-消费者模式。<code>asyncio.Semaphore</code> 限制并发数,常用于限流。<code>loop.run_in_executor()</code> 把同步阻塞代码丢到线程池执行,不阻塞事件循环。</p>
+</blockquote>
+<h3 id="3-asynciogather-vs-asynciowait">3. <code>asyncio.gather()</code> vs <code>asyncio.wait()</code> 的区别?</h3>
+<table>
+<thead>
+<tr>
+<th></th>
+<th>gather</th>
+<th>wait</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>返回值</td>
+<td>结果列表(有序)</td>
+<td><code>(done, pending)</code> 集合</td>
+</tr>
+<tr>
+<td>异常处理</td>
+<td>一个失败默认全部抛异常</td>
+<td>不自动传播异常</td>
+</tr>
+<tr>
+<td>取消</td>
+<td>一个被取消全部取消</td>
+<td>更精细控制</td>
+</tr>
+<tr>
+<td>灵活性</td>
+<td>简单直接</td>
+<td>可设 FIRST_COMPLETED 等</td>
+</tr>
+</tbody>
+</table>
+<ul>
+<li><code>gather(*tasks)</code>:有序、可取消、返回结果列表，一个失败默认全部受影响</li>
+<li><code>wait(tasks)</code>:更灵活，可设FIRST_COMPLETED/FIRST_EXCEPTION/ALL_COMPLETED，返回<code>(done, pending)</code></li>
+</ul>
+<blockquote>
+<p><strong>扩展</strong>:3.11+推荐<code>TaskGroup()</code>替代<code>gather</code>，用<code>async with</code>管理任务生命周期，异常处理更优雅。</p>
+</blockquote>
+<h3 id="4-timesleep">4. 为什么协程里不能用 <code>time.sleep()</code>?</h3>
+<p><code>time.sleep()</code>阻塞整个线程，卡死事件循环，其他协程全部饿死。必须用<code>await asyncio.sleep(n)</code>交还控制权。同步阻塞操作用<code>await asyncio.to_thread()</code>丢到线程池。</p>
+<blockquote>
+<p><strong>扩展</strong>:任何同步阻塞操作都会卡事件循环;IO用异步库(<code>aiohttp</code>/<code>asyncpg</code>),CPU密集用<code>run_in_executor</code>;3.9+<code>asyncio.to_thread()</code>。</p>
+</blockquote>
+<h3 id="5-dataclass">5. dataclass 解决了什么问题?</h3>
+<p>dataclass一个装饰器自动生成<code>__init__</code>/<code>__repr__</code>/<code>__eq__</code>，替代手写样板代码。和Pydantic区别：dataclass是原生轻量方案，Pydantic多了运行时验证和JSON序列化。</p>
+<pre><code class="language-python">from dataclasses import dataclass
+
+@dataclass
+class User:
+    id: int
+    name: str
+    email: str = &quot;&quot;  # 默认值
+
+# 自动生成 __init__、__repr__、__eq__
+u1 = User(1, &quot;张三&quot;)
+u2 = User(1, &quot;张三&quot;)
+assert u1 == u2  # True,值比较
+</code></pre>
+<p>和 Pydantic 的区别:dataclass 是 Python 原生轻量方案,Pydantic 多了运行时数据验证和 JSON 序列化。FastAPI 大量使用 Pydantic 做请求体校验。</p>
+<blockquote>
+<p><strong>扩展</strong>:<code>field(default_factory=list)</code>解决可变默认值;<code>frozen=True</code>创建不可变实例;3.12+<code>kw_only=True</code>强制关键字参数。</p>
+</blockquote>
+<h3 id="6-matchcase-if-elif-python-310">6. match/case 比 if-elif 强在哪?(Python 3.10+)</h3>
+<p><code>match/case</code>匹配数据结构，支持解构列表/字典、守卫条件(<code>if</code>)、OR模式(<code>|</code>)、通配符(<code>_</code>)，比一堆<code>isinstance</code>+<code>if-elif</code>清晰得多。</p>
+<pre><code class="language-python">match command:
+    case [&quot;quit&quot;]:
+        print(&quot;退出&quot;)
+    case [&quot;go&quot;, direction] if direction in (&quot;north&quot;, &quot;south&quot;):
+        print(f&quot;向{direction}走&quot;)
+    case {&quot;cmd&quot;: &quot;login&quot;, &quot;user&quot;: name, &quot;pwd&quot;: _}:
+        print(f&quot;用户{name}登录&quot;)
+    case _:
+        print(&quot;未知命令&quot;)
+</code></pre>
+<p>支持解构列表/字典、守卫条件(<code>if</code>)、OR 模式(<code>|</code>)、通配符(<code>_</code>)。比写一堆 <code>isinstance</code> + 层层 <code>if-elif</code> 清晰得多。</p>
+<blockquote>
+<p><strong>扩展</strong>:适合AST/JSON解析等场景;3.11+优化执行速度;<code>_</code>是通配符也会被赋值。</p>
+</blockquote>
+<h3 id="7-__new__-__init__">7. <code>__new__</code> 和 <code>__init__</code> 的区别?</h3>
+<ul>
+<li><code>__new__</code>:创建对象(分配内存),是类方法,返回实例。先执行</li>
+<li><code>__init__</code>:初始化对象(设置属性),是实例方法,返回 None。后执行</li>
+</ul>
+<pre><code class="language-python">class Singleton:
+    _instance = None
+    def __new__(cls, *args, **kwargs):
+        if cls._instance is None:
+            cls._instance = super().__new__(cls)
+        return cls._instance  # 单例模式核心
+</code></pre>
+<p>单例模式用 <code>__new__</code> 拦截对象的创建,确保只创建一个实例。</p>
+<blockquote>
+<p><strong>扩展</strong>:<code>__new__</code> 返回的如果不是当前类的实例,<code>__init__</code> 不会被调用。不可变类型(int、str、tuple)的实例在 <code>__new__</code> 阶段就确定了值,所以修改不可变类型需要用 <code>__new__</code>。现代方案中,单例更适合用模块级变量或依赖注入。</p>
+</blockquote>
+<h3 id="8-context-manager">8. 什么是上下文管理器(Context Manager)?</h3>
+<p>上下文管理器是<code>with</code>的背后机制，保证资源正确获取和释放，即使抛异常也执行<code>__exit__</code>。<code>contextlib.contextmanager</code>装饰器可用生成器更简洁地实现。</p>
+<blockquote>
+<p><strong>扩展</strong>:<code>__exit__</code>返回<code>True</code>可吞掉异常;<code>ExitStack</code>管理多个动态上下文;<code>closing()</code>给只有<code>close()</code>的对象加<code>with</code>支持。</p>
+</blockquote>
+<hr />
+<h3 id="9-typevar">9. 什么是 TypeVar 和泛型?</h3>
+<p>泛型让函数/类的结构不变但适配不同类型，TypeVar保证类型安全和精确推断。</p>
+<p><strong>TypeVar核心价值</strong>:让返回值类型与输入类型保持一致，类型检查器可自动推断。</p>
+<pre><code class="language-python">from typing import TypeVar, List
+
+# 没有泛型:返回值类型跟输入没关系
+def first_old(items: List) -&gt; ???:  # 不知道该返回什么类型
+    return items[0]
+
+# 有泛型:返回值和输入类型一致
+T = TypeVar('T')
+def first(items: List[T]) -&gt; T:
+    return items[0]
+
+# 类型检查器能自动推断:
+# first([1, 2, 3]) → 返回 int
+# first([&quot;a&quot;, &quot;b&quot;]) → 返回 str
+# 调用方知道精确类型,IDE 自动补全也更准
+</code></pre>
+<pre><code class="language-python"># 1 无约束(最常见)
+T = TypeVar('T')
+def get_first(items: list[T]) -&gt; T: ...
+
+# 2 有约束(只能是某些类型)
+Num = TypeVar('Num', int, float)  # 只能是 int 或 float
+def add(a: Num, b: Num) -&gt; Num:
+    return a + b
+
+# 3 上界约束(必须是某类的子类)
+from typing import TypeVar
+T = TypeVar('T', bound='Animal')  # 必须是 Animal 或其子类
+def make_sound(animal: T) -&gt; str: ...
+
+# 4 协变/逆变(高级用法,了解即可)
+# covariant=True:子类型可以替换父类型
+# contravariant=True:父类型可以替换子类型
+</code></pre>
+<pre><code class="language-python">from typing import TypeVar, Generic, List
+
+T = TypeVar('T')
+
+# 通用分页响应
+class PageResponse(Generic[T]):
+    items: List[T]
+    total: int
+    page: int
+
+# 使用时
+user_page: PageResponse[User]    # 用户分页
+order_page: PageResponse[Order]  # 订单分页
+# TypeVar 保证了 items 里的类型和外面声明的类型一致
+</code></pre>
+<pre><code class="language-python"># 老语法
+from typing import TypeVar
+T = TypeVar('T')
+def first(items: list[T]) -&gt; T: ...
+
+# Python 3.12 新语法--直接在函数签名里写泛型
+def first[T](items: list[T]) -&gt; T:
+    return items[0]
+
+# 带约束
+def add[T: (int, float)](a: T, b: T) -&gt; T:
+    return a + b
+</code></pre>
+<blockquote>
+<p><strong>扩展</strong>:Python 的类型注解是<strong>运行时不会检查</strong>的--它只在静态分析(MyPy/Pyright)阶段生效。但 FastAPI 巧妙地"借用"了类型注解--在运行时读取类型信息用于参数验证、序列化和生成 OpenAPI 文档。这也是 FastAPI 为什么能"写注解自动生成文档"的原因。另外,<code>Protocol</code>(协议类)和 <code>TypedDict</code> 是泛型之外另外两个重要的类型工具--Protocol 定义接口约束(鸭子类型的形式化),TypedDict 定义字典结构。</p>
+</blockquote>
+<h3 id="10-async-def-def">10. <code>async def</code> 和普通 <code>def</code> 有什么区别?</h3>
+<table>
+<thead>
+<tr>
+<th></th>
+<th><code>async def</code></th>
+<th>普通 <code>def</code></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>调用返回值</td>
+<td>返回 coroutine 对象,不立即执行</td>
+<td>立即执行,返回结果</td>
+</tr>
+<tr>
+<td>内部能否 <code>await</code></td>
+<td>可以</td>
+<td>不可以</td>
+</tr>
+<tr>
+<td>执行模型</td>
+<td>可暂停/恢复(协作式调度)</td>
+<td>一口气跑完</td>
+</tr>
+<tr>
+<td>调用方式</td>
+<td>必须 <code>await</code> 或在事件循环中</td>
+<td>直接调用</td>
+</tr>
+</tbody>
+</table>
+<pre><code class="language-python">async def fetch():
+    return &quot;data&quot;
+
+coro = fetch()         # → &lt;coroutine object&gt; 还没执行!
+result = await fetch() # → &quot;data&quot; 真正执行
+result2 = fetch()      # ❌ 忘记 await,返回协程对象而不是数据
+</code></pre>
+<h3 id="11-asynciocreate_task-await">11. <code>asyncio.create_task()</code> 和直接 <code>await</code> 有什么区别?</h3>
+<pre><code>直接 await(顺序执行):
+  result1 = await fetch(url1)  # → 耗时 1s
+  result2 = await fetch(url2)  # → 再耗时 1s
+  总耗时: 2s  ← 串行!
+
+create_task(并发执行):
+  task1 = create_task(fetch(url1))  # → 立即调度,不阻塞
+  task2 = create_task(fetch(url2))  # → 立即调度,不阻塞
+  result1 = await task1             # → 等第一个完成
+  result2 = await task2             # → 等第二个完成
+  总耗时: 1s  ← 并行!
+</code></pre>
+<p><code>create_task</code> 把协程包装成 Task 放进事件循环调度队列,多个 Task 并发跑。如果不用 <code>create_task</code> 直接 <code>await</code>,就变成串行执行了--这是异步编程最常见的性能陷阱。</p>
+<h3 id="12-asynciorun">12. 什么是 <code>asyncio.run()</code>?为什么不能嵌套调用?</h3>
+<p><code>asyncio.run()</code>做三件事：创建事件循环→运行协程→关闭循环。一个线程只能有一个事件循环，内部不能再调<code>asyncio.run()</code>。</p>
+<h3 id="13">13. 如何在异步代码中调用同步阻塞函数?</h3>
+<pre><code>错误做法(阻塞事件循环):
+  async def main():
+      time.sleep(5)       # ❌ 整个事件循环卡住 5 秒
+      requests.get(url)   # ❌ 阻塞!
+
+正确做法:
+  async def main():
+      await asyncio.sleep(5)  # ✅ 非阻塞等待
+      async with aiohttp.ClientSession() as session:  # ✅ 异步 HTTP
+          await session.get(url)
+
+      # 必须调同步代码时 → 丢到线程池
+      result = await asyncio.to_thread(requests.get, url)  # Python 3.9+
+      # 或
+      loop = asyncio.get_running_loop()
+      result = await loop.run_in_executor(None, requests.get, url)
+</code></pre>
+<p>关键原则：异步代码里不能直接调阻塞函数，必须交给线程池(<code>asyncio.to_thread()</code>或<code>run_in_executor()</code>)执行。</p>
+<h3 id="14">14. 如何取消一个异步任务?</h3>
+<pre><code class="language-python">async def main():
+    task = asyncio.create_task(long_running_work())
+    await asyncio.sleep(1)
+    task.cancel()             # 发送取消请求(不是立即强制终止)
+
+    try:
+        await task            # 等待协程在 await 点响应取消
+    except asyncio.CancelledError:
+        print(&quot;任务已取消&quot;)   # 必须处理,做清理工作
+</code></pre>
+<p>关键点:<code>cancel()</code> 只是发送请求,协程需要在 <code>await</code> 点才能响应。<code>CancelledError</code> 不应被静默吞掉(Python 3.9+ 默认不屏蔽)。另外,<code>asyncio.create_task()</code> 创建的 Task 如果没有被 <code>await</code> 或 <code>cancel</code>,可能被...</p>
+<h3 id="15-__await__-__aenter__-__aexit__">15. 解释 <code>__await__</code> 和 <code>__aenter__</code> / <code>__aexit__</code></h3>
+<ul>
+<li><code>__await__</code>:定义对象如何被 <code>await</code>,返回一个<strong>迭代器</strong>(至少 yield 一次)</li>
+<li><code>__aenter__</code> / <code>__aexit__</code>:定义异步上下文管理器的进入和退出(<code>async with</code>)</li>
+<li><code>__aiter__</code> / <code>__anext__</code>:定义异步迭代器(<code>async for</code>)</li>
+</ul>
+<pre><code class="language-python">class AsyncDB:
+    async def __aenter__(self):
+        self.conn = await create_connection()
+        return self.conn
+    async def __aexit__(self, *args):
+        await self.conn.close()
+
+async with AsyncDB() as db:   # 自动管理连接生命周期
+    data = await db.query(&quot;SELECT ...&quot;)
+</code></pre>
+<h3 id="16">16. 异步编程常见陷阱和最佳实践</h3>
+<p><strong>五大陷阱</strong>:</p>
+<ol>
+<li><strong>忘记 <code>await</code></strong>:<code>coro = fetch()</code> 只是创建协程对象,没执行!必须 <code>await fetch()</code></li>
+<li><strong>同步阻塞函数直接调用</strong>:<code>time.sleep(5)</code> 卡死整个事件循环,必须用 <code>asyncio.sleep</code></li>
+<li><strong><code>asyncio.run()</code> 嵌套</strong>:事件循环已在运行时不能再创建</li>
+<li><strong>共享数据无保护</strong>:<code>await</code> 点之间协程可能交错,需用 <code>asyncio.Lock()</code> 保护</li>
+<li><strong>Task 资源泄漏</strong>:创建的 Task 没被 <code>await</code>,可能被 GC 但代码还在跑</li>
+</ol>
+<p><strong>最佳实践清单</strong>:</p>
+<ul>
+<li>用 <code>asyncio.run()</code> 作为唯一入口</li>
+<li>用 <code>create_task</code> 实现并发,不要串行 <code>await</code> 多个独立操作</li>
+<li>Python 3.11+ 用 <code>TaskGroup</code> 管理任务组(一个失败自动取消其他)</li>
+<li>阻塞调用放线程池:<code>asyncio.to_thread()</code> 或 <code>run_in_executor()</code></li>
+<li>用 <code>Semaphore</code> 限制并发数,避免资源耗尽</li>
+<li>用 <code>asyncio.wait_for()</code> 或 <code>asyncio.timeout()</code> 设置超时</li>
+<li>正确处理 <code>CancelledError</code>,确保清理资源</li>
+</ul>
+<h3 id="17-python">17. Python 如何实现协程间的通信?</h3>
+<p>协程间通信用 <code>asyncio.Queue</code>——线程安全、支持异步 put/get。</p>
+<pre><code class="language-python">import asyncio
+
+async def producer(queue):
+    for i in range(10):
+        await queue.put(i)
+        await asyncio.sleep(0.1)
+
+async def consumer(queue):
+    while True:
+        item = await queue.get()
+        print(f'处理: {item}')
+        queue.task_done()
+
+async def main():
+    queue = asyncio.Queue(maxsize=5)  # 限制队列长度
+    await asyncio.gather(
+        producer(queue),
+        consumer(queue)
+    )
+</code></pre>
+<p>Queue 的 <code>get()</code> 在队列空时挂起协程,<code>put()</code> 在队列满时挂起。这与多线程 Queue 不同(后者是阻塞等待)。</p>
+<blockquote>
+<p><strong>扩展</strong>:生产者-消费者模式用 <code>join()</code> 等待所有任务完成;<code>PriorityQueue</code> 按优先级消费;<code>LifoQueue</code> 后进先出。</p>
+</blockquote>
+<h3 id="18">18. 如何诊断异步代码的性能瓶颈?</h3>
+<p>核心工具:<code>asyncio</code> 内置调试模式 + <code>aiodebug</code> 库。</p>
+<pre><code class="language-python">import asyncio
+
+# 开启调试模式
+asyncio.run(main(), debug=True)
+
+# 输出示例:
+# Executing &lt;Task finished name='Task-1' coro=&lt;slow_func&gt;&gt; took 0.503 seconds
+</code></pre>
+<p>关键诊断点:
+- <strong>慢回调警告</strong>:超过 100ms 的同步操作会告警(可调 <code>loop.slow_callback_duration</code>)
+- <strong>阻塞事件循环</strong>:用 <code>asyncio.to_thread()</code> 包装同步函数
+- <strong>协程泄漏</strong>:<code>asyncio.all_tasks()</code> 查看活跃任务数
+- <strong>任务堆积</strong>:<code>Queue.qsize()</code> 监控队列积压</p>
+<blockquote>
+<p><strong>扩展</strong>:生产环境可用 <code>opentelemetry</code> 追踪异步调用链;<code>aiomonitor</code> 提供 REPL 实时调试;<code>uvloop</code> 性能比原生 asyncio 快 2-4 倍。</p>
+</blockquote>
+<h3 id="19-python">19. Python 项目如何排查内存泄漏？</h3>
+<p>Python 内存泄漏的三大来源：</p>
+<pre><code>1. 循环引用 → gc.collect() 解决
+2. C 扩展泄漏 → 第三方库持有 Python 对象
+3. 全局集合持续膨胀 → dict/set/list 无限增长
+</code></pre>
+<p><strong>排查步骤</strong>：</p>
+<pre><code class="language-python"># Step1: tracemalloc 定位大内存分配
+import tracemalloc
+tracemalloc.start()
+
+# 业务代码
+import your_module
+
+snapshot = tracemalloc.take_snapshot()
+top = snapshot.statistics('lineno')
+for stat in top[:10]:
+    print(stat)
+
+# Step2: objgraph 可视化引用链
+import objgraph
+objgraph.show_most_common_types(limit=10)  # 什么对象最多
+objgraph.show_backrefs(objgraph.by_type('YourClass')[0], maxdepth=5)
+</code></pre>
+<p><strong>最常见泄漏</strong>：全局 dict 缓存无上限增长、logging.Handler 未释放、观察者模式未注销回调。</p>
+<blockquote>
+<p><strong>扩展</strong>：<code>tracemalloc</code> 是 Python 3.4 内置；生产环境可用 <code>objgraph</code> 定期打快照对比；内存泄漏修复后用 <code>weakref</code>（弱引用）从源头防止持有。</p>
+</blockquote>
+
+<script>
+// Scroll spy — highlight active sidebar item
+window.addEventListener('scroll', function() {
+    var links = document.querySelectorAll('.sidebar-toc a');
+    var scrollY = window.scrollY + 120;
+    var current = '';
+    for (var i = links.length - 1; i >= 0; i--) {
+        var target = document.getElementById(links[i].getAttribute('href').slice(1));
+        if (target && target.offsetTop <= scrollY) {
+            current = links[i];
+            break;
+        }
+    }
+    links.forEach(function(a) { a.style.fontWeight = 'normal'; a.style.color = '#555'; });
+    if (current) { current.style.fontWeight = 'bold'; current.style.color = '#0366d6'; }
+});
+</script>
+
+
+<script>
+document.querySelectorAll('pre > code').forEach(function(codeBlock, i) {
+    var pre = codeBlock.parentNode;
+    pre.style.position = 'relative';
+    var btn = document.createElement('button');
+    btn.className = 'copy-btn';
+    btn.textContent = '复制';
+    pre.appendChild(btn);
+    btn.addEventListener('click', function() {
+        var text = codeBlock.textContent;
+        navigator.clipboard.writeText(text).then(function() {
+            btn.textContent = '已复制';
+            btn.classList.add('copied');
+            setTimeout(function() {
+                btn.textContent = '复制';
+                btn.classList.remove('copied');
+            }, 2000);
+        }).catch(function() {
+            // Fallback
+            var ta = document.createElement('textarea');
+            ta.value = text; ta.style.position = 'fixed'; ta.style.opacity = '0';
+            document.body.appendChild(ta); ta.select();
+            document.execCommand('copy'); document.body.removeChild(ta);
+            btn.textContent = '已复制'; btn.classList.add('copied');
+            setTimeout(function() { btn.textContent = '复制'; btn.classList.remove('copied'); }, 2000);
+        });
+    });
+});
+</script>
+
+
+<script>document.querySelectorAll("pre>code").forEach(function(c){var p=c.parentNode;p.style.position="relative";var b=document.createElement("button");b.className="copy-btn";b.textContent="复制";p.appendChild(b);b.addEventListener("click",function(){var t=c.textContent;navigator.clipboard.writeText(t).then(function(){b.textContent="已复制";b.classList.add("copied");setTimeout(function(){b.textContent="复制";b.classList.remove("copied")},2000)}).catch(function(){var a=document.createElement("textarea");a.value=t;a.style.position="fixed";a.style.opacity="0";document.body.appendChild(a);a.select();document.execCommand("copy");document.body.removeChild(a);b.textContent="已复制";b.classList.add("copied");setTimeout(function(){b.textContent="复制";b.classList.remove("copied")},2000)})})})</script>
+</body>
+</html>

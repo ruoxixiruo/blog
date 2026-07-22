@@ -1,0 +1,459 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 5.4.2">
+  <link rel="apple-touch-icon" sizes="180x180" href="/blog/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/blog/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/blog/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/blog/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/blog/css/main.css">
+
+
+<link rel="stylesheet" href="/blog/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"ruoxixiruo.github.io","root":"/blog/","scheme":"Gemini","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":true,"show_result":true,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":true},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}};
+  </script>
+
+  <meta name="description" content="1，JVM 概述JVM（Java Virtual Machine）是 Java 程序运行的核心，负责将字节码解释&#x2F;编译为机器码执行。不同平台有各自的 JVM 实现，实现了”一次编译，到处运行”。 主流 JVM 实现：  HotSpot：Oracle&#x2F;Sun 官方 JVM，最常用（JDK 1.3+ 默认） OpenJ9：IBM 开源 JVM，启动快、内存占用低 GraalVM：高性能多语言虚拟机，支">
+<meta property="og:type" content="article">
+<meta property="og:title" content="jvm学习">
+<meta property="og:url" content="https://ruoxixiruo.github.io/blog/2024/06/20/java/jvm%E5%AD%A6%E4%B9%A0/index.html">
+<meta property="og:site_name" content="RUOXI-BLOG">
+<meta property="og:description" content="1，JVM 概述JVM（Java Virtual Machine）是 Java 程序运行的核心，负责将字节码解释&#x2F;编译为机器码执行。不同平台有各自的 JVM 实现，实现了”一次编译，到处运行”。 主流 JVM 实现：  HotSpot：Oracle&#x2F;Sun 官方 JVM，最常用（JDK 1.3+ 默认） OpenJ9：IBM 开源 JVM，启动快、内存占用低 GraalVM：高性能多语言虚拟机，支">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2024-06-20T15:00:00.000Z">
+<meta property="article:modified_time" content="2026-07-22T02:51:55.000Z">
+<meta property="article:author" content="ruoxi">
+<meta property="article:tag" content="java">
+<meta property="article:tag" content="jvm">
+<meta name="twitter:card" content="summary">
+
+<link rel="canonical" href="https://ruoxixiruo.github.io/blog/2024/06/20/java/jvm%E5%AD%A6%E4%B9%A0/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+
+  <title>jvm学习 | RUOXI-BLOG</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/blog/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">RUOXI-BLOG</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/blog/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/blog/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/blog/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/blog/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a>
+
+  </li>
+        <li class="menu-item menu-item-posts">
+
+    <a href="/blog/posts/" rel="section"><i class="fa fa-rss fa-fw"></i>posts</a>
+
+  </li>
+  </ul>
+</nav>
+
+
+
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+  <div class="reading-progress-bar"></div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://ruoxixiruo.github.io/blog/2024/06/20/java/jvm%E5%AD%A6%E4%B9%A0/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/blog/images/avatar.gif">
+      <meta itemprop="name" content="ruoxi">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="RUOXI-BLOG">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          jvm学习
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2024-06-20 15:00:00" itemprop="dateCreated datePublished" datetime="2024-06-20T15:00:00+00:00">2024-06-20</time>
+            </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/blog/categories/java/" itemprop="url" rel="index"><span itemprop="name">java</span></a>
+                </span>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <h5 id="1，JVM-概述"><a href="#1，JVM-概述" class="headerlink" title="1，JVM 概述"></a>1，JVM 概述</h5><p>JVM（Java Virtual Machine）是 Java 程序运行的核心，负责将字节码解释/编译为机器码执行。不同平台有各自的 JVM 实现，实现了”一次编译，到处运行”。</p>
+<p><strong>主流 JVM 实现：</strong></p>
+<ul>
+<li><strong>HotSpot</strong>：Oracle/Sun 官方 JVM，最常用（JDK 1.3+ 默认）</li>
+<li><strong>OpenJ9</strong>：IBM 开源 JVM，启动快、内存占用低</li>
+<li><strong>GraalVM</strong>：高性能多语言虚拟机，支持 AOT 编译</li>
+</ul>
+<p><strong>JVM 整体架构：</strong></p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line">┌─────────────────────────────────────────────┐</span><br><span class="line">│            类加载子系统（ClassLoader）         │</span><br><span class="line">│        加载 → 验证 → 准备 → 解析 → 初始化      │</span><br><span class="line">├─────────────────────────────────────────────┤</span><br><span class="line">│              运行时数据区（Runtime Data Areas） │</span><br><span class="line">├─────────────┬──────────────┬────────────────┤</span><br><span class="line">│  程序计数器   │    Java 栈   │   本地方法栈     │</span><br><span class="line">│  (线程私有)  │  (线程私有)   │  (线程私有)      │</span><br><span class="line">├─────────────┴──────────────┴────────────────┤</span><br><span class="line">│              堆（Heap）—— 线程共享             │</span><br><span class="line">│          方法区 / 元空间 — 线程共享             │</span><br><span class="line">│          运行时常量池                          │</span><br><span class="line">├─────────────────────────────────────────────┤</span><br><span class="line">│   执行引擎：解释器 → JIT 编译器 → GC          │</span><br><span class="line">├─────────────────────────────────────────────┤</span><br><span class="line">│           本地方法接口（JNI）                   │</span><br><span class="line">└─────────────────────────────────────────────┘</span><br></pre></td></tr></table></figure>
+
+<span id="more"></span>
+
+<h5 id="2，运行时数据区详解"><a href="#2，运行时数据区详解" class="headerlink" title="2，运行时数据区详解"></a>2，运行时数据区详解</h5><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># ============ 程序计数器（PC Register）============</span></span><br><span class="line"><span class="comment"># - 线程私有</span></span><br><span class="line"><span class="comment"># - 存储当前线程执行的字节码行号</span></span><br><span class="line"><span class="comment"># - 不会 OOM</span></span><br><span class="line"><span class="comment"># - 如果执行 native 方法，值为 undefined</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># ============ Java 虚拟机栈（JVM Stack）============</span></span><br><span class="line"><span class="comment"># - 线程私有，生命周期与线程相同</span></span><br><span class="line"><span class="comment"># - 每个方法执行时创建一个栈帧（Stack Frame）</span></span><br><span class="line"><span class="comment"># - 栈帧包含：局部变量表、操作数栈、动态链接、方法返回地址</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 栈帧结构：</span></span><br><span class="line">┌──────────────────┐</span><br><span class="line">│   局部变量表       │  基本类型、对象引用、returnAddress</span><br><span class="line">│   (Local Vars)    │  32位槽(slot)，long/double 占两个</span><br><span class="line">├──────────────────┤</span><br><span class="line">│   操作数栈         │  字节码指令操作的数据区域</span><br><span class="line">│   (Operand Stack) │  后进先出</span><br><span class="line">├──────────────────┤</span><br><span class="line">│   动态链接         │  指向运行时常量池中该方法的引用</span><br><span class="line">├──────────────────┤</span><br><span class="line">│   返回地址         │  方法退出的位置</span><br><span class="line">└──────────────────┘</span><br><span class="line"></span><br><span class="line"><span class="comment"># 异常：</span></span><br><span class="line"><span class="comment"># StackOverflowError  栈深度超过限制（递归过深）</span></span><br><span class="line"><span class="comment"># OutOfMemoryError    栈扩展时无法申请到足够内存</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># ============ 本地方法栈（Native Method Stack）============</span></span><br><span class="line"><span class="comment"># - 线程私有</span></span><br><span class="line"><span class="comment"># - 为 native 方法服务</span></span><br><span class="line"><span class="comment"># - HotSpot 将 Java 栈和本地方法栈合二为一</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># ============ 堆（Heap）—— GC 重点区域 ============</span></span><br><span class="line"><span class="comment"># - 线程共享</span></span><br><span class="line"><span class="comment"># - 存放对象实例和数组</span></span><br><span class="line"><span class="comment"># - GC 主要管理区域</span></span><br><span class="line"><span class="comment"># - 分为新生代和老年代（分代收集）</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># ============ 方法区（Method Area / Metaspace）============</span></span><br><span class="line"><span class="comment"># - 线程共享</span></span><br><span class="line"><span class="comment"># - JDK 7 及以前：永久代（PermGen），堆的一部分</span></span><br><span class="line"><span class="comment"># - JDK 8+：元空间（Metaspace），使用本地内存</span></span><br><span class="line"><span class="comment"># - 存储：类信息、常量、静态变量、JIT 编译后的代码缓存</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 运行时常量池（Runtime Constant Pool）</span></span><br><span class="line"><span class="comment"># - 方法区的一部分</span></span><br><span class="line"><span class="comment"># - Class 文件中的常量池在类加载后存放于此</span></span><br><span class="line"><span class="comment"># - 包含：字面量（字符串、final常量）、符号引用</span></span><br></pre></td></tr></table></figure>
+
+<h5 id="3，对象的内存布局"><a href="#3，对象的内存布局" class="headerlink" title="3，对象的内存布局"></a>3，对象的内存布局</h5><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 一个 Java 对象在堆内存中的布局：</span></span><br><span class="line"></span><br><span class="line">┌──────────────────────────────┐</span><br><span class="line">│        对象头（Object Header） │</span><br><span class="line">│                              │</span><br><span class="line">│  Mark Word（标记字段）         │</span><br><span class="line">│    - 哈希码（identity hash）   │</span><br><span class="line">│    - GC 分代年龄              │</span><br><span class="line">│    - 锁状态标志               │</span><br><span class="line">│    - 线程持有的锁             │</span><br><span class="line">│    - 偏向线程 ID             │</span><br><span class="line">│                              │</span><br><span class="line">│  Klass Pointer（类型指针）     │</span><br><span class="line">│    指向方法区中的类元数据      │</span><br><span class="line">│                              │</span><br><span class="line">│  数组长度（仅数组对象有）      │</span><br><span class="line">├──────────────────────────────┤</span><br><span class="line">│      实例数据（Instance Data） │</span><br><span class="line">│    - 父类字段                │</span><br><span class="line">│    - 子类字段                │</span><br><span class="line">│    - 相同宽度的字段分配在一起  │</span><br><span class="line">├──────────────────────────────┤</span><br><span class="line">│    对齐填充（Padding）         │</span><br><span class="line">│    - HotSpot 要求对象大小为 <span class="number">8</span>  │</span><br><span class="line">│      字节的整数倍             │</span><br><span class="line">└──────────────────────────────┘</span><br><span class="line"></span><br><span class="line"><span class="comment">// Mark Word 在不同锁状态下的结构（64位）：</span></span><br><span class="line"></span><br><span class="line"><span class="comment">// 无锁：</span></span><br><span class="line"><span class="comment">// [unused:25] [hash:31] [unused:1] [age:4] [biased_lock:1] [lock:2] = 01</span></span><br><span class="line"></span><br><span class="line"><span class="comment">// 偏向锁：</span></span><br><span class="line"><span class="comment">// [thread:54] [epoch:2] [unused:1] [age:4] [biased_lock:1] [lock:2] = 01</span></span><br><span class="line"></span><br><span class="line"><span class="comment">// 轻量级锁：</span></span><br><span class="line"><span class="comment">// [ptr_to_lock_record:62] [lock:2] = 00</span></span><br><span class="line"></span><br><span class="line"><span class="comment">// 重量级锁：</span></span><br><span class="line"><span class="comment">// [ptr_to_monitor:62] [lock:2] = 10</span></span><br><span class="line"></span><br><span class="line"><span class="comment">// GC 标记：</span></span><br><span class="line"><span class="comment">// [forwarding_ptr:62] [lock:2] = 11</span></span><br></pre></td></tr></table></figure>
+
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 查看对象内存布局（JOL 工具）</span></span><br><span class="line"><span class="comment">// import org.openjdk.jol.info.ClassLayout;</span></span><br><span class="line"><span class="comment">// System.out.println(ClassLayout.parseInstance(obj).toPrintable());</span></span><br></pre></td></tr></table></figure>
+
+<h5 id="4，垃圾回收（GC）基础"><a href="#4，垃圾回收（GC）基础" class="headerlink" title="4，垃圾回收（GC）基础"></a>4，垃圾回收（GC）基础</h5><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># ============ 哪些对象需要回收？============</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 1. 引用计数法</span></span><br><span class="line"><span class="comment">#    每个对象有一个引用计数，为0时回收</span></span><br><span class="line"><span class="comment">#    缺点：无法解决循环引用（Python 用此法但额外处理了循环引用）</span></span><br><span class="line"><span class="comment">#    Java 不使用此法</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 2. 可达性分析（Java 使用）</span></span><br><span class="line"><span class="comment">#    从 GC Roots 出发，沿引用链搜索</span></span><br><span class="line"><span class="comment">#    不可达的对象判定为可回收</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># GC Roots 包括：</span></span><br><span class="line"><span class="comment">#   - 虚拟机栈中引用的对象</span></span><br><span class="line"><span class="comment">#   - 方法区中静态属性引用的对象</span></span><br><span class="line"><span class="comment">#   - 方法区中常量引用的对象</span></span><br><span class="line"><span class="comment">#   - 本地方法栈中 JNI 引用的对象</span></span><br><span class="line"><span class="comment">#   - 被同步锁（synchronized）持有的对象</span></span><br><span class="line"><span class="comment">#   - Java 虚拟机内部的引用（Class对象、异常对象等）</span></span><br></pre></td></tr></table></figure>
+
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// ============ 四种引用类型 ============</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> java.lang.ref.*;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 1. 强引用（Strong Reference）</span></span><br><span class="line"><span class="comment">//    最普通：Object obj = new Object();</span></span><br><span class="line"><span class="comment">//    绝不回收（即使 OOM）</span></span><br><span class="line"></span><br><span class="line"><span class="comment">// 2. 软引用（Soft Reference）</span></span><br><span class="line"><span class="comment">//    内存不足时回收（适合做缓存）</span></span><br><span class="line">SoftReference&lt;<span class="type">byte</span>[]&gt; softRef = <span class="keyword">new</span> <span class="title class_">SoftReference</span>&lt;&gt;(<span class="keyword">new</span> <span class="title class_">byte</span>[<span class="number">10</span> * <span class="number">1024</span> * <span class="number">1024</span>]);</span><br><span class="line"></span><br><span class="line"><span class="comment">// 3. 弱引用（Weak Reference）</span></span><br><span class="line"><span class="comment">//    GC 时无论内存是否充足都会被回收</span></span><br><span class="line">WeakReference&lt;Object&gt; weakRef = <span class="keyword">new</span> <span class="title class_">WeakReference</span>&lt;&gt;(<span class="keyword">new</span> <span class="title class_">Object</span>());</span><br><span class="line"><span class="comment">// WeakHashMap：当 key 只有弱引用时，自动移除 entry</span></span><br><span class="line"></span><br><span class="line"><span class="comment">// 4. 虚引用（Phantom Reference）</span></span><br><span class="line"><span class="comment">//    无法通过 get() 获取对象，用于跟踪对象回收状态</span></span><br><span class="line"><span class="comment">//    必须配合 ReferenceQueue 使用</span></span><br><span class="line">ReferenceQueue&lt;Object&gt; queue = <span class="keyword">new</span> <span class="title class_">ReferenceQueue</span>&lt;&gt;();</span><br><span class="line">PhantomReference&lt;Object&gt; phantomRef = <span class="keyword">new</span> <span class="title class_">PhantomReference</span>&lt;&gt;(obj, queue);</span><br></pre></td></tr></table></figure>
+
+<h5 id="5，垃圾回收算法"><a href="#5，垃圾回收算法" class="headerlink" title="5，垃圾回收算法"></a>5，垃圾回收算法</h5><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># ============ 标记-清除（Mark-Sweep）============</span></span><br><span class="line"><span class="comment"># 步骤：标记所有存活对象 → 清除未标记对象</span></span><br><span class="line"><span class="comment"># 优点：简单</span></span><br><span class="line"><span class="comment"># 缺点：产生内存碎片、效率不高</span></span><br><span class="line"><span class="comment"># 使用：CMS 的老年代</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># ============ 标记-复制（Mark-Copy）============</span></span><br><span class="line"><span class="comment"># 步骤：将存活对象复制到另一块区域 → 清空原区域</span></span><br><span class="line"><span class="comment"># 优点：无碎片、效率高</span></span><br><span class="line"><span class="comment"># 缺点：内存利用率只有 50%</span></span><br><span class="line"><span class="comment"># 使用：新生代（Eden + Survivor 本质是优化版）</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># Eden:Survivor0:Survivor1 = 8:1:1</span></span><br><span class="line"><span class="comment"># 可用 = Eden + 1个Survivor = 90%</span></span><br><span class="line"><span class="comment"># 每次 GC 将 Eden + 使用中 Survivor 的存活对象复制到空闲 Survivor</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># ============ 标记-整理（Mark-Compact）============</span></span><br><span class="line"><span class="comment"># 步骤：标记存活对象 → 将所有存活对象移到一端 → 清理边界外</span></span><br><span class="line"><span class="comment"># 优点：无碎片</span></span><br><span class="line"><span class="comment"># 缺点：移动对象需要 STW（Stop The World）</span></span><br><span class="line"><span class="comment"># 使用：Parallel Scavenge 的老年代、G1 的部分区域</span></span><br></pre></td></tr></table></figure>
+
+<h5 id="6，HotSpot-垃圾回收器"><a href="#6，HotSpot-垃圾回收器" class="headerlink" title="6，HotSpot 垃圾回收器"></a>6，HotSpot 垃圾回收器</h5><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># ============ 新生代回收器 ============</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># Serial（串行）</span></span><br><span class="line"><span class="comment">#   单线程，Stop The World</span></span><br><span class="line"><span class="comment">#   适合：客户端应用、小内存</span></span><br><span class="line"><span class="comment">#   参数：-XX:+UseSerialGC</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># ParNew（并行）</span></span><br><span class="line"><span class="comment">#   Serial 的多线程版本</span></span><br><span class="line"><span class="comment">#   常配合 CMS 使用</span></span><br><span class="line"><span class="comment">#   参数：-XX:+UseParNewGC</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># Parallel Scavenge（吞吐量优先）</span></span><br><span class="line"><span class="comment">#   多线程，关注吞吐量 = 用户时间 / (用户时间 + GC时间)</span></span><br><span class="line"><span class="comment">#   自适应调节策略</span></span><br><span class="line"><span class="comment">#   参数：-XX:+UseParallelGC</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># ============ 老年代回收器 ============</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># Serial Old（串行老年代）</span></span><br><span class="line"><span class="comment">#   单线程，标记-整理</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># Parallel Old（并行老年代）</span></span><br><span class="line"><span class="comment">#   多线程，标记-整理</span></span><br><span class="line"><span class="comment">#   配合 Parallel Scavenge 使用</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># CMS（Concurrent Mark Sweep，并发标记清除）</span></span><br><span class="line"><span class="comment">#   目标：最短停顿时间</span></span><br><span class="line"><span class="comment">#   步骤：</span></span><br><span class="line"><span class="comment">#     1. 初始标记（STW，标记 GC Roots 直接关联对象，极短）</span></span><br><span class="line"><span class="comment">#     2. 并发标记（与用户线程并发，从 GC Roots 追踪）</span></span><br><span class="line"><span class="comment">#     3. 重新标记（STW，修正并发期间变动的标记）</span></span><br><span class="line"><span class="comment">#     4. 并发清除（与用户线程并发）</span></span><br><span class="line"><span class="comment">#   缺点：CPU 敏感、产生碎片、浮动垃圾</span></span><br><span class="line"><span class="comment">#   JDK 9 标记弃用，JDK 14 正式移除</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># ============ 全代回收器 ============</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># G1（Garbage First）</span></span><br><span class="line"><span class="comment">#   将堆分为大小相等的 Region（1MB~32MB）</span></span><br><span class="line"><span class="comment">#   优先回收垃圾最多的 Region（Garbage First 含义）</span></span><br><span class="line"><span class="comment">#   步骤：</span></span><br><span class="line"><span class="comment">#     1. 初始标记（STW）</span></span><br><span class="line"><span class="comment">#     2. 并发标记（并发）</span></span><br><span class="line"><span class="comment">#     3. 最终标记（STW）</span></span><br><span class="line"><span class="comment">#     4. 筛选回收（STW，只回收部分 Region）</span></span><br><span class="line"><span class="comment">#   目标：可预测的停顿时间</span></span><br><span class="line"><span class="comment">#   JDK 9+ 默认回收器</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># ZGC（JDK 11 实验 → JDK 15 生产）</span></span><br><span class="line"><span class="comment">#   目标：停顿时间 &lt; 10ms，不限堆大小（支持 16TB）</span></span><br><span class="line"><span class="comment">#   核心技术：染色指针 + 读屏障</span></span><br><span class="line"><span class="comment">#   所有耗时阶段都并发执行</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># Shenandoah（JDK 12+）</span></span><br><span class="line"><span class="comment">#   与 ZGC 类似，低停顿</span></span><br><span class="line"><span class="comment">#   核心技术：转发指针 + 读屏障</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># ============ 回收器选择 ============</span></span><br><span class="line"><span class="comment"># 小应用（堆 &lt; 1GB）        → Serial</span></span><br><span class="line"><span class="comment"># 吞吐量优先                → Parallel Scavenge + Parallel Old</span></span><br><span class="line"><span class="comment"># 响应时间优先（堆4-8GB）    → G1</span></span><br><span class="line"><span class="comment"># 超大堆 / 极低延迟         → ZGC</span></span><br></pre></td></tr></table></figure>
+
+<h5 id="7，GC-常用参数"><a href="#7，GC-常用参数" class="headerlink" title="7，GC 常用参数"></a>7，GC 常用参数</h5><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># ============ 堆大小 ============</span></span><br><span class="line">-Xms512m                    <span class="comment"># 初始堆大小（建议与 -Xmx 相同，避免动态扩展）</span></span><br><span class="line">-Xmx2048m                   <span class="comment"># 最大堆大小</span></span><br><span class="line">-Xmn256m                    <span class="comment"># 新生代大小</span></span><br><span class="line">-XX:NewSize=256m            <span class="comment"># 新生代初始</span></span><br><span class="line">-XX:MaxNewSize=512m         <span class="comment"># 新生代最大</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># ============ 各区域比例 ============</span></span><br><span class="line">-XX:SurvivorRatio=8         <span class="comment"># Eden:Survivor = 8:1:1（默认 8）</span></span><br><span class="line">-XX:NewRatio=2              <span class="comment"># 老年代:新生代 = 2:1（新生代占 1/3）</span></span><br><span class="line">-XX:MetaspaceSize=128m      <span class="comment"># 元空间初始大小</span></span><br><span class="line">-XX:MaxMetaspaceSize=256m   <span class="comment"># 元空间最大大小</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># ============ GC 选择 ============</span></span><br><span class="line">-XX:+UseSerialGC            <span class="comment"># Serial + Serial Old</span></span><br><span class="line">-XX:+UseParallelGC          <span class="comment"># Parallel Scavenge + Serial Old</span></span><br><span class="line">-XX:+UseParallelOldGC       <span class="comment"># Parallel Scavenge + Parallel Old</span></span><br><span class="line">-XX:+UseConcMarkSweepGC     <span class="comment"># ParNew + CMS</span></span><br><span class="line">-XX:+UseG1GC                <span class="comment"># G1</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># ============ GC 日志（JDK 8）============</span></span><br><span class="line">-XX:+PrintGCDetails</span><br><span class="line">-XX:+PrintGCDateStamps</span><br><span class="line">-XX:+PrintGCTimeStamps</span><br><span class="line">-Xloggc:/path/to/gc.log</span><br><span class="line"></span><br><span class="line"><span class="comment"># ============ GC 日志（JDK 9+）============</span></span><br><span class="line">-Xlog:gc*:file=/path/to/gc.log:<span class="keyword">time</span>,level,tags</span><br><span class="line"></span><br><span class="line"><span class="comment"># ============ G1 专用 ============</span></span><br><span class="line">-XX:MaxGCPauseMillis=200    <span class="comment"># 目标最大停顿时间（毫秒）</span></span><br><span class="line">-XX:G1HeapRegionSize=4M     <span class="comment"># Region 大小（1/2/4/8/16/32M）</span></span><br><span class="line">-XX:InitiatingHeapOccupancyPercent=45  <span class="comment"># 触发 Mixed GC 的堆使用率</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># ============ 其他 ============</span></span><br><span class="line">-XX:+PrintFlagsFinal         <span class="comment"># 打印所有 JVM 参数最终值</span></span><br><span class="line">-XX:+PrintCommandLineFlags   <span class="comment"># 打印命令行设置的参数</span></span><br><span class="line">-XX:+DisableExplicitGC       <span class="comment"># 禁用 System.gc()（防止频繁 Full GC）</span></span><br><span class="line">-XX:MaxDirectMemorySize=256m <span class="comment"># 堆外内存（NIO DirectByteBuffer）</span></span><br></pre></td></tr></table></figure>
+
+<h5 id="8，GC-日志分析"><a href="#8，GC-日志分析" class="headerlink" title="8，GC 日志分析"></a>8，GC 日志分析</h5><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># ============ 新生代 GC（Minor GC / Young GC）============</span></span><br><span class="line"><span class="comment"># [GC (Allocation Failure) [PSYoungGen: 32768K-&gt;4096K(37888K)]</span></span><br><span class="line"><span class="comment">#  32768K-&gt;16384K(123904K), 0.0123456 secs]</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># PSYoungGen: 新生代名称</span></span><br><span class="line"><span class="comment"># 32768K-&gt;4096K(37888K): GC前-&gt;GC后(总大小)</span></span><br><span class="line"><span class="comment"># 32768K-&gt;16384K(123904K): 堆GC前-&gt;GC后(总大小)</span></span><br><span class="line"><span class="comment"># 0.0123456 secs: 耗时</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># ============ Full GC ============</span></span><br><span class="line"><span class="comment"># [Full GC (System.gc()) [PSYoungGen: 4096K-&gt;0K(37888K)]</span></span><br><span class="line"><span class="comment">#  [ParOldGen: 12288K-&gt;12288K(86016K)]</span></span><br><span class="line"><span class="comment">#  16384K-&gt;12288K(123904K), [Metaspace: 5120K-&gt;5120K(1056768K)], 0.1234567 secs]</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># ============ G1 GC 日志 ============</span></span><br><span class="line"><span class="comment"># [GC pause (G1 Evacuation Pause) (young), 0.0034567 secs]</span></span><br><span class="line"><span class="comment">#    [Parallel Time: 3.0 ms, GC Workers: 4]</span></span><br><span class="line"><span class="comment">#    [Eden: 512M-&gt;0B(512M) Survivors: 64M-&gt;64M Heap: 3024M-&gt;2532M(4096M)]</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 分析关注点：</span></span><br><span class="line"><span class="comment"># - GC 频率：是否过于频繁</span></span><br><span class="line"><span class="comment"># - GC 耗时：是否过长</span></span><br><span class="line"><span class="comment"># - 晋升失败（Promotion Failed）：老年代空间不足</span></span><br><span class="line"><span class="comment"># - 并发模式失败（Concurrent Mode Failure）：CMS 老年代回收速度跟不上分配速度</span></span><br></pre></td></tr></table></figure>
+
+<h5 id="9，类加载机制"><a href="#9，类加载机制" class="headerlink" title="9，类加载机制"></a>9，类加载机制</h5><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># ============ 类加载过程 ============</span></span><br><span class="line"><span class="comment"># 加载 → 验证 → 准备 → 解析 → 初始化 → 使用 → 卸载</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 1. 加载（Loading）</span></span><br><span class="line"><span class="comment">#    通过全限定名获取二进制字节流</span></span><br><span class="line"><span class="comment">#    将字节流转换为方法区的运行时数据结构</span></span><br><span class="line"><span class="comment">#    在堆中生成 java.lang.Class 对象</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 2. 验证（Verification）</span></span><br><span class="line"><span class="comment">#    文件格式验证</span></span><br><span class="line"><span class="comment">#    元数据验证</span></span><br><span class="line"><span class="comment">#    字节码验证</span></span><br><span class="line"><span class="comment">#    符号引用验证</span></span><br><span class="line"><span class="comment">#    目的：确保 Class 文件符合规范</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 3. 准备（Preparation）</span></span><br><span class="line"><span class="comment">#    为静态变量分配内存并设置零值</span></span><br><span class="line"><span class="comment">#    static int a = 123;  → a = 0（准备阶段）</span></span><br><span class="line"><span class="comment">#    static final int b = 123;  → b = 123（常量直接赋值）</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 4. 解析（Resolution）</span></span><br><span class="line"><span class="comment">#    将常量池中的符号引用替换为直接引用</span></span><br><span class="line"><span class="comment">#    符号引用：字面量描述（如 &quot;com/example/User&quot;）</span></span><br><span class="line"><span class="comment">#    直接引用：内存地址或偏移量</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 5. 初始化（Initialization）</span></span><br><span class="line"><span class="comment">#    执行 &lt;clinit&gt;() 方法（类构造器）</span></span><br><span class="line"><span class="comment">#    静态变量赋值 + 静态代码块</span></span><br><span class="line"><span class="comment">#    父类先于子类初始化</span></span><br></pre></td></tr></table></figure>
+
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// ============ 类加载器体系 ============</span></span><br><span class="line"><span class="comment">// 双亲委派模型：</span></span><br><span class="line"></span><br><span class="line"><span class="comment">// Bootstrap ClassLoader（启动类加载器）</span></span><br><span class="line"><span class="comment">//    加载 &lt;JAVA_HOME&gt;/lib 下的核心类（rt.jar, tools.jar）</span></span><br><span class="line"><span class="comment">//    C++ 实现，Java 中打印为 null</span></span><br><span class="line"></span><br><span class="line"><span class="comment">// Extension ClassLoader（扩展类加载器）/ JDK 9 → Platform ClassLoader</span></span><br><span class="line"><span class="comment">//    加载 &lt;JAVA_HOME&gt;/lib/ext 下的类</span></span><br><span class="line"><span class="comment">//    Java 实现：sun.misc.Launcher$ExtClassLoader</span></span><br><span class="line"></span><br><span class="line"><span class="comment">// Application ClassLoader（应用类加载器）</span></span><br><span class="line"><span class="comment">//    加载 classpath 下的类</span></span><br><span class="line"><span class="comment">//    Java 实现：sun.misc.Launcher$AppClassLoader</span></span><br><span class="line"></span><br><span class="line"><span class="comment">// 工作流程（双亲委派）：</span></span><br><span class="line"><span class="comment">// 1. 收到加载请求</span></span><br><span class="line"><span class="comment">// 2. 先委托父加载器加载（向上查找）</span></span><br><span class="line"><span class="comment">// 3. 父加载器加载不了 → 自己尝试加载（向下查找）</span></span><br><span class="line"><span class="comment">// 4. 目的：保证核心类的安全（不能自定义 java.lang.String）</span></span><br><span class="line"></span><br><span class="line"><span class="comment">// 破坏双亲委派的场景：</span></span><br><span class="line"><span class="comment">// - JDBC 4.0+（SPI 机制）</span></span><br><span class="line"><span class="comment">// - Tomcat（Web 应用隔离）</span></span><br><span class="line"><span class="comment">// - OSGi（模块化）</span></span><br><span class="line"><span class="comment">// - 热部署</span></span><br></pre></td></tr></table></figure>
+
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// ============ 自定义类加载器 ============</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">MyClassLoader</span> <span class="keyword">extends</span> <span class="title class_">ClassLoader</span> &#123;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">private</span> String classPath;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="title function_">MyClassLoader</span><span class="params">(String classPath)</span> &#123;</span><br><span class="line">        <span class="built_in">this</span>.classPath = classPath;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="keyword">protected</span> Class&lt;?&gt; findClass(String name) <span class="keyword">throws</span> ClassNotFoundException &#123;</span><br><span class="line">        <span class="type">byte</span>[] data = loadClassData(name);</span><br><span class="line">        <span class="keyword">if</span> (data == <span class="literal">null</span>) &#123;</span><br><span class="line">            <span class="keyword">throw</span> <span class="keyword">new</span> <span class="title class_">ClassNotFoundException</span>(name);</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> defineClass(name, data, <span class="number">0</span>, data.length);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">private</span> <span class="type">byte</span>[] loadClassData(String name) &#123;</span><br><span class="line">        <span class="type">String</span> <span class="variable">path</span> <span class="operator">=</span> classPath + <span class="string">&quot;/&quot;</span> + name.replace(<span class="string">&#x27;.&#x27;</span>, <span class="string">&#x27;/&#x27;</span>) + <span class="string">&quot;.class&quot;</span>;</span><br><span class="line">        <span class="keyword">try</span> &#123;</span><br><span class="line">            <span class="type">FileInputStream</span> <span class="variable">fis</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">FileInputStream</span>(path);</span><br><span class="line">            <span class="type">ByteArrayOutputStream</span> <span class="variable">bos</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">ByteArrayOutputStream</span>();</span><br><span class="line">            <span class="type">byte</span>[] buf = <span class="keyword">new</span> <span class="title class_">byte</span>[<span class="number">1024</span>];</span><br><span class="line">            <span class="type">int</span> len;</span><br><span class="line">            <span class="keyword">while</span> ((len = fis.read(buf)) != -<span class="number">1</span>) &#123;</span><br><span class="line">                bos.write(buf, <span class="number">0</span>, len);</span><br><span class="line">            &#125;</span><br><span class="line">            <span class="keyword">return</span> bos.toByteArray();</span><br><span class="line">        &#125; <span class="keyword">catch</span> (IOException e) &#123;</span><br><span class="line">            <span class="keyword">return</span> <span class="literal">null</span>;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 使用自定义加载器</span></span><br><span class="line"><span class="type">MyClassLoader</span> <span class="variable">loader</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">MyClassLoader</span>(<span class="string">&quot;/path/to/classes&quot;</span>);</span><br><span class="line">Class&lt;?&gt; clazz = loader.loadClass(<span class="string">&quot;com.example.MyClass&quot;</span>);</span><br><span class="line"><span class="type">Object</span> <span class="variable">instance</span> <span class="operator">=</span> clazz.getDeclaredConstructor().newInstance();</span><br><span class="line"><span class="comment">// 同一个类被不同加载器加载 → 不同类（用类名+加载器区分）</span></span><br></pre></td></tr></table></figure>
+
+<h5 id="10，JIT-编译"><a href="#10，JIT-编译" class="headerlink" title="10，JIT 编译"></a>10，JIT 编译</h5><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># ============ 解释执行 vs 编译执行 ============</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 解释器（Interpreter）</span></span><br><span class="line"><span class="comment">#   逐条解释字节码执行</span></span><br><span class="line"><span class="comment">#   启动快，但执行效率低</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># JIT 编译器（Just In Time）</span></span><br><span class="line"><span class="comment">#   将热点代码编译为本地机器码</span></span><br><span class="line"><span class="comment">#   启动慢，但运行效率高</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># HotSpot 采用解释器 + JIT 混合模式</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># ============ 热点探测 ============</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 方法调用计数器（Invocation Counter）</span></span><br><span class="line"><span class="comment">#   方法被调用达到一定次数 → 编译</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 回边计数器（Back Edge Counter）</span></span><br><span class="line"><span class="comment">#   循环执行达到一定次数 → OSR（栈上替换）编译</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 参数：</span></span><br><span class="line"><span class="comment"># -XX:CompileThreshold=10000   触发编译的阈值（方法调用次数，默认 Client 1500 / Server 10000）</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># ============ C1 和 C2 编译器 ============</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># C1（Client Compiler）</span></span><br><span class="line"><span class="comment">#   编译速度快，优化较少</span></span><br><span class="line"><span class="comment">#   适合客户端应用（启动快）</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># C2（Server Compiler）</span></span><br><span class="line"><span class="comment">#   编译速度慢，激进优化（内联、逃逸分析、死代码消除）</span></span><br><span class="line"><span class="comment">#   适合服务端应用（长期运行性能好）</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 分层编译（Tiered Compilation，JDK 7+ 默认开启）</span></span><br><span class="line"><span class="comment">#   0: 解释执行</span></span><br><span class="line"><span class="comment">#   1: C1 编译（不采样）</span></span><br><span class="line"><span class="comment">#   2: C1 编译（带简单采样）</span></span><br><span class="line"><span class="comment">#   3: C1 编译（带完整采样）</span></span><br><span class="line"><span class="comment">#   4: C2 编译</span></span><br></pre></td></tr></table></figure>
+
+<h5 id="11，JVM-调优"><a href="#11，JVM-调优" class="headerlink" title="11，JVM 调优"></a>11，JVM 调优</h5><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># ============ 调优步骤 ============</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 1. 明确目标</span></span><br><span class="line"><span class="comment">#    吞吐量优先？响应时间优先？内存占用最小？</span></span><br><span class="line"><span class="comment">#    响应时间优先 → CMS / G1 / ZGC</span></span><br><span class="line"><span class="comment">#    吞吐量优先   → Parallel</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 2. 收集 GC 日志</span></span><br><span class="line"><span class="comment">#    开启 GC 日志，观察 GC 频率和耗时</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 3. 分析</span></span><br><span class="line"><span class="comment">#    Minor GC 频繁？→ 增大新生代</span></span><br><span class="line"><span class="comment">#    Full GC 频繁？→ 增大老年代或排查内存泄漏</span></span><br><span class="line"><span class="comment">#    GC 停顿过长？→ 换 G1/ZGC</span></span><br><span class="line"><span class="comment">#    对象晋升过快？→ 调整 Survivor 比例</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 4. 常见优化方向</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># a) 减少 Full GC</span></span><br><span class="line"><span class="comment">#    - 避免 System.gc()</span></span><br><span class="line"><span class="comment">#    - 调整 -Xms = -Xmx 避免堆扩展</span></span><br><span class="line"><span class="comment">#    - 增大老年代大小</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># b) 减少 Minor GC</span></span><br><span class="line"><span class="comment">#    - 增大新生代</span></span><br><span class="line"><span class="comment">#    - 减少临时对象创建</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># c) 减少停顿时间</span></span><br><span class="line"><span class="comment">#    - 换 G1/ZGC</span></span><br><span class="line"><span class="comment">#    - 调整 -XX:MaxGCPauseMillis</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># ============ 常见 JVM 参数组合 ============</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># Web 应用（响应时间优先，堆 4-8GB）</span></span><br><span class="line">-Xms4g -Xmx4g -Xmn2g</span><br><span class="line">-XX:+UseG1GC</span><br><span class="line">-XX:MaxGCPauseMillis=200</span><br><span class="line">-XX:+PrintGCDetails -XX:+PrintGCDateStamps</span><br><span class="line">-Xloggc:/var/log/app/gc.log</span><br><span class="line">-XX:+HeapDumpOnOutOfMemoryError</span><br><span class="line">-XX:HeapDumpPath=/var/log/app/</span><br><span class="line">-Djava.net.preferIPv4Stack=<span class="literal">true</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 后台批处理（吞吐量优先）</span></span><br><span class="line">-Xms8g -Xmx8g</span><br><span class="line">-XX:+UseParallelOldGC</span><br><span class="line">-XX:ParallelGCThreads=4</span><br><span class="line"></span><br><span class="line"><span class="comment"># 微服务/容器环境（内存限制）</span></span><br><span class="line">-Xms2g -Xmx2g</span><br><span class="line">-XX:+UseContainerSupport       <span class="comment"># JDK 8u191+ 自动识别容器内存</span></span><br><span class="line">-XX:MaxRAMPercentage=75.0</span><br><span class="line">-XX:+UseG1GC</span><br></pre></td></tr></table></figure>
+
+<h5 id="12，JVM-监控与诊断工具"><a href="#12，JVM-监控与诊断工具" class="headerlink" title="12，JVM 监控与诊断工具"></a>12，JVM 监控与诊断工具</h5><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># ============ 命令行工具 ============</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># jps —— 查看 Java 进程</span></span><br><span class="line">jps -l                      <span class="comment"># 显示完整类名</span></span><br><span class="line">jps -v                      <span class="comment"># 显示 JVM 参数</span></span><br><span class="line">jps -m                      <span class="comment"># 显示 main 方法的参数</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># jstat —— JVM 统计信息</span></span><br><span class="line">jstat -gc &lt;pid&gt; 1000 10     <span class="comment"># 每1秒打印一次GC，共10次</span></span><br><span class="line">jstat -gcutil &lt;pid&gt; 1000    <span class="comment"># GC各区域使用百分比</span></span><br><span class="line">jstat -class &lt;pid&gt;          <span class="comment"># 类加载统计</span></span><br><span class="line">jstat -compiler &lt;pid&gt;       <span class="comment"># JIT 编译统计</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># S0C S1C  S0U  S1U   EC     EU     OC     OU     MC   MU   YGC  YGCT  FGC  FGCT   GCT</span></span><br><span class="line"><span class="comment"># 幸存区容量 幸存区使用 Eden容量 Eden使用 老年容量 老年使用 元空间容量 元空间使用 YGC次数 YGC时间 FGC次数 FGC时间 GC总时间</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># jmap —— 堆内存快照</span></span><br><span class="line">jmap -heap &lt;pid&gt;            <span class="comment"># 堆配置和使用情况</span></span><br><span class="line">jmap -histo &lt;pid&gt;           <span class="comment"># 对象统计（按类统计实例数和占用）</span></span><br><span class="line">jmap -histo:live &lt;pid&gt;      <span class="comment"># 只统计存活对象（触发 Full GC）</span></span><br><span class="line">jmap -dump:live,format=b,file=heap.bin &lt;pid&gt;  <span class="comment"># 导出堆转储</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># jstack —— 线程堆栈</span></span><br><span class="line">jstack &lt;pid&gt;                <span class="comment"># 所有线程堆栈</span></span><br><span class="line">jstack &lt;pid&gt; &gt; thread.txt</span><br><span class="line"><span class="comment"># 关键信息：</span></span><br><span class="line"><span class="comment"># - 死锁（Found one Java-level deadlock）</span></span><br><span class="line"><span class="comment"># - 线程状态分布（RUNNABLE / BLOCKED / WAITING）</span></span><br><span class="line"><span class="comment"># - 锁等待信息</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># jinfo —— JVM 参数</span></span><br><span class="line">jinfo &lt;pid&gt;                 <span class="comment"># 所有 JVM 参数</span></span><br><span class="line">jinfo -flags &lt;pid&gt;          <span class="comment"># 运行时设置的参数</span></span><br><span class="line">jinfo -flag MaxHeapSize &lt;pid&gt;  <span class="comment"># 查看单个参数</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># jhat —— 堆转储浏览器（JDK 8 后移除，用 Eclipse MAT 等替代）</span></span><br><span class="line"><span class="comment"># jhat heap.bin</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># jcmd —— 综合诊断（JDK 7+）</span></span><br><span class="line">jcmd &lt;pid&gt; <span class="built_in">help</span>             <span class="comment"># 支持的命令</span></span><br><span class="line">jcmd &lt;pid&gt; GC.heap_dump /path/to/heap.bin</span><br><span class="line">jcmd &lt;pid&gt; Thread.<span class="built_in">print</span></span><br><span class="line">jcmd &lt;pid&gt; GC.run</span><br><span class="line">jcmd &lt;pid&gt; VM.<span class="built_in">uptime</span></span><br><span class="line">jcmd &lt;pid&gt; VM.flags</span><br><span class="line">jcmd &lt;pid&gt; VM.system_properties</span><br><span class="line">jcmd &lt;pid&gt; VM.native_memory summary</span><br><span class="line"></span><br><span class="line"><span class="comment"># ============ 可视化工具 ============</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># jconsole（JDK 自带）</span></span><br><span class="line"><span class="comment">#   内存、线程、类、CPU 监控</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># jvisualvm（JDK 8 自带，JDK 9+ 独立下载）</span></span><br><span class="line"><span class="comment">#   更强大的监控 + 堆转储分析</span></span><br><span class="line"><span class="comment">#   支持插件扩展</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># Eclipse MAT（Memory Analyzer Tool）</span></span><br><span class="line"><span class="comment">#   分析 hprof 堆转储文件</span></span><br><span class="line"><span class="comment">#   查找内存泄漏</span></span><br><span class="line"><span class="comment">#   Leak Suspects Report</span></span><br><span class="line"><span class="comment">#   Dominator Tree（大对象）</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># Arthas（阿里开源，线上诊断神器）</span></span><br><span class="line"><span class="comment">#   curl -O https://arthas.aliyun.com/arthas-boot.jar</span></span><br><span class="line"><span class="comment">#   java -jar arthas-boot.jar</span></span><br><span class="line"><span class="comment">#   dashboard        → 实时面板</span></span><br><span class="line"><span class="comment">#   thread           → 线程分析</span></span><br><span class="line"><span class="comment">#   jad              → 反编译</span></span><br><span class="line"><span class="comment">#   watch            → 方法观察</span></span><br><span class="line"><span class="comment">#   trace            → 方法调用链耗时</span></span><br><span class="line"><span class="comment">#   profiler start   → 火焰图</span></span><br><span class="line"><span class="comment">#   heapdump         → 堆转储</span></span><br></pre></td></tr></table></figure>
+
+<h5 id="13，内存泄漏排查"><a href="#13，内存泄漏排查" class="headerlink" title="13，内存泄漏排查"></a>13，内存泄漏排查</h5><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// ============ 常见内存泄漏场景 ============</span></span><br><span class="line"></span><br><span class="line"><span class="comment">// 1. ThreadLocal 未清理</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">ThreadLocalLeak</span> &#123;</span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">final</span> ThreadLocal&lt;List&lt;Object&gt;&gt; threadLocal = <span class="keyword">new</span> <span class="title class_">ThreadLocal</span>&lt;&gt;();</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">process</span><span class="params">()</span> &#123;</span><br><span class="line">        List&lt;Object&gt; list = <span class="keyword">new</span> <span class="title class_">ArrayList</span>&lt;&gt;();</span><br><span class="line">        <span class="comment">// 处理...</span></span><br><span class="line">        threadLocal.set(list);</span><br><span class="line">        <span class="comment">// ❌ 忘记 remove() → 内存泄漏</span></span><br><span class="line">        <span class="comment">// ✅ threadLocal.remove();</span></span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 2. 静态集合持有对象</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">StaticCollectionLeak</span> &#123;</span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">final</span> List&lt;Object&gt; objects = <span class="keyword">new</span> <span class="title class_">ArrayList</span>&lt;&gt;();  <span class="comment">// 静态 + 无限增长</span></span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">add</span><span class="params">(Object obj)</span> &#123;</span><br><span class="line">        objects.add(obj);     <span class="comment">// ❌ 永不释放</span></span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 3. 未关闭的资源（连接、流）</span></span><br><span class="line"><span class="comment">// ❌ Connection/Statement/ResultSet 未关闭</span></span><br><span class="line"><span class="comment">// ❌ FileInputStream 未关闭</span></span><br><span class="line"><span class="comment">// ✅ try-with-resources</span></span><br><span class="line"></span><br><span class="line"><span class="comment">// 4. 内部类持有外部引用</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">Outer</span> &#123;</span><br><span class="line">    <span class="keyword">class</span> <span class="title class_">Inner</span> &#123;</span><br><span class="line">        <span class="comment">// 默认持有 Outer.this 引用</span></span><br><span class="line">    &#125;</span><br><span class="line">    <span class="comment">// ✅ 改为 static class Inner 解除绑定</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 5. 监听器未注销</span></span><br><span class="line"><span class="comment">// addListener() 后未 removeListener()</span></span><br><span class="line"></span><br><span class="line"><span class="comment">// ============ 排查步骤 ============</span></span><br><span class="line"><span class="comment">// 1. jps 找到 PID</span></span><br><span class="line"><span class="comment">// 2. jstat -gc &lt;pid&gt; 观察老年代持续增长</span></span><br><span class="line"><span class="comment">// 3. jmap -dump:live,format=b,file=heap.bin &lt;pid&gt;</span></span><br><span class="line"><span class="comment">// 4. MAT 打开 heap.bin</span></span><br><span class="line"><span class="comment">// 5. Leak Suspects → Dominator Tree → 找大对象 → 查 GC Root 引用链</span></span><br></pre></td></tr></table></figure>
+
+<h5 id="14，命令行参数速查"><a href="#14，命令行参数速查" class="headerlink" title="14，命令行参数速查"></a>14，命令行参数速查</h5><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># ============ 堆与内存 ============</span></span><br><span class="line">-Xms&lt;size&gt;                  <span class="comment"># 初始堆 （如 -Xms512m）</span></span><br><span class="line">-Xmx&lt;size&gt;                  <span class="comment"># 最大堆（如 -Xmx4g）</span></span><br><span class="line">-Xmn&lt;size&gt;                  <span class="comment"># 新生代</span></span><br><span class="line">-Xss&lt;size&gt;                  <span class="comment"># 线程栈大小（如 -Xss1m）</span></span><br><span class="line">-XX:NewRatio=&lt;n&gt;            <span class="comment"># 老年代/新生代 比例</span></span><br><span class="line">-XX:SurvivorRatio=&lt;n&gt;       <span class="comment"># Eden/Survivor 比例</span></span><br><span class="line">-XX:MetaspaceSize=&lt;size&gt;    <span class="comment"># 元空间初始</span></span><br><span class="line">-XX:MaxMetaspaceSize=&lt;size&gt; <span class="comment"># 元空间最大</span></span><br><span class="line">-XX:MaxDirectMemorySize=&lt;size&gt; <span class="comment"># 堆外内存上限</span></span><br><span class="line">-XX:ReservedCodeCacheSize=&lt;size&gt; <span class="comment"># 代码缓存大小</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># ============ GC ============</span></span><br><span class="line">-XX:+UseSerialGC</span><br><span class="line">-XX:+UseParallelGC</span><br><span class="line">-XX:+UseConcMarkSweepGC    <span class="comment"># CMS</span></span><br><span class="line">-XX:+UseG1GC               <span class="comment"># G1</span></span><br><span class="line">-XX:+UseZGC                <span class="comment"># ZGC</span></span><br><span class="line">-XX:MaxGCPauseMillis=&lt;n&gt;   <span class="comment"># 最大停顿目标（ms）</span></span><br><span class="line">-XX:+DisableExplicitGC     <span class="comment"># 禁用 System.gc()</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># ============ 错误诊断 ============</span></span><br><span class="line">-XX:+HeapDumpOnOutOfMemoryError</span><br><span class="line">-XX:HeapDumpPath=&lt;path&gt;</span><br><span class="line">-XX:ErrorFile=&lt;path&gt;</span><br><span class="line">-XX:OnOutOfMemoryError=<span class="string">&quot;&lt;cmd&gt;&quot;</span></span><br><span class="line">-XX:+PrintGCDetails</span><br><span class="line">-XX:+PrintGCDateStamps</span><br><span class="line">-Xloggc:&lt;path&gt;</span><br><span class="line"></span><br><span class="line"><span class="comment"># ============ 其他 ============</span></span><br><span class="line">-server                     <span class="comment"># 服务端模式（64位默认）</span></span><br><span class="line">-client                     <span class="comment"># 客户端模式</span></span><br><span class="line">-XX:+UseContainerSupport    <span class="comment"># 容器内存感知</span></span><br><span class="line">-XX:MaxRAMPercentage=&lt;n&gt;    <span class="comment"># 堆占容器内存百分比</span></span><br><span class="line">-XX:+PrintCommandLineFlags  <span class="comment"># 打印生效的 JVM 参数</span></span><br></pre></td></tr></table></figure>
+
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/blog/tags/java/" rel="tag"># java</a>
+              <a href="/blog/tags/jvm/" rel="tag"># jvm</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/blog/2024/06/15/python/python%E5%B9%B6%E5%8F%91%E5%AD%A6%E4%B9%A0/" rel="prev" title="python并发学习">
+      <i class="fa fa-chevron-left"></i> python并发学习
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/blog/2024/06/25/linux/vim%E5%AD%A6%E4%B9%A0/" rel="next" title="vim学习">
+      vim学习 <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-5"><a class="nav-link" href="#1%EF%BC%8CJVM-%E6%A6%82%E8%BF%B0"><span class="nav-number">1.</span> <span class="nav-text">1，JVM 概述</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#2%EF%BC%8C%E8%BF%90%E8%A1%8C%E6%97%B6%E6%95%B0%E6%8D%AE%E5%8C%BA%E8%AF%A6%E8%A7%A3"><span class="nav-number">2.</span> <span class="nav-text">2，运行时数据区详解</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#3%EF%BC%8C%E5%AF%B9%E8%B1%A1%E7%9A%84%E5%86%85%E5%AD%98%E5%B8%83%E5%B1%80"><span class="nav-number">3.</span> <span class="nav-text">3，对象的内存布局</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#4%EF%BC%8C%E5%9E%83%E5%9C%BE%E5%9B%9E%E6%94%B6%EF%BC%88GC%EF%BC%89%E5%9F%BA%E7%A1%80"><span class="nav-number">4.</span> <span class="nav-text">4，垃圾回收（GC）基础</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#5%EF%BC%8C%E5%9E%83%E5%9C%BE%E5%9B%9E%E6%94%B6%E7%AE%97%E6%B3%95"><span class="nav-number">5.</span> <span class="nav-text">5，垃圾回收算法</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#6%EF%BC%8CHotSpot-%E5%9E%83%E5%9C%BE%E5%9B%9E%E6%94%B6%E5%99%A8"><span class="nav-number">6.</span> <span class="nav-text">6，HotSpot 垃圾回收器</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#7%EF%BC%8CGC-%E5%B8%B8%E7%94%A8%E5%8F%82%E6%95%B0"><span class="nav-number">7.</span> <span class="nav-text">7，GC 常用参数</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#8%EF%BC%8CGC-%E6%97%A5%E5%BF%97%E5%88%86%E6%9E%90"><span class="nav-number">8.</span> <span class="nav-text">8，GC 日志分析</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#9%EF%BC%8C%E7%B1%BB%E5%8A%A0%E8%BD%BD%E6%9C%BA%E5%88%B6"><span class="nav-number">9.</span> <span class="nav-text">9，类加载机制</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#10%EF%BC%8CJIT-%E7%BC%96%E8%AF%91"><span class="nav-number">10.</span> <span class="nav-text">10，JIT 编译</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#11%EF%BC%8CJVM-%E8%B0%83%E4%BC%98"><span class="nav-number">11.</span> <span class="nav-text">11，JVM 调优</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#12%EF%BC%8CJVM-%E7%9B%91%E6%8E%A7%E4%B8%8E%E8%AF%8A%E6%96%AD%E5%B7%A5%E5%85%B7"><span class="nav-number">12.</span> <span class="nav-text">12，JVM 监控与诊断工具</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#13%EF%BC%8C%E5%86%85%E5%AD%98%E6%B3%84%E6%BC%8F%E6%8E%92%E6%9F%A5"><span class="nav-number">13.</span> <span class="nav-text">13，内存泄漏排查</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#14%EF%BC%8C%E5%91%BD%E4%BB%A4%E8%A1%8C%E5%8F%82%E6%95%B0%E9%80%9F%E6%9F%A5"><span class="nav-number">14.</span> <span class="nav-text">14，命令行参数速查</span></a></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">ruoxi</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/blog/archives/">
+        
+          <span class="site-state-item-count">80</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/blog/categories/">
+          
+        <span class="site-state-item-count">17</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/blog/tags/">
+          
+        <span class="site-state-item-count">47</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2026</span>
+  <span class="with-love">
+    <i class="fa fa-code"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">ruoxi</span>
+</div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/blog/lib/anime.min.js"></script>
+  <script src="/blog/lib/velocity/velocity.min.js"></script>
+  <script src="/blog/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/blog/js/utils.js"></script>
+
+<script src="/blog/js/motion.js"></script>
+
+
+<script src="/blog/js/schemes/pisces.js"></script>
+
+
+<script src="/blog/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+</body>
+</html>

@@ -1,0 +1,565 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>面试题 - 分布式事务</title>
+<style>
+body {
+    transition: margin-left .25s ease;
+    font-family: -apple-system, "Noto Sans SC", "Microsoft YaHei", sans-serif;
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 20px 24px 60px;
+    line-height: 1.8;
+    color: #333;
+    background: #fff;
+}
+h1 { border-bottom: 2px solid #eee; padding-bottom: 10px; color: #222; }
+h2 { color: #333; margin-top: 32px; }
+h3 { color: #555; }
+a { color: #0366d6; text-decoration: none; }
+a:hover { text-decoration: underline; }
+pre {
+    background: #f6f8fa;
+    border-radius: 6px;
+    padding: 16px;
+    overflow-x: auto;
+    font-size: 14px;
+    line-height: 1.45;
+}
+code {
+    background: #f0f2f4;
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-size: 14px;
+}
+pre code { background: none; padding: 0; }
+blockquote {
+    border-left: 4px solid #ddd;
+    margin: 0;
+    padding: 0 16px;
+    color: #666;
+}
+table {
+    border-collapse: collapse;
+    width: 100%;
+    margin: 16px 0;
+}
+th, td {
+    border: 1px solid #ddd;
+    padding: 8px 12px;
+    text-align: left;
+}
+th { background: #f6f8fa; }
+img { max-width: 100%; }
+.back-link {
+    margin-bottom: 20px;
+    display: block;
+    color: #666;
+}
+.back-link:hover { color: #0366d6; }
+
+.sidebar-toc {
+    transition: left .25s ease;
+    position: fixed;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    width: 220px;
+    background: #f8f9fa;
+    border-right: 1px solid #e9ecef;
+    padding: 20px 0;
+    overflow-y: auto;
+    font-size: 13px;
+    z-index: 100;
+}
+.sidebar-toc a {
+    display: block;
+    padding: 6px 16px;
+    color: #555;
+    text-decoration: none;
+    border-left: 3px solid transparent;
+    line-height: 1.5;
+}
+.sidebar-toc a:hover {
+    background: #e9ecef;
+    color: #0366d6;
+    border-left-color: #0366d6;
+}
+.sidebar-toc .toc-h3 { padding-left: 20px; font-size: 12px; }
+body { margin-left: 240px; }
+
+
+.copy-btn {
+    position: absolute; top: 6px; right: 6px;
+    background: #e9ecef; border: none;
+    border-radius: 4px; padding: 3px 10px;
+    font-size: 12px; color: #555; cursor: pointer;
+    opacity: 0; transition: opacity 0.2s;
+    z-index: 1;
+}
+pre:hover .copy-btn { opacity: 1; }
+.copy-btn:hover { background: #d0d7de; }
+.copy-btn.copied { opacity: 1; background: #2da44e; color: #fff; }
+.copy-btn{position:absolute;top:6px;right:6px;background:#e9ecef;border:none;border-radius:4px;padding:3px 10px;font-size:12px;color:#555;cursor:pointer;opacity:0;transition:opacity .2s;z-index:1}pre:hover .copy-btn{opacity:1}.copy-btn:hover{background:#d0d7de}.copy-btn.copied{opacity:1;background:#2da44e;color:#fff}
+.copy-btn{position:absolute;top:6px;right:6px;background:#e9ecef;border:none;border-radius:4px;padding:3px 10px;font-size:12px;color:#555;cursor:pointer;opacity:0;transition:opacity .2s;z-index:1}pre:hover .copy-btn{opacity:1}.copy-btn:hover{background:#d0d7de}.copy-btn.copied{opacity:1;background:#2da44e;color:#fff}
+.copy-btn{position:absolute;top:6px;right:6px;background:#e9ecef;border:none;border-radius:4px;padding:3px 10px;font-size:12px;color:#555;cursor:pointer;opacity:0;transition:opacity .2s;z-index:1}pre:hover .copy-btn{opacity:1}.copy-btn:hover{background:#d0d7de}.copy-btn.copied{opacity:1;background:#2da44e;color:#fff}
+.sidebar-toggle-btn {
+  position: fixed;
+  left: 220px;
+  top: 0;
+  width: 28px;
+  height: 40px;
+  background: #f8f9fa;
+  border: 1px solid #e9ecef;
+  border-left: none;
+  border-radius: 0 4px 4px 0;
+  cursor: pointer;
+  font-size: 16px;
+  color: #555;
+  z-index: 101;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: left .25s, background .2s;
+  padding: 0;
+  line-height: 1;
+}
+.sidebar-toggle-btn:hover { background: #e9ecef; color: #0366d6; }
+.sidebar-collapsed .sidebar-toc { left: -220px; }
+.sidebar-collapsed .sidebar-toggle-btn { left: 0; }
+.sidebar-collapsed body, body.sidebar-collapsed { margin-left: 28px; }
+.sidebar-overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,.3);
+  z-index: 99;
+}
+@media (max-width: 768px) {
+  .sidebar-collapsed .sidebar-overlay { display: none; }
+  .sidebar-toc { left: -220px; }
+  .sidebar-toggle-btn { left: 0; }
+  body { margin-left: 28px; }
+}
+
+</style>
+</head>
+</head>
+<body>
+<nav class="sidebar-toc"><a class="toc-h3" href="#1">1. 四种方案一句话区分</a><a class="toc-h3" href="#2-tcc">2. TCC 的三个阶段?</a><a class="toc-h3" href="#3-tcc">3. TCC 的三个难点?</a><a class="toc-h3" href="#4-seata-tctmrm">4. Seata 的 TC、TM、RM 是什么?</a><a class="toc-h3" href="#5-seata-at">5. Seata AT 模式原理?</a><a class="toc-h3" href="#6-seata">6. Seata 四种模式怎么选?</a><a class="toc-h3" href="#7-saga-tcc">7. Saga 和 TCC 区别?</a><a class="toc-h3" href="#8">8. 分布式事务什么时候不该用?</a><a class="toc-h3" href="#9-base">9. 什么是 BASE 理论?</a><a class="toc-h3" href="#10-seata-at-tcc-saga-xa">10. Seata 四大模式(AT / TCC / SAGA / XA)怎么选?</a><a class="toc-h3" href="#11-seata-attccsaga">11. Seata 的 AT、TCC、Saga 模式横向对比？</a></nav>
+<button class="sidebar-toggle-btn" onclick="toggleSidebar()" title="切换侧栏">☰</button>
+
+<div class="sidebar-overlay" onclick="toggleSidebar()"></div>
+
+<script>
+function toggleSidebar() {
+  document.body.classList.toggle('sidebar-collapsed');
+  try { localStorage.setItem('sidebarCollapsed', document.body.classList.contains('sidebar-collapsed')); } catch(e) {}
+}
+(function() {
+  try {
+    if (localStorage.getItem('sidebarCollapsed') === 'true') {
+      document.body.classList.add('sidebar-collapsed');
+    }
+  } catch(e) {}
+})();
+</script>
+<a class="back-link" href="/blog/2026/05/16/面试题/面试题/">← 返回面试题目录</a>
+<h1 id=page-title>分布式事务</h1>
+<h3 id="1">1. 四种方案一句话区分</h3>
+<table>
+<thead>
+<tr>
+<th>方案</th>
+<th>一句话</th>
+<th>一致性级别</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>2PC/XA</td>
+<td>强一致的提交协议,协调者两阶段提交</td>
+<td>强一致</td>
+</tr>
+<tr>
+<td>TCC</td>
+<td>业务级两阶段:Try 预留 → Confirm 确认 / Cancel 取消</td>
+<td>最终一致</td>
+</tr>
+<tr>
+<td>Seata AT</td>
+<td>自动补偿框架,依赖 undo log 回滚</td>
+<td>最终一致</td>
+</tr>
+<tr>
+<td>Saga</td>
+<td>长事务补偿,先执行再补偿,最终一致</td>
+<td>最终一致</td>
+</tr>
+</tbody>
+</table>
+<pre><code>一致性光谱:
+
+强一致 ◀──────────────────────────────▶ 最终一致
+  │                                      │
+ 2PC/XA        TCC        Seata AT      Saga
+ (锁到完成)   (预留后确认)  (自动补偿)   (事后补救)
+  │                                      │
+ 性能差 ←─────────────────────────────▶ 性能好
+</code></pre>
+<blockquote>
+<p><strong>扩展</strong>:为什么 2PC 在实际业务中很少直接用?因为它的<strong>锁定时间长</strong>--第一阶段锁住资源,第二阶段才释放。如果协调者挂了,锁一直不释放,其他事务全卡住。这就是为什么阿里搞出了 Seata--不用数据库锁,用 undo log 做补偿。</p>
+</blockquote>
+<h3 id="2-tcc">2. TCC 的三个阶段?</h3>
+<ul>
+<li><strong>Try</strong>:预留/冻结资源(占坑)。比如冻结 100 元,钱还在但不可用</li>
+<li><strong>Confirm</strong>:确认提交,真正生效(转正)。比如真正扣款 100 元</li>
+<li><strong>Cancel</strong>:释放资源,撤销预留(退坑)。比如解冻 100 元</li>
+</ul>
+<pre><code>Try:冻结 100 元(余额 500 → 可用 400,冻结 100)
+     │
+     ├── 所有 Try 成功 → Confirm:真正扣 100(余额 400 → 余额 400,冻结 0)
+     │
+     └── 有 Try 失败 → Cancel:解冻(余额 400 → 可用 500,冻结 0)
+</code></pre>
+<p>核心理念:不是在数据库层面回滚,而是在<strong>业务层做"补偿操作"</strong>。就像电商退款--不是把数据库时间倒流,而是创建一个退款单把钱退回去。</p>
+<blockquote>
+<p><strong>扩展</strong>:TCC 对企业级业务非常实用,但它的代价是<strong>每个接口都要写三套逻辑</strong>(Try/Confirm/Cancel),代码量大。所以 TCC 适合核心链路(支付、库存),不那么重要的场景用 AT 或 Saga 就够了。</p>
+</blockquote>
+<h3 id="3-tcc">3. TCC 的三个难点?</h3>
+<ul>
+<li>
+<p><strong>幂等</strong>:Confirm/Cancel 可能被重复调用(网络超时重试),结果必须一致。比如重复解冻不能变成"倒贴钱"。</p>
+</li>
+<li>
+<p><strong>空回滚</strong>:Cancel 被调了但 Try 根本没执行(Try 请求超时,协调者直接发 Cancel)。需要识别并安全处理--别"解冻一个根本没冻结的余额"。</p>
+</li>
+<li>
+<p><strong>悬挂</strong>:Cancel 先到执行了,后到的 Try 不能再把资源占住--否则资源被永久冻结。</p>
+</li>
+</ul>
+<pre><code>正常流程:Try → Confirm/Cancel
+
+空回滚:Try (超时) → 协调者直接发 Cancel → Cancel 到了但 Try 没执行过
+
+悬挂:   Try (超时) → Cancel 先到执行了 → Try 后到(不能执行)
+</code></pre>
+<p>解决:<strong>状态机表 + 唯一键 + 防悬挂机制</strong>。</p>
+<blockquote>
+<p><strong>扩展</strong>:防悬挂的实现--Try 执行时检查有没有 Cancel 记录,如果有说明已经被取消了,拒绝执行。这些状态记录通常放在一张事务日志表中,用全局事务 ID 做主键。</p>
+</blockquote>
+<h3 id="4-seata-tctmrm">4. Seata 的 TC、TM、RM 是什么?</h3>
+<ul>
+<li><strong>TM(事务管理器)</strong>:事务发起者,负责开启和结束全局事务。比如下单服务说"我开始一个分布式事务了"</li>
+<li><strong>RM(资源管理器)</strong>:管理分支事务,执行本地数据库操作。比如订单库、库存库各自管自己的操作</li>
+<li><strong>TC(事务协调者)</strong>:记录全局和分支事务状态,协调提交/回滚。是整个事务的"裁判"</li>
+</ul>
+<pre><code>TM(下单服务)
+ │ 开启全局事务
+ │
+ ├──▶ RM(订单库):插入订单 ──▶ TC 记录:分支1 成功
+ │
+ └──▶ RM(库存库):扣库存   ──▶ TC 记录:分支2 成功
+                                     │
+                       全部成功 → Commit / 有失败 → Rollback
+</code></pre>
+<blockquote>
+<p><strong>扩展</strong>:TC 通常独立部署(Seata Server),它就是一个协调中心。TM 和 RM 都在你的微服务里--加个 <code>@GlobalTransactional</code> 注解,Seata 自动帮你做 TM/RM 的事情。</p>
+</blockquote>
+<h3 id="5-seata-at">5. Seata AT 模式原理?</h3>
+<p><strong>一阶段</strong>:拦截 SQL → 记录 before image(改前数据)和 after image(改后数据)→ 注册分支事务
+<strong>二阶段</strong>:提交 → 异步删 undo log;回滚 → 按 undo log 反向补偿恢复数据</p>
+<pre><code>一阶段:执行 SQL + 记录 undo log
+
+UPDATE account SET money = 400 WHERE id = 1
+        │
+        ▼
+  before image: {id:1, money:500}   ← 记下改前
+  after image:  {id:1, money:400}   ← 记下改后
+        │
+        ▼
+  二阶段提交:删 undo log(异步清理)
+  二阶段回滚:逆向 SQL → {id:1, money:500}(恢复原值)
+</code></pre>
+<p>优点:业务侵入低,加个注解就行。局限:依赖 JDBC,复杂 SQL 不太适用。</p>
+<blockquote>
+<p><strong>扩展</strong>:AT 模式和数据库 undo log 的思路一样,区别在于 AT 是在<strong>应用层</strong>做 undo log(拦截 SQL 自动生成补偿 SQL),而不是依赖数据库的 undo 表空间。因为应用层的 undo log,所以跨库也能用--这是 AT 模式最聪明的地方。</p>
+</blockquote>
+<h3 id="6-seata">6. Seata 四种模式怎么选?</h3>
+<ul>
+<li>标准 CRUD → <strong>AT</strong>(低成本首选,加注解就行)</li>
+<li>有明确预留语义(冻结/扣减)→ <strong>TCC</strong>(业务控制力最强)</li>
+<li>长流程、允许中间状态 → <strong>Saga</strong>(无长锁,性能好)</li>
+<li>资源方原生支持 XA → <strong>XA</strong>(强一致,数据库帮你做)</li>
+</ul>
+<pre><code>选型决策树:
+
+  能加注解就行? ──是──▶ AT (90% 场景)
+      │ 否
+      ▼
+  需要强一致? ──是──▶ XA
+      │ 否
+      ▼
+  长流程(&gt;10步)? ──是──▶ Saga
+      │ 否
+      ▼
+  有冻结/预留语义? ──是──▶ TCC
+</code></pre>
+<blockquote>
+<p><strong>扩展</strong>:TCC 和 AT 的选择不是非此即彼,很多公司混着用--核心资金链路用 TCC(性能好、控制力强),普通 CRUD 用 AT(省心)。Seata 支持一个全局事务里不同分支用不同模式。</p>
+</blockquote>
+<h3 id="7-saga-tcc">7. Saga 和 TCC 区别?</h3>
+<ul>
+<li><strong>TCC</strong>:先预留再确认(资源锁持有短,隔离性强)--像"先交定金再付全款"</li>
+<li><strong>Saga</strong>:先执行再补偿(无长锁,中间状态会暴露,最终一致)--像"先发货不满意再退货"</li>
+</ul>
+<pre><code>TCC:Try(冻结) → Confirm(转正)
+     锁住资源 → 释放锁
+     中间状态不可见(资源被冻结)
+
+Saga:执行1 → 执行2 → 执行3
+     没有锁,每步都真实执行
+     中间状态可见(别人能查到未完成的数据)
+     失败时:补偿3 → 补偿2 → 补偿1(倒序回滚)
+</code></pre>
+<blockquote>
+<p><strong>扩展</strong>:Saga 最适合<strong>长流程</strong>场景--比如机票+酒店+租车的旅行预订,整个过程可能几分钟甚至几小时。用 TCC 锁资源这么久不现实。Saga 每步提交后就释放,失败时靠补偿往回修--就像旅行中取消订单要一步步退还。</p>
+</blockquote>
+<h3 id="8">8. 分布式事务什么时候不该用?</h3>
+<p>异步通知、日志、统计这些能容忍延迟和补偿的,不要用分布式事务。能拆成"先落核心数据 + 异步修正"的就别搞长事务。</p>
+<pre><code>判断流程:
+
+跨服务数据一致性需求
+    │
+    ├── 能异步搞定? → 用消息队列 + 本地消息表
+    │   例:下单后发短信通知 → 失败重试即可
+    │
+    ├── 能事后对账/补偿? → 不要用分布式事务
+    │   例:对账文件 T+1 对平
+    │
+    └── 必须实时一致? → 才考虑分布式事务
+        例:扣款 + 出账 → TCC
+</code></pre>
+<blockquote>
+<p><strong>扩展</strong>:业界共识--<strong>能用最终一致性解决的,别上强一致性</strong>。强一致的成本(性能、复杂度、可用性牺牲)远高于最终一致。很多业务看着像需要强一致,换个思路(异步补偿 + 对账)就能用最终一致解决。</p>
+</blockquote>
+<hr />
+<h3 id="9-base">9. 什么是 BASE 理论?</h3>
+<p>Basically Available 基本可用、Soft State 软状态、Eventually Consistent 最终一致性。BASE + ACID 混合:支付用 ACID,非关键用 BASE。</p>
+<hr />
+<h3 id="10-seata-at-tcc-saga-xa">10. Seata 四大模式(AT / TCC / SAGA / XA)怎么选?</h3>
+<p>Seata 是阿里开源的分布式事务框架,提供了四种模式来应对不同场景。核心架构是 <strong>TC(事务协调器)+ TM(事务管理器)+ RM(资源管理器)</strong> 三角色协作。</p>
+<p><strong>AT 模式(默认,最常用)</strong>:</p>
+<p>核心是<strong>自动生成 undo log</strong>--Seata 代理数据源,拦截业务 SQL,自动记录修改前后的数据(前后镜像)。一阶段提交本地事务,二阶段 TC 决定全提交或全回滚。</p>
+<pre><code>AT 模式两阶段:
+一阶段:执行业务 SQL → 记录前后镜像到 undo_log → 提交本地事务
+二阶段(全部成功):异步删除 undo_log
+二阶段(有失败):根据 before image 逆向 SQL 恢复数据
+
+优点:对业务零侵入,改造成本极低
+缺点:有全局锁,高并发有瓶颈;默认读未提交
+</code></pre>
+<p><strong>TCC 模式(性能最强,开发成本最高)</strong>:</p>
+<p>业务代码自己实现 Try / Confirm / Cancel 三个方法。Try 预留资源、Confirm 确认执行业务、Cancel 释放资源。</p>
+<pre><code>Try:    冻结余额(可用余额-100,冻结金额+100)
+Confirm:扣除冻结金额(冻结金额-100)
+Cancel: 解冻余额(冻结金额-100,可用余额+100)
+
+优点:无全局锁,性能最高,不依赖数据库
+缺点:代码侵入性高,需处理空回滚、悬挂、幂等三大难题
+</code></pre>
+<p><strong>SAGA 模式(长事务)</strong>:</p>
+<p>将长事务拆成一系列本地短事务,每个短事务有对应的补偿操作。失败时反向执行补偿。</p>
+<pre><code>正向:下单 → 扣库存 → 扣余额 → 发券
+              ❌ 失败
+补偿:← 恢复库存 ← 取消订单
+</code></pre>
+<p><strong>四大模式全景对比</strong>:</p>
+<table>
+<thead>
+<tr>
+<th>维度</th>
+<th>AT</th>
+<th>TCC</th>
+<th>SAGA</th>
+<th>XA</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>一致性</strong></td>
+<td>最终一致</td>
+<td>最终一致</td>
+<td>最终一致</td>
+<td><strong>强一致</strong></td>
+</tr>
+<tr>
+<td><strong>代码侵入</strong></td>
+<td>无</td>
+<td>高</td>
+<td>中高</td>
+<td>无</td>
+</tr>
+<tr>
+<td><strong>性能</strong></td>
+<td>中</td>
+<td><strong>高</strong></td>
+<td>高</td>
+<td>低</td>
+</tr>
+<tr>
+<td><strong>事务长度</strong></td>
+<td>短</td>
+<td>短</td>
+<td><strong>长</strong></td>
+<td>短</td>
+</tr>
+<tr>
+<td><strong>适用场景</strong></td>
+<td>标准CRUD</td>
+<td>高并发+有预留语义</td>
+<td>长流程+多服务</td>
+<td>必须强一致</td>
+</tr>
+</tbody>
+</table>
+<p><strong>选型决策树</strong>:</p>
+<pre><code>能接受最终一致?
+├── 是 → 标准 CRUD + 关系型数据库?
+│   ├── 是 → AT 模式(最省事)
+│   └── 否 → 高并发 + 可投入开发成本?
+│       ├── 是 → TCC 模式(最高性能)
+│       └── 否 → 长流程?→ SAGA
+└── 否 → 必须强一致 → XA(牺牲性能)
+</code></pre>
+<blockquote>
+<p><strong>扩展</strong>:AT 模式的"全局锁"是它最大的性能瓶颈--多个事务操作同一行数据时,即使一阶段已提交,二阶段完成前其他事务也必须等全局锁。热点数据场景(如秒杀扣库存)建议改用 TCC 或 Redis 原子操作 + MQ 异步。另外,TCC 的空回滚问题(Cancel 先于 Try 到达)和悬挂问题(Cancel 执行后 Try 才到)是面试高频追问--Seata 的 TCC Fence 机制通过 <code>tcc_fence_log</code> 表记录状态来解决。</p>
+</blockquote>
+<h3 id="11-seata-attccsaga">11. Seata 的 AT、TCC、Saga 模式横向对比？</h3>
+<table>
+<thead>
+<tr>
+<th>维度</th>
+<th>AT 模式</th>
+<th>TCC 模式</th>
+<th>Saga 模式</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>侵入性</td>
+<td>低（自动补偿）</td>
+<td>高（需写 try/confirm/cancel）</td>
+<td>中（需写状态机）</td>
+</tr>
+<tr>
+<td>性能</td>
+<td>高（本地事务）</td>
+<td>高（无全局锁）</td>
+<td>高</td>
+</tr>
+<tr>
+<td>一致性</td>
+<td>准强一致（弱 XA）</td>
+<td>强一致</td>
+<td>最终一致</td>
+</tr>
+<tr>
+<td>适用场景</td>
+<td>对一致性要求高</td>
+<td>高并发 + 独立系统</td>
+<td>长流程 + 异步补偿</td>
+</tr>
+<tr>
+<td>锁粒度</td>
+<td>全局行锁</td>
+<td>无全局锁</td>
+<td>无全局锁</td>
+</tr>
+<tr>
+<td>依赖</td>
+<td>支持 ACID 的 DB</td>
+<td>无（应用自己保证）</td>
+<td>无</td>
+</tr>
+<tr>
+<td>回滚可靠性</td>
+<td>高（undolog）</td>
+<td>低（try 失败则回滚）</td>
+<td>中（状态机驱动）</td>
+</tr>
+</tbody>
+</table>
+<p><strong>AT vs TCC 选择</strong>：
+- 有现成 DB，不愿改业务代码 → <strong>AT</strong>
+- 高并发、分布式系统、无共享 DB → <strong>TCC</strong>
+- 超长链路（10+ 节点）、可接受最终一致 → <strong>Saga</strong></p>
+<p><strong>TCC 示例</strong>（库存服务）：</p>
+<pre><code class="language-java">@LocalTCC
+public interface StockTccService {
+    @TwoPhaseBusinessAction(name=&quot;deduct&quot;, commitMethod = &quot;confirm&quot;, rollbackMethod = &quot;cancel&quot;)
+    boolean tryDeduct(@BusinessActionContextParameter(paramName=&quot;id&quot;) Long id, int count);
+
+    boolean confirm(BusinessActionContext ctx);
+    boolean cancel(BusinessActionContext ctx);
+}
+</code></pre>
+<blockquote>
+<p><strong>扩展</strong>：AT 模式实际上是 2PC 的变体（一阶段预提交 + 二阶段异步确认）；Seata 的 GlobalTransactionalInterceptor 负责所有分布式事务的发起；跨服务 + 强一致场景优先选 AT，允许延迟选 Saga。</p>
+</blockquote>
+
+<script>
+// Scroll spy — highlight active sidebar item
+window.addEventListener('scroll', function() {
+    var links = document.querySelectorAll('.sidebar-toc a');
+    var scrollY = window.scrollY + 120;
+    var current = '';
+    for (var i = links.length - 1; i >= 0; i--) {
+        var target = document.getElementById(links[i].getAttribute('href').slice(1));
+        if (target && target.offsetTop <= scrollY) {
+            current = links[i];
+            break;
+        }
+    }
+    links.forEach(function(a) { a.style.fontWeight = 'normal'; a.style.color = '#555'; });
+    if (current) { current.style.fontWeight = 'bold'; current.style.color = '#0366d6'; }
+});
+</script>
+
+
+<script>
+document.querySelectorAll('pre > code').forEach(function(codeBlock, i) {
+    var pre = codeBlock.parentNode;
+    pre.style.position = 'relative';
+    var btn = document.createElement('button');
+    btn.className = 'copy-btn';
+    btn.textContent = '复制';
+    pre.appendChild(btn);
+    btn.addEventListener('click', function() {
+        var text = codeBlock.textContent;
+        navigator.clipboard.writeText(text).then(function() {
+            btn.textContent = '已复制';
+            btn.classList.add('copied');
+            setTimeout(function() {
+                btn.textContent = '复制';
+                btn.classList.remove('copied');
+            }, 2000);
+        }).catch(function() {
+            // Fallback
+            var ta = document.createElement('textarea');
+            ta.value = text; ta.style.position = 'fixed'; ta.style.opacity = '0';
+            document.body.appendChild(ta); ta.select();
+            document.execCommand('copy'); document.body.removeChild(ta);
+            btn.textContent = '已复制'; btn.classList.add('copied');
+            setTimeout(function() { btn.textContent = '复制'; btn.classList.remove('copied'); }, 2000);
+        });
+    });
+});
+</script>
+
+
+<script>document.querySelectorAll("pre>code").forEach(function(c){var p=c.parentNode;p.style.position="relative";var b=document.createElement("button");b.className="copy-btn";b.textContent="复制";p.appendChild(b);b.addEventListener("click",function(){var t=c.textContent;navigator.clipboard.writeText(t).then(function(){b.textContent="已复制";b.classList.add("copied");setTimeout(function(){b.textContent="复制";b.classList.remove("copied")},2000)}).catch(function(){var a=document.createElement("textarea");a.value=t;a.style.position="fixed";a.style.opacity="0";document.body.appendChild(a);a.select();document.execCommand("copy");document.body.removeChild(a);b.textContent="已复制";b.classList.add("copied");setTimeout(function(){b.textContent="复制";b.classList.remove("copied")},2000)})})})</script>
+</body>
+</html>

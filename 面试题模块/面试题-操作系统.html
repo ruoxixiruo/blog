@@ -1,0 +1,793 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>面试题 - 操作系统</title>
+<style>
+body {
+    transition: margin-left .25s ease;
+    font-family: -apple-system, "Noto Sans SC", "Microsoft YaHei", sans-serif;
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 20px 24px 60px;
+    line-height: 1.8;
+    color: #333;
+    background: #fff;
+}
+h1 { border-bottom: 2px solid #eee; padding-bottom: 10px; color: #222; }
+h2 { color: #333; margin-top: 32px; }
+h3 { color: #555; }
+a { color: #0366d6; text-decoration: none; }
+a:hover { text-decoration: underline; }
+pre {
+    background: #f6f8fa;
+    border-radius: 6px;
+    padding: 16px;
+    overflow-x: auto;
+    font-size: 14px;
+    line-height: 1.45;
+}
+code {
+    background: #f0f2f4;
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-size: 14px;
+}
+pre code { background: none; padding: 0; }
+blockquote {
+    border-left: 4px solid #ddd;
+    margin: 0;
+    padding: 0 16px;
+    color: #666;
+}
+table {
+    border-collapse: collapse;
+    width: 100%;
+    margin: 16px 0;
+}
+th, td {
+    border: 1px solid #ddd;
+    padding: 8px 12px;
+    text-align: left;
+}
+th { background: #f6f8fa; }
+img { max-width: 100%; }
+.back-link {
+    margin-bottom: 20px;
+    display: block;
+    color: #666;
+}
+.back-link:hover { color: #0366d6; }
+
+.sidebar-toc {
+    transition: left .25s ease;
+    position: fixed;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    width: 220px;
+    background: #f8f9fa;
+    border-right: 1px solid #e9ecef;
+    padding: 20px 0;
+    overflow-y: auto;
+    font-size: 13px;
+    z-index: 100;
+}
+.sidebar-toc a {
+    display: block;
+    padding: 6px 16px;
+    color: #555;
+    text-decoration: none;
+    border-left: 3px solid transparent;
+    line-height: 1.5;
+}
+.sidebar-toc a:hover {
+    background: #e9ecef;
+    color: #0366d6;
+    border-left-color: #0366d6;
+}
+.sidebar-toc .toc-h3 { padding-left: 20px; font-size: 12px; }
+body { margin-left: 240px; }
+
+
+.copy-btn {
+    position: absolute; top: 6px; right: 6px;
+    background: #e9ecef; border: none;
+    border-radius: 4px; padding: 3px 10px;
+    font-size: 12px; color: #555; cursor: pointer;
+    opacity: 0; transition: opacity 0.2s;
+    z-index: 1;
+}
+pre:hover .copy-btn { opacity: 1; }
+.copy-btn:hover { background: #d0d7de; }
+.copy-btn.copied { opacity: 1; background: #2da44e; color: #fff; }
+.copy-btn{position:absolute;top:6px;right:6px;background:#e9ecef;border:none;border-radius:4px;padding:3px 10px;font-size:12px;color:#555;cursor:pointer;opacity:0;transition:opacity .2s;z-index:1}pre:hover .copy-btn{opacity:1}.copy-btn:hover{background:#d0d7de}.copy-btn.copied{opacity:1;background:#2da44e;color:#fff}
+.copy-btn{position:absolute;top:6px;right:6px;background:#e9ecef;border:none;border-radius:4px;padding:3px 10px;font-size:12px;color:#555;cursor:pointer;opacity:0;transition:opacity .2s;z-index:1}pre:hover .copy-btn{opacity:1}.copy-btn:hover{background:#d0d7de}.copy-btn.copied{opacity:1;background:#2da44e;color:#fff}
+.sidebar-toggle-btn {
+  position: fixed;
+  left: 220px;
+  top: 0;
+  width: 28px;
+  height: 40px;
+  background: #f8f9fa;
+  border: 1px solid #e9ecef;
+  border-left: none;
+  border-radius: 0 4px 4px 0;
+  cursor: pointer;
+  font-size: 16px;
+  color: #555;
+  z-index: 101;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: left .25s, background .2s;
+  padding: 0;
+  line-height: 1;
+}
+.sidebar-toggle-btn:hover { background: #e9ecef; color: #0366d6; }
+.sidebar-collapsed .sidebar-toc { left: -220px; }
+.sidebar-collapsed .sidebar-toggle-btn { left: 0; }
+.sidebar-collapsed body, body.sidebar-collapsed { margin-left: 28px; }
+.sidebar-overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,.3);
+  z-index: 99;
+}
+@media (max-width: 768px) {
+  .sidebar-collapsed .sidebar-overlay { display: none; }
+  .sidebar-toc { left: -220px; }
+  .sidebar-toggle-btn { left: 0; }
+  body { margin-left: 28px; }
+}
+
+</style>
+</head>
+</head>
+<body>
+<nav class="sidebar-toc"><a class="toc-h3" href="#1">1. 进程和线程的区别?</a><a class="toc-h3" href="#2-ipc">2. 进程间通信(IPC)有哪些方式?</a><a class="toc-h3" href="#3">3. 什么是死锁?怎么解决?</a><a class="toc-h3" href="#4">4. 什么是虚拟内存?</a><a class="toc-h3" href="#5">5. 分页和分段的区别?</a><a class="toc-h3" href="#6">6. 页面置换算法有哪些?</a><a class="toc-h3" href="#7">7. 用户态和内核态的区别?</a><a class="toc-h3" href="#8">8. 什么是上下文切换?频繁切换的问题?</a><a class="toc-h3" href="#9">9. 堆和栈的区别?</a><a class="toc-h3" href="#10-cpu-cachefalse-sharing">10. 什么是 CPU Cache?伪共享(False Sharing)如何避免?</a><a class="toc-h3" href="#11">11. 进程的五种状态是什么?如何转换?</a><a class="toc-h3" href="#12-fork-cow">12. fork() 的原理和写时拷贝(COW)是什么?</a><a class="toc-h3" href="#13-cpu">13. 常见 CPU 调度算法有哪些?</a><a class="toc-h3" href="#14">14. 临界区、互斥锁、信号量的区别?</a><a class="toc-h3" href="#15-thrashing">15. 什么是颠簸(Thrashing)?</a><a class="toc-h3" href="#16-tlbtranslation-lookaside-buffer">16. TLB(Translation Lookaside Buffer)是什么?</a><a class="toc-h3" href="#17">17. 什么是中断?硬中断和软中断的区别?</a><a class="toc-h3" href="#18-inode">18. 文件系统如何组织数据?什么是 inode?</a><a class="toc-h3" href="#19-epoll-selectpoll">19. epoll 相比 select/poll 的本质优势是什么？</a></nav>
+<button class="sidebar-toggle-btn" onclick="toggleSidebar()" title="切换侧栏">☰</button>
+
+<div class="sidebar-overlay" onclick="toggleSidebar()"></div>
+
+<script>
+function toggleSidebar() {
+  document.body.classList.toggle('sidebar-collapsed');
+  try { localStorage.setItem('sidebarCollapsed', document.body.classList.contains('sidebar-collapsed')); } catch(e) {}
+}
+(function() {
+  try {
+    if (localStorage.getItem('sidebarCollapsed') === 'true') {
+      document.body.classList.add('sidebar-collapsed');
+    }
+  } catch(e) {}
+})();
+</script>
+<a class="back-link" href="/blog/2026/05/16/面试题/面试题/">← 返回面试题目录</a>
+<h1 id=page-title>操作系统</h1>
+<h3 id="1">1. 进程和线程的区别?</h3>
+<table>
+<thead>
+<tr>
+<th>维度</th>
+<th>进程</th>
+<th>线程</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>资源</td>
+<td>独立内存空间(虚拟地址空间)</td>
+<td>共享进程的堆和方法区</td>
+</tr>
+<tr>
+<td>调度</td>
+<td>OS 资源分配的基本单位</td>
+<td>CPU 调度的基本单位</td>
+</tr>
+<tr>
+<td>切换开销</td>
+<td>大(切换页表、TLB 刷新)</td>
+<td>小(只换寄存器和栈)</td>
+</tr>
+<tr>
+<td>健壮性</td>
+<td>隔离性高,一个崩了不影响其他</td>
+<td>一个线程 OOM 整个进程挂</td>
+</tr>
+<tr>
+<td>通信</td>
+<td>需要 IPC(管道、共享内存)</td>
+<td>直接读写共享变量(需同步)</td>
+</tr>
+</tbody>
+</table>
+<p>通俗记忆:<strong>进程 = 工厂</strong>(独立厂房+独立设备,自成体系),<strong>线程 = 工人</strong>(共享厂房机器,各有自己的工位),<strong>协程 = 一个工人同时看多台机器</strong>。</p>
+<blockquote>
+<p><strong>扩展</strong>:Linux 中进程和线程都用 <code>task_struct</code> 表示,本质上都是任务,区别在于是否共享内存空间(<code>clone()</code> 的参数不同)。这也是为什么 Linux 创建线程很快--它是在已有进程上"分享"而非"创建新进程"。</p>
+</blockquote>
+<h3 id="2-ipc">2. 进程间通信(IPC)有哪些方式?</h3>
+<pre><code>IPC 方式速查(按速度排序):
+
+共享内存 &gt;&gt; 消息队列 &gt; 管道 &gt; Socket
+
+┌──────────┬──────────────────────┬──────────────────┐
+│ 方式     │ 特点                 │ 比喻             │
+├──────────┼──────────────────────┼──────────────────┤
+│ 管道     │ 单向,父子进程       │ 传声筒           │
+│ 命名管道 │ 任意进程,有名字     │ 邮筒             │
+│ 消息队列 │ 异步,消息有格式     │ 快递柜           │
+│ 共享内存 │ 最快(零拷贝)       │ 公共黑板         │
+│ 信号量   │ 不传数据,只做同步   │ 红绿灯           │
+│ Socket   │ 跨网络,跨主机       │ 打电话           │
+│ 信号     │ 通知事件(SIGKILL等)│ 手机通知栏       │
+└──────────┴──────────────────────┴──────────────────┘
+</code></pre>
+<p><strong>共享内存为什么最快</strong>:其他方式数据要经过内核拷贝(用户态→内核态→另一进程),共享内存是直接把物理内存映射到两个进程的地址空间,数据不需要拷贝。但共享内存需要配合信号量同步--大家一起写同一块黑板需要规则。</p>
+<blockquote>
+<p><strong>扩展</strong>:Android 的 Binder 是 Android 特有的 IPC 机制(基于共享内存 + Binder 驱动),比传统 Socket IPC 更高效。mmap 也可以实现进程间共享内存(文件映射到内存,多进程共享同一文件映射)。现代系统常用消息队列(Kafka/RabbitMQ)做跨进程通信,本质是 Socket 通信的封装。</p>
+</blockquote>
+<h3 id="3">3. 什么是死锁?怎么解决?</h3>
+<pre><code>死锁 = 互相等对方的资源,谁也动不了
+
+经典场景(哲学家吃饭):
+  5 个哲学家围一桌,5 根筷子
+  每人先拿左边筷子,再等右边筷子
+  结果:每个人都拿了一根,都在等另一根 → 死锁!
+
+死锁四个必要条件(缺一不可):
+  1 互斥:资源只能一人用(拿筷子时别人不能拿同一根)
+  2 占有等待:拿着资源还去要别的(已经拿了一根还在等另一根)
+  3 不可剥夺:不能硬抢(别人不能抢你手里的筷子)
+  4 循环等待:A 等 B,B 等 C,...,X 等 A(形成闭环)
+
+破坏任何一个条件就能破死锁:
+  → 破坏1互斥:资源改成可共享(大部分资源做不到)
+  → 破坏2占有等待:一次性申请所有资源,申请不到就不拿
+  → 破坏3不可剥夺:拿不到就放下手里已有的
+  → 破坏4循环等待:按固定顺序申请资源(最常用!)
+</code></pre>
+<p><strong>解决三层次</strong>:
+- <strong>预防</strong>:破坏四个条件之一。最常用--按固定顺序申请资源(所有线程都先锁 A 再锁 B)
+- <strong>避免</strong>:银行家算法,分配资源前先判断会不会死锁(理论完美但实际难用)
+- <strong>检测+恢复</strong>:定期检测死锁 → 杀进程/剥夺资源回滚</p>
+<blockquote>
+<p><strong>扩展</strong>:数据库的死锁检测是通过"等待图"(Wait-for Graph)--检测有没有环。Java 的 <code>jstack</code> 可以检测 Java 层的死锁(打印线程的 BLOCKED 状态和持有的锁)。<code>Lock.tryLock(timeout)</code> 是防死锁的实用手段--拿不到就放弃,不无限等。</p>
+</blockquote>
+<h3 id="4">4. 什么是虚拟内存?</h3>
+<pre><code>虚拟内存 = 物理内存不够用时借用磁盘
+
+进程A 看到的:                   进程B 看到的:
+[0 ────────── 4GB]              [0 ────────── 4GB]
+     虚拟地址                         虚拟地址
+        │                                │
+    MMU(内存管理单元)做翻译
+        │
+    [物理 RAM 8GB] + [磁盘 Swap]
+
+每个进程以为自己独占 4GB 连续内存,实际上:
+- 常用的部分在物理内存
+- 不常用的部分暂存在磁盘(Swap)
+- 需要时换进来(页面调入),不常用换出去(页面换出)
+</code></pre>
+<p><strong>好处</strong>:
+1. <strong>进程隔离</strong>:A 不能碰 B 的内存(各自独立的页表),安全
+2. <strong>突破物理内存限制</strong>:程序可以比物理内存大
+3. <strong>共享</strong>:多个进程可以共享同一份物理页面(如动态库 .so 只加载一次)
+4. <strong>简化编程</strong>:程序员不用管"哪块内存可用",地址空间连续统一</p>
+<blockquote>
+<p><strong>扩展</strong>:MMU(Memory Management Unit)是 CPU 中的硬件单元,负责虚拟地址→物理地址的翻译。TLB(Translation Lookaside Buffer)是 MMU 的缓存,缓存最近的翻译结果。缺页中断(Page Fault)是访问的页面不在物理内存时触发的异常--如果 Swap 中有就去磁盘换进来,如果没有就是非法访问(Segfault)。</p>
+</blockquote>
+<h3 id="5">5. 分页和分段的区别?</h3>
+<pre><code>分页(Paging):
+  内存切成固定大小的页框(通常 4KB)
+  程序按同样大小切成页 → 页可以放到任意页框
+  优点:没有外部碎片,分配简单
+  缺点:最后一页可能没填满(内部碎片)
+
+  地址结构:[页号 | 页内偏移]
+
+分段(Segmentation):
+  按程序逻辑分段:代码段、数据段、堆、栈
+  每段大小不同,连续存放
+  优点:符合程序员思维,便于共享和保护
+  缺点:段之间有空隙(外部碎片)
+
+  地址结构:[段号 | 段内偏移]
+
+现代系统:段页式
+  先按逻辑分段 → 段内再分页
+  用户看到的是段,底层管理是页
+</code></pre>
+<blockquote>
+<p><strong>扩展</strong>:Linux 实际上不直接使用分段(x86 的分段机制被弱化了),主要用分页管理。页大小可以不是 4KB--x86-64 支持 2MB(大页)和 1GB(巨页),大页能减少 TLB 缺失、提高性能。数据库(如 MySQL)经常使用大页来提升内存访问效率。</p>
+</blockquote>
+<h3 id="6">6. 页面置换算法有哪些?</h3>
+<pre><code>物理内存满了,新页面来了,踢哪个出去?
+
+┌────────┬──────────────────────┬──────────────────────┐
+│ 算法   │ 规则                 │ 特点                 │
+├────────┼──────────────────────┼──────────────────────┤
+│ FIFO   │ 最先来的最先踢       │ 简单但有 Belady 异常 │
+│ LRU    │ 最久没用的踢         │ 效果好,实现成本高   │
+│ Clock  │ LRU 简化版,转圈扫   │ 实际系统最常用       │
+│ OPT    │ 将来最久才用的踢     │ 理论最优但无法实现   │
+└────────┴──────────────────────┴──────────────────────┘
+</code></pre>
+<p><strong>Belady 异常</strong>:FIFO 算法在<strong>增加内存页框后缺页次数反而增加</strong>--违反直觉。LRU 和 OPT 没有这个异常。</p>
+<p><strong>Clock 算法(LRU 近似)</strong>:给每页加一个"访问位"。指针环形扫描--访问位=1 说明最近用过,清 0 并跳过;=0 说明最近没用过,踢掉。LRU 需要维护较重的链表,Clock 就一个 bit 搞定。</p>
+<blockquote>
+<p><strong>扩展</strong>:LRU 和 Redis 的缓存淘汰(allkeys-lru)思想一样,都是"最近没用的先踢"。操作系统用 Clock 而不是精确 LRU 是因为实现成本--OS 层面维护所有页面的使用时间链表开销太大,Clock 只需要一个访问位 + 指针。</p>
+</blockquote>
+<h3 id="7">7. 用户态和内核态的区别?</h3>
+<pre><code>用户态 vs 内核态:
+
+┌──────────────────────────────────────┐
+│ 用户态(Ring 3,受限模式)           │
+│ - 不能执行特权指令(如关中断、改页表)│
+│ - 不能直接访问硬件/外设              │
+│ - 只能访问自己的地址空间              │
+│ - 所有应用程序(浏览器、Java 程序)  │
+├──────────────────────────────────────┤
+│ 内核态(Ring 0,特权模式)           │
+│ - 可以执行所有 CPU 指令              │
+│ - 直接访问硬件、内存、磁盘           │
+│ - 操作系统内核、驱动程序             │
+└──────────────────────────────────────┘
+
+切换时机:
+  系统调用(open/read/write)→ 用户程序主动请求内核服务
+  中断(硬件中断)→ 网卡收到数据/定时器到期
+  异常(缺页/除零)→ 被动进入内核处理
+</code></pre>
+<p><strong>为什么分用户态和内核态</strong>:安全隔离。应用程序崩了最多自己挂掉,内核崩了整个系统宕机。恶意程序在用户态也无法直接读取别的进程内存或格式化磁盘。</p>
+<blockquote>
+<p><strong>扩展</strong>:系统调用的开销--从用户态切换到内核态需要保存现场(寄存器、栈)、切换栈、切换页表映射,成本约几百个 CPU 周期。这也是为什么高性能框架(如 DPDK)会想办法绕过内核直接操作硬件。<code>strace</code> 命令可以跟踪一个进程发了哪些系统调用,排查性能问题时经常用。</p>
+</blockquote>
+<hr />
+<h3 id="8">8. 什么是上下文切换?频繁切换的问题?</h3>
+<p>上下文切换就是 CPU 从执行一个任务切换到执行另一个任务时,<strong>保存旧任务的状态、加载新任务的状态</strong>的过程。就像你在看书,突然有人打电话来--你得夹上书签、接电话、记下电话里的要点,然后回来重新翻到刚才那一页继续看。"夹书签 + 回忆内容"就是上下文切换的代价。</p>
+<p><strong>切换时 CPU 做了什么</strong>:</p>
+<pre><code>保存旧任务的状态 → 加载新任务的状态 → 执行
+
+保存什么?
+  - 寄存器值(通用寄存器、PC 程序计数器、SP 栈指针)
+  - 页表(虚拟内存映射关系)
+  - TLB 会失效(虚拟地址→物理地址的缓存作废)
+  - CPU Cache 可能失效(缓存的数据是旧程序的)
+</code></pre>
+<p><strong>代价有多大?</strong></p>
+<table>
+<thead>
+<tr>
+<th>切换类型</th>
+<th>大致耗时</th>
+<th>原因</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>线程切换(同进程)</td>
+<td>~1-5 μs</td>
+<td>不换页表,只换寄存器和栈</td>
+</tr>
+<tr>
+<td>进程切换</td>
+<td>~5-50 μs</td>
+<td>换页表 + TLB 全刷</td>
+</tr>
+<tr>
+<td>协程切换</td>
+<td>~10-100 ns</td>
+<td>用户态,只换少量寄存器</td>
+</tr>
+</tbody>
+</table>
+<p><strong>频繁切换的三大危害</strong>:</p>
+<ol>
+<li><strong>CPU 利用率低</strong>:大量 CPU 时间花在"切换"本身,而不是"干活"。比如每 10ms 切一次、一次切 5μs → 浪费 0.05% CPU。在高 QPS 场景下这点损耗会被放大</li>
+<li><strong>缓存失效(最致命)</strong>:CPU 的 L1/L2/L3 缓存里存着当前线程的"热数据",一切换缓存就废了--新线程要从内存重新加载。一次 L3 缓存缺失约 40-100 个 CPU 周期</li>
+<li><strong>TLB 冲刷</strong>:进程切换要刷新 TLB,后面的内存访问都要重新做地址翻译,一次 TLB miss 多花 100 个周期以上</li>
+</ol>
+<p><strong>如何减少上下文切换?</strong></p>
+<pre><code>1 锁优化:减少 synchronized 范围,用乐观锁代替悲观锁
+2 合适的线程池大小:不是线程越多越好!
+   CPU 密集型:核数 + 1
+   IO 密集型:核数 × 2(让 CPU 在等 IO 时有其他线程干活)
+3 使用协程(asyncio/虚拟线程):用户态切换,不走 OS
+4 批处理:攒一批任务处理一次,减少切换频率
+5 无锁编程:CAS、Disruptor RingBuffer 等避免锁切换
+</code></pre>
+<p><strong>怎么检测</strong>:<code>vmstat 1</code> 看 <code>cs</code>(context switch)列;<code>pidstat -w 1</code> 看具体进程的切换次数。超过 10 万次/秒/核就值得关注。</p>
+<blockquote>
+<p><strong>扩展</strong>:Java 21 的虚拟线程(Virtual Threads)彻底改变了线程模型--几万个虚拟线程在几个平台线程上轮转,阻塞时自动卸载(unmount),IO 返回时自动挂载(mount),不会阻塞平台线程,上下文切换成本极低。这就是 Go 的 goroutine 在 Java 的等价物。</p>
+</blockquote>
+<hr />
+<h3 id="9">9. 堆和栈的区别?</h3>
+<p>堆和栈是两块完全不同的内存区域。栈是<strong>函数调用的临时记事本</strong>(用完就丢,速度快),堆是<strong>长期的储物间</strong>(动态分配,需要管理)。</p>
+<pre><code>内存布局(简化):
+
+高地址
+┌──────────┐
+│   栈      │ ← 本地变量、函数参数、返回地址(连续、后进先出)
+│    ↓      │   空间小(通常 1-8MB),用完自动回收
+│    ↑      │
+│   堆      │ ← new/malloc 出来的对象(动态、不连续)
+│          │   空间大(可到物理内存上限),GC 或手动回收
+├──────────┤
+│  BSS段   │ ← 未初始化的全局变量和静态变量
+├──────────┤
+│ 数据段   │ ← 已初始化的全局变量和静态变量
+├──────────┤
+│ 代码段   │ ← 程序指令(只读)
+└──────────┘
+低地址
+</code></pre>
+<table>
+<thead>
+<tr>
+<th>对比维度</th>
+<th>栈(Stack)</th>
+<th>堆(Heap)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>存放内容</strong></td>
+<td>局部变量、函数参数、返回地址</td>
+<td>new/malloc 出来的对象</td>
+</tr>
+<tr>
+<td><strong>管理方式</strong></td>
+<td>自动(函数返回即释放)</td>
+<td>手动(C/C++)或 GC(Java/Python)</td>
+</tr>
+<tr>
+<td><strong>大小</strong></td>
+<td>小(默认 1-8MB)</td>
+<td>大(可到物理内存上限)</td>
+</tr>
+<tr>
+<td><strong>速度</strong></td>
+<td>快(连续分配,指针移动即可)</td>
+<td>慢(需要找空闲块,有碎片)</td>
+</tr>
+<tr>
+<td><strong>分配方式</strong></td>
+<td>连续,LIFO</td>
+<td>不连续,链表/空闲列表管理</td>
+</tr>
+<tr>
+<td><strong>线程</strong></td>
+<td>每个线程有独立的栈</td>
+<td>同一进程的线程共享堆</td>
+</tr>
+<tr>
+<td><strong>生命周期</strong></td>
+<td>函数调用期间</td>
+<td>从分配直到回收</td>
+</tr>
+<tr>
+<td><strong>溢出</strong></td>
+<td>StackOverflowError(递归太深)</td>
+<td>OutOfMemoryError(内存不够)</td>
+</tr>
+</tbody>
+</table>
+<p><strong>为什么这样分?</strong></p>
+<p>栈是<strong>LIFO(后进先出)</strong>--函数调用天然就是嵌套的,A 调 B 调 C,C 返回了 B 才能返回,后调的先返。这种"嵌套进入、逆序退出"的模式正好适合栈。而且栈分配只需挪一下指针--"分配 8 字节"就是栈指针往下移 8 字节,比堆快得多。</p>
+<p>堆是<strong>动态随机访问</strong>--对象的生命周期不可预测,可能全局都可能被引用,不能用 LIFO 模式管理,需要 GC 来追踪哪些对象还在用。</p>
+<blockquote>
+<p><strong>扩展</strong>:递归为什么可能栈溢出?每递归一次就往栈上压一帧,递归一千次就压了一千帧,栈空间(默认 1MB)就撑爆了。所以递归转迭代的本质是用循环代替栈帧--深度优先搜索的非递归写法就是用显式栈(写在堆上)代替隐式调用栈。</p>
+</blockquote>
+<hr />
+<h3 id="10-cpu-cachefalse-sharing">10. 什么是 CPU Cache?伪共享(False Sharing)如何避免?</h3>
+<p>CPU Cache 是 CPU 和内存之间的<strong>高速缓冲区</strong>。CPU 访问内存太慢(~100ns),Cache(~1ns)是 CPU 自带的"贴身记事本"。数据以 <strong>Cache Line</strong>(通常 64 字节)为单位在 Cache 和内存之间搬运。</p>
+<pre><code>CPU 缓存层次:
+
+  L1 Cache(32KB)  ← 最快(~1ns),每个核心独占
+  L2 Cache(256KB) ← 较慢(~3ns),每个核心独占
+  L3 Cache(8-32MB)← 更慢(~10ns),所有核心共享
+  主内存(8-64GB)  ← 最慢(~100ns)
+</code></pre>
+<p><strong>伪共享(False Sharing)--高频性能杀手</strong>:</p>
+<p>两个线程修改<strong>不同</strong>的变量,但这俩变量碰巧在<strong>同一个 Cache Line</strong> 里--CPU 以为它们在互相干扰,不停地在核心之间同步 Cache Line。结果两个线程互相拖累,比单线程还慢。</p>
+<pre><code>伪共享的悲剧:
+
+Cache Line(64 字节)
+┌────────────────────────────────────────────────┐
+│ 线程A的变量x(8B) │ 线程B的变量y(8B) │ 其他...       │
+└────────────────────────────────────────────────┘
+          ↑                   ↑
+     Core 0 写 x         Core 1 写 y
+          │                   │
+          └───────┬───────────┘
+                  │
+    同一 Cache Line!MESI 协议不停失效对方的 Cache
+</code></pre>
+<p><strong>Java 中的解决方案</strong>:</p>
+<pre><code class="language-java">// 方案 1:手动填充(JDK 8 之前)
+public class VolatileLong {
+    volatile long value = 0L;
+    long p1, p2, p3, p4, p5, p6, p7;  // 填充到 64 字节
+}
+
+// 方案 2:@Contended 注解(JDK 8+)
+@sun.misc.Contended
+public class VolatileLong {
+    public volatile long value = 0L;
+}
+// 启动参数:-XX:-RestrictContended
+
+// JDK 内部:ConcurrentHashMap 的 CounterCell、Thread 的
+// threadLocalRandomProbe 都用了 @Contended 避免伪共享
+</code></pre>
+<blockquote>
+<p><strong>扩展</strong>:Disruptor(高性能无锁队列)的 RingBuffer 设计刻意在元素之间加了填充,避免生产者/消费者在不同元素上操作时产生伪共享。面试中如果能说出"我们用 <code>perf stat -e cache-misses</code> 发现伪共享,优化后 QPS 提升 30%",比背定义强 100 倍。</p>
+</blockquote>
+<h3 id="11">11. 进程的五种状态是什么?如何转换?</h3>
+<pre><code>进程状态转换图:
+
+  创建态 ──→ 就绪态 ──→ 运行态 ──→ 终止态
+                ↑          │
+                │          │ 等 I/O
+                │    ┌─────┘
+                │    ▼
+                └── 阻塞态(等待 I/O/网络)
+
+具体转换:
+  创建 → 就绪:进程已创建,等待 CPU 分配
+  就绪 → 运行:调度器选中该进程,分配 CPU
+  运行 → 就绪:时间片用完,CPU 换人用
+  运行 → 阻塞:要读文件/等网络,暂时没法干
+  阻塞 → 就绪:数据到了,又可以干活了
+  运行 → 终止:任务完成或被 kill
+</code></pre>
+<p>打个比方--就像排队买奶茶:创建态(走进店点单)、就绪态(拿号等叫)、运行态(取奶茶)、阻塞态(珍珠没了要去仓库拿,旁边等)、终止态(拿到奶茶走人)。</p>
+<h3 id="12-fork-cow">12. fork() 的原理和写时拷贝(COW)是什么?</h3>
+<p><code>fork()</code> 是 Linux 创建新进程的独门武功--<strong>把当前进程复制一份</strong>作为子进程,而非从零创建。</p>
+<pre><code>fork() 之前:只有父进程在跑
+fork() 之后:父子进程两个一起跑,代码位置相同、数据相同
+
+但!如果真把内存全复制一遍,太浪费了 → 于是有了 COW(Copy-On-Write)
+
+COW 原理:
+  父子进程读同一块内存 → 各读各的,相安无事
+  谁要写 → 内核先把那页复制一份 → 在副本上改
+  这样只复制真正需要写的那几页,不是整个内存空间
+
+fork() 返回值(区分父子):
+  父进程:fork() 返回子进程的 PID
+  子进程:fork() 返回 0
+  所以代码里 if (fork() == 0) { 我是子进程 } else { 我是父进程 }
+</code></pre>
+<h3 id="13-cpu">13. 常见 CPU 调度算法有哪些?</h3>
+<table>
+<thead>
+<tr>
+<th>算法</th>
+<th>规则</th>
+<th>优点</th>
+<th>缺点</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>先来先服务(FCFS)</strong></td>
+<td>谁先到谁先跑</td>
+<td>简单公平</td>
+<td>短任务被长任务堵死(护航效应)</td>
+</tr>
+<tr>
+<td><strong>短作业优先(SJF)</strong></td>
+<td>预估耗时最短的先跑</td>
+<td>平均等待时间最短</td>
+<td>长任务可能饿死</td>
+</tr>
+<tr>
+<td><strong>轮转调度(RR)</strong></td>
+<td>每人轮流跑一小段(时间片)</td>
+<td>公平,适合交互式系统</td>
+<td>时间片太小导致频繁切换</td>
+</tr>
+<tr>
+<td><strong>优先级调度</strong></td>
+<td>高优先级的先跑</td>
+<td>重要任务先处理</td>
+<td>低优先级可能饿死</td>
+</tr>
+<tr>
+<td><strong>多级反馈队列</strong></td>
+<td>新任务高优先级→用完了降级</td>
+<td>兼顾交互性和吞吐量</td>
+<td>实现复杂</td>
+</tr>
+</tbody>
+</table>
+<p>现代 Linux 使用 CFS(Completely Fair Scheduler)--用红黑树追踪每个任务的虚拟运行时间,让"跑得少的"优先调度,近似公平。</p>
+<h3 id="14">14. 临界区、互斥锁、信号量的区别?</h3>
+<pre><code>同步机制&quot;三件套&quot;:
+
+  临界区(Critical Section)
+    → 代码段本身--&quot;这一段代码同时只能一个线程执行&quot;
+    → 比喻:卫生间(同一时间只能进去一个人)
+
+  互斥锁(Mutex)
+    → 锁对象--保护临界区的工具
+    → lock() → 执行临界区 → unlock()
+    → 比喻:门上装了把锁
+
+  信号量(Semaphore)
+    → 计数器--控制同时访问资源的线程数
+    → P 操作(减 1,为负则等)→ V 操作(加 1,唤醒等待者)
+    → 比喻:停车场的车位显示屏(还剩 N 个空位)
+
+信号量 vs 互斥锁:
+  信号量可以允许多个(如最多 5 个线程同时读)
+  互斥锁只允许一个(二值信号量的特例)
+</code></pre>
+<h3 id="15-thrashing">15. 什么是颠簸(Thrashing)?</h3>
+<p>颠簸 = <strong>内存不够,系统大部分时间都在换页,没人干活</strong>。</p>
+<pre><code>正常:进程在跑,偶尔缺页 → 换入 → 继续跑
+颠簸:所有进程的常用数据加起来 &gt;&gt; 物理内存
+      每个进程都在不停缺页 → 刚换出又换入 → CPU 全在换页
+      → 系统吞吐量暴跌,像拖拉机一样卡
+
+解救方案:
+  1 加内存(治本)
+  2 减少进程数(换出几个进程到磁盘,腾出内存)
+  3 优化程序局部性(减少工作集大小)
+</code></pre>
+<p>面试时提一句:MySQL 的 Buffer Pool、Redis 的内存管理都涉及类似问题--内存不够时换入换出频繁,性能急剧下降。</p>
+<h3 id="16-tlbtranslation-lookaside-buffer">16. TLB(Translation Lookaside Buffer)是什么?</h3>
+<p>TLB 是 CPU 里的<strong>地址翻译快表</strong>--缓存最近用过的虚拟地址到物理地址的映射,避免每次访存都要查页表(通常 4 级,查一次要 4 次内存访问)。</p>
+<pre><code>地址翻译过程:
+
+  虚拟地址 → 查 TLB(快,通常 1 个时钟周期)
+    ├─ 命中 → 直接得到物理地址,开始访存
+    └─ 未命中 → 查页表(慢,可能 4 次内存访问)
+                 → 更新 TLB → 继续访存
+</code></pre>
+<p>进程切换要清 TLB(因为地址空间变了),所以上下文切换代价高。大页(Huge Page,2MB/1GB)让一个 TLB 条目覆盖更多内存,大幅提高 TLB 命中率。</p>
+<h3 id="17">17. 什么是中断?硬中断和软中断的区别?</h3>
+<p>中断 = 操作系统收到的"手机通知"--硬件通知 CPU"有急事处理"。</p>
+<pre><code>硬中断(Hardware Interrupt):
+  来源:外部设备(键盘按下、网卡收到数据包、时钟滴答)
+  特点:异步、随时可能发生
+  处理:CPU 暂停当前任务 → 保存上下文 → 跳转中断处理程序 → 恢复
+
+软中断(Software Interrupt):
+  来源:程序主动触发(系统调用、除零异常、断点)
+  特点:同步、在指令流中
+  处理:类似硬中断,但是程序主动发起的
+
+为什么分两半(上半部/下半部)?
+  硬中断要快(关中断期间其他中断进不来)
+  → 上半部做紧急的事(读网卡数据到缓冲区)
+  → 下半部做耗时的事(网络协议栈处理),可以开中断
+</code></pre>
+<h3 id="18-inode">18. 文件系统如何组织数据?什么是 inode?</h3>
+<pre><code>文件系统的层次结构:
+
+  目录文件 → inode 表 → 数据块
+
+  inode(索引节点)= 文件的&quot;身份证&quot;
+    存有:文件大小、权限、时间戳、数据块位置(指针)
+    不存:文件名(文件名存在目录文件里)
+
+  目录 = 特殊的文件,内容是 (文件名 → inode 号) 的映射
+
+硬链接 vs 软链接:
+  硬链接:多个文件名指向同一 inode,删一个不影响,inode 引用计数 &gt; 0 文件就不丢
+  软链接:一个特殊文件,内容是目标路径,原文件删了链接就&quot;断&quot;了
+
+日志文件系统(Journal):
+  操作前先记日志 → 真操作 → 成功就清日志
+  万一崩溃,重启回放日志恢复一致性
+  ext4、NTFS 都带日志
+</code></pre>
+<blockquote>
+<p><strong>面试话术</strong>:"inode 是文件的元数据索引,存文件属性和数据块位置。文件名不在 inode 里,在目录文件里。硬链接共享 inode,软链接是独立的路径文件。日志文件系统通过先写日志保证崩溃后能恢复。"</p>
+</blockquote>
+<h3 id="19-epoll-selectpoll">19. epoll 相比 select/poll 的本质优势是什么？</h3>
+<p>select/poll 的致命缺陷：</p>
+<pre><code>select 实现原理（每次调用都要）：
+  1. 用户态 → 内核态 复制 fd_set（最大1024个文件描述符）
+  2. 内核遍历所有 fd 查状态（O(n)）
+  3. 内核态 → 用户态 复制有事件的 fd 集合
+  4. 用户遍历返回的 fd 列表确认哪些就绪
+
+问题：每次调用都要完整 copy；最大只支持 1024 fd；遍历两次 O(n)
+</code></pre>
+<p>epoll 的改进：</p>
+<pre><code>epoll 实现原理：
+  1. 创建 epoll 实例（epoll_create1）：内核分配红黑树 + 双向链表
+  2. 注册 fd（epoll_ctl）：fd 加入红黑树（O(log n)）
+  3. 等待（epoll_wait）：无事件时阻塞，有事件时直接返回就绪链表
+     → 不复制全部 fd，只复制就绪的（O(k)，k = 就绪数）
+
+关键数据结构：
+  红黑树：存储所有被监控的 fd（增删查 O(log n)）
+  就绪链表：存放已就绪的 fd（直接返回，无需遍历）
+  回调机制：fd 有事件时自动加入就绪链表
+</code></pre>
+<p><strong>LT vs ET 模式</strong>：</p>
+<table>
+<thead>
+<tr>
+<th>模式</th>
+<th>含义</th>
+<th>行为</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>LT（水平触发）</td>
+<td>只要条件满足就一直通知</td>
+<td>简单但可能有重复通知</td>
+</tr>
+<tr>
+<td>ET（边沿触发）</td>
+<td>状态变化时才通知一次</td>
+<td>高效但需要一次性读完所有数据</td>
+</tr>
+</tbody>
+</table>
+<blockquote>
+<p><strong>扩展</strong>：Nginx 用 ET 模式 + 非阻塞 IO；Redis 用 epoll（LT）；Go 的 netPoller 底层也是 epoll；Java NIO <code>Selector</code> 底层也是 epoll。</p>
+</blockquote>
+
+<script>
+// Scroll spy — highlight active sidebar item
+window.addEventListener('scroll', function() {
+    var links = document.querySelectorAll('.sidebar-toc a');
+    var scrollY = window.scrollY + 120;
+    var current = '';
+    for (var i = links.length - 1; i >= 0; i--) {
+        var target = document.getElementById(links[i].getAttribute('href').slice(1));
+        if (target && target.offsetTop <= scrollY) {
+            current = links[i];
+            break;
+        }
+    }
+    links.forEach(function(a) { a.style.fontWeight = 'normal'; a.style.color = '#555'; });
+    if (current) { current.style.fontWeight = 'bold'; current.style.color = '#0366d6'; }
+});
+</script>
+
+
+<script>
+document.querySelectorAll('pre > code').forEach(function(codeBlock, i) {
+    var pre = codeBlock.parentNode;
+    pre.style.position = 'relative';
+    var btn = document.createElement('button');
+    btn.className = 'copy-btn';
+    btn.textContent = '复制';
+    pre.appendChild(btn);
+    btn.addEventListener('click', function() {
+        var text = codeBlock.textContent;
+        navigator.clipboard.writeText(text).then(function() {
+            btn.textContent = '已复制';
+            btn.classList.add('copied');
+            setTimeout(function() {
+                btn.textContent = '复制';
+                btn.classList.remove('copied');
+            }, 2000);
+        }).catch(function() {
+            // Fallback
+            var ta = document.createElement('textarea');
+            ta.value = text; ta.style.position = 'fixed'; ta.style.opacity = '0';
+            document.body.appendChild(ta); ta.select();
+            document.execCommand('copy'); document.body.removeChild(ta);
+            btn.textContent = '已复制'; btn.classList.add('copied');
+            setTimeout(function() { btn.textContent = '复制'; btn.classList.remove('copied'); }, 2000);
+        });
+    });
+});
+</script>
+
+<script>document.querySelectorAll("pre>code").forEach(function(c){var p=c.parentNode;p.style.position="relative";var b=document.createElement("button");b.className="copy-btn";b.textContent="复制";p.appendChild(b);b.addEventListener("click",function(){var t=c.textContent;navigator.clipboard.writeText(t).then(function(){b.textContent="已复制";b.classList.add("copied");setTimeout(function(){b.textContent="复制";b.classList.remove("copied")},2000)}).catch(function(){var a=document.createElement("textarea");a.value=t;a.style.position="fixed";a.style.opacity="0";document.body.appendChild(a);a.select();document.execCommand("copy");document.body.removeChild(a);b.textContent="已复制";b.classList.add("copied");setTimeout(function(){b.textContent="复制";b.classList.remove("copied")},2000)})})})</script>
+</body>
+</html>

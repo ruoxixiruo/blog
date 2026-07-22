@@ -1,0 +1,618 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 5.4.2">
+  <link rel="apple-touch-icon" sizes="180x180" href="/blog/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/blog/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/blog/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/blog/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/blog/css/main.css">
+
+
+<link rel="stylesheet" href="/blog/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"ruoxixiruo.github.io","root":"/blog/","scheme":"Gemini","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":true,"show_result":true,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":true},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}};
+  </script>
+
+  <meta name="description" content="1. 索引原理MySQL 最常用的存储引擎 InnoDB 使用 B+Tree 作为索引结构。理解 B+Tree 是理解索引原理的核心。 B+Tree 的特点：  所有数据都存储在叶子节点，非叶子节点只存键值和指针，因此非叶子节点可以存储更多索引键，树的高度更低。 叶子节点之间通过双向链表连接，天然支持范围查询和排序。 对于 N 阶 B+Tree，每个节点最多 N 个键、N+1 个指针。InnoDB">
+<meta property="og:type" content="article">
+<meta property="og:title" content="mysql索引原理与优化">
+<meta property="og:url" content="https://ruoxixiruo.github.io/blog/2023/01/24/mysql/mysql%E7%B4%A2%E5%BC%95%E5%8E%9F%E7%90%86%E4%B8%8E%E4%BC%98%E5%8C%96/index.html">
+<meta property="og:site_name" content="RUOXI-BLOG">
+<meta property="og:description" content="1. 索引原理MySQL 最常用的存储引擎 InnoDB 使用 B+Tree 作为索引结构。理解 B+Tree 是理解索引原理的核心。 B+Tree 的特点：  所有数据都存储在叶子节点，非叶子节点只存键值和指针，因此非叶子节点可以存储更多索引键，树的高度更低。 叶子节点之间通过双向链表连接，天然支持范围查询和排序。 对于 N 阶 B+Tree，每个节点最多 N 个键、N+1 个指针。InnoDB">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2023-01-24T17:36:41.000Z">
+<meta property="article:modified_time" content="2026-07-22T02:51:55.000Z">
+<meta property="article:author" content="ruoxi">
+<meta property="article:tag" content="mysql">
+<meta name="twitter:card" content="summary">
+
+<link rel="canonical" href="https://ruoxixiruo.github.io/blog/2023/01/24/mysql/mysql%E7%B4%A2%E5%BC%95%E5%8E%9F%E7%90%86%E4%B8%8E%E4%BC%98%E5%8C%96/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+
+  <title>mysql索引原理与优化 | RUOXI-BLOG</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/blog/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">RUOXI-BLOG</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/blog/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/blog/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/blog/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/blog/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a>
+
+  </li>
+        <li class="menu-item menu-item-posts">
+
+    <a href="/blog/posts/" rel="section"><i class="fa fa-rss fa-fw"></i>posts</a>
+
+  </li>
+  </ul>
+</nav>
+
+
+
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+  <div class="reading-progress-bar"></div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://ruoxixiruo.github.io/blog/2023/01/24/mysql/mysql%E7%B4%A2%E5%BC%95%E5%8E%9F%E7%90%86%E4%B8%8E%E4%BC%98%E5%8C%96/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/blog/images/avatar.gif">
+      <meta itemprop="name" content="ruoxi">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="RUOXI-BLOG">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          mysql索引原理与优化
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2023-01-24 17:36:41" itemprop="dateCreated datePublished" datetime="2023-01-24T17:36:41+00:00">2023-01-24</time>
+            </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/blog/categories/mysql/" itemprop="url" rel="index"><span itemprop="name">mysql</span></a>
+                </span>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <h5 id="1-索引原理"><a href="#1-索引原理" class="headerlink" title="1. 索引原理"></a>1. 索引原理</h5><p>MySQL 最常用的存储引擎 InnoDB 使用 <strong>B+Tree</strong> 作为索引结构。理解 B+Tree 是理解索引原理的核心。</p>
+<p><strong>B+Tree 的特点：</strong></p>
+<ul>
+<li>所有数据都存储在叶子节点，非叶子节点只存键值和指针，因此非叶子节点可以存储更多索引键，树的高度更低。</li>
+<li>叶子节点之间通过双向链表连接，天然支持范围查询和排序。</li>
+<li>对于 N 阶 B+Tree，每个节点最多 N 个键、N+1 个指针。InnoDB 中一页默认 16KB，阶数由键值大小决定。</li>
+</ul>
+<p><strong>InnoDB 中的两种索引：</strong></p>
+<ul>
+<li><strong>聚簇索引（Clustered Index）</strong>：以主键构建 B+Tree，叶子节点存储完整的数据行。每张表只有一个聚簇索引。若未定义主键，InnoDB 会选第一个非空唯一索引，或自动生成隐藏的 row_id。</li>
+<li><strong>二级索引（Secondary Index）</strong>：以索引列构建 B+Tree，叶子节点存储的是主键值。通过二级索引查找数据需要 <strong>回表</strong>——即先通过二级索引找到主键，再通过聚簇索引找到完整行。</li>
+</ul>
+<p><strong>回表与索引覆盖：</strong><br>回表是随机 IO，代价较高。当查询的列全部包含在索引中时，不需要回表，称为<strong>覆盖索引</strong>，Using index 即表示覆盖索引。</p>
+<p><strong>联合索引与最左前缀原则：</strong><br>联合索引按字段顺序构建，第一列全局有序，后续列仅在上一列相同时有序。因此查询条件必须从最左列开始才能利用索引，这就是最左前缀原则。举例：<code>INDEX(a,b,c)</code> 可用于 <code>WHERE a=1</code>、<code>WHERE a=1 AND b=2</code>，但不能单独用于 <code>WHERE b=2</code>（除非 a 使用范围查询的宽松条件下）。</p>
+<h5 id="2-Explain-性能分析"><a href="#2-Explain-性能分析" class="headerlink" title="2. Explain 性能分析"></a>2. Explain 性能分析</h5><p><code>EXPLAIN</code> 是分析 SQL 执行计划的工具，用于判断查询是否使用了索引以及执行效率。</p>
+<p><strong>核心字段解读：</strong></p>
+<table>
+<thead>
+<tr>
+<th>字段</th>
+<th>含义</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>id</strong></td>
+<td>查询序号，同一 id 从上到下执行；id 不同时，值越大优先级越高</td>
+</tr>
+<tr>
+<td><strong>select_type</strong></td>
+<td>查询类型：SIMPLE（简单查询）、PRIMARY（主查询）、SUBQUERY（子查询）、DERIVED（派生表）、UNION 等</td>
+</tr>
+<tr>
+<td><strong>table</strong></td>
+<td>访问的表名</td>
+</tr>
+<tr>
+<td><strong>type</strong></td>
+<td><strong>访问方式（从好到差）</strong>：system &gt; const &gt; eq_ref &gt; ref &gt; range &gt; index &gt; ALL</td>
+</tr>
+<tr>
+<td><strong>possible_keys</strong></td>
+<td>可能用到的索引</td>
+</tr>
+<tr>
+<td><strong>key</strong></td>
+<td>实际使用的索引</td>
+</tr>
+<tr>
+<td><strong>key_len</strong></td>
+<td>使用的索引长度（字节），可用于判断联合索引用了哪些列</td>
+</tr>
+<tr>
+<td><strong>ref</strong></td>
+<td>与索引列比较的列或常量</td>
+</tr>
+<tr>
+<td><strong>rows</strong></td>
+<td>预估扫描行数</td>
+</tr>
+<tr>
+<td><strong>Extra</strong></td>
+<td>额外信息，非常重要</td>
+</tr>
+</tbody></table>
+<p><strong>type 访问方式详解：</strong></p>
+<ul>
+<li><strong>const</strong>：主键或唯一索引等值查询，最多返回一行。</li>
+<li><strong>eq_ref</strong>：连表查询时，驱动表每行在另一表用主键或唯一索引匹配一行。</li>
+<li><strong>ref</strong>：非唯一索引等值匹配，可能返回多行。</li>
+<li><strong>range</strong>：索引范围扫描（<code>&gt;</code>、<code>&lt;</code>、<code>BETWEEN</code>、<code>IN</code>、<code>LIKE &#39;abc%&#39;</code>）。</li>
+<li><strong>index</strong>：全索引扫描，比 ALL 好但仍是扫描全部索引。</li>
+<li><strong>ALL</strong>：全表扫描，性能最差，需要优化。</li>
+</ul>
+<p><strong>Extra 关键值：</strong></p>
+<ul>
+<li><strong>Using index</strong>：覆盖索引，不回表，性能好。</li>
+<li><strong>Using where</strong>：MySQL 服务器层对存储引擎返回的数据做过滤。</li>
+<li><strong>Using index condition</strong>：ICP（索引条件下推），存储引擎层先过滤，减少回表。</li>
+<li><strong>Using temporary</strong>：使用了临时表，常见于 GROUP BY、DISTINCT、ORDER BY，需要优化。</li>
+<li><strong>Using filesort</strong>：额外排序操作（未利用索引有序性），需要优化。</li>
+<li><strong>Using join buffer</strong>：连表时使用了 join buffer，说明被驱动表没有可用索引。</li>
+</ul>
+<h5 id="3-高性能索引创建与使用"><a href="#3-高性能索引创建与使用" class="headerlink" title="3. 高性能索引创建与使用"></a>3. 高性能索引创建与使用</h5><p><strong>选择合适的索引列：</strong></p>
+<ul>
+<li>WHERE、JOIN、ORDER BY、GROUP BY 涉及到的列考虑加索引。</li>
+<li>选择区分度高的列（<code>COUNT(DISTINCT col)/COUNT(*)</code> 越接近 1 越好）。</li>
+<li>枚举类型、性别这类区分度很低的列不适合单独建索引。</li>
+</ul>
+<p><strong>联合索引设计原则：</strong></p>
+<ul>
+<li>等值查询条件列放前面，范围查询条件列放后面。</li>
+<li>区分度高的列尽量放前面。</li>
+<li>排序/分组列可考虑纳入联合索引。</li>
+<li>善用覆盖索引避免回表，常见做法是把 SELECT 的列也加入索引末尾。</li>
+</ul>
+<p><strong>前缀索引：</strong><br>对字符串列，可为前 N 个字符建索引以减少索引体积。但前缀索引无法用于 ORDER BY 和 GROUP BY，且覆盖索引失效。</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">-- 计算合适的前缀长度，使区分度接近全列</span></span><br><span class="line"><span class="keyword">SELECT</span> <span class="built_in">COUNT</span>(<span class="keyword">DISTINCT</span> <span class="keyword">LEFT</span>(col, <span class="number">4</span>)) <span class="operator">/</span> <span class="built_in">COUNT</span>(<span class="operator">*</span>) <span class="keyword">FROM</span> t;</span><br><span class="line"><span class="comment">-- 通常选择区分度达到 90%+ 的前缀长度</span></span><br><span class="line"><span class="keyword">ALTER TABLE</span> t <span class="keyword">ADD</span> INDEX idx_col_prefix(col(N));</span><br></pre></td></tr></table></figure>
+
+<p><strong>避免索引失效的场景：</strong></p>
+<ul>
+<li>对索引列使用函数或计算：<code>WHERE YEAR(create_time) = 2023</code> 应改为 <code>WHERE create_time BETWEEN &#39;2023-01-01&#39; AND &#39;2023-12-31&#39;</code>。</li>
+<li>隐式类型转换：VARCHAR 列用数字查询 <code>WHERE phone = 13800138000</code> 会失效。</li>
+<li>LIKE 以 <code>%</code> 开头：<code>LIKE &#39;%abc&#39;</code> 无法用索引。</li>
+<li>不等于（<code>!=</code>、<code>&lt;&gt;</code>）、NOT IN、IS NULL（视情况而定）可能不走索引。</li>
+<li>OR 条件中若有不带索引的列，整体不走索引，可用 UNION 改写。</li>
+</ul>
+<p><strong>索引下推（ICP）：</strong><br>MySQL 5.6+ 特性。对于联合索引中无法直接用到的列条件，存储引擎先按该条件过滤再回表，减少回表次数。Extra 中显示 <code>Using index condition</code>。</p>
+<p><strong>MRR（Multi-Range Read）：</strong><br>将二级索引回表的随机 IO 转化为按主键排序后的顺序 IO，减少磁盘寻道开销。</p>
+<h5 id="4-慢查询日志分析"><a href="#4-慢查询日志分析" class="headerlink" title="4. 慢查询日志分析"></a>4. 慢查询日志分析</h5><p><strong>开启慢查询日志：</strong></p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">-- 查看当前配置</span></span><br><span class="line"><span class="keyword">SHOW</span> VARIABLES <span class="keyword">LIKE</span> <span class="string">&#x27;slow_query%&#x27;</span>;</span><br><span class="line"><span class="keyword">SHOW</span> VARIABLES <span class="keyword">LIKE</span> <span class="string">&#x27;long_query_time&#x27;</span>;</span><br><span class="line"></span><br><span class="line"><span class="comment">-- 开启慢查询（会话级）</span></span><br><span class="line"><span class="keyword">SET</span> slow_query_log <span class="operator">=</span> <span class="keyword">ON</span>;</span><br><span class="line"><span class="keyword">SET</span> long_query_time <span class="operator">=</span> <span class="number">1</span>;  <span class="comment">-- 单位秒，超过此阈值即记录</span></span><br><span class="line"><span class="keyword">SET</span> log_queries_not_using_indexes <span class="operator">=</span> <span class="keyword">ON</span>;  <span class="comment">-- 记录未使用索引的查询</span></span><br></pre></td></tr></table></figure>
+
+<p>可在 my.cnf 中永久配置：</p>
+<figure class="highlight ini"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">slow_query_log</span> = <span class="number">1</span></span><br><span class="line"><span class="attr">slow_query_log_file</span> = /var/log/mysql/slow.log</span><br><span class="line"><span class="attr">long_query_time</span> = <span class="number">1</span></span><br><span class="line"><span class="attr">log_queries_not_using_indexes</span> = <span class="number">1</span></span><br></pre></td></tr></table></figure>
+
+<p><strong>mysqldumpslow 分析工具：</strong></p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 访问次数最多的 10 条 SQL</span></span><br><span class="line">mysqldumpslow -s c -t 10 /var/log/mysql/slow.log</span><br><span class="line"></span><br><span class="line"><span class="comment"># 耗时最多的 10 条 SQL</span></span><br><span class="line">mysqldumpslow -s t -t 10 /var/log/mysql/slow.log</span><br><span class="line"></span><br><span class="line"><span class="comment"># 返回记录数最多的 10 条 SQL</span></span><br><span class="line">mysqldumpslow -s r -t 10 /var/log/mysql/slow.log</span><br></pre></td></tr></table></figure>
+
+<p><strong>常用优化思路：</strong></p>
+<ol>
+<li>分析慢查询中执行次数多、单次耗时长、锁等待久的 SQL。</li>
+<li>用 EXPLAIN 查看执行计划，检查 type 是否 ALL/index、Extra 是否 Using filesort/Using temporary。</li>
+<li>针对性优化：加索引、改写 SQL、调整表结构。</li>
+<li>优化后再次 EXPLAIN 验证，并用压测确认效果。</li>
+</ol>
+<h5 id="5-多表-JOIN-优化"><a href="#5-多表-JOIN-优化" class="headerlink" title="5. 多表 JOIN 优化"></a>5. 多表 JOIN 优化</h5><p><strong>Nested-Loop Join（NLJ）：</strong><br>MySQL JOIN 大多采用嵌套循环算法。驱动表取一行，去被驱动表匹配。被驱动表的 JOIN 列必须有索引，否则每次匹配都是全表扫描，复杂度为 O(M×N)。</p>
+<p><strong>Block Nested-Loop Join（BNLJ）：</strong><br>被驱动表无索引时，MySQL 将驱动表的一部分行加载到 join buffer，一次性扫描被驱动表进行批量匹配。这种情况下 Extra 会显示 <code>Using join buffer</code>。</p>
+<p><strong>JOIN 优化原则：</strong></p>
+<ul>
+<li><strong>小表驱动大表</strong>：数据量小的表作为驱动表，减少被驱动表循环次数。</li>
+<li><strong>被驱动表 JOIN 列加索引</strong>：这是最重要的优化，确保 eq_ref 或 ref 级别。</li>
+<li><strong>减少驱动表扫描行数</strong>：驱动表加上 WHERE 条件索引。</li>
+<li>**避免 SELECT ***：只取需要的列，减少网络传输和内存占用。</li>
+<li><strong>关联查询拆解</strong>：有时拆成多条简单查询在应用层组装，比一条复杂的 JOIN 更高效且可维护。</li>
+<li><strong>控制 JOIN 表数量</strong>：建议不超过 3 张表联查，过多可考虑拆解或冗余设计。</li>
+</ul>
+<p><strong>JOIN 顺序与优化器：</strong><br>MySQL 优化器会根据统计信息自动选择驱动表。可通过 <code>EXPLAIN</code> 输出的顺序查看实际驱动表。STRAIGHT_JOIN 可强制指定驱动顺序，但一般不建议干预优化器。</p>
+<h5 id="6-排序与分组优化"><a href="#6-排序与分组优化" class="headerlink" title="6. 排序与分组优化"></a>6. 排序与分组优化</h5><p><strong>排序的两种方式：</strong></p>
+<ul>
+<li><strong>索引排序（Index）</strong>：利用索引天然有序性，直接从索引树按序读取，Extra 无 Using filesort。</li>
+<li><strong>文件排序（filesort）</strong>：无法用索引时需要额外排序，分内存排序（sort_buffer）和磁盘排序（归并排序），Extra 显示 Using filesort。</li>
+</ul>
+<p><strong>索引排序的生效条件：</strong></p>
+<ol>
+<li>ORDER BY 列匹配索引的最左前缀（与 WHERE 共用时需注意）。</li>
+<li>WHERE 条件与 ORDER BY 组合满足最左前缀：如 <code>INDEX(a,b,c)</code>，<code>WHERE a=const ORDER BY b,c</code> 可利用索引排序。</li>
+<li>排序方向一致：均 ASC 或均 DESC，混用无法用索引。</li>
+<li>覆盖索引或表中仅排序涉及的列。</li>
+</ol>
+<p><strong>分组与排序的相似性：</strong><br>GROUP BY 底层也依赖排序（或利用 Loose Index Scan）。GROUP BY 与 ORDER BY 的优化策略基本一致：</p>
+<ul>
+<li>为 GROUP BY 列建立联合索引。</li>
+<li>用 WHERE 替代 HAVING 做过滤，HAVING 在分组之后执行，无法用到索引。</li>
+</ul>
+<p><strong>filesort 优化：</strong></p>
+<ul>
+<li>增大 <code>sort_buffer_size</code>，让更多排序在内存完成。</li>
+<li><code>max_length_for_sort_data</code>：控制排序时单行数据大小，较小值使用”双路排序”（只排序排序列和主键，再回表），较大值使用”单路排序”（取全字段排序）。需要根据场景调整。</li>
+</ul>
+<h5 id="7-查询成本计算"><a href="#7-查询成本计算" class="headerlink" title="7. 查询成本计算"></a>7. 查询成本计算</h5><p>MySQL 优化器基于 <strong>成本模型</strong> 选择执行计划，计算的是 IO 成本和 CPU 成本的加权总和。</p>
+<p><strong>成本估算因子：</strong></p>
+<ul>
+<li><strong>IO 成本</strong>：从磁盘读取一页数据的成本，默认 1.0。</li>
+<li><strong>CPU 成本</strong>：处理一行数据的成本，默认 0.2。</li>
+<li><strong>索引 dives</strong>：对于范围查询，优化器会探测索引页面估算行数（index dive）。</li>
+</ul>
+<p><strong>查看查询成本：</strong></p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">-- 开启 optimizer_trace</span></span><br><span class="line"><span class="keyword">SET</span> optimizer_trace <span class="operator">=</span> <span class="string">&#x27;enabled=on&#x27;</span>;</span><br><span class="line"></span><br><span class="line"><span class="comment">-- 执行查询</span></span><br><span class="line"><span class="keyword">SELECT</span> <span class="operator">*</span> <span class="keyword">FROM</span> orders <span class="keyword">WHERE</span> user_id <span class="operator">=</span> <span class="number">100</span> <span class="keyword">AND</span> status <span class="operator">=</span> <span class="string">&#x27;paid&#x27;</span>;</span><br><span class="line"></span><br><span class="line"><span class="comment">-- 查看优化器决策过程</span></span><br><span class="line"><span class="keyword">SELECT</span> <span class="operator">*</span> <span class="keyword">FROM</span> information_schema.OPTIMIZER_TRACE\G;</span><br><span class="line"></span><br><span class="line"><span class="comment">-- 关闭</span></span><br><span class="line"><span class="keyword">SET</span> optimizer_trace <span class="operator">=</span> <span class="string">&#x27;enabled=off&#x27;</span>;</span><br></pre></td></tr></table></figure>
+
+<p>输出中 <code>rows_estimation</code> 给出预估行数，<code>considered_execution_plans</code> 展示每个备选方案的成本。优化器会选择总成本最低的方案。</p>
+<p><strong>统计信息的重要性：</strong><br>优化器依赖 <code>innodb_stats</code> 统计数据（页面采样估算）。统计信息不准会导致选错索引。</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">-- 查看统计数据</span></span><br><span class="line"><span class="keyword">SHOW</span> INDEX <span class="keyword">FROM</span> table_name;</span><br><span class="line"></span><br><span class="line"><span class="comment">-- Cardinality 是区分度估算值，与实际值偏差大时需要重新统计</span></span><br><span class="line">ANALYZE <span class="keyword">TABLE</span> table_name;</span><br></pre></td></tr></table></figure>
+
+<p><strong>常见选错索引的原因：</strong></p>
+<ul>
+<li>统计信息过时（<code>ANALYZE TABLE</code> 修复）。</li>
+<li>成本计算不准确，优化器高估了全表扫描的代价。</li>
+<li>优化器倾向于使用选择性高的列建索引，但实际数据倾斜严重。</li>
+</ul>
+<p><strong>强制使用索引：</strong><br><code>FORCE INDEX(index_name)</code> 可强制使用某索引，但仅用于临时验证，不建议在生产环境硬编码。</p>
+<h5 id="8-索引优化实战"><a href="#8-索引优化实战" class="headerlink" title="8. 索引优化实战"></a>8. 索引优化实战</h5><p><strong>案例一：分页查询优化</strong></p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">-- 原始慢查询</span></span><br><span class="line"><span class="keyword">SELECT</span> <span class="operator">*</span> <span class="keyword">FROM</span> orders <span class="keyword">ORDER</span> <span class="keyword">BY</span> create_time <span class="keyword">DESC</span> LIMIT <span class="number">100000</span>, <span class="number">20</span>;</span><br><span class="line"></span><br><span class="line"><span class="comment">-- 优化：基于主键的值定位（延迟关联）</span></span><br><span class="line"><span class="keyword">SELECT</span> <span class="operator">*</span> <span class="keyword">FROM</span> orders o</span><br><span class="line"><span class="keyword">INNER</span> <span class="keyword">JOIN</span> (</span><br><span class="line">    <span class="keyword">SELECT</span> id <span class="keyword">FROM</span> orders</span><br><span class="line">    <span class="keyword">ORDER</span> <span class="keyword">BY</span> create_time <span class="keyword">DESC</span> LIMIT <span class="number">100000</span>, <span class="number">20</span></span><br><span class="line">) tmp <span class="keyword">ON</span> o.id <span class="operator">=</span> tmp.id;</span><br></pre></td></tr></table></figure>
+
+<p>子查询走覆盖索引快速定位目标主键，再回表取完整行，避免扫描大量无效行。</p>
+<p><strong>案例二：多条件查询索引设计</strong></p>
+<p>假设查询：</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">SELECT</span> <span class="operator">*</span> <span class="keyword">FROM</span> users</span><br><span class="line"><span class="keyword">WHERE</span> status <span class="operator">=</span> <span class="string">&#x27;active&#x27;</span></span><br><span class="line">  <span class="keyword">AND</span> city <span class="operator">=</span> <span class="string">&#x27;Beijing&#x27;</span></span><br><span class="line">  <span class="keyword">AND</span> age <span class="keyword">BETWEEN</span> <span class="number">20</span> <span class="keyword">AND</span> <span class="number">30</span></span><br><span class="line"><span class="keyword">ORDER</span> <span class="keyword">BY</span> last_login <span class="keyword">DESC</span>;</span><br></pre></td></tr></table></figure>
+
+<p>分析：<code>status</code> 和 <code>city</code> 等值匹配，<code>age</code> 范围查询，<code>last_login</code> 排序。<br>最佳联合索引：<code>INDEX(status, city, age, last_login)</code>。<br>原理：等值在前，范围查询在中间（索引中断，后续的 last_login 无法用于排序），需要权衡。可考虑分两步：<code>INDEX(status, city, last_login)</code> + <code>INDEX(status, city, age)</code>，让优化器选择。</p>
+<p><strong>案例三：消除 Using filesort 和 Using temporary</strong></p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">-- 优化前</span></span><br><span class="line"><span class="keyword">SELECT</span> city, <span class="built_in">COUNT</span>(<span class="operator">*</span>) <span class="keyword">FROM</span> users</span><br><span class="line"><span class="keyword">GROUP</span> <span class="keyword">BY</span> city <span class="keyword">ORDER</span> <span class="keyword">BY</span> <span class="built_in">COUNT</span>(<span class="operator">*</span>) <span class="keyword">DESC</span>;</span><br><span class="line"><span class="comment">-- Extra: Using temporary; Using filesort</span></span><br><span class="line"></span><br><span class="line"><span class="comment">-- 优化：city 加索引可消除 Using temporary</span></span><br><span class="line"><span class="keyword">ALTER TABLE</span> users <span class="keyword">ADD</span> INDEX idx_city(city);</span><br><span class="line"><span class="comment">-- GROUP BY city 利用索引有序性，不再需要临时表和排序</span></span><br></pre></td></tr></table></figure>
+
+<p><strong>案例四：隐式类型转换排查</strong></p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">-- 假设 phone 是 VARCHAR 类型</span></span><br><span class="line"><span class="keyword">SELECT</span> <span class="operator">*</span> <span class="keyword">FROM</span> users <span class="keyword">WHERE</span> phone <span class="operator">=</span> <span class="number">13800138000</span>;  <span class="comment">-- type=ALL 全表扫描</span></span><br><span class="line"></span><br><span class="line"><span class="comment">-- 改为字符串</span></span><br><span class="line"><span class="keyword">SELECT</span> <span class="operator">*</span> <span class="keyword">FROM</span> users <span class="keyword">WHERE</span> phone <span class="operator">=</span> <span class="string">&#x27;13800138000&#x27;</span>; <span class="comment">-- type=const/ref</span></span><br></pre></td></tr></table></figure>
+
+<p><strong>案例五：长事务对索引的影响</strong></p>
+<p>长事务持有的旧版本数据导致 Undo 膨胀，聚簇索引叶子节点链式存放多个版本，变相增加扫描开销。优化长查询、及时提交/回滚事务是索引优化的重要辅助手段。</p>
+<p><strong>日常索引优化清单：</strong></p>
+<ol>
+<li>定期抓取慢查询日志，分析 top SQL。</li>
+<li>用 EXPLAIN 验证 type 至少为 range，避免 ALL 和 index。</li>
+<li>检查 Extra 中是否存在 Using filesort / Using temporary。</li>
+<li>评估联合索引是否满足最左前缀，是否可优化为覆盖索引。</li>
+<li>关注 <code>rows</code> 与实际返回行数的差距——差距大说明索引过滤效果差。</li>
+<li>定期 <code>ANALYZE TABLE</code> 更新统计信息。</li>
+<li>删除冗余和长期不用的索引（写入性能有代价）。</li>
+</ol>
+
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/blog/tags/mysql/" rel="tag"># mysql</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/blog/2023/01/08/python/python%E9%AB%98%E7%BA%A7/" rel="prev" title="python高级">
+      <i class="fa fa-chevron-left"></i> python高级
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/blog/2023/02/15/django/django%E5%85%A5%E9%97%A8/" rel="next" title="django入门">
+      django入门 <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-5"><a class="nav-link" href="#1-%E7%B4%A2%E5%BC%95%E5%8E%9F%E7%90%86"><span class="nav-number">1.</span> <span class="nav-text">1. 索引原理</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#2-Explain-%E6%80%A7%E8%83%BD%E5%88%86%E6%9E%90"><span class="nav-number">2.</span> <span class="nav-text">2. Explain 性能分析</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#3-%E9%AB%98%E6%80%A7%E8%83%BD%E7%B4%A2%E5%BC%95%E5%88%9B%E5%BB%BA%E4%B8%8E%E4%BD%BF%E7%94%A8"><span class="nav-number">3.</span> <span class="nav-text">3. 高性能索引创建与使用</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#4-%E6%85%A2%E6%9F%A5%E8%AF%A2%E6%97%A5%E5%BF%97%E5%88%86%E6%9E%90"><span class="nav-number">4.</span> <span class="nav-text">4. 慢查询日志分析</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#5-%E5%A4%9A%E8%A1%A8-JOIN-%E4%BC%98%E5%8C%96"><span class="nav-number">5.</span> <span class="nav-text">5. 多表 JOIN 优化</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#6-%E6%8E%92%E5%BA%8F%E4%B8%8E%E5%88%86%E7%BB%84%E4%BC%98%E5%8C%96"><span class="nav-number">6.</span> <span class="nav-text">6. 排序与分组优化</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#7-%E6%9F%A5%E8%AF%A2%E6%88%90%E6%9C%AC%E8%AE%A1%E7%AE%97"><span class="nav-number">7.</span> <span class="nav-text">7. 查询成本计算</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#8-%E7%B4%A2%E5%BC%95%E4%BC%98%E5%8C%96%E5%AE%9E%E6%88%98"><span class="nav-number">8.</span> <span class="nav-text">8. 索引优化实战</span></a></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">ruoxi</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/blog/archives/">
+        
+          <span class="site-state-item-count">80</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/blog/categories/">
+          
+        <span class="site-state-item-count">17</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/blog/tags/">
+          
+        <span class="site-state-item-count">47</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2026</span>
+  <span class="with-love">
+    <i class="fa fa-code"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">ruoxi</span>
+</div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/blog/lib/anime.min.js"></script>
+  <script src="/blog/lib/velocity/velocity.min.js"></script>
+  <script src="/blog/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/blog/js/utils.js"></script>
+
+<script src="/blog/js/motion.js"></script>
+
+
+<script src="/blog/js/schemes/pisces.js"></script>
+
+
+<script src="/blog/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+</body>
+</html>

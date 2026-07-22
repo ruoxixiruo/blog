@@ -1,0 +1,1031 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Python异步编程面试指南</title>
+<style>
+body {
+    transition: margin-left .25s ease;
+    font-family: -apple-system, "Noto Sans SC", "Microsoft YaHei", sans-serif;
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 20px 24px 60px;
+    line-height: 1.8;
+    color: #333;
+    background: #fff;
+}
+h1 { border-bottom: 2px solid #eee; padding-bottom: 10px; color: #222; }
+h2 { color: #333; margin-top: 32px; }
+h3 { color: #555; }
+a { color: #0366d6; text-decoration: none; }
+a:hover { text-decoration: underline; }
+pre {
+    background: #f6f8fa;
+    border-radius: 6px;
+    padding: 16px;
+    overflow-x: auto;
+    font-size: 14px;
+    line-height: 1.45;
+}
+code {
+    background: #f0f2f4;
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-size: 14px;
+}
+pre code { background: none; padding: 0; }
+blockquote {
+    border-left: 4px solid #ddd;
+    margin: 0;
+    padding: 0 16px;
+    color: #666;
+}
+table {
+    border-collapse: collapse;
+    width: 100%;
+    margin: 16px 0;
+}
+th, td {
+    border: 1px solid #ddd;
+    padding: 8px 12px;
+    text-align: left;
+}
+th { background: #f6f8fa; }
+img { max-width: 100%; }
+.back-link {
+    margin-bottom: 20px;
+    display: block;
+    color: #666;
+}
+.back-link:hover { color: #0366d6; }
+
+.sidebar-toc {
+    transition: left .25s ease;
+    position: fixed;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    width: 220px;
+    background: #f8f9fa;
+    border-right: 1px solid #e9ecef;
+    padding: 20px 0;
+    overflow-y: auto;
+    font-size: 13px;
+    z-index: 100;
+}
+.sidebar-toc a {
+    display: block;
+    padding: 6px 16px;
+    color: #555;
+    text-decoration: none;
+    border-left: 3px solid transparent;
+    line-height: 1.5;
+}
+.sidebar-toc a:hover {
+    background: #e9ecef;
+    color: #0366d6;
+    border-left-color: #0366d6;
+}
+.sidebar-toc .toc-h2 { padding-left: 16px; font-weight: 500; }
+.sidebar-toc .toc-h3 { padding-left: 32px; font-size: 12px; }
+body { margin-left: 240px; }
+
+
+.copy-btn {
+    position: absolute; top: 6px; right: 6px;
+    background: #e9ecef; border: none;
+    border-radius: 4px; padding: 3px 10px;
+    font-size: 12px; color: #555; cursor: pointer;
+    opacity: 0; transition: opacity 0.2s;
+    z-index: 1;
+}
+pre:hover .copy-btn { opacity: 1; }
+.copy-btn:hover { background: #d0d7de; }
+.copy-btn.copied { opacity: 1; background: #2da44e; color: #fff; }
+.copy-btn{position:absolute;top:6px;right:6px;background:#e9ecef;border:none;border-radius:4px;padding:3px 10px;font-size:12px;color:#555;cursor:pointer;opacity:0;transition:opacity .2s;z-index:1}pre:hover .copy-btn{opacity:1}.copy-btn:hover{background:#d0d7de}.copy-btn.copied{opacity:1;background:#2da44e;color:#fff}
+.copy-btn{position:absolute;top:6px;right:6px;background:#e9ecef;border:none;border-radius:4px;padding:3px 10px;font-size:12px;color:#555;cursor:pointer;opacity:0;transition:opacity .2s;z-index:1}pre:hover .copy-btn{opacity:1}.copy-btn:hover{background:#d0d7de}.copy-btn.copied{opacity:1;background:#2da44e;color:#fff}
+.copy-btn{position:absolute;top:6px;right:6px;background:#e9ecef;border:none;border-radius:4px;padding:3px 10px;font-size:12px;color:#555;cursor:pointer;opacity:0;transition:opacity .2s;z-index:1}pre:hover .copy-btn{opacity:1}.copy-btn:hover{background:#d0d7de}.copy-btn.copied{opacity:1;background:#2da44e;color:#fff}
+.sidebar-toggle-btn {
+  position: fixed;
+  left: 220px;
+  top: 0;
+  width: 28px;
+  height: 40px;
+  background: #f8f9fa;
+  border: 1px solid #e9ecef;
+  border-left: none;
+  border-radius: 0 4px 4px 0;
+  cursor: pointer;
+  font-size: 16px;
+  color: #555;
+  z-index: 101;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: left .25s, background .2s;
+  padding: 0;
+  line-height: 1;
+}
+.sidebar-toggle-btn:hover { background: #e9ecef; color: #0366d6; }
+.sidebar-collapsed .sidebar-toc { left: -220px; }
+.sidebar-collapsed .sidebar-toggle-btn { left: 0; }
+.sidebar-collapsed body, body.sidebar-collapsed { margin-left: 28px; }
+.sidebar-overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,.3);
+  z-index: 99;
+}
+@media (max-width: 768px) {
+  .sidebar-collapsed .sidebar-overlay { display: none; }
+  .sidebar-toc { left: -220px; }
+  .sidebar-toggle-btn { left: 0; }
+  body { margin-left: 28px; }
+}
+
+</style>
+</head>
+</head>
+<body>
+<nav class="sidebar-toc"><a class="toc-h2" href="#1">1. 基础概念</a><a class="toc-h3" href="#11">1.1 什么是异步编程？</a><a class="toc-h3" href="#12-python">1.2 Python 异步编程的演进</a><a class="toc-h3" href="#13">1.3 核心术语</a><a class="toc-h2" href="#2">2. 核心原理解析</a><a class="toc-h3" href="#21">2.1 事件循环工作原理</a><a class="toc-h3" href="#22">2.2 协程的执行模型</a><a class="toc-h2" href="#3-api">3. 关键 API 速查</a><a class="toc-h3" href="#31">3.1 创建和运行</a><a class="toc-h3" href="#32">3.2 并发控制</a><a class="toc-h3" href="#33">3.3 同步原语</a><a class="toc-h3" href="#34">3.4 其他常用</a><a class="toc-h2" href="#4-vs-vs">4. 协程 vs 线程 vs 多进程</a><a class="toc-h2" href="#5">5. 高频面试题与标准答案</a><a class="toc-h3" href="#q1-async-def-def">Q1: async def 和普通 def 有什么区别？</a><a class="toc-h3" href="#q2-await-async-def">Q2: await 只能用在 async def 里面吗？</a><a class="toc-h3" href="#q3-asynciocreate_task-await">Q3: asyncio.create_task() 和 await 直接调用有什么区别？</a><a class="toc-h3" href="#q4-asynciogather-asynciowait">Q4: asyncio.gather() 和 asyncio.wait() 的区别？</a><a class="toc-h3" href="#q5-asynciorunpython-37">Q5: 什么是 asyncio.run()？Python 3.7 之前怎么运行？</a><a class="toc-h3" href="#q6">Q6: 如何在异步代码中调用同步阻塞函数？</a><a class="toc-h3" href="#q7-asynciosleep0">Q7: asyncio.sleep(0) 有什么用？</a><a class="toc-h3" href="#q8">Q8: 如何实现异步上下文管理器？</a><a class="toc-h3" href="#q9">Q9: 如何取消一个异步任务？</a><a class="toc-h3" href="#q10-__await__-__aenter__-__aexit__">Q10: 解释 __await__ 和 __aenter__ / __aexit__</a><a class="toc-h2" href="#6">6. 常见陷阱与最佳实践</a><a class="toc-h3" href="#1-await">陷阱 1: 忘记 await</a><a class="toc-h3" href="#2_1">陷阱 2: 在异步代码中调用同步阻塞函数</a><a class="toc-h3" href="#3-asynciorun">陷阱 3: asyncio.run() 不能嵌套</a><a class="toc-h3" href="#4">陷阱 4: 修改共享数据没有同步保护</a><a class="toc-h3" href="#5-task">陷阱 5: 资源泄漏 — Task 没有被等待</a><a class="toc-h3" href="#_2">最佳实践清单</a><a class="toc-h2" href="#7">7. 实战代码模板</a><a class="toc-h3" href="#71-http">7.1 并发 HTTP 请求</a><a class="toc-h3" href="#72-">7.2 生产者-消费者模式</a><a class="toc-h3" href="#73">7.3 带超时和重试的异步操作</a><a class="toc-h3" href="#74">7.4 异步数据库查询模板</a><a class="toc-h2" href="#8">8. 进阶话题</a><a class="toc-h3" href="#81-asyncio">8.1 asyncio 底层实现原理</a><a class="toc-h3" href="#82-structured-concurrency">8.2 结构化并发 (Structured Concurrency)</a><a class="toc-h3" href="#83">8.3 常见异步框架</a><a class="toc-h3" href="#84">8.4 异步设计模式</a><a class="toc-h3" href="#85">8.5 调试技巧</a><a class="toc-h2" href="#_3">一句话总结（面试收尾用）</a></nav>
+<button class="sidebar-toggle-btn" onclick="toggleSidebar()" title="切换侧栏">☰</button>
+
+<div class="sidebar-overlay" onclick="toggleSidebar()"></div>
+
+<script>
+function toggleSidebar() {
+  document.body.classList.toggle('sidebar-collapsed');
+  try { localStorage.setItem('sidebarCollapsed', document.body.classList.contains('sidebar-collapsed')); } catch(e) {}
+}
+(function() {
+  try {
+    if (localStorage.getItem('sidebarCollapsed') === 'true') {
+      document.body.classList.add('sidebar-collapsed');
+    }
+  } catch(e) {}
+})();
+</script>
+<a class="back-link" href="/blog/2026/05/16/面试题/面试题/">← 返回面试题目录</a>
+<h1 id=page-title>Python 异步编程面试指南</h1>
+
+<h2 id="1">1. 基础概念</h2>
+<h3 id="11">1.1 什么是异步编程？</h3>
+<p>异步编程是一种<strong>并发模型</strong>：程序在等待 I/O（网络、文件、数据库）时不阻塞线程，转而执行其他任务，待 I/O 就绪后再回来处理结果。核心思想是<strong>让出控制权，而非空等</strong>。</p>
+<h3 id="12-python">1.2 Python 异步编程的演进</h3>
+<table>
+<thead>
+<tr>
+<th>版本</th>
+<th>特性</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Python 3.4</td>
+<td>引入 <code>asyncio</code> 模块，<code>@asyncio.coroutine</code> + <code>yield from</code> 语法</td>
+</tr>
+<tr>
+<td>Python 3.5</td>
+<td>引入 <code>async</code>/<code>await</code> 语法糖（PEP 492）</td>
+</tr>
+<tr>
+<td>Python 3.7</td>
+<td><code>asyncio.run()</code> 成为标准入口，API 基本稳定</td>
+</tr>
+<tr>
+<td>Python 3.8</td>
+<td><code>Task</code> 可直接取消，<code>to_thread()</code> 预览</td>
+</tr>
+<tr>
+<td>Python 3.9</td>
+<td><code>asyncio.to_thread()</code> 正式发布</td>
+</tr>
+<tr>
+<td>Python 3.10</td>
+<td><code>asyncio.TaskGroup</code> 正式加入</td>
+</tr>
+<tr>
+<td>Python 3.11</td>
+<td><code>TaskGroup</code> 异常处理增强，<code>asyncio.timeout()</code> 上下文管理器</td>
+</tr>
+<tr>
+<td>Python 3.12</td>
+<td>性能优化，更完善的 Task 调试支持</td>
+</tr>
+</tbody>
+</table>
+<h3 id="13">1.3 核心术语</h3>
+<table>
+<thead>
+<tr>
+<th>术语</th>
+<th>含义</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>协程 (Coroutine)</strong></td>
+<td>可暂停和恢复的函数，用 <code>async def</code> 定义</td>
+</tr>
+<tr>
+<td><strong>事件循环 (Event Loop)</strong></td>
+<td>异步程序的核心调度器，驱动协程执行</td>
+</tr>
+<tr>
+<td><strong>Future</strong></td>
+<td>代表一个未来的结果，底层可等待对象</td>
+</tr>
+<tr>
+<td><strong>Task</strong></td>
+<td>对协程的封装，用于并发调度</td>
+</tr>
+<tr>
+<td><strong>可等待对象 (Awaitable)</strong></td>
+<td>可用 <code>await</code> 等待的对象：协程、Task、Future</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="2">2. 核心原理解析</h2>
+
+<h3>async / await 执行流程图</h3>
+<pre><code>
+调用者                          Event Loop                      I/O / 被等待对象
+  │                                │                                │
+  │  (1) asyncio.run(coro)         │                                │
+  ├───────────────────────────────►│                                │
+  │                                │  (2) 启动协程，执行到 await    │
+  │                                ├───────────────────────────────►│
+  │                                │                                │
+  │                                │  (3) 协程挂起，注册 I/O 事件    │
+  │                                │     Event Loop 切到其他 Task    │
+  │                                │                                │
+  │                                │  (4) I/O 完成 / Future 就绪    │
+  │                                │◄───────────────────────────────┤
+  │                                │                                │
+  │                                │  (5) 唤醒协程，从 await 处恢复  │
+  │                                ├───────────────────────────────►│
+  │                                │                                │
+  │                                │  (6) 协程执行完毕，返回结果     │
+  │                                │◄───────────────────────────────┤
+  │  (7) 返回最终结果              │                                │
+  │◄───────────────────────────────┤                                │
+  │                                │                                │
+
+关键点: await = 挂起点, 控制权交还 Event Loop
+       单线程内通过协作式切换实现并发
+</code></pre>
+
+<h3 id="21">2.1 事件循环工作原理</h3>
+<pre><code>
+                    ┌─────────────────────────────────────────┐
+                    │              EVENT LOOP                  │
+                    │                                          │
+  ┌─────┐           │   ┌──────────┐      ┌──────────┐        │
+  │就绪 │──入队────►│   │  Task A  │      │  Task B  │        │
+  │任务 │           │   │ (运行中) │      │ (挂起)   │        │
+  └─────┘           │   └────┬─────┘      └────┬─────┘        │
+                    │        │                  │              │
+                    │        │ 遇到 await       │ 等待 I/O    │
+                    │        ▼                  │              │
+                    │   ┌─────────┐            │              │
+                    │   │ 挂起 A  │            │              │
+                    │   │ 注册IO  │            │              │
+                    │   └────┬────┘            │              │
+                    │        │                  │              │
+                    │        ▼                  ▼              │
+                    │   ┌──────────────────────────────────┐   │
+                    │   │         I/O Selector              │   │
+                    │   │    (epoll / kqueue / IOCP)        │   │
+                    │   │                                    │   │
+                    │   │  poll() ──► 返回就绪的 fd 列表     │   │
+                    │   └──────────────┬───────────────────┘   │
+                    │                  │                        │
+                    │                  ▼                        │
+                    │   ┌──────────────────────────────┐       │
+                    │   │  将就绪 Task 重新入队         │       │
+                    │   │  取出下一个 Task 执行          │       │
+                    │   └──────────────────────────────┘       │
+                    │                                          │
+                    │  循环执行直到所有 Task 完成               │
+                    └─────────────────────────────────────────┘
+
+工作流程:
+1. 取出就绪队列中的 Task，执行到 await
+2. Task 挂起时，将 I/O fd 注册到 Selector
+3. Selector 阻塞等待 I/O 事件（或超时）
+4. I/O 就绪 → 对应 Task 重新入队
+5. 回到步骤 1
+</code></pre>
+
+<h3 id="22">2.2 协程的执行模型</h3>
+<pre><code class="language-python">async def fetch_data():
+    # 1. 发起网络请求（非阻塞）
+    response = await http_client.get("https://api.example.com")
+    # 2. 等待网络 I/O 时，控制权交还事件循环
+    # 3. 网络响应到达，事件循环恢复此协程
+    # 4. 继续执行
+    data = await response.json()
+    return data
+</code></pre>
+<p><strong>关键点：</strong>
+- <code>await</code> 是协程<strong>让出控制权</strong>的挂起点
+- 挂起期间事件循环可执行其他协程
+- <strong>单线程内</strong>实现并发，无线程切换开销</p>
+<hr />
+<h2 id="3-api">3. 关键 API 速查</h2>
+<h3 id="31">3.1 创建和运行</h3>
+<pre><code class="language-python">import asyncio
+
+# 运行协程（Python 3.7+）
+asyncio.run(main())
+
+# 创建 Task（并发执行）
+task1 = asyncio.create_task(coro1())  # Python 3.7+
+task2 = asyncio.create_task(coro2())
+
+# 并发等待多个
+results = await asyncio.gather(coro1(), coro2(), return_exceptions=False)
+
+# 等待第一个完成
+done, pending = await asyncio.wait(
+    [coro1(), coro2()],
+    return_when=asyncio.FIRST_COMPLETED
+)
+
+# 带超时等待
+result = await asyncio.wait_for(coro(), timeout=5.0)
+</code></pre>
+<h3 id="32">3.2 并发控制</h3>
+<pre><code class="language-python"># Semaphore: 限制并发数
+sem = asyncio.Semaphore(10)
+
+async def limited_task():
+    async with sem:
+        await do_work()
+
+# TaskGroup: 结构化并发 (Python 3.11+)
+async with asyncio.TaskGroup() as tg:
+    tg.create_task(coro1())
+    tg.create_task(coro2())
+    tg.create_task(coro3())
+# 所有 task 完成或任一失败时退出
+</code></pre>
+<h3 id="33">3.3 同步原语</h3>
+<pre><code class="language-python"># 锁
+lock = asyncio.Lock()
+async with lock:
+    await critical_section()
+
+# 事件
+event = asyncio.Event()
+await event.wait()    # 等待
+event.set()           # 通知
+
+# 条件变量
+condition = asyncio.Condition()
+async with condition:
+    await condition.wait()
+    condition.notify_all()
+
+# 队列
+queue = asyncio.Queue(maxsize=100)
+await queue.put(item)
+item = await queue.get()
+</code></pre>
+<h3 id="34">3.4 其他常用</h3>
+<pre><code class="language-python"># 异步睡眠
+await asyncio.sleep(1)
+
+# 在线程池中运行同步函数
+result = await asyncio.to_thread(sync_function, arg1, arg2)  # Python 3.9+
+
+# 超时上下文管理器 (Python 3.11+)
+async with asyncio.timeout(5.0):
+    result = await slow_operation()
+
+# 当前任务
+current_task = asyncio.current_task()
+
+# 取消任务
+task.cancel()
+</code></pre>
+<hr />
+<h2 id="4-vs-vs">4. 协程 vs 线程 vs 多进程</h2>
+
+<h3>协程 vs 线程 调度对比</h3>
+<pre><code>
+═══════════════════════════════════════════════════════════════
+  协程 (协作式调度)                   线程 (抢占式调度)
+───────────────────────────────────────────────────────────────
+                                      OS 内核
+  Event Loop (用户态)                   │
+  │                                     │  时间片中断
+  │  Task A ──await──► Task B          │  ┌───┐
+  │    ▲                  │            │  │ T1├── 强制切换 ──► T2
+  │    │    主动让出      ▼            │  └───┘
+  │    └─────────────────┘            │   ▲      │
+  │                                     │   │      ▼
+  │  切换由代码控制                     │   └──────┘
+  │  切换开销: ~100 ns                  │  切换开销: ~1-10 us
+  │  无需锁（单线程）                   │  需要锁保护共享数据
+  │  单核即可承载万级协程               │  受 GIL 限制
+───────────────────────────────────────────────────────────────
+
+  多进程 (并行)                        适用场景速查
+───────────────────────────────────────────────
+  CPU Core 1 ── Process A              I/O 密集型 ──► 协程
+  CPU Core 2 ── Process B              CPU 密集型 ──► 多进程
+  CPU Core N ── Process N              简单并发   ──► 线程池
+  每个进程独立 GIL + 独立内存空间
+═══════════════════════════════════════════════════════════════
+</code></pre>
+
+<table>
+<thead>
+<tr>
+<th>维度</th>
+<th>协程 (asyncio)</th>
+<th>多线程 (threading)</th>
+<th>多进程 (multiprocessing)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>并发模型</strong></td>
+<td>协作式（单线程）</td>
+<td>抢占式（多线程）</td>
+<td>并行（多进程）</td>
+</tr>
+<tr>
+<td><strong>切换开销</strong></td>
+<td>极小（用户态）</td>
+<td>较大（内核态切换）</td>
+<td>最大（进程切换）</td>
+</tr>
+<tr>
+<td><strong>GIL 限制</strong></td>
+<td>不受 GIL 限制</td>
+<td>受 GIL 限制</td>
+<td>不受 GIL 限制</td>
+</tr>
+<tr>
+<td><strong>适用场景</strong></td>
+<td>I/O 密集型</td>
+<td>I/O 密集型（简单场景）</td>
+<td>CPU 密集型</td>
+</tr>
+<tr>
+<td><strong>内存占用</strong></td>
+<td>最小</td>
+<td>中等</td>
+<td>最大</td>
+</tr>
+<tr>
+<td><strong>上下文件数量</strong></td>
+<td>可达数十万</td>
+<td>通常几十到几百</td>
+<td>通常几个到几十</td>
+</tr>
+<tr>
+<td><strong>数据共享</strong></td>
+<td>天然共享（同一线程）</td>
+<td>需要锁保护</td>
+<td>需要进程间通信</td>
+</tr>
+</tbody>
+</table>
+<p><strong>面试回答模板：</strong></p>
+<blockquote>
+<p>Python 的异步编程主要针对 <strong>I/O 密集型</strong> 场景。在单线程内通过协程切换实现并发，避免了线程切换的开销和 GIL 的限制。对于 CPU 密集型任务，应该使用多进程；简单的 I/O 并发也可以用线程池。协程的最大优势是可以支撑非常高的并发量，比如同时处理几万个网络连接。</p>
+</blockquote>
+<hr />
+<h2 id="5">5. 高频面试题与标准答案</h2>
+<h3 id="q1-async-def-def">Q1: <code>async def</code> 和普通 <code>def</code> 有什么区别？</h3>
+<pre><code class="language-python">async def async_func():       # 返回协程对象
+    return 42
+
+def normal_func():            # 直接返回结果
+    return 42
+
+# 调用方式
+async_func()     # 返回 coroutine 对象，函数体不会执行！
+await async_func()  # 真正执行，得到 42
+normal_func()    # 直接得到 42
+</code></pre>
+<p><strong>核心区别：</strong>
+- <code>async def</code> 调用后返回<strong>协程对象</strong>，函数体不立即执行
+- 必须通过 <code>await</code> 或事件循环来驱动执行
+- <code>async def</code> 内部可使用 <code>await</code> 关键字</p>
+<h3 id="q2-await-async-def">Q2: <code>await</code> 只能用在 <code>async def</code> 里面吗？</h3>
+<p><strong>是的，但有例外：</strong></p>
+<pre><code class="language-python"># ❌ 错误：普通函数中使用 await
+def foo():
+    result = await some_coro()  # SyntaxError!
+
+# ✅ 正确：async 函数中使用 await
+async def foo():
+    result = await some_coro()
+
+# ✅ 特殊例外：使用 asyncio.run()
+async def main():
+    await coro()
+
+asyncio.run(main())  # Python 3.7+，在事件循环中驱动 main()
+</code></pre>
+<p><code>await</code> 必须出现在 <code>async def</code> 内部（或异步调用链中），不能出现在普通函数里。</p>
+<h3 id="q3-asynciocreate_task-await">Q3: <code>asyncio.create_task()</code> 和 <code>await</code> 直接调用有什么区别？</h3>
+<pre><code class="language-python">async def main():
+    # 方式1: await 直接调用 — 串行执行
+    result1 = await fetch(1)  # 等待完成
+    result2 = await fetch(2)  # 然后执行
+    # 总耗时 = fetch(1) + fetch(2)
+
+    # 方式2: create_task — 并发执行
+    task1 = asyncio.create_task(fetch(1))  # 立即开始调度
+    task2 = asyncio.create_task(fetch(2))  # 立即开始调度
+    result1 = await task1  # 等待结果
+    result2 = await task2
+    # 总耗时 ≈ max(fetch(1), fetch(2))
+</code></pre>
+<p><strong>关键区别：</strong>
+- <code>await</code> 直接调用：<strong>串行执行</strong>
+- <code>create_task()</code>：<strong>并发执行</strong>，立即注册到事件循环</p>
+<h3 id="q4-asynciogather-asynciowait">Q4: <code>asyncio.gather()</code> 和 <code>asyncio.wait()</code> 的区别？</h3>
+<pre><code class="language-python"># gather: 收集结果，按顺序返回
+results = await asyncio.gather(coro1(), coro2(), coro3())
+# results = [result1, result2, result3] — 按参数顺序
+
+# wait: 返回两个集合，支持细粒度控制
+done, pending = await asyncio.wait(
+    [coro1(), coro2(), coro3()],
+    return_when=asyncio.FIRST_COMPLETED  # ALL_COMPLETED / FIRST_EXCEPTION
+)
+</code></pre>
+<table>
+<thead>
+<tr>
+<th>维度</th>
+<th><code>gather</code></th>
+<th><code>wait</code></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>返回值</strong></td>
+<td>结果列表（按传入顺序）</td>
+<td><code>(done, pending)</code> 两个集合</td>
+</tr>
+<tr>
+<td><strong>取消</strong></td>
+<td>一个失败可用 <code>return_exceptions=True</code> 继续执行其他</td>
+<td>手动取消 pending</td>
+</tr>
+<tr>
+<td><strong>控制粒度</strong></td>
+<td>较粗</td>
+<td>更细（可指定完成条件）</td>
+</tr>
+<tr>
+<td><strong>推荐场景</strong></td>
+<td>收集所有结果</td>
+<td>需要超时、部分取消等精细控制</td>
+</tr>
+</tbody>
+</table>
+<h3 id="q5-asynciorunpython-37">Q5: 什么是 <code>asyncio.run()</code>？Python 3.7 之前怎么运行？</h3>
+<pre><code class="language-python"># Python 3.7+
+asyncio.run(main())  # 创建新事件循环，运行 main，然后关闭
+
+# Python 3.7 之前
+loop = asyncio.get_event_loop()
+try:
+    loop.run_until_complete(main())
+finally:
+    loop.close()
+</code></pre>
+<p><code>asyncio.run()</code> 不能在已运行的事件循环中嵌套调用，否则抛出 RuntimeError。</p>
+<h3 id="q6">Q6: 如何在异步代码中调用同步阻塞函数？</h3>
+<pre><code class="language-python">import asyncio
+
+def blocking_io():       # 同步阻塞函数
+    import time
+    time.sleep(3)         # 阻塞！会卡住事件循环
+    return "done"
+
+async def main():
+    # ❌ 错误：直接调用会阻塞事件循环
+    # result = blocking_io()
+
+    # ✅ 方法1: asyncio.to_thread (Python 3.9+，推荐)
+    result = await asyncio.to_thread(blocking_io)
+
+    # ✅ 方法2: run_in_executor
+    loop = asyncio.get_running_loop()
+    result = await loop.run_in_executor(None, blocking_io)
+
+    # ✅ 方法3: 指定线程池
+    from concurrent.futures import ThreadPoolExecutor
+    executor = ThreadPoolExecutor(max_workers=4)
+    result = await loop.run_in_executor(executor, blocking_io)
+</code></pre>
+<p><strong>面试加分回答：</strong></p>
+<blockquote>
+<p>直接在协程中调用同步阻塞函数是<strong>最常见的错误之一</strong>。它会阻塞整个事件循环，导致所有其他协程都无法执行。正确做法是通过 <code>asyncio.to_thread()</code> 或 <code>run_in_executor()</code> 将阻塞操作放到线程池中执行。</p>
+</blockquote>
+<h3 id="q7-asynciosleep0">Q7: <code>asyncio.sleep(0)</code> 有什么用？</h3>
+<pre><code class="language-python">async def main():
+    await asyncio.sleep(0)
+    # 主动让出控制权，让事件循环有机会处理其他就绪的协程
+    # 类似线程中的 Thread.yield()
+</code></pre>
+<p><strong>应用场景：</strong>长时间计算中避免"饿死"其他协程；确保事件循环有时机处理信号和回调。</p>
+<h3 id="q8">Q8: 如何实现异步上下文管理器？</h3>
+<pre><code class="language-python"># 方法1: 类实现 __aenter__ / __aexit__
+class AsyncResource:
+    async def __aenter__(self):
+        print("获取资源")
+        return self
+
+    async def __aexit__(self, exc_type, exc_val, exc_tb):
+        print("释放资源")
+        return False
+
+async with AsyncResource() as resource:
+    await resource.do_something()
+
+# 方法2: @asynccontextmanager 装饰器
+from contextlib import asynccontextmanager
+
+@asynccontextmanager
+async def get_db_connection():
+    conn = await create_connection()
+    try:
+        yield conn
+    finally:
+        await conn.close()
+</code></pre>
+<h3 id="q9">Q9: 如何取消一个异步任务？</h3>
+<pre><code class="language-python">async def main():
+    task = asyncio.create_task(long_running_task())
+
+    task.cancel()  # 发送取消请求
+
+    try:
+        await task
+    except asyncio.CancelledError:
+        print("任务已被取消")
+</code></pre>
+<p><strong>注意：</strong>
+- <code>cancel()</code> 只是发送取消<strong>请求</strong>，不立即终止
+- 协程需在 <code>await</code> 点才能响应取消
+- <code>CancelledError</code> 不应被静默吞掉（Python 3.9+ 默认不屏蔽）</p>
+<h3 id="q10-__await__-__aenter__-__aexit__">Q10: 解释 <code>__await__</code> 和 <code>__aenter__</code> / <code>__aexit__</code></h3>
+<pre><code class="language-python">class MyAwaitable:
+    def __await__(self):
+        # 返回迭代器，实现自定义 awaitable 对象
+        yield  # 必须至少 yield 一次
+        return 42  # await 结果
+
+async def main():
+    result = await MyAwaitable()  # result = 42
+</code></pre>
+<ul>
+<li><code>__await__</code>：定义如何被 <code>await</code>，返回一个<strong>迭代器</strong></li>
+<li><code>__aenter__</code> / <code>__aexit__</code>：异步上下文管理器的进入和退出协议</li>
+<li><code>__aiter__</code> / <code>__anext__</code>：异步迭代器协议</li>
+</ul>
+<hr />
+<h2 id="6">6. 常见陷阱与最佳实践</h2>
+<h3 id="1-await">陷阱 1: 忘记 <code>await</code></h3>
+<pre><code class="language-python">async def main():
+    coro = fetch_data()      # ❌ 只创建了协程对象，没有执行！
+    print(coro)               # <coroutine object fetch_data at 0x...>
+
+    result = await fetch_data()  # ✅ 正确执行
+</code></pre>
+<h3 id="2_1">陷阱 2: 在异步代码中调用同步阻塞函数</h3>
+<pre><code class="language-python">async def main():
+    time.sleep(5)    # ❌ 阻塞整个事件循环！
+    await asyncio.sleep(5)  # ✅ 非阻塞等待
+    requests.get(url)      # ❌ 阻塞！
+    async with aiohttp.ClientSession() as s:  # ✅ 异步 HTTP
+        await s.get(url)
+</code></pre>
+<h3 id="3-asynciorun">陷阱 3: <code>asyncio.run()</code> 不能嵌套</h3>
+<pre><code class="language-python">async def outer():
+    asyncio.run(inner())  # ❌ RuntimeError: 事件循环已在运行
+
+    # ✅ 解决方案：直接 await
+    await inner()
+
+asyncio.run(outer())
+</code></pre>
+<h3 id="4">陷阱 4: 修改共享数据没有同步保护</h3>
+<pre><code class="language-python">counter = 0
+
+async def increment():
+    global counter
+    # ❌ 非原子操作，await 点之间可能交错
+    temp = counter
+    await asyncio.sleep(0)  # 让出控制权
+    counter = temp + 1
+
+# ✅ 使用锁
+lock = asyncio.Lock()
+async def safe_increment():
+    global counter
+    async with lock:
+        counter += 1
+</code></pre>
+<h3 id="5-task">陷阱 5: 资源泄漏 — Task 没有被等待</h3>
+<pre><code class="language-python">async def main():
+    asyncio.create_task(background_work())  # Task 可能被垃圾回收
+
+    # ✅ 正确做法：保留引用，用完 await 或 cancel
+    task = asyncio.create_task(background_work())
+    await task
+</code></pre>
+<h3 id="_2">最佳实践清单</h3>
+<table>
+<thead>
+<tr>
+<th>实践</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>使用 <code>asyncio.run()</code> 作为入口</strong></td>
+<td>Python 3.7+ 标准做法</td>
+</tr>
+<tr>
+<td><strong>用 <code>create_task</code> 实现并发</strong></td>
+<td>不要串行 <code>await</code> 多个独立操作</td>
+</tr>
+<tr>
+<td><strong>用 <code>TaskGroup</code> 管理任务组</strong></td>
+<td>Python 3.11+，结构化并发</td>
+</tr>
+<tr>
+<td><strong>阻塞调用放线程池</strong></td>
+<td><code>asyncio.to_thread()</code> 或 <code>run_in_executor()</code></td>
+</tr>
+<tr>
+<td><strong>用 <code>Semaphore</code> 限制并发</strong></td>
+<td>避免资源耗尽（连接数、内存等）</td>
+</tr>
+<tr>
+<td><strong>正确处理 <code>CancelledError</code></strong></td>
+<td>不要静默吞掉，确保清理资源</td>
+</tr>
+<tr>
+<td><strong>设置超时</strong></td>
+<td>用 <code>asyncio.wait_for()</code> 或 <code>asyncio.timeout()</code></td>
+</tr>
+<tr>
+<td><strong>日志使用 <code>logging</code> 模块</strong></td>
+<td><code>print</code> 在异步环境下输出可能交错</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="7">7. 实战代码模板</h2>
+<h3 id="71-http">7.1 并发 HTTP 请求</h3>
+<pre><code class="language-python">import asyncio
+import aiohttp
+
+async def fetch(session, url):
+    async with session.get(url) as response:
+        return await response.text()
+
+async def fetch_all(urls, max_concurrent=10):
+    sem = asyncio.Semaphore(max_concurrent)
+
+    async def bounded_fetch(session, url):
+        async with sem:
+            return await fetch(session, url)
+
+    async with aiohttp.ClientSession() as session:
+        tasks = [bounded_fetch(session, url) for url in urls]
+        results = await asyncio.gather(*tasks, return_exceptions=True)
+        return results
+
+async def main():
+    urls = ["https://httpbin.org/get" for _ in range(100)]
+    results = await fetch_all(urls)
+    print(f"获取了 {len(results)} 个响应")
+
+asyncio.run(main())
+</code></pre>
+<h3 id="72-">7.2 生产者-消费者模式</h3>
+<pre><code class="language-python">import asyncio
+
+async def producer(queue):
+    for i in range(10):
+        await asyncio.sleep(0.1)
+        await queue.put(f"item-{i}")
+        print(f"生产: item-{i}")
+    await queue.put(None)  # 哨兵值，通知结束
+
+async def consumer(queue, name):
+    while True:
+        item = await queue.get()
+        if item is None:
+            queue.task_done()
+            break
+        print(f"{name} 消费: {item}")
+        await asyncio.sleep(0.5)
+        queue.task_done()
+
+async def main():
+    queue = asyncio.Queue()
+    producers = [asyncio.create_task(producer(queue))]
+    consumers = [asyncio.create_task(consumer(queue, f"C{i}")) for i in range(3)]
+
+    await asyncio.gather(*producers)
+    await queue.join()  # 等待所有 item 被处理
+    for c in consumers:
+        await c
+
+asyncio.run(main())
+</code></pre>
+<h3 id="73">7.3 带超时和重试的异步操作</h3>
+<pre><code class="language-python">import asyncio
+
+async def fetch_with_retry(url, max_retries=3, timeout=10.0):
+    for attempt in range(max_retries):
+        try:
+            async with asyncio.timeout(timeout):
+                result = await do_fetch(url)
+                return result
+        except asyncio.TimeoutError:
+            print(f"第 {attempt+1} 次超时")
+        except Exception as e:
+            print(f"第 {attempt+1} 次失败: {e}")
+            if attempt < max_retries - 1:
+                await asyncio.sleep(2 ** attempt)  # 指数退避
+    raise RuntimeError(f"重试 {max_retries} 次后仍然失败")
+
+async def do_fetch(url):
+    await asyncio.sleep(1)
+    return f"data from {url}"
+</code></pre>
+<h3 id="74">7.4 异步数据库查询模板</h3>
+<pre><code class="language-python">import asyncio
+import aiosqlite
+
+async def query_users():
+    async with aiosqlite.connect("users.db") as db:
+        async with db.execute("SELECT id, name FROM users") as cursor:
+            async for row in cursor:
+                print(row)
+
+async def main():
+    await query_users()
+
+asyncio.run(main())
+</code></pre>
+<hr />
+<h2 id="8">8. 进阶话题</h2>
+<h3 id="81-asyncio">8.1 <code>asyncio</code> 底层实现原理</h3>
+<ol>
+<li><strong>协程本质</strong>：基于生成器扩展，<code>await</code> 类似于 <code>yield from</code></li>
+<li><strong>事件循环</strong>：基于 <code>selectors</code> 模块，使用 OS I/O 多路复用（Linux epoll, macOS kqueue, Windows IOCP）</li>
+<li><strong>调度方式</strong>：协作式调度，协程必须<strong>主动让出控制权</strong>（通过 <code>await</code>）</li>
+<li><strong>状态管理</strong>：每个协程有自己的调用栈，挂起时保存，恢复时还原</li>
+</ol>
+<h3 id="82-structured-concurrency">8.2 结构化并发 (Structured Concurrency)</h3>
+<p>Python 3.11+ 的 <code>TaskGroup</code> 实现了结构化并发：</p>
+<pre><code class="language-python">async def main():
+    async with asyncio.TaskGroup() as tg:
+        t1 = tg.create_task(fetch_user(id=1))
+        t2 = tg.create_task(fetch_orders(user_id=1))
+        t3 = tg.create_task(fetch_payments(user_id=1))
+    # 此处 t1, t2, t3 都已完成
+    # 任一任务抛异常，其他任务自动取消
+</code></pre>
+<p><strong>优势：</strong>子任务生命周期有明确范围；异常传播更可靠；无"孤儿"任务。</p>
+<h3 id="83">8.3 常见异步框架</h3>
+<table>
+<thead>
+<tr>
+<th>框架</th>
+<th>用途</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>aiohttp</strong></td>
+<td>异步 HTTP 客户端/服务端</td>
+</tr>
+<tr>
+<td><strong>FastAPI</strong></td>
+<td>异步 Web 框架</td>
+</tr>
+<tr>
+<td><strong>uvicorn</strong></td>
+<td>ASGI 服务器</td>
+</tr>
+<tr>
+<td><strong>SQLAlchemy 2.0</strong></td>
+<td>异步 ORM</td>
+</tr>
+<tr>
+<td><strong>redis-py (async)</strong></td>
+<td>异步 Redis 客户端</td>
+</tr>
+<tr>
+<td><strong>aiosqlite</strong></td>
+<td>异步 SQLite</td>
+</tr>
+<tr>
+<td><strong>asyncpg</strong></td>
+<td>异步 PostgreSQL</td>
+</tr>
+<tr>
+<td><strong>Celery + asyncio</strong></td>
+<td>异步任务队列</td>
+</tr>
+</tbody>
+</table>
+<h3 id="84">8.4 异步设计模式</h3>
+<p><strong>1. 异步迭代器</strong></p>
+<pre><code class="language-python">class AsyncRange:
+    def __init__(self, n):
+        self.n = n
+        self.i = 0
+
+    def __aiter__(self):
+        return self
+
+    async def __anext__(self):
+        self.i += 1
+        if self.i > self.n:
+            raise StopAsyncIteration
+        return self.i
+
+async for i in AsyncRange(5):
+    print(i)
+</code></pre>
+<p><strong>2. 异步生成器</strong></p>
+<pre><code class="language-python">async def async_range(n):
+    for i in range(n):
+        await asyncio.sleep(0.1)
+        yield i
+
+async for val in async_range(5):
+    print(val)
+</code></pre>
+<p><strong>3. 异步缓存</strong></p>
+<pre><code class="language-python">from functools import lru_cache
+import asyncio
+
+@lru_cache(maxsize=128)
+async def cached_fetch(url: str):
+    await asyncio.sleep(1)  # 模拟网络请求
+    return f"data from {url}"
+</code></pre>
+<h3 id="85">8.5 调试技巧</h3>
+<pre><code class="language-python"># 开启调试模式
+asyncio.run(main(), debug=True)
+
+# 获取所有任务
+tasks = asyncio.all_tasks()
+
+# Task 状态查询
+task.done()       # 是否完成
+task.cancelled()  # 是否被取消
+task.exception()  # 获取异常
+</code></pre>
+<hr />
+<h2 id="_3">一句话总结（面试收尾用）</h2>
+<blockquote>
+<p>Python 的异步编程通过 <code>async</code>/<code>await</code> 语法和事件循环机制，在单线程内实现了高效的 I/O 并发。核心思想是<strong>协程在遇到 I/O 等待时主动让出控制权</strong>，事件循环在等待期间调度其他协程执行。相比多线程，协程开销极低，能轻松支撑数万级并发连接。适合 Web 服务、网络爬虫、API 网关等 I/O 密集型场景。</p>
+</blockquote>
+
+<script>
+// Scroll spy — highlight active sidebar item
+window.addEventListener('scroll', function() {
+    var links = document.querySelectorAll('.sidebar-toc a');
+    var scrollY = window.scrollY + 120;
+    var current = '';
+    for (var i = links.length - 1; i >= 0; i--) {
+        var target = document.getElementById(links[i].getAttribute('href').slice(1));
+        if (target && target.offsetTop <= scrollY) {
+            current = links[i];
+            break;
+        }
+    }
+    links.forEach(function(a) { a.style.fontWeight = 'normal'; a.style.color = '#555'; });
+    if (current) { current.style.fontWeight = 'bold'; current.style.color = '#0366d6'; }
+});
+</script>
+
+
+<script>
+document.querySelectorAll("pre>code").forEach(function(c){var p=c.parentNode;p.style.position="relative";var b=document.createElement("button");b.className="copy-btn";b.textContent="复制";p.appendChild(b);b.addEventListener("click",function(){var t=c.textContent;navigator.clipboard.writeText(t).then(function(){b.textContent="已复制";b.classList.add("copied");setTimeout(function(){b.textContent="复制";b.classList.remove("copied")},2000)}).catch(function(){var a=document.createElement("textarea");a.value=t;a.style.position="fixed";a.style.opacity="0";document.body.appendChild(a);a.select();document.execCommand("copy");document.body.removeChild(a);b.textContent="已复制";b.classList.add("copied");setTimeout(function(){b.textContent="复制";b.classList.remove("copied")},2000)})})})
+</script>
+</body>

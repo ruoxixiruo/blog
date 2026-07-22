@@ -1,0 +1,695 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>面试题 - Dubbo</title>
+<style>
+body {
+    transition: margin-left .25s ease;
+    font-family: -apple-system, "Noto Sans SC", "Microsoft YaHei", sans-serif;
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 20px 24px 60px;
+    line-height: 1.8;
+    color: #333;
+    background: #fff;
+}
+h1 { border-bottom: 2px solid #eee; padding-bottom: 10px; color: #222; }
+h2 { color: #333; margin-top: 32px; }
+h3 { color: #555; }
+a { color: #0366d6; text-decoration: none; }
+a:hover { text-decoration: underline; }
+pre {
+    background: #f6f8fa;
+    border-radius: 6px;
+    padding: 16px;
+    overflow-x: auto;
+    font-size: 14px;
+    line-height: 1.45;
+}
+code {
+    background: #f0f2f4;
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-size: 14px;
+}
+pre code { background: none; padding: 0; }
+blockquote {
+    border-left: 4px solid #ddd;
+    margin: 0;
+    padding: 0 16px;
+    color: #666;
+}
+table {
+    border-collapse: collapse;
+    width: 100%;
+    margin: 16px 0;
+}
+th, td {
+    border: 1px solid #ddd;
+    padding: 8px 12px;
+    text-align: left;
+}
+th { background: #f6f8fa; }
+img { max-width: 100%; }
+.back-link {
+    margin-bottom: 20px;
+    display: block;
+    color: #666;
+}
+.back-link:hover { color: #0366d6; }
+
+.sidebar-toc {
+    transition: left .25s ease;
+    position: fixed;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    width: 220px;
+    background: #f8f9fa;
+    border-right: 1px solid #e9ecef;
+    padding: 20px 0;
+    overflow-y: auto;
+    font-size: 13px;
+    z-index: 100;
+}
+.sidebar-toc a {
+    display: block;
+    padding: 6px 16px;
+    color: #555;
+    text-decoration: none;
+    border-left: 3px solid transparent;
+    line-height: 1.5;
+}
+.sidebar-toc a:hover {
+    background: #e9ecef;
+    color: #0366d6;
+    border-left-color: #0366d6;
+}
+.sidebar-toc .toc-h3 { padding-left: 20px; font-size: 12px; }
+body { margin-left: 240px; }
+
+
+.copy-btn {
+    position: absolute; top: 6px; right: 6px;
+    background: #e9ecef; border: none;
+    border-radius: 4px; padding: 3px 10px;
+    font-size: 12px; color: #555; cursor: pointer;
+    opacity: 0; transition: opacity 0.2s;
+    z-index: 1;
+}
+pre:hover .copy-btn { opacity: 1; }
+.copy-btn:hover { background: #d0d7de; }
+.copy-btn.copied { opacity: 1; background: #2da44e; color: #fff; }
+.copy-btn{position:absolute;top:6px;right:6px;background:#e9ecef;border:none;border-radius:4px;padding:3px 10px;font-size:12px;color:#555;cursor:pointer;opacity:0;transition:opacity .2s;z-index:1}pre:hover .copy-btn{opacity:1}.copy-btn:hover{background:#d0d7de}.copy-btn.copied{opacity:1;background:#2da44e;color:#fff}
+.copy-btn{position:absolute;top:6px;right:6px;background:#e9ecef;border:none;border-radius:4px;padding:3px 10px;font-size:12px;color:#555;cursor:pointer;opacity:0;transition:opacity .2s;z-index:1}pre:hover .copy-btn{opacity:1}.copy-btn:hover{background:#d0d7de}.copy-btn.copied{opacity:1;background:#2da44e;color:#fff}
+.copy-btn{position:absolute;top:6px;right:6px;background:#e9ecef;border:none;border-radius:4px;padding:3px 10px;font-size:12px;color:#555;cursor:pointer;opacity:0;transition:opacity .2s;z-index:1}pre:hover .copy-btn{opacity:1}.copy-btn:hover{background:#d0d7de}.copy-btn.copied{opacity:1;background:#2da44e;color:#fff}
+.sidebar-toggle-btn {
+  position: fixed;
+  left: 220px;
+  top: 0;
+  width: 28px;
+  height: 40px;
+  background: #f8f9fa;
+  border: 1px solid #e9ecef;
+  border-left: none;
+  border-radius: 0 4px 4px 0;
+  cursor: pointer;
+  font-size: 16px;
+  color: #555;
+  z-index: 101;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: left .25s, background .2s;
+  padding: 0;
+  line-height: 1;
+}
+.sidebar-toggle-btn:hover { background: #e9ecef; color: #0366d6; }
+.sidebar-collapsed .sidebar-toc { left: -220px; }
+.sidebar-collapsed .sidebar-toggle-btn { left: 0; }
+.sidebar-collapsed body, body.sidebar-collapsed { margin-left: 28px; }
+.sidebar-overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,.3);
+  z-index: 99;
+}
+@media (max-width: 768px) {
+  .sidebar-collapsed .sidebar-overlay { display: none; }
+  .sidebar-toc { left: -220px; }
+  .sidebar-toggle-btn { left: 0; }
+  body { margin-left: 28px; }
+}
+
+</style>
+</head>
+</head>
+<body>
+<nav class="sidebar-toc"><a class="toc-h3" href="#1-rpc">1. 什么是 RPC?完整流程是怎样的?</a><a class="toc-h3" href="#2-dubbo">2. Dubbo 整体架构?</a><a class="toc-h3" href="#3-dubbo">3. Dubbo 负载均衡策略?</a><a class="toc-h3" href="#4-dubbo">4. Dubbo 集群容错策略?</a><a class="toc-h3" href="#5-dubbo">5. Dubbo 序列化协议怎么选?</a><a class="toc-h3" href="#6-rpc-http-rpc">6. RPC 和 HTTP 的区别?什么时候用 RPC?</a><a class="toc-h3" href="#7-dubbo">7. Dubbo 服务暴露流程是怎样的?</a><a class="toc-h3" href="#8-dubbo">8. Dubbo 的服务降级怎么配?</a><a class="toc-h3" href="#9-dubbo-spi-java-spi">9. Dubbo SPI 和 Java SPI 的区别?</a><a class="toc-h3" href="#10-dubbo">10. Dubbo 服务调用超时怎么处理?</a><a class="toc-h3" href="#11-dubbo-30">11. Dubbo 3.0 有哪些重要新特性?</a><a class="toc-h3" href="#12-dubbo-30">12. Dubbo 3.0 的三重注册/发现机制？</a></nav>
+<button class="sidebar-toggle-btn" onclick="toggleSidebar()" title="切换侧栏">☰</button>
+
+<div class="sidebar-overlay" onclick="toggleSidebar()"></div>
+
+<script>
+function toggleSidebar() {
+  document.body.classList.toggle('sidebar-collapsed');
+  try { localStorage.setItem('sidebarCollapsed', document.body.classList.contains('sidebar-collapsed')); } catch(e) {}
+}
+(function() {
+  try {
+    if (localStorage.getItem('sidebarCollapsed') === 'true') {
+      document.body.classList.add('sidebar-collapsed');
+    }
+  } catch(e) {}
+})();
+</script>
+<a class="back-link" href="/blog/2026/05/16/面试题/面试题/">← 返回面试题目录</a>
+<h1 id=page-title>Dubbo &amp; RPC</h1>
+<h3 id="1-rpc">1. 什么是 RPC?完整流程是怎样的?</h3>
+<p>RPC(远程过程调用)让你调用远程服务像调用本地方法一样自然,网络细节全隐藏。关键是<strong>本地代理</strong>(Stub)--它假装是远程服务,实际上在背后做了序列化、网络调用这些脏活。</p>
+<pre><code>Client 端                           Server 端
+
+UserService.getUser(id)
+    │
+    ▼
+┌──────────┐                    ┌──────────┐
+│ 代理 Stub │  ──序列化──▶     │ 骨架 Skeleton│
+│ (假装本地) │    网络传输       │ (反射调用)   │
+└──────────┘  ◀──序列化返回──  └──────────┘
+                                     │
+                              真实 UserService.getUser(id)
+</code></pre>
+<p>完整流程:客户端调本地代理 → 序列化方法名和参数 → 网络发送 → 服务端反序列化 → 反射调用真实方法 → 返回结果 → 序列化返回 → 客户端代理反序列化拿到结果。</p>
+<blockquote>
+<p><strong>扩展</strong>:RPC 和 HTTP 接口有什么区别?RPC 调的是<strong>方法</strong>(面向行为),HTTP 调的是<strong>资源</strong>(面向数据)。RPC 更快(自定义协议,节约带宽/序列化开销),但 HTTP 更通用(跨语言/跨平台)。Dubbo 3 引入了 <strong>Triple 协议</strong>(基于 gRPC),兼具 RPC 的高性能和 HTTP 的通用性。</p>
+</blockquote>
+<h3 id="2-dubbo">2. Dubbo 整体架构?</h3>
+<p>四大角色:</p>
+<table>
+<thead>
+<tr>
+<th>角色</th>
+<th>作用</th>
+<th>类比</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Provider</td>
+<td>服务提供者,启动时注册到注册中心</td>
+<td>餐厅(提供服务)</td>
+</tr>
+<tr>
+<td>Consumer</td>
+<td>服务消费者,启动时订阅所需服务</td>
+<td>食客(消费服务)</td>
+</tr>
+<tr>
+<td>Registry</td>
+<td>注册中心(Nacos/ZK),存服务地址,推送变更</td>
+<td>大众点评(查哪家好吃)</td>
+</tr>
+<tr>
+<td>Monitor</td>
+<td>监控中心,统计调用次数和耗时</td>
+<td>摄像头(监控一切)</td>
+</tr>
+</tbody>
+</table>
+<pre><code>Provider ──注册──▶ Registry ◀──订阅── Consumer
+   │                                      │
+   └──────────── 直接调用 ────────────────┘
+              (已拿到地址,不经过 Registry)
+</code></pre>
+<p>注册中心挂了影响吗?<strong>不影响已有连接</strong>(Consumer 本地缓存了地址),但新注册和订阅会失败。就像你手机里已经存了餐厅的地址--大众点评挂了不影响你去已经知道的餐厅。</p>
+<blockquote>
+<p><strong>扩展</strong>:Dubbo 3 引入<strong>应用级服务发现</strong>--以前是接口级(一个服务有多少个接口就注册多少次),现在是应用级(一个应用注册一次),注册数据量大幅下降,支持更大规模集群。这是 Dubbo 3 最重要的架构升级之一。</p>
+</blockquote>
+<h3 id="3-dubbo">3. Dubbo 负载均衡策略?</h3>
+<table>
+<thead>
+<tr>
+<th>策略</th>
+<th>原理</th>
+<th>场景</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Random(默认)</td>
+<td>按权重随机</td>
+<td>大多数业务</td>
+</tr>
+<tr>
+<td>RoundRobin</td>
+<td>平滑加权轮询</td>
+<td>服务性能一致</td>
+</tr>
+<tr>
+<td>LeastActive</td>
+<td>选最闲的(活跃请求最少)</td>
+<td>服务耗时差异大</td>
+</tr>
+<tr>
+<td>ConsistentHash</td>
+<td>同参数请求固定到一台</td>
+<td>有状态服务</td>
+</tr>
+<tr>
+<td>ShortestResponse</td>
+<td>选预估响应最快的</td>
+<td>2.7+,实时优化</td>
+</tr>
+</tbody>
+</table>
+<pre><code>LeastActive 示例:三台机器
+
+Provider A:3 个请求在处理中(忙)
+Provider B:1 个请求在处理中(闲) ← 新请求优先发给它
+Provider C:5 个请求在处理中(很忙)
+</code></pre>
+<blockquote>
+<p><strong>扩展</strong>:ConsistentHash(一致性哈希)不只是负载均衡,它能做<strong>有状态路由</strong>--如果某台机器上有用户缓存,让同一个用户的请求总打到这台机器,缓存命中率高得多。Dubbo 的一致性哈希默认 160 个虚拟节点,防止节点增减时数据倾斜。</p>
+</blockquote>
+<h3 id="4-dubbo">4. Dubbo 集群容错策略?</h3>
+<table>
+<thead>
+<tr>
+<th>策略</th>
+<th>行为</th>
+<th>场景</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Failover(默认)</td>
+<td>失败自动换一台重试(默认 2 次)</td>
+<td>幂等读操作</td>
+</tr>
+<tr>
+<td>Failfast</td>
+<td>快速失败,只调一次</td>
+<td>非幂等写(新增订单)</td>
+</tr>
+<tr>
+<td>Failsafe</td>
+<td>异常直接忽略</td>
+<td>不重要操作(审计日志)</td>
+</tr>
+<tr>
+<td>Failback</td>
+<td>失败后定时重试</td>
+<td>最终一致性场景</td>
+</tr>
+<tr>
+<td>Forking</td>
+<td>并行调多台,任一成功返回</td>
+<td>实时性要求高(牺牲资源换速度)</td>
+</tr>
+</tbody>
+</table>
+<blockquote>
+<p><strong>扩展</strong>:最容易踩的坑--<strong>对非幂等操作用 Failover</strong>。比如创建订单,如果超时了 Dubbo 自动换一台重试,结果订单创建了两份。所以写操作要用 Failfast,或者在业务层做好幂等。</p>
+</blockquote>
+<h3 id="5-dubbo">5. Dubbo 序列化协议怎么选?</h3>
+<table>
+<thead>
+<tr>
+<th>协议</th>
+<th>性能</th>
+<th>跨语言</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Hessian2(默认)</td>
+<td>适中</td>
+<td>有限</td>
+</tr>
+<tr>
+<td>Protobuf</td>
+<td>高</td>
+<td>支持</td>
+</tr>
+<tr>
+<td>Kryo</td>
+<td>最高</td>
+<td>不支持(Java only)</td>
+</tr>
+<tr>
+<td>JSON</td>
+<td>低</td>
+<td>支持</td>
+</tr>
+</tbody>
+</table>
+<p><strong>性能排序</strong>:Kryo &gt; Protobuf &gt; Hessian2 &gt; JSON。</p>
+<pre><code>选型决策:
+
+Java to Java? → Kryo(高性能首选)
+跨语言?      → Protobuf(生态好)
+想看内容调试?→ JSON(可读性最好)
+默认够用?    → Hessian2(Dubbo 原生支持,零配置)
+</code></pre>
+<blockquote>
+<p><strong>扩展</strong>:Protobuf 为什么比 JSON 快很多?因为它是<strong>二进制</strong>格式,字段名不传(用数字代替),整数用 varint 压缩(小整数只占 1 字节)。JSON 传 <code>{"userId":123}</code> 要 15 字节,Protobuf 可能只需要 3 字节。但 Protobuf 需要定义 <code>.proto</code> 文件和编译步骤,多了些开发成本。</p>
+</blockquote>
+<h3 id="6-rpc-http-rpc">6. RPC 和 HTTP 的区别?什么时候用 RPC?</h3>
+<p>RPC = <strong>打电话</strong>(直接叫对方做事,效率优先),HTTP = <strong>寄邮件</strong>(格式规范,跨平台兼容)。</p>
+<table>
+<thead>
+<tr>
+<th>维度</th>
+<th>RPC</th>
+<th>HTTP</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>协议</strong></td>
+<td>自定义(Dubbo/Hessian/gRPC)</td>
+<td>标准 HTTP/1.1 或 HTTP/2</td>
+</tr>
+<tr>
+<td><strong>序列化</strong></td>
+<td>二进制(Protobuf/Kryo),体积小</td>
+<td>JSON/XML,可读但体积大</td>
+</tr>
+<tr>
+<td><strong>语义</strong></td>
+<td>方法调用语义(<code>orderService.create()</code>)</td>
+<td>资源语义(<code>POST /orders</code>)</td>
+</tr>
+<tr>
+<td><strong>跨语言</strong></td>
+<td>看协议(gRPC 支持,Dubbo 偏 Java)</td>
+<td>天然跨语言</td>
+</tr>
+<tr>
+<td><strong>性能</strong></td>
+<td>高(长连接 + 二进制 + 非阻塞 IO)</td>
+<td>较低(短连接 + 文本解析开销)</td>
+</tr>
+<tr>
+<td><strong>调试</strong></td>
+<td>需要专用工具</td>
+<td>浏览器/curl 就能调</td>
+</tr>
+</tbody>
+</table>
+<p><strong>选型决策</strong>:</p>
+<pre><code>微服务内部调用 → RPC(性能高,调用语义清晰)
+对外 API / 跨平台 → HTTP(通用性强,生态好)
+移动端 → HTTP(防火墙友好,开发工具成熟)
+实时通信(IM/游戏)→ 自研 RPC / WebSocket
+</code></pre>
+<p>一句话:<strong>对内用 RPC,对外用 HTTP</strong>。但趋势是融合--gRPC 用 HTTP/2 + Protobuf,兼具两者优势。</p>
+<blockquote>
+<p><strong>扩展</strong>:Feign 声明式调用是 RPC 和 HTTP 的混合体--写起来像 RPC(接口 + 注解),底层走 HTTP + JSON。Dubbo 3.0 支持 Triple 协议(基于 HTTP/2),开始从纯 RPC 框架向云原生演进。选型时还要考虑网关兼容性:Istio 能路由 HTTP/TCP,但对 Dubbo 私有协议需要额外适配。</p>
+</blockquote>
+<h3 id="7-dubbo">7. Dubbo 服务暴露流程是怎样的?</h3>
+<p>Dubbo 服务暴露 = <strong>餐馆开业</strong>:准备菜单(接口信息)→ 在美食平台登记(注册到注册中心)→ 对外营业(监听端口)。</p>
+<pre><code>服务启动流程:
+
+  Spring 容器启动
+      ↓
+  ServiceBean 扫描 @DubboService
+      ↓
+  1. 构建 URL(协议、IP、端口、接口名)
+      ↓
+  2. 启动 Netty Server(监听端口)
+      ↓
+  3. 注册到注册中心(Nacos / ZK)
+      ↓
+  注册中心保存:接口名 → ip:port 映射
+      ↓
+  服务可用 ✅
+</code></pre>
+<p><strong>关键细节</strong>:</p>
+<ul>
+<li><strong>本地暴露</strong>(injvm 协议):JVM 内的 Service 和 Reference 直接调用,不走网络</li>
+<li><strong>远程暴露</strong>:创建 Netty Server + 注册到注册中心</li>
+<li><strong>两个端口</strong>:Dubbo 协议监听一个端口(如 20880),QOS 端口(22222)用于运维命令</li>
+</ul>
+<blockquote>
+<p><strong>扩展</strong>:Dubbo 3.x 引入了<strong>应用级服务发现</strong>(Application-level Service Discovery)--不再以接口粒度注册,而是以应用粒度注册。注册中心的数据量从接口数 × 实例数 降到 应用数 × 实例数,极大减轻 ZK/Nacos 的压力。但需要元数据中心(如 Nacos)存放接口→应用的映射。</p>
+</blockquote>
+<h3 id="8-dubbo">8. Dubbo 的服务降级怎么配?</h3>
+<p>服务降级 = <strong>商店停电了,门口挂个牌子"今日歇业"</strong>,比让顾客进去发现没人理好得多。</p>
+<pre><code>降级触发场景:
+  Provider 挂了 → 返回 mock 数据 / 空结果
+  下游响应太慢 → 超时后降级
+  主动降级(大促/压测)→ 关闭非核心服务
+</code></pre>
+<p><strong>配置方式</strong>(Dubbo Admin 或代码):</p>
+<pre><code class="language-yaml"># dubbo 配置
+dubbo:
+  consumer:
+    mock: true  # 服务调用失败时返回 mock 值
+    # 精确控制
+    mock: &quot;return null&quot;           # 返回 null
+    mock: &quot;return {\&quot;id\&quot;:0}&quot;     # 返回指定 JSON
+    mock: &quot;throw com.xxx.Exception&quot; # 抛出异常
+    mock: &quot;com.example.MockService&quot; # 指定 Mock 类
+</code></pre>
+<p><strong>Mock 类写法</strong>:</p>
+<pre><code class="language-java">@Service
+public class OrderServiceMock implements OrderService {
+    @Override
+    public OrderDTO getOrder(Long id) {
+        // 降级逻辑:返回缓存的数据或空对象
+        return OrderDTO.builder().id(id).status(&quot;未知(降级)&quot;).build();
+    }
+}
+</code></pre>
+<blockquote>
+<p><strong>扩展</strong>:Dubbo 的服务降级和 Sentinel 的降级是两回事--Dubbo 的降级是 RPC 层面的"调用失败兜底",Sentinel 的降级是流量控制层面的"保护下游不被冲垮"(熔断)。Dubbo 2.7+ 原生集成了 Sentinel,可以同时做 RPC 降级和流量防护。大促场景的标准做法是:Sentinel 在前做流量控制,Dubbo Mock 在后做调用兜底。</p>
+</blockquote>
+<hr />
+<h3 id="9-dubbo-spi-java-spi">9. Dubbo SPI 和 Java SPI 的区别?</h3>
+<p>Dubbo SPI 按需加载,配置文件 META-INF/dubbo/,支持 IoC/AOP 和 Key 适配。Java SPI 一次性加载所有实现。</p>
+<h3 id="10-dubbo">10. Dubbo 服务调用超时怎么处理?</h3>
+<p><strong>核心结论</strong>:优先业务幂等,超时后根据场景选择重试(Failover)或快速失败(Failfast)。</p>
+<pre><code>超时场景分析:
+
+1. 查询类操作(幂等)
+   → 使用 Failover,自动重试其他节点
+   → 默认策略,超时 1s,重试 2 次
+
+2. 写入类操作(非幂等)
+   → 使用 Failfast,快速失败
+   → 业务层处理重试(带唯一键防重)
+
+3. 重要操作(必须成功)
+   → 失败后进入异步重试队列
+   → 定时任务补偿 + 告警
+</code></pre>
+<p><strong>配置示例</strong>:</p>
+<pre><code class="language-java">// 服务端设置超时(提供者优先)
+@DubboService(timeout = 3000)
+public class OrderServiceImpl implements OrderService {
+    // ...
+}
+
+// 消费端指定超时策略
+@DubboReference(
+    timeout = 5000,
+    retries = 2,              // 重试次数
+    cluster = &quot;failover&quot;      // 或 &quot;failfast&quot;
+)
+private OrderService orderService;
+
+// 非幂等操作用 failfast
+@DubboReference(
+    timeout = 5000,
+    cluster = &quot;failfast&quot;      // 不重试
+)
+private PaymentService paymentService;
+</code></pre>
+<blockquote>
+<p><strong>扩展</strong>:Dubbo 超时判定的关键点:客户端超时 ≠ 服务端超时。客户端超时直接返回异常,服务端可能还在执行。所以超时后要考虑请求是否已到达服务端、是否已生效。最佳实践:服务端配置比客户端稍长,避免服务端还在执行就被客户端掐断。</p>
+</blockquote>
+<h3 id="11-dubbo-30">11. Dubbo 3.0 有哪些重要新特性?</h3>
+<p><strong>核心结论</strong>:应用级服务发现 + Triple 协议 + 云原生适配 = 面向下一代的 RPC 框架。</p>
+<table>
+<thead>
+<tr>
+<th>特性</th>
+<th>说明</th>
+<th>解决的问题</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>应用级服务发现</td>
+<td>从接口级改为应用级注册</td>
+<td>注册中心压力大(百万接口→万应用)</td>
+</tr>
+<tr>
+<td>Triple 协议</td>
+<td>基于 gRPC + HTTP/2</td>
+<td>跨语言、流式通信、与云原生兼容</td>
+</tr>
+<tr>
+<td>统一路由规则</td>
+<td>统一流控、路由、降级规则</td>
+<td>配置分散、规则冲突</td>
+</tr>
+<tr>
+<td>服务网格支持</td>
+<td>Sidecar 模式兼容</td>
+<td>无侵入式治理</td>
+</tr>
+<tr>
+<td>GraalVM 支持</td>
+<td>原生镜像编译</td>
+<td>启动慢、内存占用高</td>
+</tr>
+</tbody>
+</table>
+<pre><code>Dubbo 2.x vs 3.x 注册模型:
+
+Dubbo 2.x (接口级):
+  /dubbo
+    /com.example.UserService
+      /providers → [ip:port, ip:port, ...]
+      /consumers → [...]
+    /com.example.OrderService
+      /providers → [...]
+    /com.example.PaymentService
+      /providers → [...]
+
+  问题:100 个服务 × 1000 个实例 = 注册中心存 10 万条数据!
+
+Dubbo 3.x (应用级):
+  /services
+    /app-order → [ip:port, ip:port, ...]
+    /app-user  → [ip:port, ip:port, ...]
+
+  元数据(接口→应用映射)存在元数据中心,注册中心压力降 90%!
+</code></pre>
+<p><strong>Triple 协议优势</strong>:</p>
+<pre><code class="language-java">// 传统 Dubbo 协议:二进制,仅 Java
+public interface UserService {
+    User getUser(Long id);
+}
+
+// Triple 协议:支持流式通信
+public interface UserService {
+    // 一元 RPC
+    User getUser(Long id);
+
+    // 服务端流(返回 Stream)
+    Stream&lt;User&gt; listUsers(StreamRequest request);
+
+    // 双向流
+    Stream&lt;User&gt; chat(Stream&lt;Message&gt; messages);
+}
+</code></pre>
+<blockquote>
+<p><strong>扩展</strong>:Dubbo 3.x 的迁移路径:如果已有 Dubbo 2.x 项目,先升级到 3.x,双注册模式(同时注册到接口级和应用级),逐步迁移消费者。新项目直接用 3.x 应用级服务发现即可。Triple 协议对 Go/Python 等语言友好,是 Dubbo 走向云原生、跨语言的关键一步。</p>
+</blockquote>
+<h3 id="12-dubbo-30">12. Dubbo 3.0 的三重注册/发现机制？</h3>
+<p>Dubbo 3.0 引入 <strong>应用级服务发现</strong>，彻底解决兼容性：</p>
+<pre><code>Dubbo 2.x 服务发现:
+  接口级：/dubbo/com.example.UserService/providers/
+  → 注册中心存储量大，K8s 环境下全量订阅开销大
+
+Dubbo 3.0 服务发现:
+  应用级：/dubbo/apps/com.example.UserService/providers/
+  → 注册量减少 90%，K8s 友好
+</code></pre>
+<p><strong>三重注册机制</strong>：</p>
+<pre><code class="language-yaml"># dubbo.properties
+dubbo.registry.address=poj://localhost:2181
+# 三种注册方式（可同时配置）：
+
+# 1. Zookeeper 注册中心（传统方式）
+dubbo.registry.protocol=zookeeper
+
+# 2. Nacos 注册中心（国内主流）
+dubbo.registry.protocol=nacos
+dubbo.registry.address=nacos://localhost:8848
+
+# 3. Consul（云原生）
+dubbo.registry.protocol=consul
+dubbo.registry.address=consul://localhost:8500
+</code></pre>
+<p><strong>推荐配置</strong>（生产级）：</p>
+<pre><code class="language-yaml">dubbo:
+  application:
+    name: order-service
+  protocol:
+    name: dubbo
+    port: 20880
+  registry:
+    address: nacos://nacos:8848
+    group: prod
+    use-as-metadata-service: true  # 元数据只注册一份
+  provider:
+    timeout: 3000
+    retries: 0
+  consumer:
+    timeout: 3000
+    check: false  # 启动时不检查依赖
+</code></pre>
+<blockquote>
+<p><strong>扩展</strong>：Dubbo 3.0 的 Triple 协议兼容 gRPC，HTTP/2；服务治理（限流/熔断/权重）通过 <code>dubbo-mesh</code> 对接 Istio；QOS 端口（22222）提供运行时运维接口。</p>
+</blockquote>
+
+<script>
+// Scroll spy — highlight active sidebar item
+window.addEventListener('scroll', function() {
+    var links = document.querySelectorAll('.sidebar-toc a');
+    var scrollY = window.scrollY + 120;
+    var current = '';
+    for (var i = links.length - 1; i >= 0; i--) {
+        var target = document.getElementById(links[i].getAttribute('href').slice(1));
+        if (target && target.offsetTop <= scrollY) {
+            current = links[i];
+            break;
+        }
+    }
+    links.forEach(function(a) { a.style.fontWeight = 'normal'; a.style.color = '#555'; });
+    if (current) { current.style.fontWeight = 'bold'; current.style.color = '#0366d6'; }
+});
+</script>
+
+
+<script>
+document.querySelectorAll('pre > code').forEach(function(codeBlock, i) {
+    var pre = codeBlock.parentNode;
+    pre.style.position = 'relative';
+    var btn = document.createElement('button');
+    btn.className = 'copy-btn';
+    btn.textContent = '复制';
+    pre.appendChild(btn);
+    btn.addEventListener('click', function() {
+        var text = codeBlock.textContent;
+        navigator.clipboard.writeText(text).then(function() {
+            btn.textContent = '已复制';
+            btn.classList.add('copied');
+            setTimeout(function() {
+                btn.textContent = '复制';
+                btn.classList.remove('copied');
+            }, 2000);
+        }).catch(function() {
+            // Fallback
+            var ta = document.createElement('textarea');
+            ta.value = text; ta.style.position = 'fixed'; ta.style.opacity = '0';
+            document.body.appendChild(ta); ta.select();
+            document.execCommand('copy'); document.body.removeChild(ta);
+            btn.textContent = '已复制'; btn.classList.add('copied');
+            setTimeout(function() { btn.textContent = '复制'; btn.classList.remove('copied'); }, 2000);
+        });
+    });
+});
+</script>
+
+
+<script>document.querySelectorAll("pre>code").forEach(function(c){var p=c.parentNode;p.style.position="relative";var b=document.createElement("button");b.className="copy-btn";b.textContent="复制";p.appendChild(b);b.addEventListener("click",function(){var t=c.textContent;navigator.clipboard.writeText(t).then(function(){b.textContent="已复制";b.classList.add("copied");setTimeout(function(){b.textContent="复制";b.classList.remove("copied")},2000)}).catch(function(){var a=document.createElement("textarea");a.value=t;a.style.position="fixed";a.style.opacity="0";document.body.appendChild(a);a.select();document.execCommand("copy");document.body.removeChild(a);b.textContent="已复制";b.classList.add("copied");setTimeout(function(){b.textContent="复制";b.classList.remove("copied")},2000)})})})</script>
+</body>
+</html>

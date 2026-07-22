@@ -1,0 +1,1004 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>面试题 - SpringBoot</title>
+<style>
+body {
+    transition: margin-left .25s ease;
+    font-family: -apple-system, "Noto Sans SC", "Microsoft YaHei", sans-serif;
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 20px 24px 60px;
+    line-height: 1.8;
+    color: #333;
+    background: #fff;
+}
+h1 { border-bottom: 2px solid #eee; padding-bottom: 10px; color: #222; }
+h2 { color: #333; margin-top: 32px; }
+h3 { color: #555; }
+a { color: #0366d6; text-decoration: none; }
+a:hover { text-decoration: underline; }
+pre {
+    background: #f6f8fa;
+    border-radius: 6px;
+    padding: 16px;
+    overflow-x: auto;
+    font-size: 14px;
+    line-height: 1.45;
+}
+code {
+    background: #f0f2f4;
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-size: 14px;
+}
+pre code { background: none; padding: 0; }
+blockquote {
+    border-left: 4px solid #ddd;
+    margin: 0;
+    padding: 0 16px;
+    color: #666;
+}
+table {
+    border-collapse: collapse;
+    width: 100%;
+    margin: 16px 0;
+}
+th, td {
+    border: 1px solid #ddd;
+    padding: 8px 12px;
+    text-align: left;
+}
+th { background: #f6f8fa; }
+img { max-width: 100%; }
+.back-link {
+    margin-bottom: 20px;
+    display: block;
+    color: #666;
+}
+.back-link:hover { color: #0366d6; }
+
+.sidebar-toc {
+    transition: left .25s ease;
+    position: fixed;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    width: 220px;
+    background: #f8f9fa;
+    border-right: 1px solid #e9ecef;
+    padding: 20px 0;
+    overflow-y: auto;
+    font-size: 13px;
+    z-index: 100;
+}
+.sidebar-toc a {
+    display: block;
+    padding: 6px 16px;
+    color: #555;
+    text-decoration: none;
+    border-left: 3px solid transparent;
+    line-height: 1.5;
+}
+.sidebar-toc a:hover {
+    background: #e9ecef;
+    color: #0366d6;
+    border-left-color: #0366d6;
+}
+.sidebar-toc .toc-h3 { padding-left: 20px; font-size: 12px; }
+body { margin-left: 240px; }
+
+
+.copy-btn {
+    position: absolute; top: 6px; right: 6px;
+    background: #e9ecef; border: none;
+    border-radius: 4px; padding: 3px 10px;
+    font-size: 12px; color: #555; cursor: pointer;
+    opacity: 0; transition: opacity 0.2s;
+    z-index: 1;
+}
+pre:hover .copy-btn { opacity: 1; }
+.copy-btn:hover { background: #d0d7de; }
+.copy-btn.copied { opacity: 1; background: #2da44e; color: #fff; }
+.copy-btn{position:absolute;top:6px;right:6px;background:#e9ecef;border:none;border-radius:4px;padding:3px 10px;font-size:12px;color:#555;cursor:pointer;opacity:0;transition:opacity .2s;z-index:1}pre:hover .copy-btn{opacity:1}.copy-btn:hover{background:#d0d7de}.copy-btn.copied{opacity:1;background:#2da44e;color:#fff}
+.copy-btn{position:absolute;top:6px;right:6px;background:#e9ecef;border:none;border-radius:4px;padding:3px 10px;font-size:12px;color:#555;cursor:pointer;opacity:0;transition:opacity .2s;z-index:1}pre:hover .copy-btn{opacity:1}.copy-btn:hover{background:#d0d7de}.copy-btn.copied{opacity:1;background:#2da44e;color:#fff}
+.copy-btn{position:absolute;top:6px;right:6px;background:#e9ecef;border:none;border-radius:4px;padding:3px 10px;font-size:12px;color:#555;cursor:pointer;opacity:0;transition:opacity .2s;z-index:1}pre:hover .copy-btn{opacity:1}.copy-btn:hover{background:#d0d7de}.copy-btn.copied{opacity:1;background:#2da44e;color:#fff}
+.sidebar-toggle-btn {
+  position: fixed;
+  left: 220px;
+  top: 0;
+  width: 28px;
+  height: 40px;
+  background: #f8f9fa;
+  border: 1px solid #e9ecef;
+  border-left: none;
+  border-radius: 0 4px 4px 0;
+  cursor: pointer;
+  font-size: 16px;
+  color: #555;
+  z-index: 101;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: left .25s, background .2s;
+  padding: 0;
+  line-height: 1;
+}
+.sidebar-toggle-btn:hover { background: #e9ecef; color: #0366d6; }
+.sidebar-collapsed .sidebar-toc { left: -220px; }
+.sidebar-collapsed .sidebar-toggle-btn { left: 0; }
+.sidebar-collapsed body, body.sidebar-collapsed { margin-left: 28px; }
+.sidebar-overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,.3);
+  z-index: 99;
+}
+@media (max-width: 768px) {
+  .sidebar-collapsed .sidebar-overlay { display: none; }
+  .sidebar-toc { left: -220px; }
+  .sidebar-toggle-btn { left: 0; }
+  body { margin-left: 28px; }
+}
+
+</style>
+</head>
+</head>
+<body>
+<nav class="sidebar-toc"><a class="toc-h3" href="#1-spring-boot">1. Spring Boot 的自动配置原理?</a><a class="toc-h3" href="#2-componentservicerepositorycontroller">2. @Component、@Service、@Repository、@Controller 的区别?</a><a class="toc-h3" href="#3-spring">3. Spring 的依赖注入方式?</a><a class="toc-h3" href="#4-spring-aop">4. Spring AOP 的原理?</a><a class="toc-h3" href="#5-spring">5. Spring 事务的传播行为和隔离级别?</a><a class="toc-h3" href="#6-transactional">6. @Transactional 失效场景?</a><a class="toc-h3" href="#7-bean">7. Bean 的生命周期?</a><a class="toc-h3" href="#8-spring">8. Spring 的循环依赖如何解决?</a><a class="toc-h3" href="#9-configuration-component">9. @Configuration 和 @Component 的区别?</a><a class="toc-h3" href="#10-starter">10. Starter 是什么?如何自定义?</a><a class="toc-h3" href="#11-bean">11. Bean 的作用域有哪些?</a><a class="toc-h3" href="#12-conditional">12. @Conditional 系列注解的作用?</a><a class="toc-h3" href="#13-spring-boot">13. Spring Boot 如何实现多环境配置?</a><a class="toc-h3" href="#14-value-configurationproperties">14. @Value 和 @ConfigurationProperties 的区别?</a><a class="toc-h3" href="#15-spring-boot-tomcat">15. Spring Boot 内置 Tomcat 的调优?</a><a class="toc-h3" href="#16-spring-boot">16. Spring Boot 如何实现异步方法调用?</a><a class="toc-h3" href="#17-transactional-10">17. @Transactional 失效的 10 种场景?</a><a class="toc-h3" href="#18-spring-boot-3x-graalvm">18. Spring Boot 3.x 迁移要注意什么?GraalVM 原生镜像的原理?</a><a class="toc-h3" href="#19-spring-mvc">19. Spring MVC 的请求处理流程?</a><a class="toc-h3" href="#20-controller-restcontroller">20. @Controller 和 @RestController 的区别?</a><a class="toc-h3" href="#21-spring-boot">21. Spring Boot 如何做参数校验?</a><a class="toc-h3" href="#22-spring-security">22. Spring Security 的认证流程?</a><a class="toc-h3" href="#23-jwt-spring-boot">23. JWT 在 Spring Boot 中的实现流程?</a><a class="toc-h3" href="#24-spring-boot">24. Spring Boot 如何做缓存?</a><a class="toc-h3" href="#25-spring-boot">25. Spring Boot 如何实现定时任务?</a><a class="toc-h3" href="#26-spring-boot-actuator">26. Spring Boot Actuator 有哪些实用端点?</a><a class="toc-h3" href="#27-spring-boot">27. Spring Boot 的启动流程?</a><a class="toc-h3" href="#28-spring-boot">28. 如何定位 Spring Boot 应用的性能瓶颈?</a><a class="toc-h3" href="#29-spring-boot-27-30">29. Spring Boot 2.7 升 3.0 做了哪些重大变更？</a></nav>
+<button class="sidebar-toggle-btn" onclick="toggleSidebar()" title="切换侧栏">☰</button>
+
+<div class="sidebar-overlay" onclick="toggleSidebar()"></div>
+
+<script>
+function toggleSidebar() {
+  document.body.classList.toggle('sidebar-collapsed');
+  try { localStorage.setItem('sidebarCollapsed', document.body.classList.contains('sidebar-collapsed')); } catch(e) {}
+}
+(function() {
+  try {
+    if (localStorage.getItem('sidebarCollapsed') === 'true') {
+      document.body.classList.add('sidebar-collapsed');
+    }
+  } catch(e) {}
+})();
+</script>
+<a class="back-link" href="/blog/2026/05/16/面试题/面试题/">← 返回面试题目录</a>
+<h1 id=page-title>Spring Boot</h1>
+<h3 id="1-spring-boot">1. Spring Boot 的自动配置原理?</h3>
+<pre><code>自动配置工作流程:
+
+@SpringBootApplication
+  └─ @EnableAutoConfiguration
+       └─ @Import(AutoConfigurationImportSelector.class)
+            └─ 读取 spring.factories / .imports 文件
+                 └─ 找到所有 XxxAutoConfiguration 类
+                      └─ @Conditional 条件判断
+                           ├─ @ConditionalOnClass:依赖包存在吗?
+                           ├─ @ConditionalOnMissingBean:用户自己配了吗?
+                           └─ @ConditionalOnProperty:配置文件满足条件吗?
+                                └─ 条件都满足 → 自动创建 Bean
+</code></pre>
+<p>你引入一个 Starter(如 <code>mybatis-spring-boot-starter</code>),这个 Starter 带了一个 AutoConfiguration 类。Spring Boot 启动时扫到它,检查条件满足后自动创建所有需要的 Bean。</p>
+<blockquote>
+<p><strong>扩展</strong>:Spring Boot 3.0+ 用 <code>META-INF/spring/xxx.imports</code> 替代 <code>spring.factories</code>,排错设 <code>debug: true</code> 查看自动配置生效情况。</p>
+</blockquote>
+<h3 id="2-componentservicerepositorycontroller">2. <code>@Component</code>、<code>@Service</code>、<code>@Repository</code>、<code>@Controller</code> 的区别?</h3>
+<p>四个注解功能几乎一样--都是把类交给 Spring 管理(注册为 Bean)。区别在于<strong>语义分层</strong>:</p>
+<pre><code>@Controller  ← 控制层,处理 HTTP 请求(Spring MVC)
+  @Service   ← 业务层,写业务逻辑
+    @Repository  ← 数据层,操作数据库(额外提供异常翻译)
+      @Component  ← 通用组件,不属于以上三层的用这个
+</code></pre>
+<p><strong>@Repository 的独特能力</strong>:它多了一个"异常翻译"--把数据库特有的异常(如 MySQL 的 <code>SQLException</code>、Hibernate 的 <code>HibernateException</code>)翻译成 Spring 统一的 <code>DataAccessException</code>。</p>
+<blockquote>
+<p><strong>扩展</strong>:四者都间接标注 <code>@Component</code>,<code>@ComponentScan</code> 都能扫到。<code>@Indexed</code> 注解(Spring 5+)可在编译时生成候选 Bean 索引,加速启动扫描。</p>
+</blockquote>
+<h3 id="3-spring">3. Spring 的依赖注入方式?</h3>
+<pre><code>三种注入方式对比:
+
+1 构造器注入(⭐ 官方推荐)
+   private final UserService userService;
+   public UserController(UserService userService) {
+       this.userService = userService;
+   }
+   优点:依赖不可变(final)、不依赖容器(测试时直接 new)、编译期检查
+
+2 Setter 注入
+   @Autowired
+   public void setUserService(UserService userService) { ... }
+   优点:可选依赖、可动态改
+   缺点:依赖可变,可能 NPE
+
+3 字段注入
+   @Autowired
+   private UserService userService;  // 简洁但不推荐
+   缺点:不能 final、测试必须启动容器、隐藏了依赖
+</code></pre>
+<p><strong>为什么推荐构造器注入</strong>:
+- 测试时直接 <code>new UserController(mockUserService)</code>,不用启动 Spring
+- <code>final</code> 保证了不可变性,不会出现"先创建对象后补依赖"的状态不一致
+- 依赖一目了然--构造器参数太多说明类设计有问题(单一职责)</p>
+<blockquote>
+<p><strong>扩展</strong>:Lombok <code>@RequiredArgsConstructor</code> 可自动生成构造器;Spring 4.3+ 单构造器可省略 <code>@Autowired</code>;可选依赖用 <code>Optional</code> 参数。</p>
+</blockquote>
+<h3 id="4-spring-aop">4. Spring AOP 的原理?</h3>
+<pre><code>AOP 动态代理流程:
+
+客户端 → 代理对象(Proxy)
+            │
+            ├─ Before Advice(前置通知)
+            ├─ 调用真实方法 target.method()
+            ├─ AfterReturning / AfterThrowing
+            └─ After Advice(后置通知)
+
+客户端访问的不是真实对象,是代理对象
+代理在调用前后偷偷加上了切面逻辑
+</code></pre>
+<p>AOP 让你在不改源码的情况下给方法"加切面"。Spring 内部大量用 AOP:
+- <code>@Transactional</code>:代理在方法前开启事务,成功提交,异常回滚
+- <code>@Cacheable</code>:代理在方法前检查缓存,命中直接返回
+- <code>@Async</code>:代理把方法提交到线程池异步执行</p>
+<p><strong>两种代理</strong>:
+- <strong>JDK 动态代理</strong>:基于接口,目标类必须实现接口。<code>Proxy.newProxyInstance()</code>
+- <strong>CGLIB 代理</strong>:基于继承,生成目标类的子类。Spring Boot 2.x 后默认用 CGLIB</p>
+<blockquote>
+<p><strong>扩展</strong>:<code>this.method()</code> 不走代理(this 是真实对象)。AspectJ 编译期织入无需代理,但需额外编译插件。默认只拦截 <code>public</code> 方法。</p>
+</blockquote>
+<h3 id="5-spring">5. Spring 事务的传播行为和隔离级别?</h3>
+<pre><code>传播行为(常用 3 种):
+
+REQUIRED(默认):
+  方法B 调用 方法C
+  B 有事务 → C 加入 B 的事务(一起提交/回滚)
+  B 没有 → C 自己新建事务
+
+REQUIRES_NEW:
+  B 有事务 → C 另起一个新事务,B 的事务被挂起
+  C 提交/回滚 与 B 无关
+
+NESTED:
+  B 有事务 → C 创建嵌套事务(设置 savepoint)
+  C 回滚 → 只回滚到 savepoint,B 不受影响
+  B 回滚 → C 也回滚
+</code></pre>
+<table>
+<thead>
+<tr>
+<th>行为</th>
+<th>一句话</th>
+<th>类比</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>REQUIRED</td>
+<td>有就加入,没就新建</td>
+<td>"搭顺风车"</td>
+</tr>
+<tr>
+<td>REQUIRES_NEW</td>
+<td>总是另起炉灶</td>
+<td>"我开我的,你管你的"</td>
+</tr>
+<tr>
+<td>NESTED</td>
+<td>嵌套分支</td>
+<td>"在正本上标记一页,撕掉这页不影响正本"</td>
+</tr>
+</tbody>
+</table>
+<blockquote>
+<p><strong>扩展</strong>:NESTED 依赖 savepoint 实现。REQUIRES_NEW/NESTED 需连接池足够大(挂起事务占连接)。</p>
+</blockquote>
+<h3 id="6-transactional">6. <code>@Transactional</code> 失效场景?</h3>
+<pre><code>@Transactional 失效 6 大场景:
+
+1 同类方法调用(最常见!)
+   public void methodA() {
+       this.methodB();  // ← this 不是代理对象!
+   }
+   @Transactional
+   public void methodB() { ... }  // 事务不生效!
+
+2 非 public 方法
+   @Transactional
+   private void doSomething() { ... }  // 代理只能拦截 public
+
+3 异常被自己吞了
+   @Transactional
+   public void save() {
+       try { db.save(); }
+       catch (Exception e) { log.error(e); }  // 不回滚!
+   }
+
+4 抛出 checked 异常
+   @Transactional
+   public void save() throws IOException {  // 默认不回滚 IOException
+   }
+
+5 数据库引擎不支持事务
+   MyISAM 引擎 → 事务压根不支持
+
+6 多线程
+   新线程不在当前事务上下文中 → 事务不传播
+</code></pre>
+<p><strong>解决同类调用</strong>:注入自己(<code>@Autowired private XxxService self;</code>)后调用 <code>self.methodB()</code>,或将方法拆分到不同类。</p>
+<blockquote>
+<p><strong>扩展</strong>:事务默认只回滚 RuntimeException/Error。Checked 异常回滚用 <code>rollbackFor = Exception.class</code>。<code>@Transactional</code> 放接口上只有 JDK 代理生效(CGLIB 需在实现类)。</p>
+</blockquote>
+<h3 id="7-bean">7. Bean 的生命周期?</h3>
+<pre><code>Bean 生命周期全流程:
+
+1 实例化(构造器/new)      → 空壳对象,属性是 null
+2 属性注入(@Autowired)    → 填充依赖
+3 BeanNameAware / BeanFactoryAware → 拿到自己的 ID 和 BeanFactory
+4 BeanPostProcessor#postProcessBeforeInitialization
+5 @PostConstruct 方法       → 初始化回调(最常用)
+6 InitializingBean#afterPropertiesSet
+7 BeanPostProcessor#postProcessAfterInitialization → 可能返回代理对象
+8 Bean 就绪!放入单例池
+
+销毁流程:
+9 @PreDestroy 方法
+10 DisposableBean#destroy
+11 自定义 destroy-method
+</code></pre>
+<p><strong>关键扩展点(面试重点)</strong>:</p>
+<ul>
+<li><code>@PostConstruct</code>:最常用的初始化钩子(第5步)</li>
+<li><code>BeanPostProcessor</code>:Spring 最核心的后置处理器,AOP、事务、<code>@Autowired</code> 等所有"魔法"都靠它(第47步)</li>
+<li><code>Aware</code> 接口族:让 Bean 获取容器资源(第3步)</li>
+</ul>
+<blockquote>
+<p><strong>扩展</strong>:<code>BeanFactoryPostProcessor</code> 在实例化前执行(修改 BeanDefinition),<code>BeanPostProcessor</code> 在实例化后执行(修改 Bean 实例)。<code>@Configuration</code> 通过 <code>ConfigurationClassPostProcessor</code> 处理。</p>
+</blockquote>
+<h3 id="8-spring">8. Spring 的循环依赖如何解决?</h3>
+<pre><code>循环依赖场景:
+  A 依赖 B,B 依赖 A → 死循环!先创建谁?
+
+三级缓存(DefaultSingletonBeanRegistry):
+
+┌─────────────┬──────────────────────┬─────────────────┐
+│ singletonObjects  │ earlySingletonObjects │ singletonFactories │
+│   一级缓存        │     二级缓存          │    三级缓存       │
+│ 成品 Bean         │  半成品 Bean(引用)   │ 半成品的工厂函数   │
+│ (完全初始化好的)   │ (实例化了但属性未注入) │ (能创建代理)       │
+└─────────────┴──────────────────────┴─────────────────┘
+</code></pre>
+<p><strong>解决流程</strong>:</p>
+<pre><code>1 创建 A → 实例化(空壳)→ 把 A 的工厂放入三级缓存
+2 注入 A 的属性 → 发现需要 B → 去创建 B
+3 创建 B → 实例化 → 注入 B 的属性 → 发现需要 A
+4 从三级缓存取 A 的工厂 → 调用工厂拿到 A 的引用(可能是代理!)
+5 A 的引用放入二级缓存 → 注入给 B → B 完成
+6 回到 A,B 已就绪 → 注入 B → A 完成
+7 把 A 放入一级缓存,清除二三级
+</code></pre>
+<p><strong>为什么是三级不是二级</strong>:三级缓存存的不是对象本身,而是<strong>能生成代理对象的工厂</strong>。如果 A 需要 AOP 代理,B 拿到的 A 必须是代理过的引用。三级缓存的工厂函数在"谁需要 A 就给谁生成合适的引用"。</p>
+<p><strong>构造器注入的循环依赖</strong>:❌ 解决不了。因为构造器执行时对象还没实例化完,无法提前暴露引用。</p>
+<blockquote>
+<p><strong>扩展</strong>:Spring 只能解决单例循环依赖,prototype 直接抛异常。根本解法是重新设计避免循环,<code>@Lazy</code> 可缓解。</p>
+</blockquote>
+<h3 id="9-configuration-component">9. <code>@Configuration</code> 和 <code>@Component</code> 的区别?</h3>
+<pre><code>区别演示:
+
+@Configuration
+class AppConfig {
+    @Bean A a() { return new A(); }
+    @Bean B b() { return new B(a()); }  // ← a() 是代理调用,返回单例!
+}
+→ a() 和 b() 获取到的是同一个 A 实例 ✓
+
+@Component
+class AppConfig {
+    @Bean A a() { return new A(); }
+    @Bean B b() { return new B(a()); }  // ← a() 是普通方法调用
+}
+→ a() 和 b() 获取到的是两个不同的 A ✗(不符合预期)
+</code></pre>
+<p><strong>原理</strong>:<code>@Configuration</code> 类被 CGLIB 代理增强了--每次 <code>@Bean</code> 方法调用时,代理先检查容器里是否已经有这个 Bean,有就直接返回,没有才真正调方法创建。所以多次调用同一个 <code>@Bean</code> 方法返回的是<strong>同一个单例实例</strong>。</p>
+<p><code>@Component</code>(包括 <code>@Service</code>、<code>@Repository</code>)中的 <code>@Bean</code> 方法不走代理,是普通的 Java 方法调用。</p>
+<blockquote>
+<p><strong>扩展</strong>:Spring 5.2+ 支持 <code>@Configuration(proxyBeanMethods = false)</code> 关闭 CGLIB 代理提升启动速度,适合无方法间调用的纯配置类。</p>
+</blockquote>
+<h3 id="10-starter">10. Starter 是什么?如何自定义?</h3>
+<pre><code>Starter 结构:
+
+my-starter(空 jar,只做依赖管理)
+  ├─ my-starter-autoconfigure(自动配置模块)
+  │   ├─ XxxAutoConfiguration.java
+  │   ├─ XxxProperties.java        ← 配置属性绑定
+  │   └─ META-INF/spring/...AutoConfiguration.imports
+  └─ (其他依赖)
+
+引入 starter 后:
+  1 依赖自动引入(不需要再手动加相关 jar)
+  2 自动配置生效(条件满足就创建默认 Bean)
+  3 用户可以在 application.yml 中覆盖默认配置
+</code></pre>
+<p>Starter 是一组<strong>打包好的依赖 + 自动配置 + 默认参数</strong>。比如你引入 <code>mybatis-spring-boot-starter</code>,MyBatis 的所有依赖、SqlSessionFactory 的创建、Mapper 扫描都自动搞定。</p>
+<p><strong>自定义步骤</strong>:</p>
+<ol>
+<li>创建 Properties 类(<code>@ConfigurationProperties</code>)定义外部化配置项</li>
+<li>创建 AutoConfiguration 类(<code>@AutoConfiguration</code>),用 <code>@Conditional</code> 控制条件</li>
+<li>在 <code>META-INF/spring/xxx.AutoConfiguration.imports</code> 中注册配置类</li>
+<li>创建 Starter 模块引入 autoconfigure 模块</li>
+</ol>
+<blockquote>
+<p><strong>扩展</strong>:命名规范--官方 Starter 叫 <code>spring-boot-starter-xxx</code>,第三方叫 <code>xxx-spring-boot-starter</code>(如 <code>mybatis-spring-boot-starter</code>)。Spring Boot 3.0 后 <code>@AutoConfiguration</code> 替代了旧的 <code>@Configuration</code> + spring.factories 组合。<code>@EnableConfigurationProperties</code> 可以激活 Properties 类并绑定配置。</p>
+</blockquote>
+<h3 id="11-bean">11. Bean 的作用域有哪些?</h3>
+<table>
+<thead>
+<tr>
+<th>作用域</th>
+<th>生命周期</th>
+<th>用途</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>singleton</strong>(默认)</td>
+<td>整个 IoC 容器中只有一个实例</td>
+<td>无状态 Bean(Service、Controller)</td>
+</tr>
+<tr>
+<td><strong>prototype</strong></td>
+<td>每次 <code>getBean()</code> 返回新实例</td>
+<td>有状态 Bean(如每个请求独立的上下文)</td>
+</tr>
+<tr>
+<td><strong>request</strong></td>
+<td>每个 HTTP 请求一个实例</td>
+<td>Web 应用中请求级别的数据</td>
+</tr>
+<tr>
+<td><strong>session</strong></td>
+<td>每个 HTTP 会话一个实例</td>
+<td>用户登录信息</td>
+</tr>
+<tr>
+<td><strong>application</strong></td>
+<td>ServletContext 级别</td>
+<td>全局 Web 上下文</td>
+</tr>
+</tbody>
+</table>
+<pre><code>特别注意 prototype:
+@Service
+@Scope(&quot;prototype&quot;)
+class PrototypeBean { ... }
+
+单例 Bean 注入了 Prototype 的 Bean → Prototype 只创建一次!
+因为单例 Bean 只在初始化时注入一次依赖
+解决:用 @Lookup 方法注入或注入 ObjectFactory
+</code></pre>
+<blockquote>
+<p><strong>扩展</strong>:<code>@RefreshScope</code> 可在不重启应用的情况下刷新配置。WebSocket 场景还有 <code>websocket</code> 作用域。</p>
+</blockquote>
+<h3 id="12-conditional">12. <code>@Conditional</code> 系列注解的作用?</h3>
+<pre><code>常用 @Conditional 注解:
+
+@ConditionalOnClass(xxx.class)        ← 类路径有这个类吗?
+@ConditionalOnMissingClass            ← 类路径没有这个类吗?
+@ConditionalOnBean(xxx.class)         ← 容器里有这个 Bean 吗?
+@ConditionalOnMissingBean             ← 容器里没有吗?
+@ConditionalOnProperty(&quot;my.config&quot;)   ← 配置文件里有这个配置吗?
+@ConditionalOnExpression(&quot;...&quot;)       ← SpEL 表达式满足吗?
+@ConditionalOnWebApplication          ← 是 Web 应用吗?
+@ConditionalOnJava(...)               ← Java 版本对吗?
+</code></pre>
+<p><strong>原理</strong>:每个 <code>@Conditional</code> 注解对应一个 <code>Condition</code> 接口的实现类,<code>matches()</code> 返回 true 才创建 Bean。Spring Boot 的自动配置就是靠这些注解实现"按需配置"的--有 Redis 就配 Redis,有 MyBatis 就配 MyBat...</p>
+<p><strong>实战例子</strong>:你引入了 <code>spring-boot-starter-data-redis</code> → classpath 有 <code>RedisTemplate.class</code> → <code>RedisAutoConfiguration</code> 上的 `@ConditionalOnClass(RedisTemplate.cl...</p>
+<blockquote>
+<p><strong>扩展</strong>:自定义 Condition 实现 <code>matches(ConditionContext, AnnotatedTypeMetadata)</code>。排错设 <code>logging.level.org.springframework.boot.autoconfigure=DEBUG</code>。</p>
+</blockquote>
+<h3 id="13-spring-boot">13. Spring Boot 如何实现多环境配置?</h3>
+<pre><code>多环境配置文件:
+
+application.yml              ← 公共配置(所有环境共享)
+application-dev.yml          ← 开发环境
+application-test.yml         ← 测试环境
+application-prod.yml         ← 生产环境
+
+激活方式(优先级从高到低):
+1 命令行:--spring.profiles.active=prod
+2 JVM 参数:-Dspring.profiles.active=prod
+3 环境变量:SPRING_PROFILES_ACTIVE=prod
+4 application.yml:spring.profiles.active: prod
+</code></pre>
+<p><strong>配置合并</strong>:公共配置 + 环境专属配置合并生效,环境专属配置覆盖公共配置的同名项。</p>
+<p><strong><code>@Profile</code> 注解</strong>:让 Bean 只在指定环境创建--<code>@Profile("dev")</code> 只在 dev 环境下生效。</p>
+<blockquote>
+<p><strong>扩展</strong>:2.4+ 支持 YAML 多文档(<code>---</code> 分隔)。优先级:命令行 &gt; JNDI &gt; 环境变量 &gt; application-{profile}.yml &gt; application.yml &gt; @PropertySource。</p>
+</blockquote>
+<h3 id="14-value-configurationproperties">14. <code>@Value</code> 和 <code>@ConfigurationProperties</code> 的区别?</h3>
+<pre><code>对比:
+
+@Value(&quot;${app.url}&quot;)
+private String url;              ← 一个个绑,多了很烦
+
+@Value(&quot;#{2 * 3}&quot;)
+private int num;                 ← 支持 SpEL 表达式(@ConfProps 不支持)
+
+@ConfigurationProperties(prefix = &quot;app&quot;)
+class AppProperties {            ← 批量绑定,类型安全,支持校验
+    private String url;          ← 属性名自动匹配 app.url
+    private int timeout;         ← 松散绑定:app.timeout / app.time-out 都可以
+    @NotNull private String name;← JSR-303 校验
+}
+</code></pre>
+<table>
+<thead>
+<tr>
+<th>对比</th>
+<th>@Value</th>
+<th>@ConfigurationProperties</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>批量绑定</td>
+<td>一个个写</td>
+<td>一次绑一组</td>
+</tr>
+<tr>
+<td>松散绑定</td>
+<td>不支持</td>
+<td>支持(kebab/camel/snake)</td>
+</tr>
+<tr>
+<td>校验</td>
+<td>不支持</td>
+<td>支持 JSR-303</td>
+</tr>
+<tr>
+<td>SpEL</td>
+<td>支持</td>
+<td>不支持</td>
+</tr>
+<tr>
+<td>适用</td>
+<td>少量配置项</td>
+<td>一组相关配置</td>
+</tr>
+</tbody>
+</table>
+<blockquote>
+<p><strong>扩展</strong>:需配合 <code>@EnableConfigurationProperties</code> 或 <code>@ConfigurationPropertiesScan</code>(Spring Boot 3.x 推荐)。<code>spring-boot-configuration-processor</code> 可在 yml 中获得属性提示。</p>
+</blockquote>
+<h3 id="15-spring-boot-tomcat">15. Spring Boot 内置 Tomcat 的调优?</h3>
+<pre><code>Tomcat 线程模型(BIO → NIO):
+
+请求 → Acceptor 线程(接收连接)
+  → NIO Poller 线程(检测哪些连接有数据)
+  → Worker 线程(执行业务逻辑)
+
+调优核心:Worker 线程池
+</code></pre>
+<table>
+<thead>
+<tr>
+<th>参数</th>
+<th>默认值</th>
+<th>建议</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>server.tomcat.max-threads</code></td>
+<td>200</td>
+<td>最大工作线程数</td>
+</tr>
+<tr>
+<td><code>server.tomcat.min-spare-threads</code></td>
+<td>10</td>
+<td>空闲时保留的最小线程</td>
+</tr>
+<tr>
+<td><code>server.tomcat.max-connections</code></td>
+<td>8192</td>
+<td>最大连接数(BIO 默认不同)</td>
+</tr>
+<tr>
+<td><code>server.tomcat.accept-count</code></td>
+<td>100</td>
+<td>等待队列(满了拒绝连接)</td>
+</tr>
+<tr>
+<td><code>server.tomcat.connection-timeout</code></td>
+<td>60s</td>
+<td>连接超时</td>
+</tr>
+</tbody>
+</table>
+<p><strong>核心参数的含义</strong>:
+1. 请求进来 → 工作线程有空闲 → 直接处理
+2. 工作线程全忙(已达 max-threads)→ 请求排队(accept-count)
+3. 队列也满了 → 拒绝新连接
+4. 连接空闲超过 connection-timeout → 关闭连接</p>
+<p><strong>调优口诀</strong>:IO 密集型设 <code>CPU 核数 * 2</code> 或更高,CPU 密集型接近 CPU 核数。持续观察 <code>server.tomcat.threads.busy</code> 指标,长期接近 max 就扩。</p>
+<blockquote>
+<p><strong>扩展</strong>:3.x 默认 Tomcat 10(Jakarta EE 9),可换 Undertow/Jetty。Undertow 高并发下吞吐量更优。<code>max-keep-alive-requests</code> 防止连接霸占。</p>
+</blockquote>
+<hr />
+<h3 id="16-spring-boot">16. Spring Boot 如何实现异步方法调用?</h3>
+<p>@EnableAsync + @Async 注解。默认 SimpleAsyncTaskExecutor,建议自定义 ThreadPoolTaskExecutor 设置 corePoolSize、maxPoolSize、queueCapacity。</p>
+<hr />
+<h3 id="17-transactional-10">17. <code>@Transactional</code> 失效的 10 种场景?</h3>
+<p><code>@Transactional</code> 失效的本质原因只有一句话:<strong>事务是通过 AOP 代理实现的,如果调用没经过代理对象,事务就不生效</strong>。就像门禁系统--只有从大门走才检查权限,翻窗进去的不检查。</p>
+<p><strong>10 种失效场景(按出现频率排序)</strong>:</p>
+<pre><code>1 非 public 方法
+   原因:Spring AOP 默认只代理 public 方法
+   @Transactional
+   private void save() { ... }  ← 事务不生效!
+
+2 同类方法自调用(最常见!)
+   @Transactional
+   public void save() { this.doInsert(); }  ← 走 this,绕过了代理
+
+   @Transactional  ← 这行不生效!
+   public void doInsert() { ... }
+
+   原因:this 是原始对象,不是代理对象。就像自己叫自己干活,不会重新过门禁
+   解决:注入自己(@Autowired self)、或拆到另一个 Service
+
+3 异常被 try-catch 吞掉了
+   @Transactional
+   public void save() {
+       try {
+           db.insert();  // 抛异常
+       } catch (Exception e) {
+           log.error(&quot;出错了&quot;, e);  // 吞掉异常,Spring 感知不到!
+       }
+   }
+   原因:Spring 只在抛出未捕获异常时才回滚,捕获了就不回滚
+   解决:catch 里手动 throw,或 TransactionAspectSupport.currentTransactionStatus().setRollbackOnly()
+
+4 rollbackFor 没配对(检查型异常不回滚)
+   @Transactional  ← 默认只回滚 RuntimeException 和 Error
+   public void save() throws IOException { ... }
+   → IOException 是 checked 异常,不回滚!
+   解决:@Transactional(rollbackFor = Exception.class)
+
+5 数据库引擎不支持事务
+   MyISAM 不支持事务,InnoDB 才支持。表引擎不对,事务白配
+
+6 多数据源 / 多线程
+   事务绑定在当前线程的 Connection 上,多数据源各管各的事务
+   new Thread(() -&gt; save()).start();  ← 新线程,不在原事务中
+
+7 @Transactional 用在非 Spring Bean 的方法上
+   只有 Spring 管理的 Bean 才会被 AOP 代理
+   new UserService().save();  ← 手动 new 的,没有代理
+
+8 传播机制配错
+   @Transactional(propagation = Propagation.NEVER)  ← 要求没有事务
+   @Transactional(propagation = Propagation.NOT_SUPPORTED)  ← 挂起当前事务
+
+9 final 类 / final 方法
+   CGLIB 代理通过继承生成子类,final 类/方法无法被继承 → 无法代理
+   Spring Boot 默认用 CGLIB,所以加了 final 事务就没了
+
+10 事务方法被嵌套调用,内层传播级别为 REQUIRES_NEW 但外层的异常在内层之后
+   内层事务已提交,外层回滚时内层已经提交了 → 数据不一致
+</code></pre>
+<p><strong>快速排查口诀</strong>:先看数据库引擎对不对,再看是不是 public,再看有没有 try-catch 吃异常,最后看是不是同类自调用。这四种覆盖了 90% 的问题。</p>
+<blockquote>
+<p><strong>扩展</strong>:事务基于 AOP + ThreadLocal--Connection 绑定到当前线程,<code>timeout</code> 默认 -1(永不超时),长事务可能导致连接池耗尽。</p>
+</blockquote>
+<hr />
+<h3 id="18-spring-boot-3x-graalvm">18. Spring Boot 3.x 迁移要注意什么?GraalVM 原生镜像的原理?</h3>
+<p><strong>Spring Boot 2.x → 3.x 迁移核心变化</strong>:</p>
+<pre><code>1 Jakarta EE 替代 Java EE
+   所有 javax.* → jakarta.*
+   影响:Servlet、JPA、Validation、Mail 等全部改包名
+   背景:Oracle 保留 javax 商标,Java EE 移交 Eclipse 基金会
+
+2 JDK 17 基线
+   不再支持 Java 8/11
+   JDK 17 新特性:Record、Sealed Class、Pattern Matching、Text Block
+
+3 自动配置 SPI 变化
+   2.x:META-INF/spring.factories(扫所有 jar,性能差)
+   3.x:META-INF/spring/org.springframework.boot.autoconfigure.AutoConfiguration.imports
+
+4 虚拟线程支持(3.2+)
+   spring.threads.virtual.enabled=true
+   Tomcat/Jetty 请求处理自动切换为虚拟线程
+
+5 AOT 编译支持
+   构建时预编译,减少启动时的 JIT 编译负担
+   即使在 JVM 模式下也能获得 30%-50% 启动加速
+
+6 可观测性改进
+   内置 Micrometer Tracing(替代 Sleuth)
+   健康检查 / 指标 / 追踪 统一到 spring-boot-actuator
+</code></pre>
+<p><strong>GraalVM 原生镜像(Native Image)</strong>:</p>
+<pre><code>Native Image 是什么?
+  把 Java 字节码 AOT 编译成操作系统原生可执行文件(不依赖 JVM)
+
+效果对比:
+  启动速度:3 秒 → 50 毫秒(60 倍加速)
+  内存占用:500MB → 50MB(90% 降低)
+  部署体积:jar 50MB → 可执行文件 80MB(一个文件直接跑)
+  峰值吞吐:降低 10%-20%(因为缺少 JIT C2 编译器的运行时优化)
+
+原理(关键前提--封闭世界假设):
+  AOT 编译器在构建时分析所有可达的代码路径
+  运行时不会再加载新类 → 反射、动态代理、资源加载必须&quot;事先声明&quot;
+  通过 RuntimeHints API 告诉 GraalVM 哪些类被反射
+</code></pre>
+<p><strong>适用场景判断</strong>:</p>
+<table>
+<thead>
+<tr>
+<th>场景</th>
+<th>适合 Native Image?</th>
+<th>原因</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Serverless / FaaS</strong></td>
+<td>✅ 完美</td>
+<td>冷启动从秒级→毫秒级</td>
+</tr>
+<tr>
+<td><strong>K8s 弹性伸缩</strong></td>
+<td>✅ 很好</td>
+<td>新 Pod 秒级就绪</td>
+</tr>
+<tr>
+<td><strong>CLI 工具</strong></td>
+<td>✅ 很好</td>
+<td>用户感受不到启动延迟</td>
+</tr>
+<tr>
+<td><strong>传统 Web 应用</strong></td>
+<td>⚠️ 看情况</td>
+<td>反射多的应用适配成本高</td>
+</tr>
+<tr>
+<td><strong>开发环境</strong></td>
+<td>❌ 不适合</td>
+<td>改了代码重新编译要 10 分钟</td>
+</tr>
+<tr>
+<td><strong>大量动态代理的应用</strong></td>
+<td>❌ 困难</td>
+<td>动态代理难以静态分析</td>
+</tr>
+</tbody>
+</table>
+<pre><code class="language-bash"># Maven 构建原生镜像
+mvn -Pnative spring-boot:build-image
+
+# 或直接用 GraalVM 编译
+mvn -Pnative native:compile -DskipTests
+</code></pre>
+<p><strong>常见坑</strong>:
+- 反射的类必须声明(<code>@RegisterReflectionForBinding</code>)
+- CGLIB 动态代理不支持 Native,改用 JDK 动态代理
+- 资源文件要显式配置(<code>resources-config.json</code>)
+- 构建时间很长(大项目 3-10 分钟),需 CI/CD 配合</p>
+<blockquote>
+<p><strong>扩展</strong>:面试策略:诚实说"现有项目因反射依赖暂未迁移,新项目 Serverless 已用 Native Image",展示工程判断力。</p>
+</blockquote>
+<h3 id="19-spring-mvc">19. Spring MVC 的请求处理流程?</h3>
+<pre><code>HTTP 请求 → Filter 链 → DispatcherServlet
+  → HandlerMapping 找到 Controller
+  → HandlerAdapter 执行 Controller(经过 Interceptor)
+  → ViewResolver 解析视图
+  → 渲染响应 → Filter 链 → 返回
+</code></pre>
+<table>
+<thead>
+<tr>
+<th>组件</th>
+<th>作用</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>DispatcherServlet</td>
+<td>前端控制器,统一调度</td>
+</tr>
+<tr>
+<td>HandlerMapping</td>
+<td>根据 URL 找到对应的 Handler</td>
+</tr>
+<tr>
+<td>HandlerAdapter</td>
+<td>执行 Handler,适配不同类型 Controller</td>
+</tr>
+<tr>
+<td>ViewResolver</td>
+<td>根据视图名找到模板文件</td>
+</tr>
+</tbody>
+</table>
+<h3 id="20-controller-restcontroller">20. @Controller 和 @RestController 的区别?</h3>
+<ul>
+<li><code>@Controller</code>:返回视图名(String),配合 <code>@ResponseBody</code> 返回数据</li>
+<li><code>@RestController</code> = <code>@Controller</code> + <code>@ResponseBody</code>,默认返回 JSON</li>
+</ul>
+<h3 id="21-spring-boot">21. Spring Boot 如何做参数校验?</h3>
+<pre><code>1 DTO 加校验注解:@NotBlank @Size @Email @Min @Max
+2 Controller 加 @Valid:校验通过才执行业务逻辑
+3 @RestControllerAdvice 全局处理 MethodArgumentNotValidException
+   → 提取 field errors → 返回统一格式错误提示
+</code></pre>
+<h3 id="22-spring-security">22. Spring Security 的认证流程?</h3>
+<pre><code>请求 → SecurityFilterChain
+  → UsernamePasswordAuthenticationFilter(提取用户名密码)
+  → AuthenticationManager → AuthenticationProvider
+    → UserDetailsService.loadUserByUsername()(查数据库)
+    → PasswordEncoder.matches()(验证密码)
+  → SecurityContextHolder 保存认证信息
+</code></pre>
+<p>核心组件:<code>UserDetailsService</code>(加载用户数据)、<code>PasswordEncoder</code>(密码加密+验证)、<code>SecurityContextHolder</code>(持有当前用户认证信息)。</p>
+<h3 id="23-jwt-spring-boot">23. JWT 在 Spring Boot 中的实现流程?</h3>
+<pre><code>登录 → 验证用户名密码 → JwtService.generateToken(user)
+  → 返回 access_token(30min)+ refresh_token(7天)
+后续请求 → Authorization: Bearer &lt;token&gt;
+  → JwtAuthenticationFilter 拦截 → 验证签名+过期
+  → 提取用户信息 → SecurityContextHolder
+access_token 过期 → 用 refresh_token 换新
+</code></pre>
+<h3 id="24-spring-boot">24. Spring Boot 如何做缓存?</h3>
+<pre><code class="language-java">@EnableCaching  // 启用缓存
+@Cacheable(&quot;users&quot;)    // 先查缓存,没有才执行方法
+@CachePut(&quot;users&quot;)     // 更新缓存
+@CacheEvict(&quot;users&quot;)   // 删除缓存
+</code></pre>
+<p>缓存实现切换:<code>spring.cache.type=redis</code> 或不设置用 Caffeine/Simple。</p>
+<h3 id="25-spring-boot">25. Spring Boot 如何实现定时任务?</h3>
+<pre><code class="language-java">@EnableScheduling
+@Scheduled(cron = &quot;0 0 2 * * *&quot;)     // 每天凌晨2点
+@Scheduled(fixedRate = 5000)          // 每5秒
+@Scheduled(fixedDelay = 3000)         // 上次结束后3秒
+</code></pre>
+<p>Cron:<code>秒 分 时 日 月 周</code>。分布式场景配合 @SchedulerLock(ShedLock)保证只执行一次。</p>
+<h3 id="26-spring-boot-actuator">26. Spring Boot Actuator 有哪些实用端点?</h3>
+<table>
+<thead>
+<tr>
+<th>端点</th>
+<th>用途</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>/actuator/health</code></td>
+<td>K8s liveness/readiness probe</td>
+</tr>
+<tr>
+<td><code>/actuator/metrics</code></td>
+<td>接入 Prometheus + Grafana</td>
+</tr>
+<tr>
+<td><code>/actuator/beans</code></td>
+<td>查看所有注册的 Bean</td>
+</tr>
+<tr>
+<td><code>/actuator/env</code></td>
+<td>环境变量和配置</td>
+</tr>
+<tr>
+<td><code>/actuator/loggers</code></td>
+<td>动态修改日志级别</td>
+</tr>
+</tbody>
+</table>
+<h3 id="27-spring-boot">27. Spring Boot 的启动流程?</h3>
+<pre><code>main() → SpringApplication.run()
+  → createApplicationContext() → 创建容器
+  → prepareEnvironment() → 加载配置
+  → refreshContext() → 刷新容器(核心)
+      ↓ 准备上下文 → BeanFactoryPostProcessor → 注册Bean后置处理器
+      ↓ initMessageSource → onRefresh(创建内嵌Tomcat)
+      ↓ finishBeanFactoryInitialization(实例化所有单例Bean)
+  → callRunners() → 执行 ApplicationRunner / CommandLineRunner
+</code></pre>
+<h3 id="28-spring-boot">28. 如何定位 Spring Boot 应用的性能瓶颈?</h3>
+<pre><code>排查层级(从上到下逐步缩小范围):
+  1 Actuator + Micrometer → 接 Prometheus,找&quot;哪个接口慢&quot;
+  2 慢查询日志 + EXPLAIN → 找&quot;哪条 SQL 慢&quot;
+  3 @Timed + Arthas trace → 找&quot;哪个方法慢&quot;
+  4 jstat -gcutil + jstack → 找&quot;是不是 GC 或锁的问题&quot;
+  5 链路追踪 + Redis SLOWLOG → 找&quot;是不是下游或缓存慢&quot;
+</code></pre>
+<h3 id="29-spring-boot-27-30">29. Spring Boot 2.7 升 3.0 做了哪些重大变更？</h3>
+<p>Spring Boot 3.0 基于 Spring Framework 6.0，最低要求 <strong>JDK 17</strong>，核心变更：</p>
+<pre><code>1. Jakarta EE 9+（命名空间从 javax.* 迁移到 jakarta.*）
+   - 包名全改：javax.servlet → jakarta.servlet
+   - 影响：第三方库必须兼容 jakarta
+
+2. GraalVM 原生镜像支持
+   - Spring Native 可将 Spring Boot 打包成原生可执行文件
+   - 启动时间从秒级 → 毫秒级
+   - 内存减少 60-80%
+
+3. Spring Framework 6.0 变更
+   - @RequiresSpring → 无替代，直接用 @Component
+   - BeanFactory 替代大部分 ApplicationContextAware
+   - PathPatternParser 替代 AntPathMatcher（性能 6 倍提升）
+</code></pre>
+<p><strong>迁移步骤</strong>：</p>
+<pre><code class="language-xml">&lt;!-- 1. JDK 17+ --&gt;
+&lt;!-- 2. 升级 Spring Boot 2.7 → 3.0 --&gt;
+&lt;parent&gt;
+    &lt;groupId&gt;org.springframework.boot&lt;/groupId&gt;
+    &lt;artifactId&gt;spring-boot-starter-parent&lt;/artifactId&gt;
+    &lt;version&gt;3.2.0&lt;/version&gt;
+&lt;/parent&gt;
+&lt;!-- 3. 依赖升级 --&gt;
+&lt;dependency&gt;
+    &lt;groupId&gt;jakarta.persistence&lt;/groupId&gt;
+    &lt;artifactId&gt;jakarta.persistence-api&lt;/artifactId&gt;
+&lt;/dependency&gt;
+</code></pre>
+<blockquote>
+<p><strong>扩展</strong>：3.0 大版本升级跨度大，建议分步走（2.7 → 3.0 小版本逐步升级）；Jakarta EE 迁移用 <code>jakarta_namespace_migration_plugin</code>。</p>
+</blockquote>
+<hr />
+
+<script>
+// Scroll spy — highlight active sidebar item
+window.addEventListener('scroll', function() {
+    var links = document.querySelectorAll('.sidebar-toc a');
+    var scrollY = window.scrollY + 120;
+    var current = '';
+    for (var i = links.length - 1; i >= 0; i--) {
+        var target = document.getElementById(links[i].getAttribute('href').slice(1));
+        if (target && target.offsetTop <= scrollY) {
+            current = links[i];
+            break;
+        }
+    }
+    links.forEach(function(a) { a.style.fontWeight = 'normal'; a.style.color = '#555'; });
+    if (current) { current.style.fontWeight = 'bold'; current.style.color = '#0366d6'; }
+});
+</script>
+
+
+<script>
+document.querySelectorAll('pre > code').forEach(function(codeBlock, i) {
+    var pre = codeBlock.parentNode;
+    pre.style.position = 'relative';
+    var btn = document.createElement('button');
+    btn.className = 'copy-btn';
+    btn.textContent = '复制';
+    pre.appendChild(btn);
+    btn.addEventListener('click', function() {
+        var text = codeBlock.textContent;
+        navigator.clipboard.writeText(text).then(function() {
+            btn.textContent = '已复制';
+            btn.classList.add('copied');
+            setTimeout(function() {
+                btn.textContent = '复制';
+                btn.classList.remove('copied');
+            }, 2000);
+        }).catch(function() {
+            // Fallback
+            var ta = document.createElement('textarea');
+            ta.value = text; ta.style.position = 'fixed'; ta.style.opacity = '0';
+            document.body.appendChild(ta); ta.select();
+            document.execCommand('copy'); document.body.removeChild(ta);
+            btn.textContent = '已复制'; btn.classList.add('copied');
+            setTimeout(function() { btn.textContent = '复制'; btn.classList.remove('copied'); }, 2000);
+        });
+    });
+});
+</script>
+
+
+<script>document.querySelectorAll("pre>code").forEach(function(c){var p=c.parentNode;p.style.position="relative";var b=document.createElement("button");b.className="copy-btn";b.textContent="复制";p.appendChild(b);b.addEventListener("click",function(){var t=c.textContent;navigator.clipboard.writeText(t).then(function(){b.textContent="已复制";b.classList.add("copied");setTimeout(function(){b.textContent="复制";b.classList.remove("copied")},2000)}).catch(function(){var a=document.createElement("textarea");a.value=t;a.style.position="fixed";a.style.opacity="0";document.body.appendChild(a);a.select();document.execCommand("copy");document.body.removeChild(a);b.textContent="已复制";b.classList.add("copied");setTimeout(function(){b.textContent="复制";b.classList.remove("copied")},2000)})})})</script>
+</body>
+</html>

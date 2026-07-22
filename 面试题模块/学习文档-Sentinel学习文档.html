@@ -1,0 +1,1410 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sentinel学习文档</title>
+<style>
+body {
+    transition: margin-left .25s ease;
+    font-family: -apple-system, "Noto Sans SC", "Microsoft YaHei", sans-serif;
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 20px 24px 60px;
+    line-height: 1.8;
+    color: #333;
+    background: #fff;
+}
+h1 { border-bottom: 2px solid #eee; padding-bottom: 10px; color: #222; }
+h2 { color: #333; margin-top: 32px; }
+h3 { color: #555; }
+a { color: #0366d6; text-decoration: none; }
+a:hover { text-decoration: underline; }
+pre {
+    background: #f6f8fa;
+    border-radius: 6px;
+    padding: 16px;
+    overflow-x: auto;
+    font-size: 14px;
+    line-height: 1.45;
+}
+code {
+    background: #f0f2f4;
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-size: 14px;
+}
+pre code { background: none; padding: 0; }
+blockquote {
+    border-left: 4px solid #ddd;
+    margin: 0;
+    padding: 0 16px;
+    color: #666;
+}
+table {
+    border-collapse: collapse;
+    width: 100%;
+    margin: 16px 0;
+}
+th, td {
+    border: 1px solid #ddd;
+    padding: 8px 12px;
+    text-align: left;
+}
+th { background: #f6f8fa; }
+img { max-width: 100%; }
+.back-link {
+    margin-bottom: 20px;
+    display: block;
+    color: #666;
+}
+.back-link:hover { color: #0366d6; }
+
+.sidebar-toc {
+    transition: left .25s ease;
+    position: fixed;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    width: 220px;
+    background: #f8f9fa;
+    border-right: 1px solid #e9ecef;
+    padding: 20px 0;
+    overflow-y: auto;
+    font-size: 13px;
+    z-index: 100;
+}
+.sidebar-toc a {
+    display: block;
+    padding: 6px 16px;
+    color: #555;
+    text-decoration: none;
+    border-left: 3px solid transparent;
+    line-height: 1.5;
+}
+.sidebar-toc a:hover {
+    background: #e9ecef;
+    color: #0366d6;
+    border-left-color: #0366d6;
+}
+.sidebar-toc .toc-h2 { padding-left: 16px; font-weight: 500; }
+.sidebar-toc .toc-h3 { padding-left: 32px; font-size: 12px; }
+body { margin-left: 240px; }
+
+
+.copy-btn {
+    position: absolute; top: 6px; right: 6px;
+    background: #e9ecef; border: none;
+    border-radius: 4px; padding: 3px 10px;
+    font-size: 12px; color: #555; cursor: pointer;
+    opacity: 0; transition: opacity 0.2s;
+    z-index: 1;
+}
+pre:hover .copy-btn { opacity: 1; }
+.copy-btn:hover { background: #d0d7de; }
+.copy-btn.copied { opacity: 1; background: #2da44e; color: #fff; }
+.copy-btn{position:absolute;top:6px;right:6px;background:#e9ecef;border:none;border-radius:4px;padding:3px 10px;font-size:12px;color:#555;cursor:pointer;opacity:0;transition:opacity .2s;z-index:1}pre:hover .copy-btn{opacity:1}.copy-btn:hover{background:#d0d7de}.copy-btn.copied{opacity:1;background:#2da44e;color:#fff}
+.copy-btn{position:absolute;top:6px;right:6px;background:#e9ecef;border:none;border-radius:4px;padding:3px 10px;font-size:12px;color:#555;cursor:pointer;opacity:0;transition:opacity .2s;z-index:1}pre:hover .copy-btn{opacity:1}.copy-btn:hover{background:#d0d7de}.copy-btn.copied{opacity:1;background:#2da44e;color:#fff}
+.copy-btn{position:absolute;top:6px;right:6px;background:#e9ecef;border:none;border-radius:4px;padding:3px 10px;font-size:12px;color:#555;cursor:pointer;opacity:0;transition:opacity .2s;z-index:1}pre:hover .copy-btn{opacity:1}.copy-btn:hover{background:#d0d7de}.copy-btn.copied{opacity:1;background:#2da44e;color:#fff}
+.sidebar-toggle-btn {
+  position: fixed;
+  left: 220px;
+  top: 0;
+  width: 28px;
+  height: 40px;
+  background: #f8f9fa;
+  border: 1px solid #e9ecef;
+  border-left: none;
+  border-radius: 0 4px 4px 0;
+  cursor: pointer;
+  font-size: 16px;
+  color: #555;
+  z-index: 101;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: left .25s, background .2s;
+  padding: 0;
+  line-height: 1;
+}
+.sidebar-toggle-btn:hover { background: #e9ecef; color: #0366d6; }
+.sidebar-collapsed .sidebar-toc { left: -220px; }
+.sidebar-collapsed .sidebar-toggle-btn { left: 0; }
+.sidebar-collapsed body, body.sidebar-collapsed { margin-left: 28px; }
+.sidebar-overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,.3);
+  z-index: 99;
+}
+@media (max-width: 768px) {
+  .sidebar-collapsed .sidebar-overlay { display: none; }
+  .sidebar-toc { left: -220px; }
+  .sidebar-toggle-btn { left: 0; }
+  body { margin-left: 28px; }
+}
+
+</style>
+</head>
+</head>
+<body>
+<nav class="sidebar-toc"><a class="toc-h2" href="#1-sentinel">1. Sentinel 是干什么的？</a><a class="toc-h3" href="#11">1.1 白话理解</a><a class="toc-h3" href="#12-sentinel">1.2 解决什么痛点</a><a class="toc-h3" href="#13">1.3 核心特性速览</a><a class="toc-h2" href="#2">2. 核心概念与架构</a><a class="toc-h3" href="#21">2.1 核心概念</a><a class="toc-h3" href="#22-sentinel">2.2 架构全景图</a><a class="toc-h3" href="#23-slot-chain">2.3 Slot Chain 执行流程</a><a class="toc-h3" href="#24">2.4 滑动窗口统计</a><a class="toc-h2" href="#3-flow-rules">3. 流量控制（Flow Rules）</a><a class="toc-h3" href="#31">3.1 流量控制流程</a><a class="toc-h3" href="#32">3.2 限流维度</a><a class="toc-h3" href="#33">3.3 限流策略</a><a class="toc-h3" href="#34">3.4 流控效果</a><a class="toc-h3" href="#35">3.5 限流规则详解</a><a class="toc-h3" href="#36-sentinel">3.6 代码使用方式</a><a class="toc-h2" href="#4-degrade-rules">4. 熔断降级（Degrade Rules）</a><a class="toc-h3" href="#41">4.1 什么是熔断</a><a class="toc-h3" href="#42">4.2 三种熔断策略</a><a class="toc-h3" href="#43">4.3 熔断状态机</a><a class="toc-h3" href="#44">4.4 熔断规则配置</a><a class="toc-h3" href="#45">4.5 熔断参数详解</a><a class="toc-h2" href="#5">5. 热点参数限流</a><a class="toc-h3" href="#51">5.1 概念与示例</a><a class="toc-h3" href="#52">5.2 应用场景</a><a class="toc-h2" href="#6">6. 系统保护</a><a class="toc-h3" href="#61">6.1 系统保护规则</a><a class="toc-h3" href="#62">6.2 规则配置</a><a class="toc-h3" href="#63-bbr">6.3 自适应限流（BBR）</a><a class="toc-h2" href="#7-sentinel-dashboard">7. Sentinel Dashboard</a><a class="toc-h3" href="#71-dashboard">7.1 Dashboard 功能</a><a class="toc-h3" href="#72-dashboard">7.2 Dashboard 部署</a><a class="toc-h3" href="#73">7.3 实时监控面板</a><a class="toc-h2" href="#8">8. 规则持久化</a><a class="toc-h3" href="#81">8.1 为什么持久化</a><a class="toc-h3" href="#82-nacos">8.2 Nacos 数据源集成</a><a class="toc-h3" href="#83-nacos-json">8.3 Nacos 规则 JSON 格式</a><a class="toc-h3" href="#84">8.4 集群流控</a><a class="toc-h2" href="#9-spring-cloud-gateway">9. 网关集成</a><a class="toc-h3" href="#91-gateway-sentinel">9.1 Gateway 集成 Sentinel</a><a class="toc-h3" href="#92-gateway">9.2 Gateway 限流配置</a><a class="toc-h2" href="#10-sentinel-vs-hystrix-vs-resilience4j">10. 对比：Sentinel vs Hystrix vs Resilience4j</a><a class="toc-h3" href="#101">10.1 核心对比</a><a class="toc-h3" href="#102-sentinel">10.2 Sentinel 核心优势</a><a class="toc-h2" href="#11_1">11. 实战案例</a><a class="toc-h3" href="#111">11.1 秒杀场景限流</a><a class="toc-h3" href="#112-api">11.2 外部 API 调用熔断</a><a class="toc-h2" href="#12">12. 高频面试题</a><a class="toc-h3" href="#q1sentinel">Q1：核心原理</a><a class="toc-h3" href="#q2sentinel">Q2：滑动窗口统计</a><a class="toc-h3" href="#q3sentinel">Q3：支持哪些限流方式</a><a class="toc-h3" href="#q4sentinel">Q4：熔断有哪些策略</a><a class="toc-h3" href="#q5sentinel">Q5：动态规则推送</a><a class="toc-h3" href="#q6sentinel-hystrix">Q6：与 Hystrix 的区别</a><a class="toc-h3" href="#q7">Q7：秒杀系统限流方案</a><a class="toc-h3" href="#q8sentinelresource-blockhandler-fallback">Q8：blockHandler vs fallback</a><a class="toc-h3" href="#q9-sentinel">Q9：如何排查限流问题</a><a class="toc-h3" href="#q10sentinel">Q10：如何实现高可用</a></nav>
+<button class="sidebar-toggle-btn" onclick="toggleSidebar()" title="切换侧栏">☰</button>
+
+<div class="sidebar-overlay" onclick="toggleSidebar()"></div>
+
+<script>
+function toggleSidebar() {
+  document.body.classList.toggle('sidebar-collapsed');
+  try { localStorage.setItem('sidebarCollapsed', document.body.classList.contains('sidebar-collapsed')); } catch(e) {}
+}
+(function() {
+  try {
+    if (localStorage.getItem('sidebarCollapsed') === 'true') {
+      document.body.classList.add('sidebar-collapsed');
+    }
+  } catch(e) {}
+})();
+</script>
+<a class="back-link" href="/blog/2026/05/16/面试题/面试题/">← 返回面试题目录</a>
+<h1 id=page-title>Sentinel 面试学习文档</h1>
+<blockquote>
+<p>Sentinel 是微服务的"商场安保系统"——限流 = 门口闸机，熔断 = 消防喷淋，降级 = 备用电源。</p>
+</blockquote>
+<hr />
+
+<h2 id="1-sentinel">1. Sentinel 是干什么的？</h2>
+<h3 id="11">1.1 白话理解</h3>
+<p><strong>类比</strong>：你开了一家网红奶茶店。平时一天卖 200 杯，突然某个大V拍了探店视频，第二天门口排了 5000 人。这时候你需要：</p>
+<ul>
+<li><strong>限流员</strong>站在门口："一次最多进 50 个人排队，后面的等等" —— QPS 限流</li>
+<li><strong>制冰机坏了</strong>马上停止卖冰饮，不让顾客干等 —— 熔断降级</li>
+<li><strong>排队堵死走廊</strong>时关闭部分点单窗口 —— 系统保护</li>
+</ul>
+<p>Sentinel 就是阿里巴巴为微服务打造的这套"商场安保系统"，专门在流量洪峰、服务雪崩等极端情况下保护系统稳定性。</p>
+<ul>
+<li><strong>GitHub</strong>：https://github.com/alibaba/Sentinel</li>
+<li><strong>起源</strong>：2012 年阿里内部诞生，每年双十一扛几十亿次调用，2018 年开源</li>
+</ul>
+<h3 id="12-sentinel">1.2 解决什么痛点</h3>
+<pre><code>微服务架构四大稳定性问题：
+
+1. 流量激增（秒杀/突发流量）
+   → 下游被压垮 → Sentinel：QPS 限流
+   类比：地铁站节假日限流，分批放行
+
+2. 服务雪崩（级联故障）
+   → A → B 变慢 → A 线程池耗尽 → 链式崩溃
+   → Sentinel：熔断降级
+   类比：多米诺骨牌中间抽掉一张，别让它一路塌下去
+
+3. 系统过载（CPU/内存打满）
+   → Sentinel：系统自适应保护
+   类比：电脑太烫自动降频，别烧主板
+
+4. 慢调用拖垮服务
+   → 某个外部接口变慢 → 连接池/线程池耗尽
+   → Sentinel：慢调用比例熔断
+   类比：一个慢的取件口堵了所有人，直接关掉这个口
+</code></pre>
+<h3 id="13">1.3 核心特性速览</h3>
+<table>
+<thead>
+<tr>
+<th>特性</th>
+<th>说明</th>
+<th>大白话</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>流量控制</strong></td>
+<td>QPS / 并发线程数 / 关联限流</td>
+<td>控制"多少人同时进来"</td>
+</tr>
+<tr>
+<td><strong>熔断降级</strong></td>
+<td>慢调用比例 / 异常比例 / 异常数</td>
+<td>某个出口坏了就关了，不浪费时间</td>
+</tr>
+<tr>
+<td><strong>热点限流</strong></td>
+<td>参数级别的细粒度限流</td>
+<td>针对特定商品/用户单独限流</td>
+</tr>
+<tr>
+<td><strong>系统保护</strong></td>
+<td>CPU / 内存 / Load 自适应</td>
+<td>整台机器快扛不住了，全局减速</td>
+</tr>
+<tr>
+<td><strong>网关限流</strong></td>
+<td>Spring Cloud Gateway / Zuul 集成</td>
+<td>在"大门"就拦住</td>
+</tr>
+<tr>
+<td><strong>可视化</strong></td>
+<td>Dashboard 实时监控 + 动态规则</td>
+<td>看得见的大屏监控</td>
+</tr>
+<tr>
+<td><strong>动态规则</strong></td>
+<td>Nacos / Apollo / ZooKeeper / Redis</td>
+<td>改规则不用重启</td>
+</tr>
+<tr>
+<td><strong>开箱即用</strong></td>
+<td>注解 / 代码 / 配置多种接入</td>
+<td>接进来就能用</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="2">2. 核心概念与架构</h2>
+<h3 id="21">2.1 核心概念</h3>
+<table>
+<thead>
+<tr>
+<th>概念</th>
+<th>大白话解释</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Resource</strong></td>
+<td>你要保护的"东西"——API 接口、方法</td>
+</tr>
+<tr>
+<td><strong>Rule</strong></td>
+<td>保护规则——"这个接口每秒最多 100 个请求"</td>
+</tr>
+<tr>
+<td><strong>Slot Chain</strong></td>
+<td>安检通道——请求进来要过的检查关卡</td>
+</tr>
+<tr>
+<td><strong>Context</strong></td>
+<td>请求的"身份证"——记录从哪来、到哪去</td>
+</tr>
+<tr>
+<td><strong>Entry</strong></td>
+<td>入口——"这个请求进入受保护区域"</td>
+</tr>
+<tr>
+<td><strong>Node</strong></td>
+<td>统计本——记录当前 QPS、响应时间、异常数</td>
+</tr>
+<tr>
+<td><strong>StatisticSlot</strong></td>
+<td>统计员——实时采集数据</td>
+</tr>
+</tbody>
+</table>
+<h3 id="22-sentinel">2.2 架构全景图</h3>
+<pre><code>                    Sentinel 架构全景
+
+   请求入口
+      │
+      ▼
+┌─────────────────────────────────────────────────────────────┐
+│                   Slot Chain（处理器链）                       │
+│                                                             │
+│  ① NodeSelectorSlot   —— 构建调用树，区分资源身份               │
+│        │                                                    │
+│  ② ClusterBuilderSlot —— 创建集群统计节点                     │
+│        │                                                    │
+│  ③ LogSlot            —— 记录日志                            │
+│        │                                                    │
+│  ④ StatisticSlot  ★   —— 滑动窗口实时统计（pass/block/rt）     │
+│        │                                                    │
+│  ⑤ FlowSlot       ★   —— 限流检查（QPS/线程数/热点）           │
+│        │                                                    │
+│        ├── 被限流？→ 抛出 FlowException → 降级处理              │
+│        │                                                    │
+│  ⑥ DegradeSlot    ★   —— 熔断检查（慢调用/异常比例/异常数）     │
+│        │                                                    │
+│        ├── 已熔断？→ 抛出 DegradeException → 降级处理           │
+│        │                                                    │
+│  ⑦ SystemSlot         —— 系统保护（CPU/Load/RT/QPS）          │
+│        │                                                    │
+│  ⑧ AuthoritySlot      —— 黑白名单授权                         │
+│        │                                                    │
+└────────┼────────────────────────────────────────────────────┘
+         │
+         ▼
+    业务逻辑执行
+         │
+         ▼
+    StatisticSlot 记录 RT/异常 → 返回结果
+
+
+┌─────────────────────────────────────────────────────────────┐
+│                  Sentinel Dashboard（控制台）                  │
+│                                                             │
+│   实时监控(QPS/RT/异常)  |  规则管理(流控/熔断/热点/系统)         │
+│   集群流控               |  机器发现                          │
+└─────────────────────────────────────────────────────────────┘
+</code></pre>
+<h3 id="23-slot-chain">2.3 Slot Chain 执行流程</h3>
+<pre><code>          Slot Chain 执行时序（责任链模式）
+
+  请求进入
+     │
+     ▼
+┌──────────────┐
+│NodeSelectorSlot│  ← 解析资源名，创建/获取 DefaultNode
+└──────┬───────┘
+       ▼
+┌──────────────┐
+│ClusterBuilder │  ← 创建/获取 ClusterNode（集群统计节点）
+│    Slot       │
+└──────┬───────┘
+       ▼
+┌──────────────┐
+│   LogSlot    │  ← 记录请求日志（可选的审计日志）
+└──────┬───────┘
+       ▼
+┌──────────────┐
+│ StatisticSlot│  ★ 先调用后续 Slot，再记录统计
+│  (统计核心)   │     pass / block / exception / rt / success
+└──────┬───────┘
+       ▼
+┌──────────────┐
+│  FlowSlot    │  ★ 根据 FlowRule 判断是否限流
+│  (限流检查)   │     QPS / 并发线程数 / 热点参数
+└───┬────┬─────┘
+    │    │
+    │    └── 命中最严格的规则 → FlowException → 降级/快速失败
+    │
+    ▼
+┌──────────────┐
+│ DegradeSlot  │  ★ 根据 DegradeRule 判断熔断状态
+│  (熔断检查)   │     Closed → Open → Half-Open
+└───┬────┬─────┘
+    │    │
+    │    └── 已熔断 → DegradeException → 降级处理
+    │
+    ▼
+┌──────────────┐
+│ SystemSlot   │  检查系统级指标：CPU / Load / RT / QPS / 线程数
+│  (系统保护)   │
+└───┬────┬─────┘
+    │    │
+    │    └── 系统过载 → SystemBlockException
+    │
+    ▼
+┌──────────────┐
+│AuthoritySlot │  黑白名单检查（按 origin 来源）
+│  (授权检查)   │
+└──────┬───────┘
+       ▼
+┌──────────────┐
+│   业务逻辑    │  执行实际的业务代码
+└──────┬───────┘
+       ▼
+   StatisticSlot 记录 RT / 异常
+       │
+       ▼
+     返回结果
+
+设计模式：责任链模式（Chain of Responsibility）
+  每个 Slot 可独立扩展，通过 SPI 机制加载
+  ★ 标记的为最核心的三个 Slot
+</code></pre>
+<h3 id="24">2.4 滑动窗口统计</h3>
+<p>Sentinel 使用滑动窗口算法实时统计指标，解决固定窗口的"临界突变"问题——即流量恰好卡在窗口边界时的统计跳跃。</p>
+<pre><code>窗口配置：每秒 2 个采样窗口（500ms 一个）
+
+单个窗口记录：
+  pass      通过请求数
+  block     被限流/熔断请求数
+  exception 异常请求数
+  rt        响应时间
+  success   成功请求数
+
+滑动窗口示例（1 秒）：
+  [窗口1: 0-500ms]   [窗口2: 500-1000ms]
+  pass:      50       pass:      52       → QPS = 102
+  block:      3       block:      1       → 总限流 = 4
+  exception:  0       exception:  1       → 异常率 = 1/102
+
+多级统计：秒级（默认 1秒2窗口）→ 分钟级（60窗口）→ 小时级
+</code></pre>
+<hr />
+<h2 id="3-flow-rules">3. 流量控制（Flow Rules）</h2>
+<h3 id="31">3.1 流量控制流程</h3>
+<pre><code>          Sentinel 流量控制决策流程
+
+     请求到达 Resource
+           │
+           ▼
+   ┌─────────────────┐
+   │  是否有 FlowRule?  │──── 否 ──→ 放行，执行业务逻辑
+   └────────┬────────┘
+            │ 是
+            ▼
+   ┌─────────────────┐
+   │ 判断限流维度       │
+   │ QPS / 并发线程数   │
+   └────────┬────────┘
+            │
+            ▼
+   ┌──────────────────────────┐
+   │ 获取当前统计值             │
+   │ QPS 模式: 滑动窗口 pass 数 │
+   │ 线程模式: 当前并发线程数    │
+   └────────┬─────────────────┘
+            │
+            ▼
+   ┌─────────────────┐
+   │ count 是否超阈值？ │
+   └────┬───────┬────┘
+        │       │
+      未超     已超
+        │       │
+        ▼       ▼
+   ┌──────────────────────────┐
+   │  放行请求    │  判断流控效果  │
+   │              └──────┬───────┘
+   │                     │
+   │    ┌────────┬───────┼───────┬──────────┐
+   │    │        │       │       │          │
+   │    ▼        ▼       ▼       ▼          ▼
+   │  快速失败  Warm Up  匀速排队  (其他效果)
+   │  直接拒绝  预热放行  排队等待
+   │    │        │       │
+   │    ▼        ▼       ▼
+   │ 抛出异常  逐渐提升  超时则抛异常
+   │          QPS阈值  未超时则放行
+   │
+   ▼
+  执行业务逻辑
+</code></pre>
+<h3 id="32">3.2 限流维度</h3>
+<table>
+<thead>
+<tr>
+<th>维度</th>
+<th>含义</th>
+<th>参数</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>QPS</strong></td>
+<td>每秒请求数限制——"每秒进多少人"</td>
+<td><code>FLOW_GRADE_QPS</code></td>
+</tr>
+<tr>
+<td><strong>并发线程数</strong></td>
+<td>同时处理中的线程数——"同时有多少人在处理"</td>
+<td><code>FLOW_GRADE_THREAD</code></td>
+</tr>
+</tbody>
+</table>
+<h3 id="33">3.3 限流策略</h3>
+<table>
+<thead>
+<tr>
+<th>策略</th>
+<th>关系</th>
+<th>大白话</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>直接（DIRECT）</strong></td>
+<td>自身</td>
+<td>限制自己的接口 QPS</td>
+</tr>
+<tr>
+<td><strong>关联（RELATE）</strong></td>
+<td>关联资源</td>
+<td>"隔壁队伍太长了，我这队也限流"</td>
+</tr>
+<tr>
+<td><strong>链路（CHAIN）</strong></td>
+<td>入口链路</td>
+<td>限制从特定入口进来的流量</td>
+</tr>
+</tbody>
+</table>
+<h3 id="34">3.4 流控效果</h3>
+<table>
+<thead>
+<tr>
+<th>效果</th>
+<th>大白话</th>
+<th>适用场景</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>快速失败（Default）</strong></td>
+<td>超了就拒，毫不犹豫</td>
+<td>通用场景</td>
+</tr>
+<tr>
+<td><strong>Warm Up（冷启动）</strong></td>
+<td>慢慢放开，别一开门就冲</td>
+<td>秒杀/预热场景</td>
+</tr>
+<tr>
+<td><strong>匀速排队（Rate Limiter）</strong></td>
+<td>超了排队，不拒绝</td>
+<td>削峰填谷</td>
+</tr>
+</tbody>
+</table>
+<h3 id="35">3.5 限流规则详解</h3>
+<pre><code class="language-java">// ========== 1. QPS 直接限流 ==========
+FlowRule rule = new FlowRule("user-service")
+    .setCount(100)                              // 阈值：100 QPS
+    .setGrade(RuleConstant.FLOW_GRADE_QPS)
+    .setControlBehavior(RuleConstant.CONTROL_BEHAVIOR_DEFAULT)  // 快速失败
+    .setStrategy(RuleConstant.STRATEGY_DIRECT)  // 直接限流
+    .setLimitApp("default");                    // 限制来源（default=所有）
+
+// ========== 2. 关联限流 ==========
+// 当 order-service 的 QPS > 10 时，限流 user-service
+FlowRule relatedRule = new FlowRule("user-service")
+    .setGrade(RuleConstant.FLOW_GRADE_QPS)
+    .setCount(10)
+    .setStrategy(RuleConstant.STRATEGY_RELATE)   // 关联限流
+    .setRefResource("order-service");           // 关联资源
+
+// ========== 3. 冷启动（Warm Up） ==========
+// 预热 10 秒，从阈值 10% 逐渐提升到 100 QPS
+FlowRule warmUpRule = new FlowRule("seckill-service")
+    .setGrade(RuleConstant.FLOW_GRADE_QPS)
+    .setCount(100)
+    .setControlBehavior(RuleConstant.CONTROL_BEHAVIOR_WARM_UP)
+    .setWarmUpPeriodSec(10);  // 预热时间
+
+// ========== 4. 匀速排队（削峰填谷） ==========
+// 每 200ms 通过一个请求（QPS=5），超时 500ms
+FlowRule rateLimitRule = new FlowRule("api-service")
+    .setGrade(RuleConstant.FLOW_GRADE_QPS)
+    .setCount(5)
+    .setControlBehavior(RuleConstant.CONTROL_BEHAVIOR_RATE_LIMITER)
+    .setMaxQueueingTimeMs(500);  // 最大排队等待时间
+
+// ========== 5. 线程数限流 ==========
+// 最大并发 50 个线程
+FlowRule threadRule = new FlowRule("db-service")
+    .setGrade(RuleConstant.FLOW_GRADE_THREAD)
+    .setCount(50);
+</code></pre>
+<h3 id="36-sentinel">3.6 代码使用方式</h3>
+<pre><code class="language-java">// 方式1：SphU.entry()（手动埋点）
+public String getUser(String userId) {
+    Entry entry = null;
+    try {
+        entry = SphU.entry("getUser", EntryType.IN);
+        // 业务逻辑
+        return userService.getById(userId);
+    } catch (BlockException e) {
+        // 被限流/熔断
+        return "系统繁忙，请稍后重试";
+    } finally {
+        if (entry != null) {
+            entry.exit();
+        }
+    }
+}
+
+// 方式2：@SentinelResource 注解（推荐）
+@SentinelResource(
+    value = "getUser",
+    blockHandler = "getUserBlockHandler",   // 限流/熔断处理
+    fallback = "getUserFallback"             // 异常降级处理
+)
+public String getUser(String userId) {
+    return userService.getById(userId);
+}
+
+// 限流处理方法（必须与原方法同参数 + BlockException）
+public String getUserBlockHandler(String userId, BlockException ex) {
+    return "请求过于频繁，请稍后重试";
+}
+
+// 异常降级处理方法（必须与原方法同参数 + Throwable）
+public String getUserFallback(String userId, Throwable ex) {
+    log.error("获取用户失败", ex);
+    return "服务暂不可用";
+}
+</code></pre>
+<hr />
+<h2 id="4-degrade-rules">4. 熔断降级（Degrade Rules）</h2>
+<h3 id="41">4.1 什么是熔断</h3>
+<p><strong>类比</strong>：自助餐厅的牛排区前面排了 30 个人都不动——你是继续等，还是换一个菜？熔断就是让你别等了，先去吃别的。Sentinel 会"暂停"这个窗口一段时间，再试探——好了就恢复，没好继续暂停。</p>
+<h3 id="42">4.2 三种熔断策略</h3>
+<table>
+<thead>
+<tr>
+<th>策略</th>
+<th>触发条件</th>
+<th>大白话</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>慢调用比例</strong></td>
+<td>慢调用占比太高</td>
+<td>"10个人里超过一半都等太久了，关窗口"</td>
+</tr>
+<tr>
+<td><strong>异常比例</strong></td>
+<td>报错占比太高</td>
+<td>"10个人里一半都出错了，肯定有问题"</td>
+</tr>
+<tr>
+<td><strong>异常数</strong></td>
+<td>报错绝对数太高</td>
+<td>"已经连续 10 个人出错了"</td>
+</tr>
+</tbody>
+</table>
+<h3 id="43">4.3 熔断状态机</h3>
+<pre><code>           Sentinel 熔断状态机（三态流转）
+
+                ┌──────────────┐
+                │    CLOSED    │  正常状态：所有请求放行
+                │  (正常通过)   │  持续统计：慢调用比例 / 异常比例 / 异常数
+                └──────┬───────┘
+                       │
+          统计窗口内指标超过阈值？
+          (如 慢调用比例 > 50%)
+                       │
+                       ▼
+                ┌──────────────┐
+                │     OPEN     │  熔断状态：所有请求直接拒绝
+                │  (快速失败)   │  持续 timeWindow 秒（如 10s）
+                └──────┬───────┘
+                       │
+             timeWindow 时间到
+                       │
+                       ▼
+                ┌──────────────┐
+                │  HALF-OPEN   │  半开状态：放行一个探测请求
+                │ (试探性放行)  │
+                └──────┬───────┘
+                       │
+            探测请求结果？
+         ╱                             ╲
+    成功                              失败
+   ╱                                     ╲
+  ▼                                       ▼
+┌──────────┐                      ┌──────────┐
+│  CLOSED  │                      │   OPEN   │
+│ 恢复正常  │                      │ 重新熔断  │
+└──────────┘                      └──────────┘
+
+关键参数：
+  minRequestAmount  —— 统计窗口最少请求数，避免冷启动误判
+  statIntervalMs    —— 统计窗口时长（ms），默认 10000
+  timeWindow        —— 熔断持续秒数，到期进入 Half-Open
+</code></pre>
+<h3 id="44">4.4 熔断规则配置</h3>
+<pre><code class="language-java">// ========== 1. 慢调用比例熔断 ==========
+// 响应时间 > 500ms 的请求 > 50% 且 窗口内请求数 > 5 → 熔断 10 秒
+DegradeRule slowRule = new DegradeRule("payment-service")
+    .setGrade(CircuitBreakerStrategy.SLOW_REQUEST_RATIO.getType())
+    .setCount(0.5)                    // 慢调用阈值（0.5 秒 = 500ms）
+    .setSlowRatioThreshold(0.5)       // 慢调用比例阈值（50%）
+    .setMinRequestAmount(5)           // 最小请求数（统计窗口内）
+    .setStatIntervalMs(10000)        // 统计时间窗口（10 秒）
+    .setTimeWindow(10);               // 熔断持续时间（10 秒）
+
+// ========== 2. 异常比例熔断 ==========
+// 异常比例 > 50% 且 窗口内请求数 > 5 → 熔断 10 秒
+DegradeRule errorRatioRule = new DegradeRule("order-service")
+    .setGrade(CircuitBreakerStrategy.ERROR_RATIO.getType())
+    .setCount(0.5)                    // 异常比例阈值（50%）
+    .setMinRequestAmount(5)
+    .setStatIntervalMs(10000)
+    .setTimeWindow(10);
+
+// ========== 3. 异常数熔断 ==========
+// 10 秒内异常数 > 10 → 熔断 60 秒
+DegradeRule errorCountRule = new DegradeRule("third-party-api")
+    .setGrade(CircuitBreakerStrategy.ERROR_COUNT.getType())
+    .setCount(10)                     // 异常数阈值
+    .setMinRequestAmount(5)
+    .setStatIntervalMs(10000)
+    .setTimeWindow(60);
+
+// 加载规则
+List&lt;DegradeRule&gt; rules = Arrays.asList(slowRule, errorRatioRule, errorCountRule);
+DegradeRuleManager.loadRules(rules);
+</code></pre>
+<h3 id="45">4.5 熔断参数详解</h3>
+<pre><code>慢调用比例熔断：
+  count: 响应时间阈值（秒）→ RT > count 即为慢调用
+  slowRatioThreshold: 慢调用比例（0-1）→ 慢调用数/总请求数 > 此值触发
+  minRequestAmount: 最小请求数 → 窗口内不足此值不触发（防冷启动误判）
+  statIntervalMs: 统计窗口（ms）
+  timeWindow: 熔断持续秒数 → 到期后进入 Half-Open
+
+异常比例熔断：
+  count: 异常比例阈值（0-1）→ 异常数/总请求数 > count 触发
+
+异常数熔断：
+  count: 异常数阈值 → 窗口内异常数 > count 触发
+</code></pre>
+<hr />
+<h2 id="5">5. 热点参数限流</h2>
+<h3 id="51">5.1 概念与示例</h3>
+<p>商城秒杀，普通商品每秒允许 1000 个请求，但"9.9 元的爆款手机"每秒只允许 10 个——因为大家都冲着这个来，不加限制直接被打穿。这就是<strong>热点参数限流</strong>：针对特定的"热门参数值"单独限流。</p>
+<pre><code class="language-java">// ========== 热点参数限流 ==========
+ParamFlowRule rule = new ParamFlowRule("queryOrder")
+    .setCount(100)                      // 默认 QPS 阈值
+    .setParamIdx(0)                      // 第 0 个参数
+    .setGrade(RuleConstant.FLOW_GRADE_QPS);
+
+// 特定参数值单独限流
+ParamFlowItem hotItem = new ParamFlowItem()
+    .setObject("specialUserId")          // 特定参数值
+    .setClassType(String.class)
+    .setCount(5);                        // 该参数值的 QPS 阈值（更严格）
+
+rule.setParamFlowItemList(Arrays.asList(hotItem));
+
+ParamFlowRuleManager.loadRules(Arrays.asList(rule));
+
+// 使用
+@SentinelResource(value = "queryOrder")
+public Order queryOrder(@RequestParam String userId) {
+    // specialUserId 的请求 QPS 限制为 5
+    // 其他 userId 的请求 QPS 限制为 100
+    return orderService.getByUserId(userId);
+}
+</code></pre>
+<h3 id="52">5.2 应用场景</h3>
+<pre><code>适用场景：
+  ✅ 秒杀活动（同一用户限制 QPS）
+  ✅ 热点商品查询（同一商品 ID 限制 QPS）
+  ✅ API Key 限流（同一 Key 限制调用次数）
+  ✅ IP 限流（同一 IP 限制请求频率）
+
+参数类型支持：int / long / double / String / List / Map / Set
+高级用法：多参数联合限流、集合元素级别限流、集群热点限流（Token Server）
+</code></pre>
+<hr />
+<h2 id="6">6. 系统保护</h2>
+<h3 id="61">6.1 系统保护规则</h3>
+<p>前面都是保护"单个资源"的，系统保护是保护"整台机器"——相当于操作系统的自动降频保护：不管什么程序，机器扛不住了就统统减速。</p>
+<table>
+<thead>
+<tr>
+<th>保护维度</th>
+<th>大白话</th>
+<th>触发条件</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Load</strong></td>
+<td>Linux 系统负载</td>
+<td>load1 > 阈值</td>
+</tr>
+<tr>
+<td><strong>CPU</strong></td>
+<td>CPU 太烫了</td>
+<td>CPU > 阈值（如 80%）</td>
+</tr>
+<tr>
+<td><strong>RT</strong></td>
+<td>整体响应太慢</td>
+<td>RT > 阈值（秒）</td>
+</tr>
+<tr>
+<td><strong>线程数</strong></td>
+<td>并发的太多了</td>
+<td>线程数 > 阈值</td>
+</tr>
+<tr>
+<td><strong>入口 QPS</strong></td>
+<td>全局 QPS 太高</td>
+<td>QPS > 阈值</td>
+</tr>
+</tbody>
+</table>
+<h3 id="62">6.2 规则配置</h3>
+<pre><code class="language-java">// 系统保护规则（全局生效，保护整个系统）
+SystemRule loadRule = new SystemRule()
+    .setHighestSystemLoad(10.0)       // 系统负载 > 10 时触发
+    .setAvgRt(1000)                  // 平均 RT > 1 秒时触发
+    .setMaxThread(500)               // 最大线程数 > 500 时触发
+    .setQps(10000)                   // 全局 QPS > 10000 时触发
+    .setHighestCpuUsage(0.8);        // CPU 使用率 > 80% 时触发
+
+SystemRuleManager.loadRules(Arrays.asList(loadRule));
+</code></pre>
+<h3 id="63-bbr">6.3 自适应限流（BBR）</h3>
+<pre><code>Sentinel 系统保护采用 BBR（Bottleneck Bandwidth and Round-trip time）算法：
+
+核心思想：
+  - 根据实时指标（CPU/RT/并发数）自适应调整限流阈值
+  - 高负载自动限流，低负载自动放开，无需手动设定固定阈值
+
+原理公式：
+  max_concurrency = min_concurrency
+    + (max_throughput - throughput) / (concurrency - min_concurrency)
+    * min_concurrency
+
+  → 并发数上升但吞吐量不升反降时，自动限流
+</code></pre>
+<hr />
+<h2 id="7-sentinel-dashboard">7. Sentinel Dashboard</h2>
+<h3 id="71-dashboard">7.1 Dashboard 功能</h3>
+<p>Dashboard 是 Sentinel 的"监控大屏"——实时看每个接口的流量情况，哪个被限流、哪个响应变慢，一目了然。可以在界面上直接改规则，立即生效。</p>
+<table>
+<thead>
+<tr>
+<th>功能</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>实时监控</strong></td>
+<td>QPS/RT/异常数实时曲线</td>
+</tr>
+<tr>
+<td><strong>簇点链路</strong></td>
+<td>调用链路可视化</td>
+</tr>
+<tr>
+<td><strong>规则管理</strong></td>
+<td>流控/熔断/热点/系统/授权规则 CRUD</td>
+</tr>
+<tr>
+<td><strong>动态推送</strong></td>
+<td>规则变更实时推送到客户端</td>
+</tr>
+<tr>
+<td><strong>集群流控</strong></td>
+<td>Token Server 集群限流</td>
+</tr>
+<tr>
+<td><strong>机器发现</strong></td>
+<td>自动发现注册的客户端</td>
+</tr>
+<tr>
+<td><strong>日志查看</strong></td>
+<td>实时日志查看</td>
+</tr>
+</tbody>
+</table>
+<h3 id="72-dashboard">7.2 Dashboard 部署</h3>
+<pre><code class="language-bash"># 下载 Dashboard JAR
+java -jar sentinel-dashboard-1.8.7.jar \
+  --server.port=8080 \
+  --sentinel.dashboard.auth.username=admin \
+  --sentinel.dashboard.auth.password=admin
+
+# 客户端连接 Dashboard
+# -Dproject.name=my-service
+# -Dcsp.sentinel.dashboard.server=localhost:8080
+# -Dcsp.sentinel.api.port=8719
+</code></pre>
+<h3 id="73">7.3 实时监控面板</h3>
+<pre><code>Dashboard 实时监控示意：
+
+  resource        passQPS   blockQPS   successQPS   exceptionQPS   RT(ms)
+  /api/users       120        3          118          2            15
+  /api/orders       85        1           84          1            25
+  /api/payment      42        0           42          0            50
+  DB-Pool          200       10          190         10            80
+
+  → 实时查看每个资源 QPS、限流数、异常数、响应时间
+  → 快速发现异常资源
+</code></pre>
+<hr />
+<h2 id="8">8. 规则持久化</h2>
+<h3 id="81">8.1 为什么持久化</h3>
+<p>Sentinel 默认规则存在内存里——服务重启就丢了。生产环境必须把规则写入外部存储，重启后自动加载。</p>
+<pre><code>             规则持久化架构
+
+  Dashboard ── 推送规则 ──→ Nacos / Apollo / ZK / Redis
+                                │
+                            客户端监听
+                                │
+                                ▼
+                           更新本地规则
+                                │
+                                ▼
+                           规则生效（无需重启）
+
+  一句话：Dashboard 只管"改"，Nacos 负责"存"，客户端负责"听"
+</code></pre>
+<h3 id="82-nacos">8.2 Nacos 数据源集成</h3>
+<pre><code class="language-java">// Nacos 规则数据源
+// 1. 添加依赖
+// spring-cloud-starter-alibaba-sentinel
+// sentinel-datasource-nacos
+
+// 2. 配置
+spring:
+  cloud:
+    sentinel:
+      transport:
+        dashboard: localhost:8080
+        port: 8719
+      datasource:
+        # 流控规则
+        flow:
+          nacos:
+            server-addr: nacos-server:8848
+            data-id: ${spring.application.name}-flow-rules
+            group-id: SENTINEL_GROUP
+            data-type: json
+            rule-type: flow
+        # 熔断规则
+        degrade:
+          nacos:
+            server-addr: nacos-server:8848
+            data-id: ${spring.application.name}-degrade-rules
+            group-id: SENTINEL_GROUP
+            data-type: json
+            rule-type: degrade
+        # 热点规则
+        param-flow:
+          nacos:
+            server-addr: nacos-server:8848
+            data-id: ${spring.application.name}-param-flow-rules
+            group-id: SENTINEL_GROUP
+            data-type: json
+            rule-type: param-flow
+        # 系统规则
+        system:
+          nacos:
+            server-addr: nacos-server:8848
+            data-id: ${spring.application.name}-system-rules
+            group-id: SENTINEL_GROUP
+            data-type: json
+            rule-type: system
+</code></pre>
+<h3 id="83-nacos-json">8.3 Nacos 规则 JSON 格式</h3>
+<pre><code class="language-json">// 流控规则
+[
+  {
+    "resource": "user-service",
+    "limitApp": "default",
+    "grade": 1,
+    "count": 100,
+    "strategy": 0,
+    "controlBehavior": 0,
+    "clusterMode": false
+  }
+]
+
+// 熔断规则
+[
+  {
+    "resource": "order-service",
+    "grade": 0,
+    "count": 0.5,
+    "timeWindow": 10,
+    "minRequestAmount": 5,
+    "statIntervalMs": 10000,
+    "slowRatioThreshold": 0.5
+  }
+]
+
+// 系统规则
+[
+  {
+    "highestSystemLoad": 10.0,
+    "avgRt": 1000,
+    "maxThread": 500,
+    "qps": 10000,
+    "highestCpuUsage": 0.8
+  }
+]
+</code></pre>
+<h3 id="84">8.4 集群流控</h3>
+<pre><code>           集群流控架构（Token Server 模式）
+
+┌──────────────┐
+│ Token Server │  统一管理集群总 Token，控制全局 QPS
+│  (令牌服务器)  │
+└──────┬───────┘
+       │ 分配 Token
+  ┌────┴─────┐
+  │          │
+┌─▼───┐   ┌─▼───┐   ┌──────┐
+│Client│   │Client│  │Client│
+│  1   │   │  2   │  │  3   │
+└──────┘   └──────┘  └──────┘
+
+Client 定期从 Token Server 获取 Token
+  → 有 Token 才放行，没有直接限流
+</code></pre>
+<hr />
+<h2 id="9-spring-cloud-gateway">9. 网关集成</h2>
+<h3 id="91-gateway-sentinel">9.1 Gateway 集成 Sentinel</h3>
+<p>网关就像小区大门，Sentinel 继承到网关，相当于在"大门口"直接限流，不用等人走到"自家单元楼下"才发现不让进。</p>
+<pre><code class="language-xml">&lt;!-- Gateway 集成 Sentinel --&gt;
+&lt;dependency&gt;
+    &lt;groupId&gt;com.alibaba.cloud&lt;/groupId&gt;
+    &lt;artifactId&gt;spring-cloud-starter-alibaba-sentinel&lt;/artifactId&gt;
+&lt;/dependency&gt;
+&lt;dependency&gt;
+    &lt;groupId&gt;com.alibaba.cloud&lt;/groupId&gt;
+    &lt;artifactId&gt;spring-cloud-alibaba-sentinel-gateway&lt;/artifactId&gt;
+&lt;/dependency&gt;
+</code></pre>
+<h3 id="92-gateway">9.2 Gateway 限流配置</h3>
+<pre><code class="language-yaml">spring:
+  cloud:
+    sentinel:
+      scg:
+        fallback:
+          mode: response            # response / redirect
+          response-status: 429     # HTTP 状态码
+          response-body: '{"code":429,"msg":"请求过于频繁"}'
+          content-type: application/json
+
+        # 路由级别限流
+      filter:
+        enabled: true
+
+# 自定义 Gateway 限流回调
+@Component
+public class GatewayFallbackHandler implements GatewayCallbackManager.BlockRequestHandler {
+
+    @Override
+    public Mono&lt;ServerResponse&gt; handleRequest(ServerWebExchange exchange, Throwable ex) {
+        Map&lt;String, Object&gt; response = new HashMap&lt;&gt;();
+        response.put("code", 429);
+        response.put("msg", "请求过于频繁，请稍后重试");
+        response.put("path", exchange.getRequest().getPath().value());
+
+        return ServerResponse.status(HttpStatus.TOO_MANY_REQUESTS)
+            .contentType(MediaType.APPLICATION_JSON)
+            .body(BodyInserters.fromValue(response));
+    }
+}
+</code></pre>
+<hr />
+<h2 id="10-sentinel-vs-hystrix-vs-resilience4j">10. 对比：Sentinel vs Hystrix vs Resilience4j</h2>
+<h3 id="101">10.1 核心对比</h3>
+<p><strong>面试要点</strong>（30 秒回答）：Sentinel 维度更多（QPS、热点、系统保护 Hystrix 都没有）、Sentinel 有 Dashboard 可视化+动态规则、Hystrix 已停维护，Sentinel 是主流替代方案。</p>
+<table>
+<thead>
+<tr>
+<th>对比项</th>
+<th>Sentinel</th>
+<th>Hystrix</th>
+<th>Resilience4j</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>维护状态</strong></td>
+<td>✅ 阿里巴巴活跃维护</td>
+<td>❌ Netflix 停止维护</td>
+<td>✅ 活跃维护</td>
+</tr>
+<tr>
+<td><strong>限流方式</strong></td>
+<td>QPS + 并发线程数</td>
+<td>仅并发线程数</td>
+<td>仅并发/速率限制</td>
+</tr>
+<tr>
+<td><strong>熔断策略</strong></td>
+<td>慢调用比例/异常比例/异常数</td>
+<td>异常比例（仅一种）</td>
+<td>错误率/慢调用</td>
+</tr>
+<tr>
+<td><strong>流控效果</strong></td>
+<td>快速失败/Warm Up/匀速排队</td>
+<td>仅快速失败</td>
+<td>仅快速失败</td>
+</tr>
+<tr>
+<td><strong>热点限流</strong></td>
+<td>✅ 支持</td>
+<td>❌</td>
+<td>❌</td>
+</tr>
+<tr>
+<td><strong>系统保护</strong></td>
+<td>✅ BBR 自适应</td>
+<td>❌</td>
+<td>❌</td>
+</tr>
+<tr>
+<td><strong>Dashboard</strong></td>
+<td>✅ 实时监控+规则管理</td>
+<td>✅ Hystrix Dashboard</td>
+<td>⚠️ 需 Micrometer</td>
+</tr>
+<tr>
+<td><strong>动态规则</strong></td>
+<td>✅ Nacos/Apollo/ZK/Redis</td>
+<td>❌ 静态配置</td>
+<td>⚠️ 有限支持</td>
+</tr>
+<tr>
+<td><strong>网关集成</strong></td>
+<td>✅ Gateway/Zuul 集成</td>
+<td>❌</td>
+<td>⚠️ Spring Cloud</td>
+</tr>
+<tr>
+<td><strong>注解</strong></td>
+<td>@SentinelResource</td>
+<td>@HystrixCommand</td>
+<td>@CircuitBreaker</td>
+</tr>
+</tbody>
+</table>
+<h3 id="102-sentinel">10.2 Sentinel 核心优势</h3>
+<pre><code>Sentinel 差异化优势：
+
+1. 多维度限流
+   → QPS 限流（Hystrix/Resilience4j 不支持）
+   → 热点参数限流（独有）
+   → 系统自适应保护（独有）
+
+2. 丰富的熔断策略
+   → 慢调用比例 / 异常比例 / 异常数
+
+3. 实时可观测
+   → Dashboard 实时监控 + 动态规则推送 + 无需重启
+
+4. 生产验证
+   → 阿里巴巴双十一实战，每秒数十亿次调用
+</code></pre>
+<hr />
+<h2 id="11_1">11. 实战案例</h2>
+<h3 id="111">11.1 秒杀场景限流</h3>
+<pre><code class="language-java">// 秒杀场景：分布式限流 + 热点参数限流 + 熔断降级
+
+@Service
+public class SeckillService {
+
+    // 1. 热点参数限流（同一用户 QPS=1）
+    @SentinelResource(
+        value = "seckill",
+        blockHandler = "seckillBlockHandler"
+    )
+    public Result seckill(Long userId, Long productId) {
+        // 2. Redis 分布式限流（原子操作）
+        String key = "seckill:" + productId + ":" + userId;
+        Boolean acquired = redisTemplate.opsForValue()
+            .setIfAbsent(key, "1", Duration.ofSeconds(1));
+        if (Boolean.FALSE.equals(acquired)) {
+            return Result.fail("购买过于频繁");
+        }
+
+        // 3. 业务逻辑（扣库存、创建订单）
+        return doSeckill(userId, productId);
+    }
+
+    // 限流处理（Sentinel 热点限流触发）
+    public Result seckillBlockHandler(Long userId, Long productId, BlockException ex) {
+        return Result.fail("系统繁忙，请稍后重试");
+    }
+}
+</code></pre>
+<h3 id="112-api">11.2 外部 API 调用熔断</h3>
+<pre><code class="language-java">// 外部 API 调用熔断降级
+@Service
+public class PaymentService {
+
+    @SentinelResource(
+        value = "call-payment-api",
+        blockHandler = "callPaymentBlockHandler",
+        fallback = "callPaymentFallback"
+    )
+    public PaymentResult callPayment(PaymentRequest request) {
+        return restTemplate.postForObject(
+            "https://payment-api.com/pay",
+            request,
+            PaymentResult.class
+        );
+    }
+
+    // Sentinel 限流/熔断处理
+    public PaymentResult callPaymentBlockHandler(PaymentRequest request, BlockException ex) {
+        log.warn("支付接口被限流/熔断: {}", ex.getMessage());
+        return PaymentResult.fallback("支付系统繁忙");
+    }
+
+    // 业务异常降级
+    public PaymentResult callPaymentFallback(PaymentRequest request, Throwable ex) {
+        log.error("支付接口调用失败", ex);
+        return PaymentResult.fallback("支付失败，请稍后重试");
+    }
+}
+</code></pre>
+<hr />
+<h2 id="12">12. 高频面试题</h2>
+<h3 id="q1sentinel">Q1：Sentinel 的核心原理？</h3>
+<p>Sentinel 核心是基于 <strong>Slot Chain（处理器链）</strong> 实现的责任链模式：</p>
+<ol>
+<li><code>NodeSelectorSlot</code>：构建调用树，区分资源身份</li>
+<li><code>StatisticSlot</code>：滑动窗口实时统计（每 500ms 一个采样点）</li>
+<li><code>FlowSlot</code>：检查限流规则（QPS/线程数/热点）</li>
+<li><code>DegradeSlot</code>：检查熔断规则（慢调用/异常比例/异常数）</li>
+<li><code>SystemSlot</code>：系统保护（CPU/Load/RT）</li>
+</ol>
+<p>任何一个 Slot 判定需要限流/熔断即抛异常，后续业务逻辑不执行。责任链模式是面试高频考点。</p>
+<h3 id="q2sentinel">Q2：滑动窗口统计原理？</h3>
+<ul>
+<li>每秒 2 个采样窗口（500ms 一个），每个窗口记录 pass/block/exception/rt/success</li>
+<li>支持多级统计（秒/分/小时）</li>
+<li><strong>相比固定窗口解决了"临界突变问题"</strong>：固定窗口从 12:00:00 到 12:00:01 QPS=100，但 12:00:00.5 到 12:00:01.5 可能 QPS=200——因为流量集中在边界处。滑动窗口通过持续滑动消除了这个边界效应。</li>
+</ul>
+<h3 id="q3sentinel">Q3：支持哪些限流方式？</h3>
+<p>五种限流，从粗到细：</p>
+<ol>
+<li><strong>QPS 限流</strong>：每秒请求数——最常见</li>
+<li><strong>并发线程数限流</strong>：控制"并发深度"</li>
+<li><strong>热点参数限流</strong>：参数级别细粒度——针对特定用户或商品</li>
+<li><strong>系统自适应保护</strong>：CPU/Load/RT 自适应——全局保护</li>
+<li><strong>集群流控</strong>：Token Server 统一管控集群总 QPS</li>
+</ol>
+<p><strong>关键对比</strong>：Hystrix 只支持并发线程数限流，不支持 QPS 限流，这是质的区别。</p>
+<h3 id="q4sentinel">Q4：熔断有哪些策略？</h3>
+<p>三种策略覆盖不同场景：</p>
+<ol>
+<li><strong>慢调用比例熔断</strong>：慢调用占比 > 阈值 → "服务太慢了"</li>
+<li><strong>异常比例熔断</strong>：异常占比 > 阈值 → "出错的太多了"</li>
+<li><strong>异常数熔断</strong>：异常数量 > 阈值 → "连续出错"</li>
+</ol>
+<p>状态机：Closed → Open（全部拒绝，等待 timeWindow）→ Half-Open（放行一个探测）→ 成功则 Closed，失败则 Open。其中 <strong>minRequestAmount</strong> 避免冷启动误判——窗口内请求太少时不触发熔断。</p>
+<h3 id="q5sentinel">Q5：如何实现动态规则推送？</h3>
+<p>核心是 <strong>"写存分离"模式</strong>：</p>
+<ol>
+<li>外部存储（Nacos/Apollo/ZK）存储规则——真正的"数据库"</li>
+<li>客户端通过数据源监听规则变更——就像订阅了一个频道</li>
+<li>规则变更时自动加载新规则——<strong>无需重启服务</strong>（这是 Hystrix 做不到的）</li>
+<li>Dashboard 修改规则 → 写入 Nacos → 客户端监听生效</li>
+</ol>
+<p>一句话：<strong>Dashboard 管"改"，Nacos 管"存"，客户端管"听"</strong>。</p>
+<h3 id="q6sentinel-hystrix">Q6：与 Hystrix 的区别？</h3>
+<p>（详见第 10 节对比表）</p>
+<p><strong>30 秒回答</strong>：
+- Sentinel 支持更多限流维度（QPS、热点参数、系统保护）
+- Sentinel 有可视化 Dashboard + 动态规则推送
+- <strong>Hystrix 已停止维护，Sentinel 是主流替代方案</strong></p>
+<h3 id="q7">Q7：秒杀系统限流方案设计？</h3>
+<p>核心是<strong>多层防御</strong>，从外到内层层递进：</p>
+<ol>
+<li><strong>前端限流</strong>：按钮防抖、验证码——最外层拦截</li>
+<li><strong>网关限流</strong>（Sentinel Gateway）：全局 QPS 限流——守好大门</li>
+<li><strong>Sentinel 热点限流</strong>：同一用户 QPS=1——防止黄牛/脚本</li>
+<li><strong>Redis 分布式限流</strong>：原子操作保证全局一致——跨节点精准控制</li>
+<li><strong>消息队列削峰</strong>：RocketMQ 异步处理——不直接打 DB</li>
+<li><strong>Sentinel 熔断降级</strong>：下游服务熔断保护——出问题不连累别人</li>
+</ol>
+<p>设计理念：<strong>从外到内、从拦到疏、从限到降</strong>——体现系统设计的全局思维。</p>
+<h3 id="q8sentinelresource-blockhandler-fallback">Q8：blockHandler 和 fallback 有什么区别？</h3>
+<table>
+<thead>
+<tr>
+<th>参数</th>
+<th>触发条件</th>
+<th>异常类型</th>
+<th>大白话</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>blockHandler</strong></td>
+<td>Sentinel 限流/熔断触发</td>
+<td><code>BlockException</code></td>
+<td>"门口保安拦住你了"</td>
+</tr>
+<tr>
+<td><strong>fallback</strong></td>
+<td>业务代码抛出异常</td>
+<td><code>Throwable</code></td>
+<td>"你自己在业务里摔倒了"</td>
+</tr>
+</tbody>
+</table>
+<p><strong>blockHandler</strong> 处理流量控制（被"拦住"了），<strong>fallback</strong> 处理业务异常（业务逻辑自身出了 Bug）。</p>
+<h3 id="q9-sentinel">Q9：如何排查限流问题？</h3>
+<ol>
+<li>Dashboard 实时监控面板查看 blockQPS——最直观</li>
+<li>客户端日志：<code>csp.sentinel.log.dir</code> 目录下的日志——最详细</li>
+<li>Sentinel 自带日志格式：<code>timestamp|resource|passQPS|blockQPS|...</code></li>
+<li>BlockException 异常处理中打印详细信息——自定义化处理</li>
+</ol>
+<h3 id="q10sentinel">Q10：如何实现高可用？</h3>
+<p>Sentinel 的设计哲学是 <strong>"客户端不依赖服务端"</strong>：</p>
+<ol>
+<li><strong>客户端高可用</strong>：SDK 无状态，不依赖 Dashboard——Dashboard 挂了也不影响限流</li>
+<li><strong>规则高可用</strong>：规则存储在 Nacos/Apollo，Sentinel 崩溃不影响业务</li>
+<li><strong>集群流控高可用</strong>：Token Server 支持集群部署，单点故障有备选</li>
+<li><strong>Dashboard 高可用</strong>：可部署多个实例</li>
+</ol>
+<p>总结：<strong>Sentinel 是"弱依赖"组件，它挂了不会让业务也挂，这正是生产级中间件的设计标准</strong>。</p>
+<hr />
+<blockquote>
+<p><strong>学习建议</strong>：Sentinel 面试核心围绕三个关键词——<strong>流量控制</strong>（QPS/线程/热点）、<strong>熔断降级</strong>（慢调用/异常比例/状态机）、<strong>动态规则</strong>（Nacos 持久化/Dashboard）。建议先理解 Slot Chain 的执行原理（责任链模式），再深入限流和熔断的各种策略，最后掌握与 Spring Cloud Gateway 的集成和动态规则持久化。<strong>必会组合</strong>：Sentinel + Nacos + Gateway 三位一体，这是 Spring Cloud Alibaba 体系中最常见的面试组合。</p>
+<p><strong>与面试岗位的关联</strong>：Sentinel 主要出现在<strong>微服务/中间件/架构</strong>方向的后端面试中，常与以下知识点联合考察：Spring Cloud Alibaba 全家桶、Spring Cloud Gateway（网关限流）、Nacos（规则持久化）、分布式限流方案设计、秒杀系统设计等。</p>
+</blockquote>
+
+<script>
+// Scroll spy — highlight active sidebar item
+window.addEventListener('scroll', function() {
+    var links = document.querySelectorAll('.sidebar-toc a');
+    var scrollY = window.scrollY + 120;
+    var current = '';
+    for (var i = links.length - 1; i >= 0; i--) {
+        var target = document.getElementById(links[i].getAttribute('href').slice(1));
+        if (target && target.offsetTop <= scrollY) {
+            current = links[i];
+            break;
+        }
+    }
+    links.forEach(function(a) { a.style.fontWeight = 'normal'; a.style.color = '#555'; });
+    if (current) { current.style.fontWeight = 'bold'; current.style.color = '#0366d6'; }
+});
+</script>
+
+
+<script>
+document.querySelectorAll('pre > code').forEach(function(codeBlock, i) {
+    var pre = codeBlock.parentNode;
+    pre.style.position = 'relative';
+    var btn = document.createElement('button');
+    btn.className = 'copy-btn';
+    btn.textContent = '复制';
+    pre.appendChild(btn);
+    btn.addEventListener('click', function() {
+        var text = codeBlock.textContent;
+        navigator.clipboard.writeText(text).then(function() {
+            btn.textContent = '已复制';
+            btn.classList.add('copied');
+            setTimeout(function() {
+                btn.textContent = '复制';
+                btn.classList.remove('copied');
+            }, 2000);
+        }).catch(function() {
+            // Fallback
+            var ta = document.createElement('textarea');
+            ta.value = text; ta.style.position = 'fixed'; ta.style.opacity = '0';
+            document.body.appendChild(ta); ta.select();
+            document.execCommand('copy'); document.body.removeChild(ta);
+            btn.textContent = '已复制'; btn.classList.add('copied');
+            setTimeout(function() { btn.textContent = '复制'; btn.classList.remove('copied'); }, 2000);
+        });
+    });
+});
+</script>
+
+
+<script>document.querySelectorAll("pre>code").forEach(function(c){var p=c.parentNode;p.style.position="relative";var b=document.createElement("button");b.className="copy-btn";b.textContent="复制";p.appendChild(b);b.addEventListener("click",function(){var t=c.textContent;navigator.clipboard.writeText(t).then(function(){b.textContent="已复制";b.classList.add("copied");setTimeout(function(){b.textContent="复制";b.classList.remove("copied")},2000)}).catch(function(){var a=document.createElement("textarea");a.value=t;a.style.position="fixed";a.style.opacity="0";document.body.appendChild(a);a.select();document.execCommand("copy");document.body.removeChild(a);b.textContent="已复制";b.classList.add("copied");setTimeout(function(){b.textContent="复制";b.classList.remove("copied")},2000)})})})</script>
+</body>
+</html>

@@ -1,0 +1,751 @@
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PostgreSQL 从入门到精通</title>
+<style>
+
+body {
+    transition: margin-left .25s ease;
+    font-family: -apple-system, "Noto Sans SC", "Microsoft YaHei", sans-serif;
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 20px 24px 60px;
+    line-height: 1.8;
+    color: #333;
+    background: #fff;
+}
+h1 { border-bottom: 2px solid #eee; padding-bottom: 10px; color: #222; }
+h2 { color: #333; margin-top: 32px; }
+h3 { color: #555; }
+a { color: #0366d6; text-decoration: none; }
+a:hover { text-decoration: underline; }
+pre {
+    background: #f6f8fa;
+    border-radius: 6px;
+    padding: 16px;
+    overflow-x: auto;
+    font-size: 14px;
+    line-height: 1.45;
+    position: relative;
+}
+code {
+    background: #f0f2f4;
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-size: 14px;
+    font-family: ui-monospace, Menlo, "Courier New", Consolas, monospace;
+}
+pre code { background: none; padding: 0; font-family: ui-monospace, Menlo, "Courier New", Consolas, monospace; }
+blockquote { border-left: 4px solid #ddd; margin: 0; padding: 0 16px; color: #666; }
+table { border-collapse: collapse; width: 100%; margin: 16px 0; }
+th, td { border: 1px solid #ddd; padding: 8px 12px; text-align: left; }
+th { background: #f6f8fa; }
+img { max-width: 100%; }
+
+.sidebar-toc {
+    transition: left .25s ease;
+    position: fixed; left: 0; top: 0; bottom: 0;
+    width: 220px; background: #f8f9fa;
+    border-right: 1px solid #e9ecef;
+    padding: 20px 0; overflow-y: auto;
+    font-size: 13px; z-index: 100;
+}
+.sidebar-toc a {
+    display: block; padding: 6px 16px;
+    color: #555; text-decoration: none;
+    border-left: 3px solid transparent; line-height: 1.5;
+}
+.sidebar-toc a:hover { background: #e9ecef; color: #0366d6; border-left-color: #0366d6; }
+.sidebar-toc a.active { color: #0366d6; border-left-color: #0366d6; font-weight: 500; }
+.sidebar-toc .toc-h2 { padding-left: 16px; font-weight: 500; }
+.sidebar-toc .toc-h3 { padding-left: 32px; font-size: 12px; }
+body { margin-left: 240px; }
+
+.copy-btn {
+    position: absolute; top: 6px; right: 6px;
+    background: #e9ecef; border: none;
+    border-radius: 4px; padding: 3px 10px;
+    font-size: 12px; color: #555; cursor: pointer;
+    opacity: 0; transition: opacity 0.2s; z-index: 1;
+}
+pre:hover .copy-btn { opacity: 1; }
+.copy-btn:hover { background: #d0d7de; }
+.copy-btn.copied { opacity: 1; background: #2da44e; color: #fff; }
+
+.sidebar-toggle-btn {
+  position: fixed; left: 220px; top: 0;
+  width: 28px; height: 40px;
+  background: #f8f9fa; border: 1px solid #e9ecef;
+  border-left: none; border-radius: 0 4px 4px 0;
+  cursor: pointer; font-size: 16px; color: #555;
+  z-index: 101; display: flex; align-items: center;
+  justify-content: center;
+  transition: left .25s, background .2s;
+  padding: 0; line-height: 1;
+}
+.sidebar-toggle-btn:hover { background: #e9ecef; color: #0366d6; }
+.sidebar-collapsed .sidebar-toc { left: -220px; }
+.sidebar-collapsed .sidebar-toggle-btn { left: 0; }
+.sidebar-collapsed body, body.sidebar-collapsed { margin-left: 28px; }
+.sidebar-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,.3); z-index: 99; }
+@media (max-width: 768px) {
+  .sidebar-collapsed .sidebar-overlay { display: none; }
+  .sidebar-toc { left: -220px; }
+  .sidebar-toggle-btn { left: 0; }
+  body { margin-left: 28px; }
+}
+
+</style>
+</head>
+<script>
+function toggleSidebar() {
+  document.body.classList.toggle('sidebar-collapsed');
+  try { localStorage.setItem('sidebarCollapsed', document.body.classList.contains('sidebar-collapsed')); } catch(e) {}
+}
+(function() {
+  try {
+    if (localStorage.getItem('sidebarCollapsed') === 'true') {
+      document.body.classList.add('sidebar-collapsed');
+    }
+  } catch(e) {}
+})();
+</script>
+<script>
+window.addEventListener('scroll', function() {
+    var links = document.querySelectorAll('.sidebar-toc a');
+    var scrollY = window.scrollY + 120;
+    var current = '';
+    for (var i = links.length - 1; i >= 0; i--) {
+        var target = document.getElementById(links[i].getAttribute('href').slice(1));
+        if (target && target.offsetTop <= scrollY) {
+            current = links[i];
+            break;
+        }
+    }
+    links.forEach(function(a){ a.classList.remove('active'); });
+    if (current) { current.classList.add('active'); }
+}, { passive: true });
+</script>
+
+<body>
+<nav class="sidebar-toc">
+  <a class="toc-h2" href="#p1">一、PostgreSQL 基础概念</a>
+  <a class="toc-h3" href="#p11">1.1 为什么选 PostgreSQL</a>
+  <a class="toc-h3" href="#p12">1.2 PG 架构概览</a>
+  <a class="toc-h3" href="#p13">1.3 PG 独有数据类型</a>
+  <a class="toc-h2" href="#p2">二、快速上手</a>
+  <a class="toc-h3" href="#p21">2.1 安装与连接</a>
+  <a class="toc-h3" href="#p22">2.2 数据库与表</a>
+  <a class="toc-h3" href="#p23">2.3 CRUD 操作</a>
+  <a class="toc-h2" href="#p3">三、高级查询</a>
+  <a class="toc-h3" href="#p31">3.1 JOIN 详解</a>
+  <a class="toc-h3" href="#p32">3.2 窗口函数</a>
+  <a class="toc-h3" href="#p33">3.3 CTE 与递归</a>
+  <a class="toc-h3" href="#p34">3.4 全文搜索</a>
+  <a class="toc-h2" href="#p4">四、索引深入</a>
+  <a class="toc-h3" href="#p41">4.1 B-tree 索引</a>
+  <a class="toc-h3" href="#p42">4.2 GIN 索引</a>
+  <a class="toc-h3" href="#p43">4.3 GiST 与 SP-GiST</a>
+  <a class="toc-h3" href="#p44">4.4 BRIN 索引</a>
+  <a class="toc-h3" href="#p45">4.5 索引选择实战</a>
+  <a class="toc-h2" href="#p5">五、JSONB 专题</a>
+  <a class="toc-h3" href="#p51">5.1 JSONB 基础操作</a>
+  <a class="toc-h3" href="#p52">5.2 JSONB 索引与性能</a>
+  <a class="toc-h2" href="#p6">六、性能优化</a>
+  <a class="toc-h3" href="#p61">6.1 EXPLAIN ANALYZE</a>
+  <a class="toc-h3" href="#p62">6.2 配置调优</a>
+  <a class="toc-h3" href="#p63">6.3 连接池</a>
+  <a class="toc-h2" href="#p7">七、生产部署</a>
+  <a class="toc-h3" href="#p71">7.1 主从复制</a>
+  <a class="toc-h3" href="#p72">7.2 备份策略</a>
+  <a class="toc-h2" href="#p8">八、面试题</a>
+</nav>
+<button class="sidebar-toggle-btn" onclick="toggleSidebar()" title="切换目录">☰</button>
+<div class="sidebar-overlay" onclick="toggleSidebar()"></div>
+<div id="content">
+<h1>PostgreSQL 从入门到精通</h1>
+<blockquote>
+<p>本文档从零开始系统讲解 PostgreSQL 关系数据库，适合后端开发者、数据工程师、以及想系统掌握 PG 技术的开发者。从基础概念讲到生产部署，SQL 全部可运行。</p>
+</blockquote>
+<hr />
+
+<h2 id="p1">一、PostgreSQL 基础概念</h2>
+
+<h3 id="p11">1.1 为什么选 PostgreSQL</h3>
+
+<p>PostgreSQL（简称 PG）是<strong>全球最先进的开源关系数据库</strong>，30 年持续开发。</p>
+
+<table>
+<thead>
+<tr>
+<th>维度</th>
+<th>PostgreSQL</th>
+<th>MySQL</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>JSON 支持</strong></td>
+<td>JSONB（二进制）+ GIN 索引</td>
+<td>JSON（文本存储，查询慢）</td>
+</tr>
+<tr>
+<td><strong>索引类型</strong></td>
+<td>B-tree, GIN, GiST, SP-GiST, BRIN, Hash</td>
+<td>B-tree, Hash</td>
+</tr>
+<tr>
+<td><strong>窗口函数</strong></td>
+<td>支持完善</td>
+<td>8.0+ 支持</td>
+</tr>
+<tr>
+<td><strong>CTE 递归</strong></td>
+<td>✅ 支持</td>
+<td>8.0+ 支持</td>
+</tr>
+<tr>
+<td><strong>全文搜索</strong></td>
+<td>内置</td>
+<td>需外部方案</td>
+</tr>
+<tr>
+<td><strong>扩展生态</strong></td>
+<td>PostGIS, pgvector, TimescaleDB</td>
+<td>较少</td>
+</tr>
+<tr>
+<td><strong>SQL 标准</strong></td>
+<td>严格遵循</td>
+<td>较多方言</td>
+</tr>
+</tbody>
+</table>
+
+<blockquote>🎯 <strong>一句话：</strong> PG 像数据库里的<strong>瑞士军刀</strong>——什么都能干，干得都不差。</blockquote>
+<hr />
+
+<h3 id="p12">1.2 PG 架构概览</h3>
+
+<pre><code>┌─────────────────────────────────────────────────────────┐
+│                    Client (psql / 应用)                    │
+└────────────────────────┬────────────────────────────────┘
+                         │
+┌────────────────────────▼────────────────────────────────┐
+│                   PostgreSQL Server                       │
+│  ┌──────────────────────────────────────────────────┐    │
+│  │               Postmaster (守护进程)                │    │
+│  │  连接管理、fork 子进程处理每个客户端连接            │    │
+│  └──────────────────────┬───────────────────────────┘    │
+│  ┌──────────────────────▼───────────────────────────┐    │
+│  │             共享内存（Shared Buffers）              │    │
+│  │  数据缓存、WAL 日志缓冲区、锁信息                  │    │
+│  └──────────────────────────────────────────────────┘    │
+│  ┌──────────────────────────────────────────────────┐    │
+│  │            WAL (Write-Ahead Log)                  │    │
+│  │  所有修改先写日志，再写数据文件（崩溃恢复保障）    │    │
+│  └──────────────────────────────────────────────────┘    │
+└──────────────────────────────────────────────────────────┘</code></pre>
+
+<p><strong>关键设计：</strong></p>
+<ul>
+<li><strong>进程模型</strong>：每个连接一个进程，隔离性好</li>
+<li><strong>WAL</strong>：所有变更先写日志再写数据文件</li>
+<li><strong>MVCC</strong>：读不阻塞写、写不阻塞读</li>
+<li><strong>autovacuum</strong>：自动清理过期数据版本</li>
+</ul>
+<hr />
+
+<h3 id="p13">1.3 PG 独有数据类型</h3>
+
+<table>
+<thead>
+<tr>
+<th>类型</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>BIGSERIAL</strong></td>
+<td>自增 8 字节整数，主键首选</td>
+</tr>
+<tr>
+<td><strong>TIMESTAMPTZ</strong></td>
+<td>带时区时间戳</td>
+</tr>
+<tr>
+<td><strong>JSONB</strong></td>
+<td>二进制 JSON，支持索引</td>
+</tr>
+<tr>
+<td><strong>UUID</strong></td>
+<td>分布式系统主键</td>
+</tr>
+<tr>
+<td><strong>ARRAY</strong></td>
+<td>数组类型（TEXT[], INTEGER[]）</td>
+</tr>
+<tr>
+<td><strong>TSVECTOR</strong></td>
+<td>全文搜索向量</td>
+</tr>
+<tr>
+<td><strong>NUMERIC</strong></td>
+<td>高精度小数，适合金融计算</td>
+</tr>
+</tbody>
+</table>
+<hr />
+
+<h2 id="p2">二、快速上手</h2>
+
+<h3 id="p21">2.1 安装与连接</h3>
+
+<pre><code># macOS
+brew install postgresql@16
+brew services start postgresql@16
+
+# Ubuntu
+sudo apt install postgresql postgresql-contrib
+sudo systemctl start postgresql
+
+# Docker
+docker run --name pg -e POSTGRES_PASSWORD=mysecret -d -p 5432:5432 postgres:16</code></pre>
+
+<p><strong>psql 常用命令：</strong></p>
+<pre><code>psql -h localhost -p 5432 -U postgres -d mydb
+
+\l                    # 列出所有数据库
+\c mydb              # 切换数据库
+\d                   # 列出所有表
+\d table_name        # 查看表结构
+\di                  # 列出索引
+\du                  # 列出用户
+\x                   # 展开显示
+\q                   # 退出</code></pre>
+<hr />
+
+<h3 id="p22">2.2 数据库与表</h3>
+
+<pre><code class="language-sql">-- 创建数据库
+CREATE DATABASE myapp;
+
+-- 创建表
+CREATE TABLE users (
+    id          BIGSERIAL PRIMARY KEY,
+    username    VARCHAR(64) NOT NULL UNIQUE,
+    email       VARCHAR(256) NOT NULL,
+    password_hash TEXT NOT NULL,
+    role        VARCHAR(32) DEFAULT 'user',
+    is_active   BOOLEAN DEFAULT TRUE,
+    created_at  TIMESTAMPTZ DEFAULT NOW(),
+    updated_at  TIMESTAMPTZ DEFAULT NOW(),
+    metadata    JSONB DEFAULT '{}',
+
+    CONSTRAINT email_format CHECK (email ~* '^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$')
+);
+
+-- 创建索引
+CREATE INDEX idx_users_role ON users(role);
+CREATE INDEX idx_users_created ON users(created_at);
+CREATE INDEX idx_users_metadata ON users USING GIN(metadata);
+</code></pre>
+<hr />
+
+<h3 id="p23">2.3 CRUD 操作</h3>
+
+<pre><code class="language-sql">-- INSERT
+INSERT INTO users (username, email, password_hash, role)
+VALUES ('zhangsan', 'zhangsan@example.com', '$2b$12$...', 'admin');
+
+-- INSERT ... RETURNING（PG 特色）
+INSERT INTO users (username, email, password_hash)
+VALUES ('zhaoliu', 'zhaoliu@example.com', '$2b$12$...')
+RETURNING id, created_at;
+
+-- 查询
+SELECT * FROM users WHERE role = 'admin' ORDER BY created_at DESC LIMIT 10;
+
+-- 去重计数
+SELECT role, COUNT(*) FROM users GROUP BY role;
+
+-- UPDATE ... RETURNING
+UPDATE users SET updated_at = NOW() WHERE id = 1 RETURNING *;
+
+-- UPSERT（插入冲突则更新）
+INSERT INTO users (username, email, password_hash)
+VALUES ('zhangsan', 'newemail@example.com', '$2b$12$...')
+ON CONFLICT (username) DO UPDATE
+SET email = EXCLUDED.email, updated_at = NOW();
+</code></pre>
+<hr />
+
+<h2 id="p3">三、高级查询</h2>
+
+<h3 id="p31">3.1 JOIN 详解</h3>
+
+<pre><code class="language-sql">CREATE TABLE orders (
+    id          BIGSERIAL PRIMARY KEY,
+    user_id     BIGINT REFERENCES users(id),
+    total       NUMERIC(10,2) NOT NULL,
+    created_at  TIMESTAMPTZ DEFAULT NOW()
+);
+
+INSERT INTO users (id, username) VALUES (1, 'zhangsan'), (2, 'lisi'), (3, 'wangwu');
+INSERT INTO orders (id, user_id, total) VALUES (1, 1, 100), (2, 1, 200), (3, 2, 150);
+
+-- INNER JOIN：只有下过订单的用户
+SELECT u.username, o.id, o.total
+FROM users u INNER JOIN orders o ON u.id = o.user_id;
+
+-- LEFT JOIN：所有用户（没下过单的也会出现）
+SELECT u.username, o.id, o.total
+FROM users u LEFT JOIN orders o ON u.id = o.user_id;
+
+-- LATERAL JOIN（PG 特色）：对每个用户找最近的一笔订单
+SELECT u.username, recent.*
+FROM users u
+LEFT JOIN LATERAL (
+    SELECT id, total FROM orders
+    WHERE user_id = u.id
+    ORDER BY created_at DESC LIMIT 1
+) recent ON TRUE;
+</code></pre>
+<hr />
+
+<h3 id="p32">3.2 窗口函数</h3>
+
+<p>窗口函数让你<strong>在不改变行数的情况下</strong>做跨行计算。</p>
+
+<pre><code class="language-sql">INSERT INTO orders (user_id, total, created_at) VALUES
+    (1, 100, '2024-01-01'), (1, 200, '2024-02-01'),
+    (2, 150, '2024-01-15'), (2, 300, '2024-03-01');
+
+-- ROW_NUMBER：给每组内的行编号
+SELECT username, total,
+    ROW_NUMBER() OVER (PARTITION BY user_id ORDER BY total DESC) as rn
+FROM orders o JOIN users u ON u.id = o.user_id;
+
+-- LAG/LEAD：环比分析
+SELECT created_at, total,
+    LAG(total) OVER (ORDER BY created_at) as prev_total,
+    total - LAG(total) OVER (ORDER BY created_at) as diff
+FROM orders WHERE user_id = 1;
+
+-- 累计求和
+SELECT created_at, total,
+    SUM(total) OVER (ORDER BY created_at) as running_total
+FROM orders WHERE user_id = 1;
+</code></pre>
+
+<blockquote>🎯 <strong>窗口函数 vs GROUP BY：</strong> GROUP BY 折叠行，窗口函数不折叠行。</blockquote>
+<hr />
+
+<h3 id="p33">3.3 CTE 与递归</h3>
+
+<p><strong>CTE（公用表表达式）：</strong></p>
+<pre><code class="language-sql">WITH active_users AS (
+    SELECT id, username FROM users WHERE is_active = TRUE
+),
+recent_orders AS (
+    SELECT user_id, COUNT(*) as order_count
+    FROM orders WHERE created_at > NOW() - INTERVAL '30 days'
+    GROUP BY user_id
+)
+SELECT u.username, COALESCE(o.order_count, 0) as recent_orders
+FROM active_users u LEFT JOIN recent_orders o ON u.id = o.user_id
+ORDER BY recent_orders DESC;
+</code></pre>
+
+<p><strong>递归 CTE——组织树查询：</strong></p>
+<pre><code class="language-sql">CREATE TABLE employees (
+    id BIGSERIAL PRIMARY KEY, name VARCHAR(64), manager_id BIGINT REFERENCES employees(id)
+);
+INSERT INTO employees VALUES
+    (1, 'CEO', NULL), (2, 'CTO', 1), (3, 'CFO', 1),
+    (5, '后端负责人', 2), (7, '高级工程师', 5), (8, '初级工程师', 7);
+
+-- 找 CTO（id=2）的所有下属
+WITH RECURSIVE org_tree AS (
+    SELECT id, name, manager_id, 0 as level FROM employees WHERE id = 2
+    UNION ALL
+    SELECT e.id, e.name, e.manager_id, t.level + 1
+    FROM employees e INNER JOIN org_tree t ON e.manager_id = t.id
+)
+SELECT * FROM org_tree ORDER BY level;
+</code></pre>
+<hr />
+
+<h3 id="p34">3.4 全文搜索</h3>
+
+<pre><code class="language-sql">CREATE TABLE articles (
+    id BIGSERIAL PRIMARY KEY, title TEXT, body TEXT,
+    tsv TSVECTOR GENERATED ALWAYS AS (
+        to_tsvector('simple', coalesce(title, '') || ' ' || coalesce(body, ''))
+    ) STORED
+);
+
+INSERT INTO articles (title, body) VALUES
+    ('PostgreSQL 教程', 'PostgreSQL 是世界上最好的开源数据库'),
+    ('RAG 入门指南', 'RAG 是检索增强生成，让 LLM 更准确');
+
+CREATE INDEX idx_articles_tsv ON articles USING GIN(tsv);
+
+SELECT title, ts_rank(tsv, query) as rank
+FROM articles, to_tsquery('simple', '数据库') as query
+WHERE tsv @@ query ORDER BY rank DESC;
+</code></pre>
+
+<blockquote>⚠️ 中文分词需安装 zhparser 或 jieba 扩展。</blockquote>
+<hr />
+
+<h2 id="p4">四、索引深入</h2>
+
+<h3 id="p41">4.1 B-tree 索引</h3>
+
+<p>PG 的<strong>默认索引</strong>，适用于 =、>、<、BETWEEN、IN、LIKE 'abc%'。</p>
+
+<pre><code class="language-sql">-- 最左前缀原则
+CREATE INDEX idx_users_role_created ON users(role, created_at);
+
+WHERE role = 'admin'                            -- ✅ 走索引
+WHERE role = 'admin' AND created_at > '2024-01-01'  -- ✅
+WHERE created_at > '2024-01-01'                 -- ❌ 跳过最左列
+
+-- 覆盖索引（避免回表）
+CREATE INDEX idx_users_role_include ON users(role) INCLUDE (username, email);
+</code></pre>
+<hr />
+
+<h3 id="p42">4.2 GIN 索引</h3>
+
+<p>用于 JSONB、全文搜索、数组等<strong>组合类型</strong>。</p>
+
+<pre><code class="language-sql">CREATE INDEX idx_users_meta ON users USING GIN(metadata);
+
+-- 走索引的查询：
+SELECT * FROM users WHERE metadata @> '{"department": "tech"}';  -- 包含
+SELECT * FROM users WHERE metadata ? 'phone';                     -- 存在 key
+SELECT * FROM users WHERE metadata @> '{"tags": ["postgresql"]}'; -- 嵌套数组
+
+-- 不走索引的（需要 B-tree）：
+SELECT * FROM users WHERE metadata->>'department' = 'tech';
+
+-- 对特定 JSONB 字段建 B-tree：
+CREATE INDEX idx_users_lang ON users ((metadata->>'lang'));
+WHERE metadata->>'lang' = 'zh'  -- ✅ 走 B-tree
+</code></pre>
+<hr />
+
+<h3 id="p43">4.3 GiST 与 SP-GiST</h3>
+
+<pre><code class="language-sql">-- pg_trgm —— LIKE '%xxx%' 走索引
+CREATE EXTENSION pg_trgm;
+CREATE INDEX idx_users_username_trgm ON users USING GIN(username gin_trgm_ops);
+SELECT * FROM users WHERE username LIKE '%xiao%';  -- ✅ 走索引
+
+-- 范围类型 + 排他约束
+CREATE TABLE reservations (
+    room_id INT, booked_during DATERANGE,
+    EXCLUDE USING GIST (room_id WITH =, booked_during WITH &&)
+);
+INSERT INTO reservations VALUES (101, daterange('2024-01-01', '2024-01-07'));
+INSERT INTO reservations VALUES (101, daterange('2024-01-05', '2024-01-10'));  -- ❌ 冲突
+</code></pre>
+<hr />
+
+<h3 id="p44">4.4 BRIN 索引</h3>
+
+<p>适合<strong>天然有序的大表</strong>（如日志表），索引只有 B-tree 的 1/1000。</p>
+
+<pre><code class="language-sql">-- B-tree：约 2GB
+CREATE INDEX idx_logs_btree ON access_logs(created_at);
+-- BRIN：约 2MB
+CREATE INDEX idx_logs_brin ON access_logs USING BRIN(created_at) WITH (pages_per_range=32);
+</code></pre>
+<hr />
+
+<h3 id="p45">4.5 索引选择实战</h3>
+
+<pre><code>=, &gt;, &lt;, ORDER BY, LIKE 'abc%'     → B-tree
+JSONB 包含/存在查询                  → GIN
+全文搜索 tsvector                   → GIN（读多）或 GiST（写多）
+数组包含 @>                         → GIN
+模糊搜索 LIKE '%xxx%'               → pg_trgm + GIN
+超大表 + 有序字段 + 范围查询          → BRIN
+几何/空间查询                       → GiST + PostGIS</code></pre>
+<hr />
+
+<h2 id="p5">五、JSONB 专题</h2>
+
+<h3 id="p51">5.1 JSONB 基础操作</h3>
+
+<pre><code class="language-sql">CREATE TABLE documents (
+    id BIGSERIAL PRIMARY KEY, filename VARCHAR(256), meta JSONB DEFAULT '{}'
+);
+
+INSERT INTO documents (filename, meta) VALUES (
+    '退款政策.pdf',
+    '{"pages": 12, "lang": "zh", "tags": ["退款", "政策"], "author": {"name": "张三"}}'::jsonb
+);
+
+-- 查询
+SELECT meta->>'author' as author_name FROM documents;            -- 文本
+SELECT meta->'author'->>'name' as name FROM documents;           -- 链式
+
+-- GIN 索引查询
+SELECT * FROM documents WHERE meta @> '{"lang": "zh"}';         -- 包含
+SELECT * FROM documents WHERE meta ? 'tags';                     -- 存在 key
+
+-- 更新
+UPDATE documents SET meta = jsonb_set(meta, '{version}', '2.2'::jsonb) WHERE id = 1;
+UPDATE documents SET meta = meta || '{"reviewer": "李四"}'::jsonb WHERE id = 1;
+UPDATE documents SET meta = meta - 'version' WHERE id = 1;       -- 删除键
+</code></pre>
+<hr />
+
+<h3 id="p52">5.2 JSONB 索引与性能</h3>
+
+<p><strong>最佳实践：</strong></p>
+<ol>
+<li><strong>适合存：</strong> 标签、配置、元数据（结构不固定的数据）</li>
+<li><strong>不适合存：</strong> 核心业务字段（无外键约束、类型约束）</li>
+<li><strong>高频查询字段单独建列：</strong> 经常 WHERE 的字段做独立列 + B-tree</li>
+<li>不要把所有东西塞一个 JSONB</li>
+</ol>
+<hr />
+
+<h2 id="p6">六、性能优化</h2>
+
+<h3 id="p61">6.1 EXPLAIN ANALYZE</h3>
+
+<pre><code class="language-sql">EXPLAIN ANALYZE SELECT * FROM users WHERE role = 'admin';
+
+-- Seq Scan         全表扫描 ❌
+-- Index Scan       走索引 ✅
+-- Index Only Scan  索引覆盖 ✅ 最佳
+-- Nested Loop      小表驱动大表 ✅
+-- Hash Join        大表等值 JOIN ✅
+</code></pre>
+<hr />
+
+<h3 id="p62">6.2 配置调优</h3>
+
+<pre><code># postgresql.conf（16GB 内存参考）
+shared_buffers = 4GB           # 总内存 25%
+effective_cache_size = 12GB    # OS 缓存估算
+work_mem = 64MB                # 排序/哈希内存
+maintenance_work_mem = 1GB     # VACUUM/索引创建
+max_connections = 200          # 建议用连接池</code></pre>
+<hr />
+
+<h3 id="p63">6.3 连接池</h3>
+
+<p>PG 是<strong>进程模型</strong>——1000 个连接 = 1000 个进程。必须用连接池。</p>
+
+<pre><code class="language-python"># SQLAlchemy 连接池
+engine = create_async_engine(
+    "postgresql+asyncpg://user:pass@localhost:5432/mydb",
+    pool_size=10,             # CPU核数 × 2
+    max_overflow=20,
+    pool_pre_ping=True,
+    pool_recycle=3600,
+)
+
+# PgBouncer（服务端连接池）
+# 应用→PgBouncer（6432）→PG（5432）
+# 2000 应用连接 → 25 PG 连接</code></pre>
+<hr />
+
+<h2 id="p7">七、生产部署</h2>
+
+<h3 id="p71">7.1 主从复制</h3>
+
+<pre><code class="language-bash"># 主库
+psql -c "CREATE ROLE replicator WITH LOGIN REPLICATION PASSWORD 'secret';"
+# postgresql.conf: wal_level = replica, max_wal_senders = 5
+
+# 从库
+pg_basebackup -h &lt;主库IP&gt; -D /var/lib/postgresql/data -U replicator -P -v -R
+systemctl start postgresql
+
+# 验证
+psql -c "SELECT * FROM pg_stat_replication;"</code></pre>
+<hr />
+
+<h3 id="p72">7.2 备份策略</h3>
+
+<pre><code class="language-bash"># 逻辑备份
+pg_dump -h localhost -U postgres -d mydb -Fc > mydb.dump
+pg_restore -h localhost -U postgres -d mydb mydb.dump
+
+# 物理备份
+pg_basebackup -h localhost -U replicator -D /backup/dir -P -v
+
+# 推荐：每日 pg_dump + 持续 WAL 归档 + 保留 30 天</code></pre>
+<hr />
+
+<h2 id="p8">八、面试题</h2>
+
+<p><strong>Q1：PG 和 MySQL 怎么选？</strong></p>
+<p>A：PG 适合复杂查询、JSONB、全文搜索；MySQL 适合简单 CRUD。PG 功能更完备、许可证更友好。</p>
+
+<p><strong>Q2：MVCC 是什么？</strong></p>
+<p>A：Multi-Version Concurrency Control。每条数据有多个版本，读不阻塞写、写不阻塞读。代价是旧版本需要 VACUUM 清理。</p>
+
+<p><strong>Q3：VACUUM 是什么？</strong></p>
+<p>A：回收 MVCC 留下的死元组。autovacuum 自动运行。VACUUM 只回收空间不缩表，VACUUM FULL 缩表但锁表。</p>
+
+<p><strong>Q4：JSONB 和 JSON 的区别？</strong></p>
+<p>A：JSON 存文本（每次查询解析→慢），JSONB 存二进制（支持 GIN 索引→快）。永远用 JSONB。</p>
+
+<p><strong>Q5：GIN 和 B-tree 的区别？</strong></p>
+<p>A：B-tree 适合等值和范围查询，GIN 适合 JSONB 包含/数组/全文搜索。GIN 更大、更新更慢。</p>
+
+<p><strong>Q6：窗口函数和 GROUP BY 的区别？</strong></p>
+<p>A：GROUP BY 折叠行，窗口函数不折叠行——原始行不变，旁边多一列聚合结果。</p>
+
+<p><strong>Q7：递归 CTE 解决什么问题？</strong></p>
+<p>A：树形/层级数据遍历（组织架构、分类树）。锚点 UNION ALL 递归部分。</p>
+
+<p><strong>Q8：怎么发现慢查询？</strong></p>
+<p>A：pg_stat_statements、慢查询日志（log_min_duration_statement=1000ms）、EXPLAIN ANALYZE。</p>
+
+<p><strong>Q9：为什么 PG 需要连接池？</strong></p>
+<p>A：进程模型，每个连接一个进程。连接池把几千应用连接映射到几十个 PG 连接。</p>
+
+<p><strong>Q10：分区表怎么用？</strong></p>
+<pre><code class="language-sql">CREATE TABLE orders_partitioned (
+    id BIGSERIAL, created_at TIMESTAMPTZ, total NUMERIC(10,2)
+) PARTITION BY RANGE (created_at);
+
+CREATE TABLE orders_2024_q1 PARTITION OF orders_partitioned
+    FOR VALUES FROM ('2024-01-01') TO ('2024-04-01');
+-- 查询只扫对应分区（分区裁剪），删旧数据直接 DROP 子分区（秒级）
+</code></pre>
+
+<hr />
+<p><strong>掌握 PostgreSQL，就掌握了当今最强大的开源关系数据库。</strong></p>
+
+<script>
+document.querySelectorAll("pre>code").forEach(function(c){
+    var p=c.parentNode;p.style.position="relative";
+    var b=document.createElement("button");b.className="copy-btn";b.textContent="复制";p.appendChild(b);
+    b.addEventListener("click",function(){
+        var t=c.textContent;
+        navigator.clipboard.writeText(t).then(function(){
+            b.textContent="已复制";b.classList.add("copied");
+            setTimeout(function(){b.textContent="复制";b.classList.remove("copied")},2000);
+        }).catch(function(){
+            var a=document.createElement("textarea");a.value=t;
+            document.body.appendChild(a);a.select();
+            document.execCommand("copy");document.body.removeChild(a);
+            b.textContent="已复制";b.classList.add("copied");
+            setTimeout(function(){b.textContent="复制";b.classList.remove("copied")},2000);
+        });
+    });
+});
+</script>
+</div>
+</body>

@@ -1,0 +1,1284 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Rancher学习文档</title>
+<style>
+body {
+    transition: margin-left .25s ease;
+    font-family: -apple-system, "Noto Sans SC", "Microsoft YaHei", sans-serif;
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 20px 24px 60px;
+    line-height: 1.8;
+    color: #333;
+    background: #fff;
+}
+h1 { border-bottom: 2px solid #eee; padding-bottom: 10px; color: #222; }
+h2 { color: #333; margin-top: 32px; }
+h3 { color: #555; }
+a { color: #0366d6; text-decoration: none; }
+a:hover { text-decoration: underline; }
+pre {
+    background: #f6f8fa;
+    border-radius: 6px;
+    padding: 16px;
+    overflow-x: auto;
+    font-size: 14px;
+    line-height: 1.45;
+}
+code {
+    background: #f0f2f4;
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-size: 14px;
+}
+pre code { background: none; padding: 0; }
+blockquote {
+    border-left: 4px solid #ddd;
+    margin: 0;
+    padding: 0 16px;
+    color: #666;
+}
+table {
+    border-collapse: collapse;
+    width: 100%;
+    margin: 16px 0;
+}
+th, td {
+    border: 1px solid #ddd;
+    padding: 8px 12px;
+    text-align: left;
+}
+th { background: #f6f8fa; }
+img { max-width: 100%; }
+.back-link {
+    margin-bottom: 20px;
+    display: block;
+    color: #666;
+}
+.back-link:hover { color: #0366d6; }
+
+.sidebar-toc {
+    transition: left .25s ease;
+    position: fixed;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    width: 220px;
+    background: #f8f9fa;
+    border-right: 1px solid #e9ecef;
+    padding: 20px 0;
+    overflow-y: auto;
+    font-size: 13px;
+    z-index: 100;
+}
+.sidebar-toc a {
+    display: block;
+    padding: 6px 16px;
+    color: #555;
+    text-decoration: none;
+    border-left: 3px solid transparent;
+    line-height: 1.5;
+}
+.sidebar-toc a:hover {
+    background: #e9ecef;
+    color: #0366d6;
+    border-left-color: #0366d6;
+}
+.sidebar-toc .toc-h2 { padding-left: 16px; font-weight: 500; }
+.sidebar-toc .toc-h3 { padding-left: 32px; font-size: 12px; }
+body { margin-left: 240px; }
+
+
+.copy-btn {
+    position: absolute; top: 6px; right: 6px;
+    background: #e9ecef; border: none;
+    border-radius: 4px; padding: 3px 10px;
+    font-size: 12px; color: #555; cursor: pointer;
+    opacity: 0; transition: opacity 0.2s;
+    z-index: 1;
+}
+pre:hover .copy-btn { opacity: 1; }
+.copy-btn:hover { background: #d0d7de; }
+.copy-btn.copied { opacity: 1; background: #2da44e; color: #fff; }
+.sidebar-toggle-btn {
+  position: fixed;
+  left: 220px;
+  top: 0;
+  width: 28px;
+  height: 40px;
+  background: #f8f9fa;
+  border: 1px solid #e9ecef;
+  border-left: none;
+  border-radius: 0 4px 4px 0;
+  cursor: pointer;
+  font-size: 16px;
+  color: #555;
+  z-index: 101;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: left .25s, background .2s;
+  padding: 0;
+  line-height: 1;
+}
+.sidebar-toggle-btn:hover { background: #e9ecef; color: #0366d6; }
+.sidebar-collapsed .sidebar-toc { left: -220px; }
+.sidebar-collapsed .sidebar-toggle-btn { left: 0; }
+.sidebar-collapsed body, body.sidebar-collapsed { margin-left: 28px; }
+.sidebar-overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,.3);
+  z-index: 99;
+}
+@media (max-width: 768px) {
+  .sidebar-collapsed .sidebar-overlay { display: none; }
+  .sidebar-toc { left: -220px; }
+  .sidebar-toggle-btn { left: 0; }
+  body { margin-left: 28px; }
+}
+
+</style>
+</head>
+<body>
+<nav class="sidebar-toc"><a class="toc-h2" href="#1">1. Rancher 概述</a><a class="toc-h3" href="#11">1.1 什么是 Rancher</a><a class="toc-h3" href="#12">1.2 Rancher vs OpenShift vs KubeSphere</a><a class="toc-h3" href="#13">1.3 核心特性</a><a class="toc-h2" href="#2">2. 架构设计</a><a class="toc-h3" href="#21">2.1 整体架构</a><a class="toc-h3" href="#22">2.2 核心组件</a><a class="toc-h3" href="#23">2.3 Rancher Server 架构演进</a><a class="toc-h2" href="#3">3. 部署方式</a><a class="toc-h3" href="#31-docker">3.1 Docker 单节点部署</a><a class="toc-h3" href="#32-helm">3.2 Helm 高可用部署</a><a class="toc-h3" href="#33">3.3 部署选项对比</a><a class="toc-h2" href="#4">4. 集群管理</a><a class="toc-h3" href="#41">4.1 集群类型</a><a class="toc-h3" href="#42">4.2 导入已有集群</a><a class="toc-h3" href="#43">4.3 创建新集群</a><a class="toc-h3" href="#44-rke2rke2">4.4 RKE2 集群原理</a><a class="toc-h2" href="#5">5. 项目管理</a><a class="toc-h3" href="#51-project">5.1 Project 概念</a><a class="toc-h3" href="#52">5.2 资源配额</a><a class="toc-h3" href="#53">5.3 Namespace 管理</a><a class="toc-h2" href="#6">6. 用户与认证</a><a class="toc-h3" href="#61">6.1 认证方式</a><a class="toc-h3" href="#62-rbac">6.2 RBAC 模型</a><a class="toc-h3" href="#63">6.3 角色继承关系</a><a class="toc-h2" href="#7">7. 应用管理</a><a class="toc-h3" href="#71">7.1 应用商店（Apps &amp; Marketplace）</a><a class="toc-h3" href="#72">7.2 自定义 Chart</a><a class="toc-h3" href="#73">7.3 持续部署（Continuous Delivery）</a><a class="toc-h2" href="#8">8. 监控与告警</a><a class="toc-h3" href="#81">8.1 监控集成</a><a class="toc-h3" href="#82">8.2 告警规则</a><a class="toc-h3" href="#83">8.3 日志收集</a><a class="toc-h2" href="#9">9. 存储管理</a><a class="toc-h3" href="#91">9.1 存储类管理</a><a class="toc-h3" href="#92">9.2 Longhorn 集成</a><a class="toc-h2" href="#10_1">10. 网络管理</a><a class="toc-h3" href="#101">10.1 CNI 选择</a><a class="toc-h3" href="#102">10.2 Ingress 管理</a><a class="toc-h3" href="#103">10.3 网络策略</a><a class="toc-h2" href="#11_1">11. Rancher 安全</a><a class="toc-h3" href="#111">11.1 Pod 安全策略</a><a class="toc-h3" href="#112">11.2 安全扫描</a><a class="toc-h2" href="#12_1">12. 多集群管理</a><a class="toc-h3" href="#121">12.1 多集群联邦</a><a class="toc-h3" href="#122">12.2 集群备份与恢复</a><a class="toc-h2" href="#13_1">13. 高可用与灾备</a><a class="toc-h3" href="#131">13.1 Rancher HA 架构</a><a class="toc-h3" href="#132">13.2 备份策略</a><a class="toc-h2" href="#14-rancher-vs-openshift-vs-kubesphere">14. Rancher vs OpenShift vs KubeSphere</a><a class="toc-h3" href="#141">14.1 对比表格</a><a class="toc-h2" href="#15_1">15. 高频面试题</a><a class="toc-h3" href="#q1">Q1：Rancher 是什么？主要用途？</a><a class="toc-h3" href="#q2">Q2：Rancher Server 高可用如何部署？</a><a class="toc-h3" href="#q3">Q3：Rancher 的 RBAC 模型？</a><a class="toc-h3" href="#q4">Q4：Rancher 支持哪些集群类型？</a><a class="toc-h3" href="#q5">Q5：Rancher 如何导入现有集群？</a><a class="toc-h3" href="#q6">Q6：Project 和 Namespace 的关系？</a><a class="toc-h3" href="#q7">Q7：Rancher 的监控方案？</a><a class="toc-h3" href="#q8">Q8：Rancher 如何实现多集群管理？</a><a class="toc-h3" href="#q9">Q9：Longhorn 是什么？<br>Q10：Rancher 和 OpenShift 的区别？</a><a class="toc-h2" href="#_2">附录：常用操作速查</a></nav>
+<button class="sidebar-toggle-btn" onclick="toggleSidebar()" title="切换侧栏">☰</button>
+
+<div class="sidebar-overlay" onclick="toggleSidebar()"></div>
+
+<script>
+function toggleSidebar() {
+  document.body.classList.toggle('sidebar-collapsed');
+  try { localStorage.setItem('sidebarCollapsed', document.body.classList.contains('sidebar-collapsed')); } catch(e) {}
+}
+(function() {
+  try {
+    if (localStorage.getItem('sidebarCollapsed') === 'true') {
+      document.body.classList.add('sidebar-collapsed');
+    }
+  } catch(e) {}
+})();
+</script>
+<a class="back-link" href="/blog/2026/05/16/面试题/面试题/">← 返回面试题目录</a>
+<h1 id=page-title>Rancher 面试学习文档</h1>
+<blockquote>
+<p>📅 整理日期：2026-06-27 | 🎯 目标：系统掌握 Rancher 多集群管理平台核心功能与面试高频考点</p>
+</blockquote>
+<hr />
+
+<h2 id="1">1. Rancher 概述</h2>
+<h3 id="11">1.1 什么是 Rancher</h3>
+<p><strong>Rancher</strong> 是一个开源的企业级<strong>多集群 Kubernetes 管理平台</strong>，由 SUSE 维护。它提供统一的控制面来管理部署在任何位置（数据中心、云、边缘）的 Kubernetes 集群，解决"多个 K8s 集群分散管理"的痛点。</p>
+<p><strong>核心定位</strong>：不只是一个 UI 工具，而是包含集群创建/导入、RBAC 统一管理、应用商店、监控告警、CI/CD 等一站式管理平台。</p>
+<blockquote>
+<p><strong>面试话术</strong>：Rancher 的价值体现在"Kubernetes 集群的<strong>管理面</strong>而非数据面"——它本身不运行用户业务容器，而是提供统一入口管理所有集群。它既可以用 RKE/RKE2 创建新集群，也可以导入已有集群（包括云厂商托管集群）。</p>
+</blockquote>
+
+<h3 id="12">1.2 Rancher vs OpenShift vs KubeSphere</h3>
+<table>
+<thead>
+<tr>
+<th>对比项</th>
+<th>Rancher</th>
+<th>OpenShift</th>
+<th>KubeSphere</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>厂商</td>
+<td>SUSE（开源）</td>
+<td>Red Hat（商业）</td>
+<td>青云（开源）</td>
+</tr>
+<tr>
+<td>定位</td>
+<td>多集群管理平台</td>
+<td>企业级 K8s 发行版</td>
+<td>容器混合云 PaaS</td>
+</tr>
+<tr>
+<td>集群创建</td>
+<td>✅ RKE/RKE2</td>
+<td>✅ 内置安装器</td>
+<td>✅ KubeKey</td>
+</tr>
+<tr>
+<td>多集群管理</td>
+<td>✅ 核心能力</td>
+<td>✅（ACM）</td>
+<td>✅ 企业版</td>
+</tr>
+<tr>
+<td>内置存储</td>
+<td>Longhorn</td>
+<td>OpenShift Data Foundation</td>
+<td>无/LocalPV</td>
+</tr>
+<tr>
+<td>内置 DevOps</td>
+<td>Fleet + Jenkins</td>
+<td>Jenkins + Tekton</td>
+<td>Jenkins + S2I</td>
+</tr>
+<tr>
+<td>服务网格</td>
+<td>Istio 可选</td>
+<td>内置</td>
+<td>内置 Istio</td>
+</tr>
+<tr>
+<td>学习曲线</td>
+<td>中</td>
+<td>高</td>
+<td>中</td>
+</tr>
+</tbody>
+</table>
+
+<h3 id="13">1.3 核心特性</h3>
+<ul>
+<li><strong>多集群统一管理</strong>：一个控制面管理数百个 K8s 集群</li>
+<li><strong>一键集群部署</strong>：RKE/RKE2 快速创建生产级集群</li>
+<li><strong>统一 RBAC</strong>：跨集群的用户权限集中管理</li>
+<li><strong>应用商店</strong>：Helm Chart 目录一键部署</li>
+<li><strong>监控告警</strong>：集成 Prometheus + Grafana</li>
+<li><strong>日志收集</strong>：集成 Elasticsearch + Fluentd + Kibana</li>
+<li><strong>CI/CD</strong>：Fleet 持续部署 + 流水线</li>
+<li><strong>安全扫描</strong>：镜像安全扫描</li>
+</ul>
+<hr />
+
+<h2 id="2">2. 架构设计</h2>
+<h3 id="21">2.1 整体架构</h3>
+<pre><code>+-------------------------------------------------------------------+
+|                        Rancher Architecture                         |
++-------------------------------------------------------------------+
+
+                          +---------------+
+                          |   Browser /   |
+                          |   kubectl     |
+                          +-------+-------+
+                                  |
+                          +-------v-------+
+                          |   Load        |
+                          |   Balancer    |
+                          +-------+-------+
+                                  |
+              +-------------------+-------------------+
+              |                   |                   |
+      +-------v-------+  +------v--------+  +-------v-------+
+      | Rancher       |  | Rancher       |  | Rancher       |
+      | Server (Pod)  |  | Server (Pod)  |  | Server (Pod)  |
+      |  (replica=3)  |  |  (replica=3)  |  |  (replica=3)  |
+      +-------+-------+  +-------+-------+  +-------+-------+
+              |                   |                   |
+      +-------v-------------------v-------------------v-------+
+      |               Local K8s Cluster (Rancher 管理面)        |
+      |  +-----+  +-----+  +-----+  +--------+  +--------+   |
+      |  |etcd |  | apiserver |  |controller|  |scheduler|  |
+      |  +-----+  +-----------+  +----------+  +---------+   |
+      +-------------------------------------------------------+
+              |
+   +----------+---------------------+------------------+---------+
+   |          |                     |                  |          |
++--v-----+ +--v-----+ +----------+ +--v-----+ +-----v-+ +----v--+
+|  K8s   | |  K8s   | | Managed | |  K3s   | | EKS   | | AKS   |
+|  Cluster| | Cluster| | K8s(IMP)| | Cluster| |(IMP)  | |(IMP)  |
+|(RKE/RKE2)|(RKE/RKE2)|         | |(边缘)   | |       | |       |
++--------+ +--------+ +---------+ +--------+ +-------+ +-------+
+
+IMP = 导入模式（Import），Rancher 只作为管理面，不管理集群控制面
+</code></pre>
+
+<h3 id="22">2.2 核心组件</h3>
+<table>
+<thead>
+<tr>
+<th>组件</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Rancher Server</strong></td>
+<td>核心服务，提供 UI 和 API，部署为 Deployment</td>
+</tr>
+<tr>
+<td><strong>Cluster Agent</strong></td>
+<td>部署在管理集群中，与被管集群通信</td>
+</tr>
+<tr>
+<td><strong>Node Agent</strong></td>
+<td>部署在每个被管集群中，执行操作指令</td>
+</tr>
+<tr>
+<td><strong>Fleet</strong></td>
+<td>持续部署引擎，GitOps 模式管理应用</td>
+</tr>
+<tr>
+<td><strong>Steve</strong></td>
+<td>K8s API 代理，将 K8s 资源转为 Rancher 可读格式</td>
+</tr>
+<tr>
+<td><strong>Kubernetes API Proxy</strong></td>
+<td>统一代理所有下游集群的 API 请求</td>
+</tr>
+</tbody>
+</table>
+
+<h3 id="23">2.3 Rancher Server 架构演进</h3>
+<pre><code>V1.x (Docker部署+RKE集群):
+  +----------------------+
+  | Rancher Server       |
+  | (Docker Container)   |
+  +----------+-----------+
+             |
+     +-------v-------+
+     | RKE 集群 (x N) |
+     +---------------+
+
+V2.x (容器化部署):
+  +----------------------------+
+  | Rancher Server             |
+  | (Deployment on K8s)        |
+  | - 管理面 K8s 集群          |
+  +-------------+--------------+
+                 |
+     +-----------+----------+
+     | RKE / RKE2 / Import  |
+     +----------------------+
+
+V2.6+ (新架构):
+  +----------------------------+
+  | Rancher Server (embedded)  |
+  | - 内置 etcd + apiserver   |
+  | - 不再依赖外部 K8s 集群    |
+  +----------------------------+
+</code></pre>
+<hr />
+
+<h2 id="3">3. 部署方式</h2>
+<h3 id="31-docker">3.1 Docker 单节点部署（快速体验）</h3>
+<pre><code class="language-bash"># 单节点快速部署（仅用于测试）
+docker run -d --restart=unless-stopped \
+  -p 80:80 -p 443:443 \
+  --privileged \
+  --name rancher-server \
+  rancher/rancher:v2.8.1
+
+# 访问 https://&lt;server-ip&gt;/ 获取初始密码
+docker logs rancher-server 2>&amp;1 | grep "Bootstrap Password:"
+</code></pre>
+
+<h3 id="32-helm">3.2 Helm 高可用部署（生产推荐）</h3>
+<pre><code class="language-bash"># 前提：已有 K8s 集群（可用 kubeadm 或托管集群）
+
+# 1. 添加 Helm 仓库
+helm repo add rancher-stable https://releases.rancher.com/server-charts/stable
+helm repo update
+
+# 2. 创建 Namespace
+kubectl create namespace cattle-system
+
+# 3. 安装 SSL 证书（使用 cert-manager）
+kubectl apply -f https://github.com/cert-manager/cert-manager/releases/download/v1.13.0/cert-manager.yaml
+
+# 4. 安装 Rancher
+helm install rancher rancher-stable/rancher \
+  --namespace cattle-system \
+  --set hostname=rancher.example.com \
+  --set bootstrapPassword=admin123 \
+  --set replicas=3 \
+  --set ingress.tls.source=letsEncrypt \
+  --set letsEncrypt.email=admin@example.com
+
+# 5. 验证
+kubectl -n cattle-system rollout status deploy/rancher
+</code></pre>
+
+<h3 id="33">3.3 部署选项对比</h3>
+<table>
+<thead>
+<tr>
+<th>部署方式</th>
+<th>适合场景</th>
+<th>高可用</th>
+<th>推荐</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Docker 单节点</strong></td>
+<td>开发测试、PoC</td>
+<td>❌</td>
+<td>❌ 不推荐生产</td>
+</tr>
+<tr>
+<td><strong>Helm on K8s</strong></td>
+<td>生产环境</td>
+<td>✅</td>
+<td>✅ 推荐</td>
+</tr>
+<tr>
+<td><strong>Air-Gap 离线</strong></td>
+<td>内网环境</td>
+<td>✅</td>
+<td>✅ 需提前准备镜像</td>
+</tr>
+<tr>
+<td><strong>RancherD</strong></td>
+<td>边缘/轻量场景</td>
+<td>⚠️ 单点</td>
+<td>已弃用</td>
+</tr>
+</tbody>
+</table>
+<hr />
+
+<h2 id="4">4. 集群管理</h2>
+<h3 id="41">4.1 集群类型</h3>
+<table>
+<thead>
+<tr>
+<th>集群类型</th>
+<th>说明</th>
+<th>控制面管理</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>RKE 集群</strong></td>
+<td>Rancher 自研 K8s 安装工具（Docker 驱动）</td>
+<td>Rancher 管理控制面</td>
+</tr>
+<tr>
+<td><strong>RKE2 集群</strong></td>
+<td>Rancher 下一代 K8s 发行版（containerd 驱动）</td>
+<td>Rancher 管理控制面</td>
+</tr>
+<tr>
+<td><strong>K3s 集群</strong></td>
+<td>轻量级 K8s 发行版（边缘场景）</td>
+<td>Rancher 管理控制面</td>
+</tr>
+<tr>
+<td><strong>导入集群</strong></td>
+<td>已有集群（任何方式创建）</td>
+<td>用户自行管理</td>
+</tr>
+</tbody>
+</table>
+
+<h3 id="42">4.2 导入已有集群</h3>
+<pre><code class="language-bash"># 在 Rancher UI 中获取导入命令
+# Cluster Management -&gt; Import Existing Cluster
+
+# 在目标集群执行（注册集群）
+kubectl apply -f https://&lt;rancher-server&gt;/v3/import/&lt;token&gt;.yaml
+
+# 验证：Rancher 中集群状态变为 Active
+# 原理：该 YAML 会创建 Cluster Agent 和 Node Agent
+</code></pre>
+
+<pre><code>导入流程：
+  1. Rancher 生成导入 YAML（包含 clusterID 和 token）
+  2. 在目标集群应用该 YAML
+  3. 创建 cattle-system Namespace
+  4. 启动 cattle-cluster-agent Deployment
+  5. Agent 与 Rancher Server 建立反向隧道连接
+  6. Rancher 通过 agent 管理下游集群
+</code></pre>
+
+<h3 id="43">4.3 创建新集群</h3>
+<pre><code class="language-yaml"># RKE2 集群配置示例 (Rancher UI 或 API)
+apiVersion: provisioning.cattle.io/v1
+kind: Cluster
+metadata:
+  name: production-cluster
+  namespace: fleet-default
+spec:
+  rkeConfig:
+    machinePools:
+      - name: master
+        controlPlaneRole: true
+        quantity: 3
+        machineConfigRef:
+          kind: MachineConfig
+          name: node-template
+      - name: worker
+        workerRole: true
+        quantity: 5
+        machineConfigRef:
+          kind: MachineConfig
+          name: node-template
+    etcd:
+      backupConfig:
+        enabled: true
+        intervalHours: 12
+        retention: 30
+    kubernetesVersion: v1.28.7+rke2r1
+</code></pre>
+
+<h3 id="44-rke2rke2">4.4 RKE2 集群原理</h3>
+<pre><code>RKE2 (Rancher Kubernetes Engine 2):
+  - 基于 containerd（无需 Docker）
+  - 通过 etcd 实现控制面高可用
+  - 内置 ingress-nginx + Calico/Canal
+  - 支持 air-gap 安装
+  - 符合 CIS 安全基准
+
+RKE (一代，已逐渐被 RKE2 替代):
+  - 基于 Docker (dockershim)
+  - 每个组件运行在容器中
+  - 通过 SSH 连接节点执行操作
+
+K3s:
+  - 二进制单文件，不到 100MB
+  - 默认使用 embedded etcd 或 SQLite
+  - 适用边缘计算 / IoT
+</code></pre>
+<hr />
+
+<h2 id="5">5. 项目管理</h2>
+<h3 id="51-project">5.1 Project 概念</h3>
+<p><strong>Project</strong> 是 Rancher 的顶层资源隔离单元，包含一组 Namespace。一个集群可以包含多个 Project，Project 可以跨团队共享。</p>
+<pre><code>+----------------------------------------------+
+|               K8s Cluster                     |
+|                                               |
+|  +------------------+  +------------------+  |
+|  | Project A        |  | Project B        |  |
+|  | (开发团队)        |  | (测试团队)        |  |
+|  |                  |  |                  |  |
+|  | Namespace: dev-a |  | Namespace: test  |  |
+|  | Namespace: dev-b |  | (resources:      |  |
+|  | (resources:      |  |  5C/10G)         |  |
+|  |  10C/20G)        |  +------------------+  |
+|  +------------------+                         |
++----------------------------------------------+
+</code></pre>
+
+<h3 id="52">5.2 资源配额</h3>
+<pre><code class="language-yaml"># Project 级资源配额（影响 Project 内所有 Namespace）
+apiVersion: management.cattle.io/v3
+kind: Project
+metadata:
+  name: dev-project
+  namespace: c-xxxxx
+spec:
+  resourceQuota:
+    limit:
+      limitsCpu: "20"
+      limitsMemory: "40Gi"
+      requestsCpu: "10"
+      requestsMemory: "20Gi"
+      persistentvolumeclaims: "10"
+      servicesNodePorts: "0"  # 禁用 NodePort
+  namespaceDefaultResourceQuota:
+    limit:
+      limitsCpu: "5"
+      limitsMemory: "10Gi"
+</code></pre>
+
+<h3 id="53">5.3 Namespace 管理</h3>
+<ul>
+<li>Rancher UI 中可在 Project 内直接创建 Namespace</li>
+<li>自动注入 Project 的配额限制</li>
+<li>支持 Namespace 级别的容器资源限额</li>
+<li>移动/重新分配 Namespace 到不同 Project</li>
+</ul>
+<hr />
+
+<h2 id="6">6. 用户与认证</h2>
+<h3 id="61">6.1 认证方式</h3>
+<table>
+<thead>
+<tr>
+<th>认证方式</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>本地用户</strong></td>
+<td>Rancher 内建用户系统</td>
+</tr>
+<tr>
+<td><strong>LDAP / AD</strong></td>
+<td>企业 LDAP / Active Directory</td>
+</tr>
+<tr>
+<td><strong>GitHub / GitLab</strong></td>
+<td>OAuth 认证</td>
+</tr>
+<tr>
+<td><strong>OIDC</strong></td>
+<td>通用 OpenID Connect（Keycloak / Okta）</td>
+</tr>
+<tr>
+<td><strong>SAML</strong></td>
+<td>企业 SAML 协议</td>
+</tr>
+</tbody>
+</table>
+
+<h3 id="62-rbac">6.2 RBAC 模型</h3>
+<p>Rancher 将 RBAC 分为三个层级：</p>
+<pre><code>Global (全局)
+  |
+  |-- Cluster Owner       : 管理所有集群
+  |-- Cluster Member      : 查看所有集群
+  |-- User Base           : 基本登录权限
+  |
+  +--&gt; Cluster (集群)
+       |
+       |-- Cluster Owner   : 管理集群节点/存储/网络
+       |-- Cluster Member  : 查看集群资源
+       |
+       +--&gt; Project (项目)
+            |
+            |-- Project Owner  : 管理项目内应用/配置
+            |-- Project Member : 部署和管理应用
+            |-- Read Only      : 只读
+</code></pre>
+
+<h3 id="63">6.3 角色继承关系</h3>
+<pre><code>Global Role (创建用户时分配)
+  - Administrator     : 完全控制
+  - Cluster Owner     : 创建/管理集群
+  - User              : 基本权限
+
+Cluster Role (用户添加到集群时分配)
+  - Owner             : 集群完全控制
+  - Member            : 查看和操作集群资源
+  - Custom Role       : 自定义权限集
+
+Project Role (用户添加到项目时分配)
+  - Owner             : 项目完全控制
+  - Member            : 操作项目资源
+  - Read Only         : 只读访问
+  - Custom Role       : 自定义权限集
+</code></pre>
+<hr />
+
+<h2 id="7">7. 应用管理</h2>
+<h3 id="71">7.1 应用商店（Apps &amp; Marketplace）</h3>
+<p>Rancher 内置应用商店，支持添加多个 Chart 仓库：</p>
+<ul>
+<li><strong>Rancher Partner Charts</strong>：认证合作伙伴 Chart</li>
+<li><strong>Rancher Library</strong>：通用应用模板</li>
+<li><strong>自定义仓库</strong>：添加私有 Helm 仓库</li>
+<li><strong>OCI 仓库</strong>：支持 OCI 格式的 Chart</li>
+</ul>
+
+<h3 id="72">7.2 自定义 Chart</h3>
+<pre><code class="language-bash"># 添加自定义 Helm 仓库到 Rancher
+# Apps -&gt; Repository -&gt; Create
+
+# 或通过 API 添加
+cat &lt;&lt;EOF | kubectl apply -f -
+apiVersion: catalog.cattle.io/v1
+kind: ClusterRepo
+metadata:
+  name: my-repo
+spec:
+  url: https://charts.example.com
+EOF
+</code></pre>
+
+<h3 id="73">7.3 持续部署（Continuous Delivery）</h3>
+<p>Rancher 内置 <strong>Fleet</strong> 引擎，实现 GitOps 持续部署：</p>
+<pre><code>+------------------+       +----------------+       +----------------+
+|  Git Repo        |       |  Fleet Manager  |       |   Target       |
+|  (应用 Manifests)  |------&gt;|  (Rancher)      |------&gt;|   Clusters     |
++------------------+       +----------------+       +----------------+
+  apps/
+    nginx/
+      deployment.yaml
+      service.yaml
+    monitoring/
+      prometheus.yaml
+
+Fleet 特性:
+  - 多集群分发 (同一应用部署到 N 个集群)
+  - GitOps (自动同步 Git 仓库状态)
+  - 差异化配置 (不同集群使用不同 values)
+  - 健康状态追踪
+  - 策略控制 (蓝绿/金丝雀发布)
+</code></pre>
+
+<pre><code class="language-yaml"># Fleet GitRepo 示例
+apiVersion: fleet.cattle.io/v1alpha1
+kind: GitRepo
+metadata:
+  name: my-app
+  namespace: fleet-default
+spec:
+  repo: https://github.com/team/app-manifests.git
+  branch: main
+  paths:
+    - apps/nginx
+  targets:
+    - clusterSelector:
+        matchLabels:
+          env: production
+</code></pre>
+<hr />
+
+<h2 id="8">8. 监控与告警</h2>
+<h3 id="81">8.1 监控集成</h3>
+<p>Rancher 通过集成 Prometheus Operator 实现一键部署监控。</p>
+<pre><code>启用监控后自动部署:
+  - prometheus-operator (Deployment)
+  - Prometheus (StatefulSet)
+  - AlertManager (StatefulSet)
+  - Grafana (Deployment)
+  - kube-state-metrics (Deployment)
+  - node-exporter (DaemonSet)
+  - prometheus-adapter (Deployment)  --&gt; HPA 指标来源
+
+Grafana 预置了常用的 K8s 仪表盘：
+  - Kubernetes Cluster (Node/CPU/Memory)
+  - Kubernetes Pod (容器级别指标)
+  - Etcd / API Server 性能
+  - Rancher 组件状态
+</code></pre>
+
+<h3 id="82">8.2 告警规则</h3>
+<pre><code class="language-yaml"># Rancher UI 或 PrometheusRule
+apiVersion: monitoring.coreos.com/v1
+kind: PrometheusRule
+metadata:
+  name: k8s-alerts
+  namespace: cattle-monitoring-system
+spec:
+  groups:
+    - name: kubernetes
+      rules:
+        - alert: PodCrashLooping
+          expr: rate(kube_pod_container_status_restarts_total[5m]) > 0
+          for: 5m
+          labels:
+            severity: warning
+          annotations:
+            summary: "Pod {{ $labels.pod }} is crash looping"
+
+        - alert: NodeNotReady
+          expr: kube_node_status_condition{condition="Ready",status="true"} == 0
+          for: 5m
+          labels:
+            severity: critical
+          annotations:
+            summary: "Node {{ $labels.node }} is not ready"
+</code></pre>
+
+<h3 id="83">8.3 日志收集</h3>
+<p>Rancher 支持集成 EFK（Elasticsearch + Fluentd + Kibana）或 Loki 作为日志方案。</p>
+<pre><code class="language-yaml"># Rancher 中启用日志：Tools -&gt; Logging
+# 底层使用 Logging Operator，支持多种输出：
+
+输出端 (Output):
+  - Elasticsearch
+  - Splunk
+  - Kafka
+  - Syslog
+  - S3 / GCS
+
+采集流程:
+  Pod (stdout) --&gt; Fluentd (DaemonSet) --&gt; Elasticsearch --&gt; Kibana
+</code></pre>
+<hr />
+
+<h2 id="9">9. 存储管理</h2>
+<h3 id="91">9.1 存储类管理</h3>
+<p>Rancher 可在 UI 中直接创建和管理 StorageClass：</p>
+<pre><code class="language-yaml"># Rancher UI 或手动创建
+apiVersion: storage.k8s.io/v1
+kind: StorageClass
+metadata:
+  name: nfs-client
+provisioner: nfs.csi.k8s.io
+parameters:
+  server: nfs-server.local
+  share: /exports/data
+reclaimPolicy: Delete
+volumeBindingMode: Immediate
+</code></pre>
+
+<h3 id="92">9.2 Longhorn 集成</h3>
+<p><strong>Longhorn</strong> 是 Rancher 开源的分布式块存储系统，专为 K8s 设计。</p>
+<pre><code>+----------------------------------------------------+
+|                   Longhorn 架构                       |
++----------------------------------------------------+
+|                                                     |
+|  +-------------+    +-------------+    +----------+|
+|  | Longhorn    |    | Longhorn    |    | Longhorn ||
+|  | Manager     |    | Manager     |    | Manager  ||
+|  | (Controller)|    | (Controller)|    | (Ctrl)  ||
+|  +------+------+    +------+------+    +----+-----+
+|         |                  |                 |
+|  +------v------+    +------v------+    +----v-----+
+|  | Longhorn    |    | Longhorn    |    | Longhorn |
+|  | Instance    |    | Instance    |    | Instance |
+|  | Manager     |    | Manager     |    | Manager  |
+|  | (Node-1)    |    | (Node-2)    |    | (Node-3) |
+|  |             |    |             |    |          |
+|  | +--v---+    |    | +--v---+    |    | +--v---+ |
+|  | |engine|    |    | |engine|    |    | |engine| |
+|  | +--+---+    |    | +--+---+    |    | +--+---+ |
+|  | |replica|   |    | |replica|   |    | |replica||
+|  | +-------+   |    | +-------+   |    | +-------+|
+|  | |replica|   |    | |replica|   |    | |replica||
+|  | +-------+   |    | +-------+   |    | +-------+|
+|  +-------------+    +-------------+    +----------+
+|                                                     |
+|  Longhorn 特性:                                     |
+|  - 无额外存储依赖（利用节点本地磁盘）                |
+|  - 内置快照和备份                                    |
+|  - 支持 ReadWriteMany                               |
+|  - 自动故障迁移                                     |
+|  - 加密和 QoS                                       |
++----------------------------------------------------+
+</code></pre>
+
+<pre><code class="language-bash"># 通过 Rancher 启用 Longhorn
+# Apps -&gt; Marketplace -&gt; Install Longhorn
+
+# 或通过 Helm 手动安装
+helm repo add longhorn https://charts.longhorn.io
+helm install longhorn longhorn/longhorn --namespace longhorn-system --create-namespace
+</code></pre>
+<hr />
+
+<h2 id="10_1">10. 网络管理</h2>
+<h3 id="101">10.1 CNI 选择</h3>
+<table>
+<thead>
+<tr>
+<th>CNI</th>
+<th>Rancher 支持情况</th>
+<th>适用场景</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Canal</strong></td>
+<td>默认选项（Calico + Flannel）</td>
+<td>通用场景</td>
+</tr>
+<tr>
+<td><strong>Calico</strong></td>
+<td>支持</td>
+<td>需要 NetworkPolicy 和 BGP</td>
+</tr>
+<tr>
+<td><strong>Cilium</strong></td>
+<td>支持（RKE2）</td>
+<td>高性能 + eBPF + Service Mesh</td>
+</tr>
+<tr>
+<td><strong>Weave</strong></td>
+<td>支持</td>
+<td>简单部署</td>
+</tr>
+<tr>
+<td><strong>Flannel</strong></td>
+<td>支持</td>
+<td>轻量场景</td>
+</tr>
+</tbody>
+</table>
+
+<h3 id="102">10.2 Ingress 管理</h3>
+<p>Rancher 内置 Nginx Ingress Controller：</p>
+<pre><code class="language-bash"># Rancher UI: Service Discovery -&gt; Ingress -&gt; Create
+# 支持:
+#   - 基于域名+路径路由
+#   - TLS/SSL 证书管理
+#   - 证书自动签发 (cert-manager + Let's Encrypt)
+#   - 注解配置 (重写/限速/CORS)
+</code></pre>
+
+<h3 id="103">10.3 网络策略</h3>
+<p>Rancher UI 支持可视化配置 NetworkPolicy：</p>
+<pre><code>安全策略模板:
+  - 限制 Pod 间通信
+  - 允许/禁止特定 Namespace 流量
+  - 允许/禁止特定 IP 段
+  - 限制对外出口流量
+
+默认策略建议:
+  1. 默认拒绝所有入站流量
+  2. 按需允许特定来源
+  3. 默认拒绝所有出站（可选）
+  4. 按需允许特定目标
+</code></pre>
+<hr />
+
+<h2 id="11_1">11. Rancher 安全</h2>
+<h3 id="111">11.1 Pod 安全策略</h3>
+<pre><code class="language-yaml"># Rancher PSP 模板 (Pod Security Policy)
+apiVersion: policy/v1beta1
+kind: PodSecurityPolicy
+metadata:
+  name: restricted
+spec:
+  privileged: false
+  seLinux:
+    rule: RunAsAny
+  runAsUser:
+    rule: MustRunAsNonRoot
+  fsGroup:
+    rule: RunAsAny
+  volumes:
+    - "configMap"
+    - "emptyDir"
+    - "secret"
+    - "persistentVolumeClaim"
+</code></pre>
+
+<blockquote>
+<p>注意：K8s v1.25+ 中 PSP 已被 Pod Security Admission（PSA）取代，Rancher 也已迁移到 PSA。</p>
+</blockquote>
+
+<h3 id="112">11.2 安全扫描</h3>
+<p>Rancher 集成了安全扫描功能，基于 <strong>kube-bench</strong> 和 <strong>kube-hunter</strong>：</p>
+<ul>
+<li>CIS 基准扫描：检查集群是否符合 CIS Kubernetes Benchmark</li>
+<li>镜像扫描：扫描容器镜像中的漏洞（需集成第三方扫描器）</li>
+<li>合规报告：生成集群合规性报告</li>
+</ul>
+<hr />
+
+<h2 id="12_1">12. 多集群管理</h2>
+<h3 id="121">12.1 多集群联邦</h3>
+<p>通过 Rancher 统一管理多集群的方式：</p>
+<pre><code>Rancher 控制面
+      |
+      +--- 集群 A (生产-北京)
+      |
+      +--- 集群 B (生产-上海)
+      |
+      +--- 集群 C (开发-测试环境)
+      |
+      +--- 集群 D (阿里云 ACK)
+      |
+      +--- 集群 E (AWS EKS)
+
+统一操作：
+  - 统一 RBAC：一个用户名/密码访问所有集群
+  - 统一监控：Grafana 跨集群仪表盘
+  - 统一应用分发：Fleet GitOps 部署到多集群
+  - 统一日志：聚合所有集群日志到中心化存储
+</code></pre>
+
+<h3 id="122">12.2 集群备份与恢复</h3>
+<pre><code class="language-bash"># Rancher 本身备份（Rancher Server 数据备份）
+# 方法1: 通过 Rancher Backups App
+# Apps -&gt; Marketplace -&gt; Install Rancher Backups
+# 支持存储到 S3 / NFS / PVC
+
+# 方法2: 手动备份 Rancher 集群
+kubectl -n cattle-system get secret rancher-admin-password -o jsonpath='{.data.password}' | base64 -d
+
+# 下游集群备份
+# 使用 Velero 备份集群资源
+velero install --provider aws --bucket k8s-backups
+velero backup create cluster-backup --include-namespaces default,production
+</code></pre>
+<hr />
+
+<h2 id="13_1">13. 高可用与灾备</h2>
+<h3 id="131">13.1 Rancher HA 架构</h3>
+<pre><code>                Internet
+                   |
+            +------v------+
+            |  DNS / LB   |  &lt;--- 负载均衡
+            +------+------+
+                   |
+        +----------+----------+
+        |          |          |
+  +-----v---+ +---v-----+ +--v------+
+  | Rancher | | Rancher | | Rancher |
+  | Pod-1   | | Pod-2   | | Pod-3   |
+  |         | |         | |         |
+  | +-----+ | | +-----+ | | +-----+ |
+  | |Steve| | | |Steve| | | |Steve| |
+  | +-----+ | | +-----+ | | +-----+ |
+  +----+----+ +----+----+ +----+----+
+       |           |            |
+       +-----------+------------+
+                   |
+          +--------v--------+
+          |   K8s API       |  &lt;--- 本地 K8s 集群
+          |   (Rancher      |
+          |   管理面集群)    |
+          +--------+--------+
+                   |
+          +--------v--------+
+          |   etcd (3节点)   |  &lt;--- Raft 集群
+          +-----------------+
+
+  故障场景:
+    - 单个 Rancher Pod 故障: 其他 Pod 接管
+    - 整个管理面集群故障: 从 etcd 备份恢复
+    - 单个下游集群故障: 不影响其他集群
+</code></pre>
+
+<h3 id="132">13.2 备份策略</h3>
+<table>
+<thead>
+<tr>
+<th>备份对象</th>
+<th>方法</th>
+<th>频率</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Rancher Server 配置</td>
+<td>Rancher Backups App</td>
+<td>每日</td>
+</tr>
+<tr>
+<td>etcd 快照</td>
+<td>RKE2 自动备份 / 手动</td>
+<td>每小时</td>
+</tr>
+<tr>
+<td>下游集群资源</td>
+<td>Velero</td>
+<td>按需</td>
+</tr>
+<tr>
+<td>Longhorn 卷</td>
+<td>Longhorn 快照 + 备份</td>
+<td>按策略</td>
+</tr>
+</tbody>
+</table>
+<hr />
+
+<h2 id="14-rancher-vs-openshift-vs-kubesphere">14. Rancher vs OpenShift vs KubeSphere</h2>
+<h3 id="141">14.1 对比表格</h3>
+<table>
+<thead>
+<tr>
+<th>对比项</th>
+<th>Rancher</th>
+<th>OpenShift</th>
+<th>KubeSphere</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>厂商</strong></td>
+<td>SUSE（开源）</td>
+<td>Red Hat（商业）</td>
+<td>青云（开源）</td>
+</tr>
+<tr>
+<td><strong>定位</strong></td>
+<td>多集群管理平台</td>
+<td>企业级 K8s 发行版</td>
+<td>容器混合云 PaaS</td>
+</tr>
+<tr>
+<td><strong>集群创建</strong></td>
+<td>RKE/RKE2/K3s</td>
+<td>OpenShift Installer</td>
+<td>KubeKey / KS Installer</td>
+</tr>
+<tr>
+<td><strong>多集群</strong></td>
+<td>核心能力，原生支持</td>
+<td>ACM（Advanced Cluster Mgmt）</td>
+<td>企业版支持</td>
+</tr>
+<tr>
+<td><strong>存储</strong></td>
+<td>Longhorn（开源）</td>
+<td>OpenShift Data Foundation</td>
+<td>无内置，可集成</td>
+</tr>
+<tr>
+<td><strong>DevOps</strong></td>
+<td>Fleet + Jenkins</td>
+<td>OpenShift Pipelines（Tekton）</td>
+<td>KubeSphere DevOps（Jenkins）</td>
+</tr>
+<tr>
+<td><strong>Service Mesh</strong></td>
+<td>Istio（可选安装）</td>
+<td>OpenShift Service Mesh</td>
+<td>内置 Istio</td>
+</tr>
+<tr>
+<td><strong>Serverless</strong></td>
+<td>无（可集成 Knative）</td>
+<td>OpenShift Serverless</td>
+<td>OpenFunction</td>
+</tr>
+<tr>
+<td><strong>认证</strong></td>
+<td>LDAP/GitHub/OIDC/SAML</td>
+<td>内置 OAuth / LDAP / HTPasswd</td>
+<td>LDAP/OAuth/OIDC</td>
+</tr>
+<tr>
+<td><strong>License</strong></td>
+<td>Apache 2.0（免费）</td>
+<td>商业许可（有免费版）</td>
+<td>Apache 2.0（免费）</td>
+</tr>
+<tr>
+<td><strong>学习曲线</strong></td>
+<td>中</td>
+<td>高</td>
+<td>中</td>
+</tr>
+<tr>
+<td><strong>适用场景</strong></td>
+<td>多集群统一管理</td>
+<td>企业级标准发行版</td>
+<td>一体化 PaaS 平台</td>
+</tr>
+</tbody>
+</table>
+<hr />
+
+<h2 id="15_1">15. 高频面试题</h2>
+
+<h3 id="q1">Q1：Rancher 是什么？主要用途？</h3>
+<p>Rancher 是一个开源的多集群 Kubernetes 管理平台。其核心价值在于用一个控制面管理任意位置（数据中心、云、边缘）的所有 K8s 集群，提供集群创建/导入、统一 RBAC、应用商店、监控、日志、CI/CD 等一站式能力。</p>
+
+<h3 id="q2">Q2：Rancher Server 高可用如何部署？</h3>
+<p>生产环境推荐使用 Helm 部署在 K8s 集群上（3 副本），前端配置负载均衡器。数据存储在 etcd 中，通过 Rancher Backups App 定期备份。Rancher Server 本身也运行在 K8s 上，可获得 K8s 自愈和滚动更新能力。</p>
+
+<h3 id="q3">Q3：Rancher 的 RBAC 模型？</h3>
+<p>分三层：<strong>Global</strong>（全局角色：管理员/用户）、<strong>Cluster</strong>（集群角色：Owner/Member）、<strong>Project</strong>（项目角色：Owner/Member/ReadOnly）。权限从上到下继承。支持自定义角色和绑定外部认证系统（LDAP/OIDC）。</p>
+
+<h3 id="q4">Q4：Rancher 支持哪些集群类型？</h3>
+<p>四类：<strong>RKE 集群</strong>（一代引擎，Docker 驱动）、<strong>RKE2 集群</strong>（二代，containerd，推荐）、<strong>K3s 集群</strong>（边缘/轻量）、<strong>导入集群</strong>（已有任意集群）。</p>
+
+<h3 id="q5">Q5：Rancher 如何导入现有集群？</h3>
+<pre><code>1. Rancher UI → Cluster Management → Import Existing Cluster
+2. 获取导入 YAML（包含 token 和 clusterID）
+3. 在目标集群执行 kubectl apply -f 导入 YAML
+4. 目标集群创建 cattle-system Namespace 和 cattle-cluster-agent
+5. Agent 通过反向隧道连接 Rancher Server
+6. 验证：集群状态变为 Active
+</code></pre>
+
+<h3 id="q6">Q6：Project 和 Namespace 的关系？</h3>
+<p><strong>Project</strong> 是 Rancher 的概念，包含一组 Namespace。一个集群可以有多个 Project，每个 Project 有独立资源配额。Project 内的 Namespace 共享配额限制。多个团队可以在同一集群中通过 Project 实现隔离。</p>
+
+<h3 id="q7">Q7：Rancher 的监控方案？</h3>
+<p>基于 Prometheus Operator + Grafana。一键部署后提供 Cluster/Pod/Node/Etcd 级别的预置仪表盘。告警通过 AlertManager 发送到邮件/Slack/Webhook。日志方面支持集成 EFK 或 Loki。</p>
+
+<h3 id="q8">Q8：Rancher 如何实现多集群管理？</h3>
+<p>通过 <strong>Cluster Agent</strong> 机制。每个被管集群部署 cattle-cluster-agent（Rancher -> 集群方向）和 cattle-node-agent（集群 -> Rancher 方向），通过 WebSocket 反向隧道通信。Fleet 引擎实现应用的多集群 GitOps 分发。</p>
+
+<h3 id="q9">Q9：Longhorn 是什么？</h3>
+<p>Rancher 开源的分布式块存储系统，无需外部存储依赖，利用集群节点本地磁盘提供高可用持久卷。支持快照、备份、自动故障迁移、加密和 QoS。</p>
+
+<h3 id="q10">Q10：Rancher 和 OpenShift 的区别？</h3>
+<p>Rancher 是<strong>多集群管理平台</strong>，不修改上游 K8s，管理已存在的集群；OpenShift 是<strong>企业 K8s 发行版</strong>，在 K8s 之上有大量自研组件和 Operator。Rancher 更轻量灵活，OpenShift 更重但开箱即用。</p>
+<hr />
+
+<h2 id="_2">附录：常用操作速查</h2>
+<pre><code class="language-bash"># ──── Rancher CLI ────
+
+# 登录 Rancher
+rancher login https://rancher.example.com --token &lt;api-token&gt;
+
+# 查看集群
+rancher clusters ls
+
+# 查看项目
+rancher projects ls
+
+# 切换 kubeconfig
+rancher cluster switch &lt;cluster-id&gt;
+rancher kubectl get pods
+
+# 导入集群（生成导入 YAML）
+rancher cluster import &lt;cluster-id&gt;
+
+
+# ──── 常用 kubectl 操作 (Rancher 管理面集群) ────
+
+# 查看 Rancher Pod
+kubectl -n cattle-system get pods
+
+# Rancher Server 日志
+kubectl -n cattle-system logs -l app=rancher
+
+# 获取初始密码
+kubectl -n cattle-system get secret rancher-admin-password \
+  -o jsonpath='{.data.password}' | base64 -d
+
+# 查看集群 Agent
+kubectl -n cattle-system get clusters.provisioning.cattle.io
+
+# 查看下游集群状态的 API
+kubectl get clusters.management.cattle.io -A
+</code></pre>
+
+<hr />
+<blockquote>
+<p><strong>学习建议</strong>：Rancher 面试聚焦三大方向：<strong>多集群管理架构</strong>（Agent/Server 通信机制）、<strong>统一 RBAC</strong>（Global/Cluster/Project 三层）、<strong>RKE2 集群创建与管理</strong>。建议亲身搭建一次 Rancher（Helm 部署），体验导入集群和应用商店等工作流。</p>
+</blockquote>
+
+<script>
+// Scroll spy — highlight active sidebar item
+window.addEventListener('scroll', function() {
+    var links = document.querySelectorAll('.sidebar-toc a');
+    var scrollY = window.scrollY + 120;
+    var current = '';
+    for (var i = links.length - 1; i >= 0; i--) {
+        var target = document.getElementById(links[i].getAttribute('href').slice(1));
+        if (target && target.offsetTop <= scrollY) {
+            current = links[i];
+            break;
+        }
+    }
+    links.forEach(function(a) { a.style.fontWeight = 'normal'; a.style.color = '#555'; });
+    if (current) { current.style.fontWeight = 'bold'; current.style.color = '#0366d6'; }
+});
+</script>
+
+<script>
+document.querySelectorAll('pre > code').forEach(function(codeBlock, i) {
+    var pre = codeBlock.parentNode;
+    pre.style.position = 'relative';
+    var btn = document.createElement('button');
+    btn.className = 'copy-btn';
+    btn.textContent = '复制';
+    pre.appendChild(btn);
+    btn.addEventListener('click', function() {
+        var text = codeBlock.textContent;
+        navigator.clipboard.writeText(text).then(function() {
+            btn.textContent = '已复制';
+            btn.classList.add('copied');
+            setTimeout(function() {
+                btn.textContent = '复制';
+                btn.classList.remove('copied');
+            }, 2000);
+        }).catch(function() {
+            var ta = document.createElement('textarea');
+            ta.value = text; ta.style.position = 'fixed'; ta.style.opacity = '0';
+            document.body.appendChild(ta); ta.select();
+            document.execCommand('copy'); document.body.removeChild(ta);
+            btn.textContent = '已复制'; btn.classList.add('copied');
+            setTimeout(function() { btn.textContent = '复制'; btn.classList.remove('copied'); }, 2000);
+        });
+    });
+});
+</script>
+</body>
+</html>

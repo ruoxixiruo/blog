@@ -1,0 +1,496 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>面试题 - Nginx</title>
+<style>
+body {
+    transition: margin-left .25s ease;
+    font-family: -apple-system, "Noto Sans SC", "Microsoft YaHei", sans-serif;
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 20px 24px 60px;
+    line-height: 1.8;
+    color: #333;
+    background: #fff;
+}
+h1 { border-bottom: 2px solid #eee; padding-bottom: 10px; color: #222; }
+h2 { color: #333; margin-top: 32px; }
+h3 { color: #555; }
+a { color: #0366d6; text-decoration: none; }
+a:hover { text-decoration: underline; }
+pre {
+    background: #f6f8fa;
+    border-radius: 6px;
+    padding: 16px;
+    overflow-x: auto;
+    font-size: 14px;
+    line-height: 1.45;
+}
+code {
+    background: #f0f2f4;
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-size: 14px;
+}
+pre code { background: none; padding: 0; }
+blockquote {
+    border-left: 4px solid #ddd;
+    margin: 0;
+    padding: 0 16px;
+    color: #666;
+}
+table {
+    border-collapse: collapse;
+    width: 100%;
+    margin: 16px 0;
+}
+th, td {
+    border: 1px solid #ddd;
+    padding: 8px 12px;
+    text-align: left;
+}
+th { background: #f6f8fa; }
+img { max-width: 100%; }
+.back-link {
+    margin-bottom: 20px;
+    display: block;
+    color: #666;
+}
+.back-link:hover { color: #0366d6; }
+
+.sidebar-toc {
+    transition: left .25s ease;
+    position: fixed;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    width: 220px;
+    background: #f8f9fa;
+    border-right: 1px solid #e9ecef;
+    padding: 20px 0;
+    overflow-y: auto;
+    font-size: 13px;
+    z-index: 100;
+}
+.sidebar-toc a {
+    display: block;
+    padding: 6px 16px;
+    color: #555;
+    text-decoration: none;
+    border-left: 3px solid transparent;
+    line-height: 1.5;
+}
+.sidebar-toc a:hover {
+    background: #e9ecef;
+    color: #0366d6;
+    border-left-color: #0366d6;
+}
+.sidebar-toc .toc-h3 { padding-left: 20px; font-size: 12px; }
+body { margin-left: 240px; }
+
+
+.copy-btn {
+    position: absolute; top: 6px; right: 6px;
+    background: #e9ecef; border: none;
+    border-radius: 4px; padding: 3px 10px;
+    font-size: 12px; color: #555; cursor: pointer;
+    opacity: 0; transition: opacity 0.2s;
+    z-index: 1;
+}
+pre:hover .copy-btn { opacity: 1; }
+.copy-btn:hover { background: #d0d7de; }
+.copy-btn.copied { opacity: 1; background: #2da44e; color: #fff; }
+.copy-btn{position:absolute;top:6px;right:6px;background:#e9ecef;border:none;border-radius:4px;padding:3px 10px;font-size:12px;color:#555;cursor:pointer;opacity:0;transition:opacity .2s;z-index:1}pre:hover .copy-btn{opacity:1}.copy-btn:hover{background:#d0d7de}.copy-btn.copied{opacity:1;background:#2da44e;color:#fff}
+.copy-btn{position:absolute;top:6px;right:6px;background:#e9ecef;border:none;border-radius:4px;padding:3px 10px;font-size:12px;color:#555;cursor:pointer;opacity:0;transition:opacity .2s;z-index:1}pre:hover .copy-btn{opacity:1}.copy-btn:hover{background:#d0d7de}.copy-btn.copied{opacity:1;background:#2da44e;color:#fff}
+.copy-btn{position:absolute;top:6px;right:6px;background:#e9ecef;border:none;border-radius:4px;padding:3px 10px;font-size:12px;color:#555;cursor:pointer;opacity:0;transition:opacity .2s;z-index:1}pre:hover .copy-btn{opacity:1}.copy-btn:hover{background:#d0d7de}.copy-btn.copied{opacity:1;background:#2da44e;color:#fff}
+.sidebar-toggle-btn {
+  position: fixed;
+  left: 220px;
+  top: 0;
+  width: 28px;
+  height: 40px;
+  background: #f8f9fa;
+  border: 1px solid #e9ecef;
+  border-left: none;
+  border-radius: 0 4px 4px 0;
+  cursor: pointer;
+  font-size: 16px;
+  color: #555;
+  z-index: 101;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: left .25s, background .2s;
+  padding: 0;
+  line-height: 1;
+}
+.sidebar-toggle-btn:hover { background: #e9ecef; color: #0366d6; }
+.sidebar-collapsed .sidebar-toc { left: -220px; }
+.sidebar-collapsed .sidebar-toggle-btn { left: 0; }
+.sidebar-collapsed body, body.sidebar-collapsed { margin-left: 28px; }
+.sidebar-overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,.3);
+  z-index: 99;
+}
+@media (max-width: 768px) {
+  .sidebar-collapsed .sidebar-overlay { display: none; }
+  .sidebar-toc { left: -220px; }
+  .sidebar-toggle-btn { left: 0; }
+  body { margin-left: 28px; }
+}
+
+</style>
+</head>
+</head>
+<body>
+<nav class="sidebar-toc"><a class="toc-h3" href="#1">1. 正向代理和反向代理的区别?</a><a class="toc-h3" href="#2-tomcat-nginx">2. 为什么 Tomcat 前面要放 Nginx？</a><a class="toc-h3" href="#3">3. 负载均衡策略有哪些？</a><a class="toc-h3" href="#4-nginx">4. Nginx 怎么实现高并发？</a><a class="toc-h3" href="#5-location">5. location 的匹配规则?</a><a class="toc-h3" href="#6-nginx">6. Nginx 如何实现限流?</a><a class="toc-h3" href="#7-nginx-500502503504">7. Nginx 的 500/502/503/504 错误码分别什么意思?</a><a class="toc-h3" href="#8-nginx">8. Nginx 如何实现动静分离?</a><a class="toc-h3" href="#9-nginx-https">9. Nginx 如何配置 HTTPS?</a><a class="toc-h3" href="#10-nginx-websocket">10. Nginx 如何处理 WebSocket 转发?</a><a class="toc-h3" href="#11-nginx">11. Nginx 如何实现灰度发布？</a></nav>
+<button class="sidebar-toggle-btn" onclick="toggleSidebar()" title="切换侧栏">☰</button>
+
+<div class="sidebar-overlay" onclick="toggleSidebar()"></div>
+
+<script>
+function toggleSidebar() {
+  document.body.classList.toggle('sidebar-collapsed');
+  try { localStorage.setItem('sidebarCollapsed', document.body.classList.contains('sidebar-collapsed')); } catch(e) {}
+}
+(function() {
+  try {
+    if (localStorage.getItem('sidebarCollapsed') === 'true') {
+      document.body.classList.add('sidebar-collapsed');
+    }
+  } catch(e) {}
+})();
+</script>
+<a class="back-link" href="/blog/2026/05/16/面试题/面试题/">← 返回面试题目录</a>
+<h1 id=page-title>Nginx</h1>
+<h3 id="1">1. 正向代理和反向代理的区别?</h3>
+<pre><code>正向代理(替客户端办事):
+  [你的电脑] → [代理服务器] → [Google]
+    ↑ 被隐藏     ↑ 对外暴露
+  场景:VPN、翻墙、公司内网访问外网
+
+反向代理(替服务端办事):
+  [用户浏览器] → [Nginx] → [Tomcat1, Tomcat2, Tomcat3]
+                  ↑ 对外暴露    ↑ 被隐藏
+  场景:网站入口、负载均衡、API 网关
+</code></pre>
+<p>一句话:正向代理是客户端的"马甲"(代理客户端,服务端不知道真正的客户端),反向代理是服务器的"门面"(代理服务器,客户端不知道真正的服务器,只看到一个域名)。</p>
+<blockquote>
+<p><strong>扩展</strong>:Nginx 作为反向代理时,常用 <code>proxy_set_header X-Real-IP $remote_addr</code> 和 <code>X-Forwarded-For</code> 把真实客户端 IP 传给后端,否则后端只能看到 Nginx 的 IP。VPN 是典型的正向代理--你的流量经过了 VPN 服务器,目标网站只能看到 VPN 的 IP。</p>
+</blockquote>
+<h3 id="2-tomcat-nginx">2. 为什么 Tomcat 前面要放 Nginx？</h3>
+<p><strong>四大作用</strong>：
+1. <strong>动静分离</strong>：Nginx 处理静态资源（epoll + sendfile），动态请求转发 Tomcat
+2. <strong>负载均衡</strong>：流量分到多台 Tomcat
+3. <strong>安全</strong>：隐藏后端真实 IP 和端口
+4. <strong>SSL 卸载</strong>：HTTPS 在 Nginx 完成，后端只需 HTTP</p>
+<blockquote>
+<p><strong>扩展</strong>：Nginx 还可做限流、缓存、请求改写、跨域处理。</p>
+</blockquote>
+<h3 id="3">3. 负载均衡策略有哪些？</h3>
+<table>
+<thead>
+<tr>
+<th>策略</th>
+<th>规则</th>
+<th>适用</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>轮询（默认）</td>
+<td>一个一个轮</td>
+<td>服务器配置相同</td>
+</tr>
+<tr>
+<td>加权轮询</td>
+<td>按权重</td>
+<td>服务器配置不均</td>
+</tr>
+<tr>
+<td>ip_hash</td>
+<td>同 IP 固定</td>
+<td>需要 Session 保持</td>
+</tr>
+<tr>
+<td>least_conn</td>
+<td>连接数少优先</td>
+<td>请求耗时差异大</td>
+</tr>
+</tbody>
+</table>
+<p><strong>选型</strong>：服务器差不多→轮询；有强有弱→加权；需登录保持→ip_hash（或 Redis 共享 Session）。</p>
+<blockquote>
+<p><strong>扩展</strong>：<code>ip_hash</code> 前面有代理时全打到一台，可用 <code>hash $remote_addr</code>。</p>
+</blockquote>
+<h3 id="4-nginx">4. Nginx 怎么实现高并发？</h3>
+<p><strong>核心</strong>：Master-Worker 多进程 + 异步非阻塞 + epoll。</p>
+<ol>
+<li><strong>Master-Worker 模型</strong>：Master 管理，Worker（CPU核数）独立处理请求</li>
+<li><strong>异步非阻塞</strong>：epoll 监听，有事件才处理，不阻塞</li>
+<li><strong>高效内存管理</strong>：连接/请求内存池</li>
+</ol>
+<p><strong>对比 Tomcat</strong>（一个请求一个线程）：10000 连接 → 10000 线程 → 大量上下文切换；Nginx → 4 个 Worker → epoll 事件驱动。</p>
+<blockquote>
+<p><strong>扩展</strong>：<code>worker_processes auto</code> 设 CPU 核数，<code>worker_connections 10240</code> 设最大连接。<code>sendfile on</code> 零拷贝，<code>gzip on</code> 压缩。</p>
+</blockquote>
+<h3 id="5-location">5. <code>location</code> 的匹配规则?</h3>
+<pre><code>location 匹配优先级(从高到低):
+
+1 = /exact    → 精确匹配,命中直接停(最高优先级)
+2 ^~ /prefix/ → 前缀匹配,命中后不再继续匹配正则
+3 ~ \.php$    → 正则匹配(区分大小写)
+4 ~* \.PNG$   → 正则匹配(不区分大小写)
+5 /           → 通用前缀匹配(最低优先级)
+
+注意:多个正则按配置文件中出现的顺序匹配,第一个中的为准
+      普通前缀匹配选最长的那个
+</code></pre>
+<pre><code>示例配置:
+location = /login { ... }         ← 只匹配 /login
+location ^~ /static/ { ... }      ← 匹配 /static/ 开头的所有
+location ~ \.php$ { ... }         ← 匹配 .php 结尾
+location / { ... }                ← 兜底
+</code></pre>
+<blockquote>
+<p><strong>扩展</strong>:<code>alias</code> 和 <code>root</code> 的区别常被混淆--<code>root /var/www;</code> 会把完整 URI 拼接到路径后,<code>alias /var/www/;</code> 只替换匹配的部分。例如 <code>location /images/ { root /data; }</code> → <code>/images/1.jpg</code> 映射到 <code>/data/images/1.jpg</code>;而 <code>alias /data/images/;</code> → <code>/images/1.jpg</code> 映射到 <code>/data/images/1.jpg</code>。</p>
+</blockquote>
+<h3 id="6-nginx">6. Nginx 如何实现限流?</h3>
+<p>限流 = <strong>游乐场门口检票</strong>。漏桶算法:均匀放行,像检票员按固定节奏一个个放人--人来了太多就排队(burst),排不下就拒之门外(503)。令牌桶算法:门口放一桶令牌,来一个人拿一个令牌才能进,没令牌就等着--允许短暂爆发(桶里有库存时一次放很多人),但长期限速不变。</p>
+<pre><code class="language-nginx"># 1 基于 IP 的请求速率限制(漏桶算法)
+limit_req_zone $binary_remote_addr zone=req_limit:10m rate=10r/s;
+
+server {
+    location /api/ {
+        limit_req zone=req_limit burst=20 nodelay;
+        # burst=20: 桶容量,允许 20 个突发请求排队
+        # nodelay: 突发请求立即处理(不排队),用令牌桶替代漏桶
+    }
+}
+
+# 2 并发连接数限制
+limit_conn_zone $binary_remote_addr zone=conn_limit:10m;
+
+server {
+    location /download/ {
+        limit_conn conn_limit 5;    # 每个 IP 最多 5 个并发连接
+        limit_rate 100k;            # 每个连接限速 100KB/s
+    }
+}
+</code></pre>
+<pre><code>rate=10r/s + burst=20 效果:
+
+  请求速率                       时间
+    20个↓   ↓稳定 10个/s
+  ████████▄▄▄▄▄▄▄▄▄▄▄▄▄
+  └─burst─┘ └── 限速通行 ──┘
+  前 20 个排队(或nodelay直接过)
+</code></pre>
+<blockquote>
+<p><strong>扩展</strong>:漏桶(没有 nodelay)严格按照固定速率处理--超过 rate 的请求排队,桶(burst)满了就 503。加上 <code>nodelay</code> 后相当于令牌桶--突发请求立即通过,但通过后会控制后续速率。接口限流推荐用漏桶 + nodelay(容忍突发但控制均值)。</p>
+</blockquote>
+<h3 id="7-nginx-500502503504">7. Nginx 的 500/502/503/504 错误码分别什么意思?</h3>
+<table>
+<thead>
+<tr>
+<th>状态码</th>
+<th>含义</th>
+<th>常见原因</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>500</td>
+<td>Nginx 自身内部错误</td>
+<td>配置语法错误、rewrite 死循环</td>
+</tr>
+<tr>
+<td>502</td>
+<td>上游服务返回无效响应</td>
+<td>后端服务挂了/没启动</td>
+</tr>
+<tr>
+<td>503</td>
+<td>服务暂时不可用</td>
+<td>后端全挂了、连接数打满、限流</td>
+</tr>
+<tr>
+<td>504</td>
+<td>上游超时</td>
+<td>后端响应太慢,超过 <code>proxy_read_timeout</code></td>
+</tr>
+</tbody>
+</table>
+<pre><code>排查决策树:
+
+  Nginx 返回 502?
+    ├── 后端进程在跑吗? → ps aux | grep java
+    ├── 端口在监听吗? → ss -tunlp | grep :8080
+    └── 防火墙挡了吗? → telnet localhost 8080
+
+  Nginx 返回 504?
+    ├── 后端接口是否慢? → 查 APM/日志
+    ├── proxy_read_timeout 是否太短? → 默认 60s
+    └── 是否大量慢 SQL 阻塞? → 查数据库
+</code></pre>
+<blockquote>
+<p><strong>扩展</strong>:500 和 502/503/504 有本质区别--500 是 Nginx 自己的问题,502/503/504 是<strong>上游(后端)的问题</strong>。<code>error_log</code> 中会记录上游连接失败的具体原因,配置 <code>proxy_intercept_errors on</code> 可以让 Nginx 拦截后端的错误页并统一展示友好页面。</p>
+</blockquote>
+<h3 id="8-nginx">8. Nginx 如何实现动静分离?</h3>
+<pre><code>        用户请求
+           │
+      ┌────▼────┐
+      │  Nginx   │
+      └────┬────┘
+           │
+    ┌──────┼──────┐
+    │             │
+ 静态文件     动态请求
+ (.html/.css   (/api/*)
+  /.js/.png)
+    │             │
+    ▼             ▼
+  Nginx自己     Tomcat/Django
+  直接返回      (处理业务逻辑)
+</code></pre>
+<pre><code class="language-nginx">server {
+    # 静态文件:Nginx 直接返回
+    location /static/ {
+        root /var/www;
+        expires 7d;           # 浏览器缓存 7 天
+        add_header Cache-Control &quot;public, immutable&quot;;
+    }
+
+    # 动态请求:代理到后端
+    location /api/ {
+        proxy_pass http://backend;
+    }
+}
+</code></pre>
+<blockquote>
+<p><strong>扩展</strong>:<code>expires</code> 指令设置浏览器缓存时间--静态资源通常设 7~30 天。改版时文件名加 hash(如 <code>app.a3f2bc.js</code>)来破坏缓存,而不是缩短 expires。CDN 本质上就是"分布式动静分离"--把静态资源分散到全球节点。</p>
+</blockquote>
+<h3 id="9-nginx-https">9. Nginx 如何配置 HTTPS?</h3>
+<pre><code class="language-nginx">server {
+    listen 443 ssl http2;
+    server_name example.com;
+
+    ssl_certificate     /etc/nginx/ssl/fullchain.pem;
+    ssl_certificate_key /etc/nginx/ssl/privkey.pem;
+
+    # 只用 TLS 1.2 和 1.3(TLS 1.0/1.1 已不安全)
+    ssl_protocols TLSv1.2 TLSv1.3;
+
+    # 推荐加密套件
+    ssl_ciphers ECDHE-RSA-AES128-GCM-SHA256:ECDHE-RSA-AES256-GCM-SHA384;
+    ssl_prefer_server_ciphers on;
+
+    # 启用 HSTS(强制 HTTPS)
+    add_header Strict-Transport-Security &quot;max-age=63072000&quot; always;
+}
+</code></pre>
+<blockquote>
+<p><strong>扩展</strong>:80 端口只做重定向:<code>return 301 https://$host$request_uri;</code>。Let's Encrypt 提供免费的 SSL 证书,搭配 certbot 可以自动续期。SSL 握手有一定开销,生产环境建议开启 <code>ssl_session_cache shared:SSL:10m</code>(10MB 缓存),减少重复握手。</p>
+</blockquote>
+<hr />
+<h3 id="10-nginx-websocket">10. Nginx 如何处理 WebSocket 转发?</h3>
+<p>配置 proxy_http_version 1.1、proxy_set_header Upgrade $http_upgrade、Connection Upgrade。需设 proxy_read_timeout 防断开。</p>
+<h3 id="11-nginx">11. Nginx 如何实现灰度发布？</h3>
+<p>灰度发布的四种 Nginx 实现方式：</p>
+<pre><code class="language-nginx"># 方式1: 基于 IP 段（简单粗暴）
+geo $backend {
+    default       backend_v1;
+    10.0.0.0/8   backend_v2;   # 内网IP走新版本
+}
+
+# 方式2: 基于 Cookie（用户维度）
+map $cookie_version $backend {
+    ~^2\.0    backend_v2;
+    default   backend_v1;
+}
+
+# 方式3: 基于 Header（测试环境）
+set $backend backend_v1;
+if ($http_x_app_version = &quot;2.0&quot;) {
+    set $backend backend_v2;
+}
+
+# 方式4: 基于权重（流量比例）
+upstream backend_v1 {
+    server 10.0.1.1:80 weight=90;
+}
+upstream backend_v2 {
+    server 10.0.1.2:80 weight=10;
+}
+</code></pre>
+<p><strong>生产级推荐</strong>：用 <code>OpenResty + Lua</code> 做更灵活的灰度（基于用户 ID、AB实验平台）：</p>
+<pre><code class="language-lua">-- openresty/lua 灰度示例
+local version = ngx.header[&quot;X-User-Version&quot;]
+if version == &quot;2.0&quot; then
+    ngx.var.target = &quot;backend_v2&quot;
+else
+    ngx.var.target = &quot;backend_v1&quot;
+end
+</code></pre>
+<blockquote>
+<p><strong>扩展</strong>：金丝雀发布（Canary Release）通常先切 5% 流量，观察 24h 无异常后逐步扩大；Istio + K8s 的灰度比 Nginx 更精细（基于请求内容、百分比、可观测性联动）。</p>
+</blockquote>
+
+<script>
+// Scroll spy — highlight active sidebar item
+window.addEventListener('scroll', function() {
+    var links = document.querySelectorAll('.sidebar-toc a');
+    var scrollY = window.scrollY + 120;
+    var current = '';
+    for (var i = links.length - 1; i >= 0; i--) {
+        var target = document.getElementById(links[i].getAttribute('href').slice(1));
+        if (target && target.offsetTop <= scrollY) {
+            current = links[i];
+            break;
+        }
+    }
+    links.forEach(function(a) { a.style.fontWeight = 'normal'; a.style.color = '#555'; });
+    if (current) { current.style.fontWeight = 'bold'; current.style.color = '#0366d6'; }
+});
+</script>
+
+
+<script>
+document.querySelectorAll('pre > code').forEach(function(codeBlock, i) {
+    var pre = codeBlock.parentNode;
+    pre.style.position = 'relative';
+    var btn = document.createElement('button');
+    btn.className = 'copy-btn';
+    btn.textContent = '复制';
+    pre.appendChild(btn);
+    btn.addEventListener('click', function() {
+        var text = codeBlock.textContent;
+        navigator.clipboard.writeText(text).then(function() {
+            btn.textContent = '已复制';
+            btn.classList.add('copied');
+            setTimeout(function() {
+                btn.textContent = '复制';
+                btn.classList.remove('copied');
+            }, 2000);
+        }).catch(function() {
+            // Fallback
+            var ta = document.createElement('textarea');
+            ta.value = text; ta.style.position = 'fixed'; ta.style.opacity = '0';
+            document.body.appendChild(ta); ta.select();
+            document.execCommand('copy'); document.body.removeChild(ta);
+            btn.textContent = '已复制'; btn.classList.add('copied');
+            setTimeout(function() { btn.textContent = '复制'; btn.classList.remove('copied'); }, 2000);
+        });
+    });
+});
+</script>
+
+
+<script>document.querySelectorAll("pre>code").forEach(function(c){var p=c.parentNode;p.style.position="relative";var b=document.createElement("button");b.className="copy-btn";b.textContent="复制";p.appendChild(b);b.addEventListener("click",function(){var t=c.textContent;navigator.clipboard.writeText(t).then(function(){b.textContent="已复制";b.classList.add("copied");setTimeout(function(){b.textContent="复制";b.classList.remove("copied")},2000)}).catch(function(){var a=document.createElement("textarea");a.value=t;a.style.position="fixed";a.style.opacity="0";document.body.appendChild(a);a.select();document.execCommand("copy");document.body.removeChild(a);b.textContent="已复制";b.classList.add("copied");setTimeout(function(){b.textContent="复制";b.classList.remove("copied")},2000)})})})</script>
+</body>
+</html>

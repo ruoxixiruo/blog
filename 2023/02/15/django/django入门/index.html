@@ -1,0 +1,464 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 5.4.2">
+  <link rel="apple-touch-icon" sizes="180x180" href="/blog/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/blog/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/blog/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/blog/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/blog/css/main.css">
+
+
+<link rel="stylesheet" href="/blog/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"ruoxixiruo.github.io","root":"/blog/","scheme":"Gemini","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":true,"show_result":true,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":true},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}};
+  </script>
+
+  <meta name="description" content="1，Django 简介Django 是一个用 Python 编写的开源 Web 框架，遵循 MTV（Model-Template-View）架构模式，于 2005 年首次发布。设计哲学是”快速开发”和”DRY（Don’t Repeat Yourself）”。 核心特点：  完整的全栈框架，自带 ORM、模板引擎、认证系统、管理后台 完善的文档和活跃的社区 高度可扩展，插件化设计 强大的安全防护（X">
+<meta property="og:type" content="article">
+<meta property="og:title" content="django入门">
+<meta property="og:url" content="https://ruoxixiruo.github.io/blog/2023/02/15/django/django%E5%85%A5%E9%97%A8/index.html">
+<meta property="og:site_name" content="RUOXI-BLOG">
+<meta property="og:description" content="1，Django 简介Django 是一个用 Python 编写的开源 Web 框架，遵循 MTV（Model-Template-View）架构模式，于 2005 年首次发布。设计哲学是”快速开发”和”DRY（Don’t Repeat Yourself）”。 核心特点：  完整的全栈框架，自带 ORM、模板引擎、认证系统、管理后台 完善的文档和活跃的社区 高度可扩展，插件化设计 强大的安全防护（X">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2023-02-15T15:00:00.000Z">
+<meta property="article:modified_time" content="2026-07-22T02:51:55.000Z">
+<meta property="article:author" content="ruoxi">
+<meta property="article:tag" content="django">
+<meta name="twitter:card" content="summary">
+
+<link rel="canonical" href="https://ruoxixiruo.github.io/blog/2023/02/15/django/django%E5%85%A5%E9%97%A8/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+
+  <title>django入门 | RUOXI-BLOG</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/blog/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">RUOXI-BLOG</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/blog/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/blog/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/blog/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/blog/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a>
+
+  </li>
+        <li class="menu-item menu-item-posts">
+
+    <a href="/blog/posts/" rel="section"><i class="fa fa-rss fa-fw"></i>posts</a>
+
+  </li>
+  </ul>
+</nav>
+
+
+
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+  <div class="reading-progress-bar"></div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://ruoxixiruo.github.io/blog/2023/02/15/django/django%E5%85%A5%E9%97%A8/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/blog/images/avatar.gif">
+      <meta itemprop="name" content="ruoxi">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="RUOXI-BLOG">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          django入门
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2023-02-15 15:00:00" itemprop="dateCreated datePublished" datetime="2023-02-15T15:00:00+00:00">2023-02-15</time>
+            </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/blog/categories/django/" itemprop="url" rel="index"><span itemprop="name">django</span></a>
+                </span>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <h5 id="1，Django-简介"><a href="#1，Django-简介" class="headerlink" title="1，Django 简介"></a>1，Django 简介</h5><p>Django 是一个用 Python 编写的开源 Web 框架，遵循 MTV（Model-Template-View）架构模式，于 2005 年首次发布。设计哲学是”快速开发”和”DRY（Don’t Repeat Yourself）”。</p>
+<p>核心特点：</p>
+<ul>
+<li>完整的全栈框架，自带 ORM、模板引擎、认证系统、管理后台</li>
+<li>完善的文档和活跃的社区</li>
+<li>高度可扩展，插件化设计</li>
+<li>强大的安全防护（XSS、CSRF、SQL 注入等默认防范）</li>
+<li>适合快速构建内容型网站和复杂 Web 应用</li>
+</ul>
+<p>MTV 架构：</p>
+<ul>
+<li><strong>Model（模型）</strong>：数据层，定义数据结构，与数据库交互</li>
+<li><strong>Template（模板）</strong>：表现层，定义页面如何渲染</li>
+<li><strong>View（视图）</strong>：业务逻辑层，接收请求，处理数据，返回响应</li>
+</ul>
+<span id="more"></span>
+
+<h5 id="2，环境搭建与项目创建"><a href="#2，环境搭建与项目创建" class="headerlink" title="2，环境搭建与项目创建"></a>2，环境搭建与项目创建</h5><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 1. 安装 Django</span></span><br><span class="line">pip install django</span><br><span class="line"></span><br><span class="line"><span class="comment"># 查看版本</span></span><br><span class="line">python -m django --version</span><br><span class="line"></span><br><span class="line"><span class="comment"># 2. 创建项目</span></span><br><span class="line">django-admin startproject mysite</span><br><span class="line"></span><br><span class="line"><span class="comment"># 3. 项目结构</span></span><br><span class="line">mysite/</span><br><span class="line">├── manage.py              <span class="comment"># 项目管理命令行工具</span></span><br><span class="line">├── mysite/</span><br><span class="line">│   ├── __init__.py</span><br><span class="line">│   ├── settings.py        <span class="comment"># 项目配置</span></span><br><span class="line">│   ├── urls.py            <span class="comment"># URL 路由入口</span></span><br><span class="line">│   ├── asgi.py            <span class="comment"># ASGI 配置（异步）</span></span><br><span class="line">│   └── wsgi.py            <span class="comment"># WSGI 配置（部署用）</span></span><br><span class="line">└── db.sqlite3             <span class="comment"># 默认 SQLite 数据库</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 4. 创建应用</span></span><br><span class="line">python manage.py startapp blog</span><br><span class="line"><span class="comment"># 或</span></span><br><span class="line">python manage.py startapp polls</span><br><span class="line"></span><br><span class="line"><span class="comment"># 应用结构</span></span><br><span class="line">polls/</span><br><span class="line">├── __init__.py</span><br><span class="line">├── admin.py               <span class="comment"># 管理后台配置</span></span><br><span class="line">├── apps.py                <span class="comment"># 应用配置</span></span><br><span class="line">├── migrations/            <span class="comment"># 数据库迁移文件</span></span><br><span class="line">│   └── __init__.py</span><br><span class="line">├── models.py              <span class="comment"># 数据模型</span></span><br><span class="line">├── tests.py               <span class="comment"># 测试</span></span><br><span class="line">├── urls.py                <span class="comment"># 应用级路由（需手动创建）</span></span><br><span class="line">└── views.py               <span class="comment"># 视图函数</span></span><br></pre></td></tr></table></figure>
+
+<h5 id="3，settings-py-配置详解"><a href="#3，settings-py-配置详解" class="headerlink" title="3，settings.py 配置详解"></a>3，settings.py 配置详解</h5><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># mysite/settings.py 核心配置</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 调试模式 —— 开发时 True，生产环境必须 False</span></span><br><span class="line">DEBUG = <span class="literal">True</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 允许访问的主机 —— 开发时可为空列表或 [&#x27;*&#x27;]</span></span><br><span class="line">ALLOWED_HOSTS = []</span><br><span class="line"></span><br><span class="line"><span class="comment"># 注册应用 —— INSTALLED_APPS</span></span><br><span class="line">INSTALLED_APPS = [</span><br><span class="line">    <span class="string">&quot;django.contrib.admin&quot;</span>,           <span class="comment"># 管理后台</span></span><br><span class="line">    <span class="string">&quot;django.contrib.auth&quot;</span>,            <span class="comment"># 认证系统</span></span><br><span class="line">    <span class="string">&quot;django.contrib.contenttypes&quot;</span>,    <span class="comment"># 内容类型框架</span></span><br><span class="line">    <span class="string">&quot;django.contrib.sessions&quot;</span>,        <span class="comment"># Session 框架</span></span><br><span class="line">    <span class="string">&quot;django.contrib.messages&quot;</span>,        <span class="comment"># 消息框架</span></span><br><span class="line">    <span class="string">&quot;django.contrib.staticfiles&quot;</span>,     <span class="comment"># 静态文件管理</span></span><br><span class="line">    <span class="string">&quot;polls&quot;</span>,                          <span class="comment"># 自定义应用</span></span><br><span class="line">]</span><br><span class="line"></span><br><span class="line"><span class="comment"># 中间件 —— 请求/响应处理的钩子链</span></span><br><span class="line">MIDDLEWARE = [</span><br><span class="line">    <span class="string">&quot;django.middleware.security.SecurityMiddleware&quot;</span>,</span><br><span class="line">    <span class="string">&quot;django.contrib.sessions.middleware.SessionMiddleware&quot;</span>,</span><br><span class="line">    <span class="string">&quot;django.middleware.common.CommonMiddleware&quot;</span>,</span><br><span class="line">    <span class="string">&quot;django.middleware.csrf.CsrfViewMiddleware&quot;</span>,</span><br><span class="line">    <span class="string">&quot;django.contrib.auth.middleware.AuthenticationMiddleware&quot;</span>,</span><br><span class="line">    <span class="string">&quot;django.contrib.messages.middleware.MessageMiddleware&quot;</span>,</span><br><span class="line">    <span class="string">&quot;django.middleware.clickjacking.XFrameOptionsMiddleware&quot;</span>,</span><br><span class="line">]</span><br><span class="line"></span><br><span class="line"><span class="comment"># 数据库配置</span></span><br><span class="line">DATABASES = &#123;</span><br><span class="line">    <span class="string">&quot;default&quot;</span>: &#123;</span><br><span class="line">        <span class="string">&quot;ENGINE&quot;</span>: <span class="string">&quot;django.db.backends.sqlite3&quot;</span>,   <span class="comment"># 数据库引擎</span></span><br><span class="line">        <span class="string">&quot;NAME&quot;</span>: BASE_DIR / <span class="string">&quot;db.sqlite3&quot;</span>,           <span class="comment"># 数据库名</span></span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment"># MySQL 配置示例</span></span><br><span class="line"><span class="comment"># DATABASES = &#123;</span></span><br><span class="line"><span class="comment">#     &quot;default&quot;: &#123;</span></span><br><span class="line"><span class="comment">#         &quot;ENGINE&quot;: &quot;django.db.backends.mysql&quot;,</span></span><br><span class="line"><span class="comment">#         &quot;NAME&quot;: &quot;mydb&quot;,</span></span><br><span class="line"><span class="comment">#         &quot;USER&quot;: &quot;root&quot;,</span></span><br><span class="line"><span class="comment">#         &quot;PASSWORD&quot;: &quot;password&quot;,</span></span><br><span class="line"><span class="comment">#         &quot;HOST&quot;: &quot;127.0.0.1&quot;,</span></span><br><span class="line"><span class="comment">#         &quot;PORT&quot;: &quot;3306&quot;,</span></span><br><span class="line"><span class="comment">#         &quot;OPTIONS&quot;: &#123;&quot;charset&quot;: &quot;utf8mb4&quot;&#125;,</span></span><br><span class="line"><span class="comment">#     &#125;</span></span><br><span class="line"><span class="comment"># &#125;</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 模板配置</span></span><br><span class="line">TEMPLATES = [</span><br><span class="line">    &#123;</span><br><span class="line">        <span class="string">&quot;BACKEND&quot;</span>: <span class="string">&quot;django.template.backends.django.DjangoTemplates&quot;</span>,</span><br><span class="line">        <span class="string">&quot;DIRS&quot;</span>: [BASE_DIR / <span class="string">&quot;templates&quot;</span>],          <span class="comment"># 全局模板目录</span></span><br><span class="line">        <span class="string">&quot;APP_DIRS&quot;</span>: <span class="literal">True</span>,                          <span class="comment"># 自动查找各应用下的 templates</span></span><br><span class="line">        <span class="string">&quot;OPTIONS&quot;</span>: &#123;</span><br><span class="line">            <span class="string">&quot;context_processors&quot;</span>: [                 <span class="comment"># 上下文处理器</span></span><br><span class="line">                <span class="string">&quot;django.template.context_processors.debug&quot;</span>,</span><br><span class="line">                <span class="string">&quot;django.template.context_processors.request&quot;</span>,</span><br><span class="line">                <span class="string">&quot;django.contrib.auth.context_processors.auth&quot;</span>,</span><br><span class="line">                <span class="string">&quot;django.contrib.messages.context_processors.messages&quot;</span>,</span><br><span class="line">            ],</span><br><span class="line">        &#125;,</span><br><span class="line">    &#125;,</span><br><span class="line">]</span><br><span class="line"></span><br><span class="line"><span class="comment"># 国际化</span></span><br><span class="line">LANGUAGE_CODE = <span class="string">&quot;zh-hans&quot;</span>             <span class="comment"># 中文</span></span><br><span class="line">TIME_ZONE = <span class="string">&quot;Asia/Shanghai&quot;</span>           <span class="comment"># 时区</span></span><br><span class="line">USE_I18N = <span class="literal">True</span>                       <span class="comment"># 国际化</span></span><br><span class="line">USE_TZ = <span class="literal">True</span>                         <span class="comment"># 时区感知</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 静态文件</span></span><br><span class="line">STATIC_URL = <span class="string">&quot;static/&quot;</span>                <span class="comment"># 静态文件 URL 前缀</span></span><br><span class="line">STATICFILES_DIRS = [BASE_DIR / <span class="string">&quot;static&quot;</span>]    <span class="comment"># 开发时的静态文件目录</span></span><br><span class="line">STATIC_ROOT = BASE_DIR / <span class="string">&quot;staticfiles&quot;</span>     <span class="comment"># 生产环境收集目录（collectstatic）</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 媒体文件（用户上传的文件）</span></span><br><span class="line">MEDIA_URL = <span class="string">&quot;media/&quot;</span></span><br><span class="line">MEDIA_ROOT = BASE_DIR / <span class="string">&quot;media&quot;</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 默认主键类型</span></span><br><span class="line">DEFAULT_AUTO_FIELD = <span class="string">&quot;django.db.models.BigAutoField&quot;</span></span><br></pre></td></tr></table></figure>
+
+<h5 id="4，URL-路由"><a href="#4，URL-路由" class="headerlink" title="4，URL 路由"></a>4，URL 路由</h5><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># mysite/urls.py —— 项目根路由</span></span><br><span class="line"><span class="keyword">from</span> django.contrib <span class="keyword">import</span> admin</span><br><span class="line"><span class="keyword">from</span> django.urls <span class="keyword">import</span> path, include</span><br><span class="line"></span><br><span class="line">urlpatterns = [</span><br><span class="line">    path(<span class="string">&quot;admin/&quot;</span>, admin.site.urls),</span><br><span class="line">    path(<span class="string">&quot;polls/&quot;</span>, include(<span class="string">&quot;polls.urls&quot;</span>)),    <span class="comment"># 将 polls/ 开头的请求分发到 polls 应用</span></span><br><span class="line">]</span><br><span class="line"></span><br><span class="line"><span class="comment"># polls/urls.py —— 应用路由</span></span><br><span class="line"><span class="keyword">from</span> django.urls <span class="keyword">import</span> path</span><br><span class="line"><span class="keyword">from</span> . <span class="keyword">import</span> views</span><br><span class="line"></span><br><span class="line">urlpatterns = [</span><br><span class="line">    path(<span class="string">&quot;&quot;</span>, views.index, name=<span class="string">&quot;index&quot;</span>),                      <span class="comment"># 首页</span></span><br><span class="line">    path(<span class="string">&quot;detail/&lt;int:question_id&gt;/&quot;</span>, views.detail, name=<span class="string">&quot;detail&quot;</span>),  <span class="comment"># 带参数路由</span></span><br><span class="line">    path(<span class="string">&quot;results/&lt;int:question_id&gt;/&quot;</span>, views.results, name=<span class="string">&quot;results&quot;</span>),</span><br><span class="line">    path(<span class="string">&quot;vote/&lt;int:question_id&gt;/&quot;</span>, views.vote, name=<span class="string">&quot;vote&quot;</span>),</span><br><span class="line">    path(<span class="string">&quot;about/&quot;</span>, views.about, name=<span class="string">&quot;about&quot;</span>),</span><br><span class="line">]</span><br><span class="line"></span><br><span class="line"><span class="comment"># 路径转换器</span></span><br><span class="line"><span class="comment"># &lt;int:pk&gt;     —— 匹配正整数</span></span><br><span class="line"><span class="comment"># &lt;str:name&gt;   —— 匹配除 / 外的字符串（默认）</span></span><br><span class="line"><span class="comment"># &lt;slug:slug&gt;  —— 匹配字母、数字、连字符、下划线</span></span><br><span class="line"><span class="comment"># &lt;uuid:id&gt;    —— 匹配 UUID</span></span><br><span class="line"><span class="comment"># &lt;path:url&gt;   —— 匹配完整路径（含 /）</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 命名空间 —— 在 urls.py 中指定 app_name，用于反向解析</span></span><br><span class="line">app_name = <span class="string">&quot;polls&quot;</span></span><br><span class="line">urlpatterns = [...]</span><br><span class="line"><span class="comment"># 模板中使用：&#123;% url &#x27;polls:detail&#x27; question.id %&#125;</span></span><br></pre></td></tr></table></figure>
+
+<h5 id="5，视图函数"><a href="#5，视图函数" class="headerlink" title="5，视图函数"></a>5，视图函数</h5><p>视图是接收 Web 请求并返回 Web 响应的函数。每个视图至少接收一个 <code>HttpRequest</code> 对象参数。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># polls/views.py</span></span><br><span class="line"><span class="keyword">from</span> django.shortcuts <span class="keyword">import</span> render, redirect, get_object_or_404</span><br><span class="line"><span class="keyword">from</span> django.http <span class="keyword">import</span> HttpResponse, JsonResponse, Http404</span><br><span class="line"><span class="keyword">from</span> .models <span class="keyword">import</span> Question</span><br><span class="line"></span><br><span class="line"><span class="comment"># 最简视图</span></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">index</span>(<span class="params">request</span>):</span><br><span class="line">    <span class="keyword">return</span> HttpResponse(<span class="string">&quot;Hello, world!&quot;</span>)</span><br><span class="line"></span><br><span class="line"><span class="comment"># 返回模板渲染</span></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">index</span>(<span class="params">request</span>):</span><br><span class="line">    questions = Question.objects.<span class="built_in">all</span>()</span><br><span class="line">    <span class="keyword">return</span> render(request, <span class="string">&quot;polls/index.html&quot;</span>, &#123;<span class="string">&quot;questions&quot;</span>: questions&#125;)</span><br><span class="line"></span><br><span class="line"><span class="comment"># 返回 JSON</span></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">api_data</span>(<span class="params">request</span>):</span><br><span class="line">    data = &#123;<span class="string">&quot;status&quot;</span>: <span class="string">&quot;ok&quot;</span>, <span class="string">&quot;count&quot;</span>: <span class="number">10</span>&#125;</span><br><span class="line">    <span class="keyword">return</span> JsonResponse(data)</span><br><span class="line"></span><br><span class="line"><span class="comment"># 带参数视图 + 404 处理</span></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">detail</span>(<span class="params">request, question_id</span>):</span><br><span class="line">    question = get_object_or_404(Question, pk=question_id)</span><br><span class="line">    <span class="keyword">return</span> render(request, <span class="string">&quot;polls/detail.html&quot;</span>, &#123;<span class="string">&quot;question&quot;</span>: question&#125;)</span><br><span class="line"></span><br><span class="line"><span class="comment"># 重定向</span></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">vote</span>(<span class="params">request, question_id</span>):</span><br><span class="line">    question = get_object_or_404(Question, pk=question_id)</span><br><span class="line">    <span class="comment"># ... 处理逻辑</span></span><br><span class="line">    <span class="keyword">return</span> redirect(<span class="string">&quot;polls:results&quot;</span>, question_id=question.<span class="built_in">id</span>)</span><br><span class="line"></span><br><span class="line"><span class="comment"># 处理 POST 请求</span></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">create</span>(<span class="params">request</span>):</span><br><span class="line">    <span class="keyword">if</span> request.method == <span class="string">&quot;POST&quot;</span>:</span><br><span class="line">        title = request.POST.get(<span class="string">&quot;title&quot;</span>)</span><br><span class="line">        content = request.POST.get(<span class="string">&quot;content&quot;</span>)</span><br><span class="line">        Question.objects.create(title=title, content=content)</span><br><span class="line">        <span class="keyword">return</span> redirect(<span class="string">&quot;polls:index&quot;</span>)</span><br><span class="line">    <span class="keyword">return</span> render(request, <span class="string">&quot;polls/create.html&quot;</span>)</span><br></pre></td></tr></table></figure>
+
+<h5 id="6，模板系统"><a href="#6，模板系统" class="headerlink" title="6，模板系统"></a>6，模板系统</h5><p>Django 模板使用自己的模板语言（DTL），用 <code>&#123;&#123; &#125;&#125;</code> 输出变量，<code>&#123;% %&#125;</code> 执行逻辑。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 模板渲染</span></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">index</span>(<span class="params">request</span>):</span><br><span class="line">    context = &#123;</span><br><span class="line">        <span class="string">&quot;title&quot;</span>: <span class="string">&quot;投票列表&quot;</span>,</span><br><span class="line">        <span class="string">&quot;questions&quot;</span>: Question.objects.<span class="built_in">all</span>(),</span><br><span class="line">        <span class="string">&quot;now&quot;</span>: datetime.now(),</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> render(request, <span class="string">&quot;polls/index.html&quot;</span>, context)</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">&lt;!-- polls/templates/polls/index.html --&gt;</span></span><br><span class="line"><span class="meta">&lt;!DOCTYPE <span class="keyword">html</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">html</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">head</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">title</span>&gt;</span>&#123;&#123; title &#125;&#125;<span class="tag">&lt;/<span class="name">title</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">head</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">body</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">h1</span>&gt;</span>&#123;&#123; title &#125;&#125;<span class="tag">&lt;/<span class="name">h1</span>&gt;</span></span><br><span class="line"></span><br><span class="line">    <span class="comment">&lt;!-- 输出变量 --&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">p</span>&gt;</span>当前时间：&#123;&#123; now|date:&quot;Y-m-d H:i&quot; &#125;&#125;<span class="tag">&lt;/<span class="name">p</span>&gt;</span></span><br><span class="line"></span><br><span class="line">    <span class="comment">&lt;!-- if 条件 --&gt;</span></span><br><span class="line">    &#123;% if questions %&#125;</span><br><span class="line">        <span class="tag">&lt;<span class="name">ul</span>&gt;</span></span><br><span class="line">        &#123;% for question in questions %&#125;</span><br><span class="line">            <span class="comment">&lt;!-- for 循环，forloop.counter 是内置计数器 --&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">li</span>&gt;</span></span><br><span class="line">                <span class="tag">&lt;<span class="name">a</span> <span class="attr">href</span>=<span class="string">&quot;&#123;% url &#x27;polls:detail&#x27; question.id %&#125;&quot;</span>&gt;</span></span><br><span class="line">                    &#123;&#123; forloop.counter &#125;&#125;. &#123;&#123; question.title &#125;&#125;</span><br><span class="line">                <span class="tag">&lt;/<span class="name">a</span>&gt;</span></span><br><span class="line">                <span class="tag">&lt;<span class="name">span</span>&gt;</span>(&#123;&#123; question.votes &#125;&#125; 票)<span class="tag">&lt;/<span class="name">span</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;/<span class="name">li</span>&gt;</span></span><br><span class="line">        &#123;% endfor %&#125;</span><br><span class="line">        <span class="tag">&lt;/<span class="name">ul</span>&gt;</span></span><br><span class="line">    &#123;% else %&#125;</span><br><span class="line">        <span class="tag">&lt;<span class="name">p</span>&gt;</span>暂无投票<span class="tag">&lt;/<span class="name">p</span>&gt;</span></span><br><span class="line">    &#123;% endif %&#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">&lt;!-- 模板注释 --&gt;</span></span><br><span class="line">    &#123;# 这是单行注释 #&#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">&lt;!-- 引入其他模板 --&gt;</span></span><br><span class="line">    &#123;% include &quot;polls/footer.html&quot; %&#125;</span><br><span class="line"><span class="tag">&lt;/<span class="name">body</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">html</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># Django 模板常用过滤器</span></span><br><span class="line">&#123;&#123; value|default:<span class="string">&quot;默认值&quot;</span> &#125;&#125;          <span class="comment"># 值为 False/None 时用默认值</span></span><br><span class="line">&#123;&#123; value|length &#125;&#125;                    <span class="comment"># 长度</span></span><br><span class="line">&#123;&#123; value|date:<span class="string">&quot;Y-m-d H:i:s&quot;</span> &#125;&#125;        <span class="comment"># 日期格式化</span></span><br><span class="line">&#123;&#123; value|floatformat:<span class="number">2</span> &#125;&#125;             <span class="comment"># 浮点数保留2位</span></span><br><span class="line">&#123;&#123; value|lower &#125;&#125;                     <span class="comment"># 转小写</span></span><br><span class="line">&#123;&#123; value|upper &#125;&#125;                     <span class="comment"># 转大写</span></span><br><span class="line">&#123;&#123; value|truncatechars:<span class="number">30</span> &#125;&#125;          <span class="comment"># 截断到30个字符</span></span><br><span class="line">&#123;&#123; value|truncatewords:<span class="number">10</span> &#125;&#125;          <span class="comment"># 截断到10个单词</span></span><br><span class="line">&#123;&#123; html|safe &#125;&#125;                       <span class="comment"># 不转义 HTML（慎用）</span></span><br><span class="line">&#123;&#123; value|pluralize &#125;&#125;                 <span class="comment"># 复数后缀（s）</span></span><br><span class="line">&#123;&#123; <span class="built_in">list</span>|join:<span class="string">&quot;, &quot;</span> &#125;&#125;                  <span class="comment"># 连接列表</span></span><br><span class="line">&#123;&#123; value|divisibleby:<span class="number">3</span> &#125;&#125;             <span class="comment"># 是否可被3整除</span></span><br><span class="line">&#123;&#123; value|slugify &#125;&#125;                   <span class="comment"># 转为 slug 形式</span></span><br><span class="line">&#123;&#123; value|yesno:<span class="string">&quot;是,否,未知&quot;</span> &#125;&#125;        <span class="comment"># True/False/None 映射</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 模板标签</span></span><br><span class="line">&#123;% url <span class="string">&#x27;name&#x27;</span> arg1 arg2 %&#125;            <span class="comment"># URL 反向解析</span></span><br><span class="line">&#123;% csrf_token %&#125;                      <span class="comment"># CSRF 令牌（POST 表单必须）</span></span><br><span class="line">&#123;% now <span class="string">&quot;Y-m-d&quot;</span> %&#125;                     <span class="comment"># 当前日期</span></span><br><span class="line">&#123;% <span class="keyword">with</span> total=q.weight|default:<span class="number">0</span> %&#125;   <span class="comment"># 临时变量</span></span><br><span class="line">&#123;% verbatim %&#125;...&#123;% endverbatim %&#125;    <span class="comment"># 原样输出（不解析 DTL 语法）</span></span><br><span class="line">&#123;% spaceless %&#125;...&#123;% endspaceless %&#125; <span class="comment"># 去除 HTML 空白</span></span><br><span class="line">&#123;% firstof var1 var2 var3 %&#125;         <span class="comment"># 输出第一个非空变量</span></span><br></pre></td></tr></table></figure>
+
+<h5 id="7，模板继承"><a href="#7，模板继承" class="headerlink" title="7，模板继承"></a>7，模板继承</h5><figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">&lt;!-- templates/base.html —— 基础模板 --&gt;</span></span><br><span class="line"><span class="meta">&lt;!DOCTYPE <span class="keyword">html</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">html</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">head</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">title</span>&gt;</span>&#123;% block title %&#125;默认标题&#123;% endblock %&#125;<span class="tag">&lt;/<span class="name">title</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">link</span> <span class="attr">rel</span>=<span class="string">&quot;stylesheet&quot;</span> <span class="attr">href</span>=<span class="string">&quot;&#123;% static &#x27;css/style.css&#x27; %&#125;&quot;</span>&gt;</span></span><br><span class="line">    &#123;% block extra_head %&#125;&#123;% endblock %&#125;</span><br><span class="line"><span class="tag">&lt;/<span class="name">head</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">body</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">header</span>&gt;</span></span><br><span class="line">        &#123;% block header %&#125;</span><br><span class="line">            <span class="tag">&lt;<span class="name">h1</span>&gt;</span>网站头部<span class="tag">&lt;/<span class="name">h1</span>&gt;</span></span><br><span class="line">        &#123;% endblock %&#125;</span><br><span class="line">    <span class="tag">&lt;/<span class="name">header</span>&gt;</span></span><br><span class="line"></span><br><span class="line">    <span class="tag">&lt;<span class="name">main</span>&gt;</span></span><br><span class="line">        &#123;% block content %&#125;</span><br><span class="line">        &#123;% endblock %&#125;</span><br><span class="line">    <span class="tag">&lt;/<span class="name">main</span>&gt;</span></span><br><span class="line"></span><br><span class="line">    <span class="tag">&lt;<span class="name">footer</span>&gt;</span></span><br><span class="line">        &#123;% block footer %&#125;</span><br><span class="line">            <span class="tag">&lt;<span class="name">p</span>&gt;</span><span class="symbol">&amp;copy;</span> 2023<span class="tag">&lt;/<span class="name">p</span>&gt;</span></span><br><span class="line">        &#123;% endblock %&#125;</span><br><span class="line">    <span class="tag">&lt;/<span class="name">footer</span>&gt;</span></span><br><span class="line"></span><br><span class="line">    &#123;% block extra_js %&#125;&#123;% endblock %&#125;</span><br><span class="line"><span class="tag">&lt;/<span class="name">body</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">html</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+<figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">&lt;!-- polls/templates/polls/index.html —— 子模板 --&gt;</span></span><br><span class="line">&#123;% extends &quot;base.html&quot; %&#125;</span><br><span class="line"></span><br><span class="line">&#123;% block title %&#125;投票列表&#123;% endblock %&#125;</span><br><span class="line"></span><br><span class="line">&#123;% block content %&#125;</span><br><span class="line">    <span class="tag">&lt;<span class="name">h2</span>&gt;</span>所有投票<span class="tag">&lt;/<span class="name">h2</span>&gt;</span></span><br><span class="line">    &#123;% for question in questions %&#125;</span><br><span class="line">        <span class="tag">&lt;<span class="name">p</span>&gt;</span><span class="tag">&lt;<span class="name">a</span> <span class="attr">href</span>=<span class="string">&quot;&#123;% url &#x27;polls:detail&#x27; question.id %&#125;&quot;</span>&gt;</span>&#123;&#123; question.title &#125;&#125;<span class="tag">&lt;/<span class="name">a</span>&gt;</span><span class="tag">&lt;/<span class="name">p</span>&gt;</span></span><br><span class="line">    &#123;% endfor %&#125;</span><br><span class="line">&#123;% endblock %&#125;</span><br></pre></td></tr></table></figure>
+
+<h5 id="8，模型与-ORM-基础"><a href="#8，模型与-ORM-基础" class="headerlink" title="8，模型与 ORM 基础"></a>8，模型与 ORM 基础</h5><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># polls/models.py</span></span><br><span class="line"><span class="keyword">from</span> django.db <span class="keyword">import</span> models</span><br><span class="line"></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">Question</span>(models.Model):</span><br><span class="line">    title = models.CharField(<span class="string">&quot;标题&quot;</span>, max_length=<span class="number">200</span>)</span><br><span class="line">    content = models.TextField(<span class="string">&quot;内容&quot;</span>, blank=<span class="literal">True</span>, default=<span class="string">&quot;&quot;</span>)</span><br><span class="line">    pub_date = models.DateTimeField(<span class="string">&quot;发布时间&quot;</span>, auto_now_add=<span class="literal">True</span>)</span><br><span class="line">    updated_at = models.DateTimeField(<span class="string">&quot;更新时间&quot;</span>, auto_now=<span class="literal">True</span>)</span><br><span class="line">    is_active = models.BooleanField(<span class="string">&quot;是否有效&quot;</span>, default=<span class="literal">True</span>)</span><br><span class="line">    votes = models.IntegerField(<span class="string">&quot;票数&quot;</span>, default=<span class="number">0</span>)</span><br><span class="line"></span><br><span class="line">    <span class="keyword">class</span> <span class="title class_">Meta</span>:</span><br><span class="line">        db_table = <span class="string">&quot;polls_question&quot;</span>       <span class="comment"># 自定义表名</span></span><br><span class="line">        ordering = [<span class="string">&quot;-pub_date&quot;</span>]          <span class="comment"># 默认排序</span></span><br><span class="line">        verbose_name = <span class="string">&quot;投票&quot;</span>             <span class="comment"># 单数名称（管理后台显示）</span></span><br><span class="line">        verbose_name_plural = <span class="string">&quot;投票列表&quot;</span>  <span class="comment"># 复数名称</span></span><br><span class="line"></span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">__str__</span>(<span class="params">self</span>):</span><br><span class="line">        <span class="keyword">return</span> <span class="variable language_">self</span>.title</span><br><span class="line"></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">Choice</span>(models.Model):</span><br><span class="line">    question = models.ForeignKey(</span><br><span class="line">        Question,</span><br><span class="line">        on_delete=models.CASCADE,          <span class="comment"># 关联删除</span></span><br><span class="line">        related_name=<span class="string">&quot;choices&quot;</span>,            <span class="comment"># 反向查询名称</span></span><br><span class="line">        verbose_name=<span class="string">&quot;所属投票&quot;</span>,</span><br><span class="line">    )</span><br><span class="line">    text = models.CharField(<span class="string">&quot;选项内容&quot;</span>, max_length=<span class="number">200</span>)</span><br><span class="line">    votes = models.IntegerField(<span class="string">&quot;票数&quot;</span>, default=<span class="number">0</span>)</span><br><span class="line"></span><br><span class="line">    <span class="keyword">class</span> <span class="title class_">Meta</span>:</span><br><span class="line">        verbose_name = <span class="string">&quot;选项&quot;</span></span><br><span class="line">        verbose_name_plural = <span class="string">&quot;选项列表&quot;</span></span><br><span class="line">        ordering = [<span class="string">&quot;id&quot;</span>]</span><br><span class="line"></span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">__str__</span>(<span class="params">self</span>):</span><br><span class="line">        <span class="keyword">return</span> <span class="string">f&quot;<span class="subst">&#123;self.question.title&#125;</span> - <span class="subst">&#123;self.text&#125;</span>&quot;</span></span><br></pre></td></tr></table></figure>
+
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 常用模型字段类型</span></span><br><span class="line">models.CharField(max_length=<span class="number">200</span>)             <span class="comment"># 短文本（必须指定 max_length）</span></span><br><span class="line">models.TextField()                           <span class="comment"># 长文本</span></span><br><span class="line">models.IntegerField()                        <span class="comment"># 整数</span></span><br><span class="line">models.FloatField()                          <span class="comment"># 浮点数</span></span><br><span class="line">models.DecimalField(max_digits=<span class="number">5</span>, decimal_places=<span class="number">2</span>)  <span class="comment"># 精确小数</span></span><br><span class="line">models.BooleanField()                        <span class="comment"># 布尔值</span></span><br><span class="line">models.EmailField()                          <span class="comment"># 邮箱（带验证）</span></span><br><span class="line">models.URLField()                            <span class="comment"># URL（带验证）</span></span><br><span class="line">models.DateTimeField()                       <span class="comment"># 日期时间</span></span><br><span class="line">models.DateField()                           <span class="comment"># 日期</span></span><br><span class="line">models.TimeField()                           <span class="comment"># 时间</span></span><br><span class="line">models.FileField(upload_to=<span class="string">&quot;uploads/&quot;</span>)       <span class="comment"># 文件</span></span><br><span class="line">models.ImageField(upload_to=<span class="string">&quot;images/&quot;</span>)       <span class="comment"># 图片（需要 Pillow）</span></span><br><span class="line">models.ForeignKey(OtherModel, on_delete)     <span class="comment"># 外键</span></span><br><span class="line">models.OneToOneField(OtherModel, on_delete)  <span class="comment"># 一对一</span></span><br><span class="line">models.ManyToManyField(OtherModel)           <span class="comment"># 多对多</span></span><br><span class="line">models.JSONField()                           <span class="comment"># JSON 数据（Django 3.1+，部分数据库支持）</span></span><br><span class="line">models.UUIDField()                           <span class="comment"># UUID</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 通用字段参数</span></span><br><span class="line"><span class="comment"># null=True             数据库层面允许 NULL</span></span><br><span class="line"><span class="comment"># blank=True            表单验证允许为空</span></span><br><span class="line"><span class="comment"># default=&quot;默认值&quot;      默认值</span></span><br><span class="line"><span class="comment"># unique=True           唯一约束</span></span><br><span class="line"><span class="comment"># db_index=True         创建索引</span></span><br><span class="line"><span class="comment"># verbose_name=&quot;名称&quot;   可读名称</span></span><br><span class="line"><span class="comment"># choices=[...]         选项列表</span></span><br><span class="line"><span class="comment"># primary_key=True      主键</span></span><br><span class="line"><span class="comment"># editable=False        编辑器中不可编辑</span></span><br><span class="line"><span class="comment"># help_text=&quot;提示&quot;      帮助文本</span></span><br><span class="line"><span class="comment"># validators=[...]      自定义验证器</span></span><br></pre></td></tr></table></figure>
+
+<h5 id="9，ORM-基础操作"><a href="#9，ORM-基础操作" class="headerlink" title="9，ORM 基础操作"></a>9，ORM 基础操作</h5><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 创建（Create）</span></span><br><span class="line"><span class="comment"># 方式一：实例化后 save()</span></span><br><span class="line">question = Question(title=<span class="string">&quot;你最喜欢的语言？&quot;</span>)</span><br><span class="line">question.save()</span><br><span class="line"></span><br><span class="line"><span class="comment"># 方式二：create() 一行完成</span></span><br><span class="line">question = Question.objects.create(title=<span class="string">&quot;你最喜欢的框架？&quot;</span>)</span><br><span class="line"></span><br><span class="line"><span class="comment"># 方式三：get_or_create（存在则获取，不存在则创建）</span></span><br><span class="line">question, created = Question.objects.get_or_create(</span><br><span class="line">    title=<span class="string">&quot;默认投票&quot;</span>,</span><br><span class="line">    defaults=&#123;<span class="string">&quot;content&quot;</span>: <span class="string">&quot;默认内容&quot;</span>&#125;</span><br><span class="line">)</span><br><span class="line"></span><br><span class="line"><span class="comment"># 批量创建</span></span><br><span class="line">Question.objects.bulk_create([</span><br><span class="line">    Question(title=<span class="string">f&quot;投票<span class="subst">&#123;i&#125;</span>&quot;</span>) <span class="keyword">for</span> i <span class="keyword">in</span> <span class="built_in">range</span>(<span class="number">100</span>)</span><br><span class="line">])</span><br><span class="line"></span><br><span class="line"><span class="comment"># ==========================================</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 查询（Read）</span></span><br><span class="line"><span class="comment"># 获取全部</span></span><br><span class="line">all_questions = Question.objects.<span class="built_in">all</span>()</span><br><span class="line"></span><br><span class="line"><span class="comment"># 过滤</span></span><br><span class="line">active = Question.objects.<span class="built_in">filter</span>(is_active=<span class="literal">True</span>)</span><br><span class="line">recent = Question.objects.<span class="built_in">filter</span>(pub_date__year=<span class="number">2023</span>)</span><br><span class="line">search = Question.objects.<span class="built_in">filter</span>(title__contains=<span class="string">&quot;Python&quot;</span>)</span><br><span class="line"></span><br><span class="line"><span class="comment"># 获取单个</span></span><br><span class="line">question = Question.objects.get(pk=<span class="number">1</span>)                    <span class="comment"># 不存在或存在多个会抛异常</span></span><br><span class="line">question = Question.objects.first()                       <span class="comment"># 第一个</span></span><br><span class="line">question = Question.objects.last()                        <span class="comment"># 最后一个</span></span><br><span class="line">question = Question.objects.earliest(<span class="string">&quot;pub_date&quot;</span>)          <span class="comment"># 最早</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 排序</span></span><br><span class="line">questions = Question.objects.order_by(<span class="string">&quot;-pub_date&quot;</span>)        <span class="comment"># 降序</span></span><br><span class="line">questions = Question.objects.order_by(<span class="string">&quot;is_active&quot;</span>, <span class="string">&quot;-id&quot;</span>) <span class="comment"># 多字段排序</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 限制与偏移</span></span><br><span class="line">first_10 = Question.objects.<span class="built_in">all</span>()[:<span class="number">10</span>]                    <span class="comment"># LIMIT 10</span></span><br><span class="line">next_10 = Question.objects.<span class="built_in">all</span>()[<span class="number">10</span>:<span class="number">20</span>]                   <span class="comment"># OFFSET 10 LIMIT 10</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 聚合</span></span><br><span class="line"><span class="keyword">from</span> django.db.models <span class="keyword">import</span> Count, Sum, Avg, Max, Min</span><br><span class="line">Question.objects.aggregate(Count(<span class="string">&quot;id&quot;</span>))        <span class="comment"># &#123;&#x27;id__count&#x27;: 10&#125;</span></span><br><span class="line">Question.objects.aggregate(avg_votes=Avg(<span class="string">&quot;votes&quot;</span>))</span><br><span class="line"></span><br><span class="line"><span class="comment"># ==========================================</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 更新（Update）</span></span><br><span class="line"><span class="comment"># 方式一：修改实例后 save()</span></span><br><span class="line">question = Question.objects.get(pk=<span class="number">1</span>)</span><br><span class="line">question.title = <span class="string">&quot;新标题&quot;</span></span><br><span class="line">question.save()</span><br><span class="line"></span><br><span class="line"><span class="comment"># 方式二：update() 批量更新（不会触发 save 信号）</span></span><br><span class="line">Question.objects.<span class="built_in">filter</span>(is_active=<span class="literal">False</span>).update(is_active=<span class="literal">True</span>)</span><br><span class="line"></span><br><span class="line"><span class="comment"># ==========================================</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 删除（Delete）</span></span><br><span class="line">question = Question.objects.get(pk=<span class="number">1</span>)</span><br><span class="line">question.delete()                                          <span class="comment"># 删除单个</span></span><br><span class="line"></span><br><span class="line">Question.objects.<span class="built_in">filter</span>(is_active=<span class="literal">False</span>).delete()          <span class="comment"># 批量删除</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># ==========================================</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># exists() —— 判断是否存在（性能优于 if queryset）</span></span><br><span class="line"><span class="keyword">if</span> Question.objects.<span class="built_in">filter</span>(title__startswith=<span class="string">&quot;Python&quot;</span>).exists():</span><br><span class="line">    <span class="built_in">print</span>(<span class="string">&quot;存在相关投票&quot;</span>)</span><br><span class="line"></span><br><span class="line"><span class="comment"># count() —— 计数</span></span><br><span class="line">total = Question.objects.count()</span><br><span class="line">active_count = Question.objects.<span class="built_in">filter</span>(is_active=<span class="literal">True</span>).count()</span><br><span class="line"></span><br><span class="line"><span class="comment"># values() / values_list() —— 返回字典/元组而非模型实例</span></span><br><span class="line">titles = Question.objects.values(<span class="string">&quot;id&quot;</span>, <span class="string">&quot;title&quot;</span>)           <span class="comment"># QuerySet[dict]</span></span><br><span class="line">ids = Question.objects.values_list(<span class="string">&quot;id&quot;</span>, flat=<span class="literal">True</span>)        <span class="comment"># QuerySet[int]</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># distinct() —— 去重</span></span><br><span class="line">categories = Question.objects.values(<span class="string">&quot;category&quot;</span>).distinct()</span><br></pre></td></tr></table></figure>
+
+<h5 id="10，数据库迁移"><a href="#10，数据库迁移" class="headerlink" title="10，数据库迁移"></a>10，数据库迁移</h5><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 生成迁移文件（根据 models.py 变化）</span></span><br><span class="line">python manage.py makemigrations</span><br><span class="line"></span><br><span class="line"><span class="comment"># 查看迁移生成的 SQL（不执行）</span></span><br><span class="line">python manage.py sqlmigrate polls 0001</span><br><span class="line"></span><br><span class="line"><span class="comment"># 执行迁移（应用到数据库）</span></span><br><span class="line">python manage.py migrate</span><br><span class="line"></span><br><span class="line"><span class="comment"># 查看迁移状态</span></span><br><span class="line">python manage.py showmigrations</span><br><span class="line"></span><br><span class="line"><span class="comment"># 回滚迁移</span></span><br><span class="line">python manage.py migrate polls 0001    <span class="comment"># 回滚到指定迁移</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 创建空迁移（用于数据迁移）</span></span><br><span class="line">python manage.py makemigrations polls --name update_data --empty</span><br></pre></td></tr></table></figure>
+
+<h5 id="11，Admin-管理后台"><a href="#11，Admin-管理后台" class="headerlink" title="11，Admin 管理后台"></a>11，Admin 管理后台</h5><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># polls/admin.py</span></span><br><span class="line"><span class="keyword">from</span> django.contrib <span class="keyword">import</span> admin</span><br><span class="line"><span class="keyword">from</span> .models <span class="keyword">import</span> Question, Choice</span><br><span class="line"></span><br><span class="line"><span class="comment"># 方式一：简单注册</span></span><br><span class="line">admin.site.register(Question)</span><br><span class="line"></span><br><span class="line"><span class="comment"># 方式二：使用装饰器</span></span><br><span class="line"><span class="meta">@admin.register(<span class="params">Choice</span>)</span></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">ChoiceAdmin</span>(admin.ModelAdmin):</span><br><span class="line">    <span class="keyword">pass</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 方式三：自定义 ModelAdmin</span></span><br><span class="line"><span class="meta">@admin.register(<span class="params">Question</span>)</span></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">QuestionAdmin</span>(admin.ModelAdmin):</span><br><span class="line">    <span class="comment"># 列表页显示字段</span></span><br><span class="line">    list_display = [<span class="string">&quot;id&quot;</span>, <span class="string">&quot;title&quot;</span>, <span class="string">&quot;pub_date&quot;</span>, <span class="string">&quot;is_active&quot;</span>, <span class="string">&quot;vote_count&quot;</span>]</span><br><span class="line">    <span class="comment"># 可点击进入详情的字段</span></span><br><span class="line">    list_display_links = [<span class="string">&quot;id&quot;</span>, <span class="string">&quot;title&quot;</span>]</span><br><span class="line">    <span class="comment"># 可编辑的字段（列表页直接编辑）</span></span><br><span class="line">    list_editable = [<span class="string">&quot;is_active&quot;</span>]</span><br><span class="line">    <span class="comment"># 过滤器</span></span><br><span class="line">    list_filter = [<span class="string">&quot;is_active&quot;</span>, <span class="string">&quot;pub_date&quot;</span>]</span><br><span class="line">    <span class="comment"># 搜索</span></span><br><span class="line">    search_fields = [<span class="string">&quot;title&quot;</span>, <span class="string">&quot;content&quot;</span>]</span><br><span class="line">    <span class="comment"># 分页</span></span><br><span class="line">    list_per_page = <span class="number">20</span></span><br><span class="line">    <span class="comment"># 排序</span></span><br><span class="line">    ordering = [<span class="string">&quot;-pub_date&quot;</span>]</span><br><span class="line">    <span class="comment"># 详情页字段分组</span></span><br><span class="line">    fieldsets = (</span><br><span class="line">        (<span class="string">&quot;基本信息&quot;</span>, &#123;<span class="string">&quot;fields&quot;</span>: (<span class="string">&quot;title&quot;</span>, <span class="string">&quot;content&quot;</span>)&#125;),</span><br><span class="line">        (<span class="string">&quot;日期信息&quot;</span>, &#123;<span class="string">&quot;fields&quot;</span>: (<span class="string">&quot;pub_date&quot;</span>,)&#125;),</span><br><span class="line">        (<span class="string">&quot;状态&quot;</span>, &#123;<span class="string">&quot;fields&quot;</span>: (<span class="string">&quot;is_active&quot;</span>, <span class="string">&quot;votes&quot;</span>)&#125;),</span><br><span class="line">    )</span><br><span class="line">    <span class="comment"># 只读字段</span></span><br><span class="line">    readonly_fields = [<span class="string">&quot;pub_date&quot;</span>]</span><br><span class="line"></span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">vote_count</span>(<span class="params">self, obj</span>):</span><br><span class="line">        <span class="string">&quot;&quot;&quot;自定义列表列&quot;&quot;&quot;</span></span><br><span class="line">        <span class="keyword">return</span> obj.choices.count()</span><br><span class="line">    vote_count.short_description = <span class="string">&quot;选项数&quot;</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 创建超级用户</span></span><br><span class="line"><span class="comment"># python manage.py createsuperuser</span></span><br></pre></td></tr></table></figure>
+
+<h5 id="12，静态文件"><a href="#12，静态文件" class="headerlink" title="12，静态文件"></a>12，静态文件</h5><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># settings.py</span></span><br><span class="line">STATIC_URL = <span class="string">&quot;static/&quot;</span></span><br><span class="line">STATICFILES_DIRS = [BASE_DIR / <span class="string">&quot;static&quot;</span>]</span><br><span class="line">STATIC_ROOT = BASE_DIR / <span class="string">&quot;staticfiles&quot;</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 模板中引用静态文件</span></span><br><span class="line"><span class="comment"># &#123;% load static %&#125;</span></span><br><span class="line"><span class="comment"># &lt;link rel=&quot;stylesheet&quot; href=&quot;&#123;% static &#x27;css/style.css&#x27; %&#125;&quot;&gt;</span></span><br><span class="line"><span class="comment"># &lt;img src=&quot;&#123;% static &#x27;images/logo.png&#x27; %&#125;&quot; alt=&quot;logo&quot;&gt;</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 开发环境：Django 自动处理静态文件</span></span><br><span class="line"><span class="comment"># 生产环境：收集静态文件到 STATIC_ROOT</span></span><br><span class="line"><span class="comment"># python manage.py collectstatic</span></span><br></pre></td></tr></table></figure>
+
+<figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">&#123;% load static %&#125;</span><br><span class="line"><span class="meta">&lt;!DOCTYPE <span class="keyword">html</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">html</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">head</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">link</span> <span class="attr">rel</span>=<span class="string">&quot;stylesheet&quot;</span> <span class="attr">href</span>=<span class="string">&quot;&#123;% static &#x27;polls/style.css&#x27; %&#125;&quot;</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">head</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">body</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">img</span> <span class="attr">src</span>=<span class="string">&quot;&#123;% static &#x27;polls/logo.png&#x27; %&#125;&quot;</span> <span class="attr">alt</span>=<span class="string">&quot;logo&quot;</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">body</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">html</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+<h5 id="13，开发服务器"><a href="#13，开发服务器" class="headerlink" title="13，开发服务器"></a>13，开发服务器</h5><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 启动开发服务器</span></span><br><span class="line">python manage.py runserver</span><br><span class="line"></span><br><span class="line"><span class="comment"># 指定端口</span></span><br><span class="line">python manage.py runserver 8080</span><br><span class="line"></span><br><span class="line"><span class="comment"># 监听所有网络接口</span></span><br><span class="line">python manage.py runserver 0.0.0.0:8000</span><br><span class="line"></span><br><span class="line"><span class="comment"># Django shell（交互式调试）</span></span><br><span class="line">python manage.py shell</span><br><span class="line"></span><br><span class="line"><span class="comment"># 进入数据库 shell</span></span><br><span class="line">python manage.py dbshell</span><br></pre></td></tr></table></figure>
+
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/blog/tags/django/" rel="tag"># django</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/blog/2023/01/24/mysql/mysql%E7%B4%A2%E5%BC%95%E5%8E%9F%E7%90%86%E4%B8%8E%E4%BC%98%E5%8C%96/" rel="prev" title="mysql索引原理与优化">
+      <i class="fa fa-chevron-left"></i> mysql索引原理与优化
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/blog/2023/02/15/django/django%E8%BF%9B%E9%98%B6/" rel="next" title="django进阶">
+      django进阶 <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-5"><a class="nav-link" href="#1%EF%BC%8CDjango-%E7%AE%80%E4%BB%8B"><span class="nav-number">1.</span> <span class="nav-text">1，Django 简介</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#2%EF%BC%8C%E7%8E%AF%E5%A2%83%E6%90%AD%E5%BB%BA%E4%B8%8E%E9%A1%B9%E7%9B%AE%E5%88%9B%E5%BB%BA"><span class="nav-number">2.</span> <span class="nav-text">2，环境搭建与项目创建</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#3%EF%BC%8Csettings-py-%E9%85%8D%E7%BD%AE%E8%AF%A6%E8%A7%A3"><span class="nav-number">3.</span> <span class="nav-text">3，settings.py 配置详解</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#4%EF%BC%8CURL-%E8%B7%AF%E7%94%B1"><span class="nav-number">4.</span> <span class="nav-text">4，URL 路由</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#5%EF%BC%8C%E8%A7%86%E5%9B%BE%E5%87%BD%E6%95%B0"><span class="nav-number">5.</span> <span class="nav-text">5，视图函数</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#6%EF%BC%8C%E6%A8%A1%E6%9D%BF%E7%B3%BB%E7%BB%9F"><span class="nav-number">6.</span> <span class="nav-text">6，模板系统</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#7%EF%BC%8C%E6%A8%A1%E6%9D%BF%E7%BB%A7%E6%89%BF"><span class="nav-number">7.</span> <span class="nav-text">7，模板继承</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#8%EF%BC%8C%E6%A8%A1%E5%9E%8B%E4%B8%8E-ORM-%E5%9F%BA%E7%A1%80"><span class="nav-number">8.</span> <span class="nav-text">8，模型与 ORM 基础</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#9%EF%BC%8CORM-%E5%9F%BA%E7%A1%80%E6%93%8D%E4%BD%9C"><span class="nav-number">9.</span> <span class="nav-text">9，ORM 基础操作</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#10%EF%BC%8C%E6%95%B0%E6%8D%AE%E5%BA%93%E8%BF%81%E7%A7%BB"><span class="nav-number">10.</span> <span class="nav-text">10，数据库迁移</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#11%EF%BC%8CAdmin-%E7%AE%A1%E7%90%86%E5%90%8E%E5%8F%B0"><span class="nav-number">11.</span> <span class="nav-text">11，Admin 管理后台</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#12%EF%BC%8C%E9%9D%99%E6%80%81%E6%96%87%E4%BB%B6"><span class="nav-number">12.</span> <span class="nav-text">12，静态文件</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#13%EF%BC%8C%E5%BC%80%E5%8F%91%E6%9C%8D%E5%8A%A1%E5%99%A8"><span class="nav-number">13.</span> <span class="nav-text">13，开发服务器</span></a></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">ruoxi</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/blog/archives/">
+        
+          <span class="site-state-item-count">80</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/blog/categories/">
+          
+        <span class="site-state-item-count">17</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/blog/tags/">
+          
+        <span class="site-state-item-count">47</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2026</span>
+  <span class="with-love">
+    <i class="fa fa-code"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">ruoxi</span>
+</div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/blog/lib/anime.min.js"></script>
+  <script src="/blog/lib/velocity/velocity.min.js"></script>
+  <script src="/blog/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/blog/js/utils.js"></script>
+
+<script src="/blog/js/motion.js"></script>
+
+
+<script src="/blog/js/schemes/pisces.js"></script>
+
+
+<script src="/blog/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+</body>
+</html>

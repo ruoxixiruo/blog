@@ -1,0 +1,960 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>面试题 - 并发编程</title>
+<style>
+body {
+    transition: margin-left .25s ease;
+    font-family: -apple-system, "Noto Sans SC", "Microsoft YaHei", sans-serif;
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 20px 24px 60px;
+    line-height: 1.8;
+    color: #333;
+    background: #fff;
+}
+h1 { border-bottom: 2px solid #eee; padding-bottom: 10px; color: #222; }
+h2 { color: #333; margin-top: 32px; }
+h3 { color: #555; }
+a { color: #0366d6; text-decoration: none; }
+a:hover { text-decoration: underline; }
+pre {
+    background: #f6f8fa;
+    border-radius: 6px;
+    padding: 16px;
+    overflow-x: auto;
+    font-size: 14px;
+    line-height: 1.45;
+}
+code {
+    background: #f0f2f4;
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-size: 14px;
+}
+pre code { background: none; padding: 0; }
+blockquote {
+    border-left: 4px solid #ddd;
+    margin: 0;
+    padding: 0 16px;
+    color: #666;
+}
+table {
+    border-collapse: collapse;
+    width: 100%;
+    margin: 16px 0;
+}
+th, td {
+    border: 1px solid #ddd;
+    padding: 8px 12px;
+    text-align: left;
+}
+th { background: #f6f8fa; }
+img { max-width: 100%; }
+.back-link {
+    margin-bottom: 20px;
+    display: block;
+    color: #666;
+}
+.back-link:hover { color: #0366d6; }
+
+.sidebar-toc {
+    transition: left .25s ease;
+    position: fixed;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    width: 220px;
+    background: #f8f9fa;
+    border-right: 1px solid #e9ecef;
+    padding: 20px 0;
+    overflow-y: auto;
+    font-size: 13px;
+    z-index: 100;
+}
+.sidebar-toc a {
+    display: block;
+    padding: 6px 16px;
+    color: #555;
+    text-decoration: none;
+    border-left: 3px solid transparent;
+    line-height: 1.5;
+}
+.sidebar-toc a:hover {
+    background: #e9ecef;
+    color: #0366d6;
+    border-left-color: #0366d6;
+}
+.sidebar-toc .toc-h3 { padding-left: 20px; font-size: 12px; }
+body { margin-left: 240px; }
+
+
+.copy-btn {
+    position: absolute; top: 6px; right: 6px;
+    background: #e9ecef; border: none;
+    border-radius: 4px; padding: 3px 10px;
+    font-size: 12px; color: #555; cursor: pointer;
+    opacity: 0; transition: opacity 0.2s;
+    z-index: 1;
+}
+pre:hover .copy-btn { opacity: 1; }
+.copy-btn:hover { background: #d0d7de; }
+.copy-btn.copied { opacity: 1; background: #2da44e; color: #fff; }
+.copy-btn{position:absolute;top:6px;right:6px;background:#e9ecef;border:none;border-radius:4px;padding:3px 10px;font-size:12px;color:#555;cursor:pointer;opacity:0;transition:opacity .2s;z-index:1}pre:hover .copy-btn{opacity:1}.copy-btn:hover{background:#d0d7de}.copy-btn.copied{opacity:1;background:#2da44e;color:#fff}
+.copy-btn{position:absolute;top:6px;right:6px;background:#e9ecef;border:none;border-radius:4px;padding:3px 10px;font-size:12px;color:#555;cursor:pointer;opacity:0;transition:opacity .2s;z-index:1}pre:hover .copy-btn{opacity:1}.copy-btn:hover{background:#d0d7de}.copy-btn.copied{opacity:1;background:#2da44e;color:#fff}
+.copy-btn{position:absolute;top:6px;right:6px;background:#e9ecef;border:none;border-radius:4px;padding:3px 10px;font-size:12px;color:#555;cursor:pointer;opacity:0;transition:opacity .2s;z-index:1}pre:hover .copy-btn{opacity:1}.copy-btn:hover{background:#d0d7de}.copy-btn.copied{opacity:1;background:#2da44e;color:#fff}
+.sidebar-toggle-btn {
+  position: fixed;
+  left: 220px;
+  top: 0;
+  width: 28px;
+  height: 40px;
+  background: #f8f9fa;
+  border: 1px solid #e9ecef;
+  border-left: none;
+  border-radius: 0 4px 4px 0;
+  cursor: pointer;
+  font-size: 16px;
+  color: #555;
+  z-index: 101;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: left .25s, background .2s;
+  padding: 0;
+  line-height: 1;
+}
+.sidebar-toggle-btn:hover { background: #e9ecef; color: #0366d6; }
+.sidebar-collapsed .sidebar-toc { left: -220px; }
+.sidebar-collapsed .sidebar-toggle-btn { left: 0; }
+.sidebar-collapsed body, body.sidebar-collapsed { margin-left: 28px; }
+.sidebar-overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,.3);
+  z-index: 99;
+}
+@media (max-width: 768px) {
+  .sidebar-collapsed .sidebar-overlay { display: none; }
+  .sidebar-toc { left: -220px; }
+  .sidebar-toggle-btn { left: 0; }
+  body { margin-left: 28px; }
+}
+
+</style>
+</head>
+</head>
+<body>
+<nav class="sidebar-toc"><a class="toc-h3" href="#1">1. 进程、线程、协程的区别?</a><a class="toc-h3" href="#2">2. 线程的生命周期?</a><a class="toc-h3" href="#3-synchronized-reentrantlock">3. synchronized 和 ReentrantLock 的区别?</a><a class="toc-h3" href="#4-casaba">4. 什么是 CAS?ABA 问题怎么解决?</a><a class="toc-h3" href="#5-aqs">5. AQS 原理?</a><a class="toc-h3" href="#6-wait-sleep">6. wait() 和 sleep() 的区别?</a><a class="toc-h3" href="#7-7">7. 线程池的核心参数(7 个)?</a><a class="toc-h3" href="#8_1">8. 拒绝策略有哪几种?</a><a class="toc-h3" href="#9-countdownlatch-cyclicbarrier">9. CountDownLatch 和 CyclicBarrier 的区别?</a><a class="toc-h3" href="#10-threadlocal">10. ThreadLocal 应用场景?</a><a class="toc-h3" href="#11-semaphore">11. Semaphore 的原理和应用?</a><a class="toc-h3" href="#12-readwritelock">12. ReadWriteLock 的读写锁机制?</a><a class="toc-h3" href="#13-completablefuture">13. CompletableFuture 的作用?</a><a class="toc-h3" href="#14-forkjoin">14. Fork/Join 框架的原理?</a><a class="toc-h3" href="#15">15. 什么是伪共享?如何避免?</a><a class="toc-h3" href="#16-happens-before">16. 什么是 Happens-Before 原则?</a><a class="toc-h3" href="#17-threadpoolexecutor-7">17. ThreadPoolExecutor 的 7 个参数怎么配?</a><a class="toc-h3" href="#18-completablefuture">18. CompletableFuture 怎么编排异步任务?</a><a class="toc-h3" href="#19-completablefuture">19. CompletableFuture 如何实现异步编排？</a></nav>
+<button class="sidebar-toggle-btn" onclick="toggleSidebar()" title="切换侧栏">☰</button>
+
+<div class="sidebar-overlay" onclick="toggleSidebar()"></div>
+
+<script>
+function toggleSidebar() {
+  document.body.classList.toggle('sidebar-collapsed');
+  try { localStorage.setItem('sidebarCollapsed', document.body.classList.contains('sidebar-collapsed')); } catch(e) {}
+}
+(function() {
+  try {
+    if (localStorage.getItem('sidebarCollapsed') === 'true') {
+      document.body.classList.add('sidebar-collapsed');
+    }
+  } catch(e) {}
+})();
+</script>
+<a class="back-link" href="/blog/2026/05/16/面试题/面试题/">← 返回面试题目录</a>
+<h1 id=page-title>并发编程</h1>
+<h3 id="1">1. 进程、线程、协程的区别?</h3>
+<pre><code>进程 vs 线程 vs 协程:
+
+┌────────────┬──────────┬──────────┬──────────────┐
+│            │ 进程     │ 线程     │ 协程         │
+├────────────┼──────────┼──────────┼──────────────┤
+│ 资源       │ 独立内存  │ 共享堆   │ 共享线程     │
+│ 切换开销   │ 大(ms)   │ 中(μs)  │ 极小(ns)     │
+│ 调度者     │ OS       │ OS      │ 用户态/程序   │
+│ 比喻       │ 独立工厂  │ 工厂工人 │ 一个工人多工位│
+└────────────┴──────────┴──────────┴──────────────┘
+</code></pre>
+<ul>
+<li><strong>进程</strong>:操作系统分配资源的最小单位。每个进程有独立的内存空间(虚拟地址空间),进程间通信靠 IPC(管道、共享内存、Socket)。切换需要切换页表等,开销最大的</li>
+<li><strong>线程</strong>:CPU 调度的最小单位。同一进程的线程共享堆和方法区,各有自己的栈和程序计数器。切换只需切换寄存器和栈,比进程快。但线程是 OS 调度的,仍涉及内核态切换</li>
+<li><strong>协程</strong>:用户态的"轻量级线程"。完全在用户态调度,不经过 OS,切换只保存少量寄存器。一个线程可以跑成千上万个协程。Go 的 goroutine、Python 的 asyncio、Java 21 的虚拟线程都是协程的变体</li>
+</ul>
+<p><strong>选型</strong>:CPU 密集型(计算任务)→ 多进程/多线程;IO 密集型(网络、文件)→ 协程最划算。</p>
+<blockquote>
+<p><strong>扩展</strong>:Java 21 的虚拟线程(Virtual Threads,Project Loom)本质就是 JVM 层面的协程--虚拟线程阻塞时,底层平台线程(载体线程)会被释放去执行其他虚拟线程,不会浪费 OS 线程。几万个虚拟线程只用几个平台线程调度,IO 密集场景性能超越传统线程池。但 CPU 密集场景不适合虚拟线程--计算不会触发卸载。</p>
+</blockquote>
+<h3 id="2">2. 线程的生命周期?</h3>
+<pre><code>Java 线程 6 状态转换图:
+
+    NEW(新建)
+     │ start()
+     ▼
+    RUNNABLE(就绪 + 运行中)
+     │          │         │
+     │ 获取锁失败│wait()    │sleep()
+     ▼          ▼         ▼
+  BLOCKED   WAITING   TIMED_WAITING
+     │    (无限等待)   (限时等待)
+     │          │         │
+     │  获取锁  │notify   │时间到
+     │          │         │
+     └──────────┴─────────┘
+              │
+              ▼
+         TERMINATED(终止)
+</code></pre>
+<ul>
+<li><strong>NEW</strong>:<code>new Thread()</code> 但还没 <code>start()</code>--线程对象创建了但还没真正跑起来</li>
+<li><strong>RUNNABLE</strong>:就绪(等 CPU 时间片)或正在运行中。Java 不区分"就绪"和"运行",统称 RUNNABLE</li>
+<li><strong>BLOCKED</strong>:等待获取锁(synchronized),锁被其他线程持有。拿到锁后回到 RUNNABLE</li>
+<li><strong>WAITING</strong>:无限等待,等 <code>notify()</code>/<code>notifyAll()</code> 唤醒。如 <code>Object.wait()</code>、<code>Thread.join()</code></li>
+<li><strong>TIMED_WAITING</strong>:限时等待,时间到了自动醒。如 <code>Thread.sleep(ms)</code>、<code>Object.wait(ms)</code></li>
+<li><strong>TERMINATED</strong>:<code>run()</code> 执行完毕或未捕获异常退出</li>
+</ul>
+<blockquote>
+<p><strong>扩展</strong>:<code>Thread.getState()</code> 可以获取当前状态。BLOCKED 和 WAITING 的区别常考--BLOCKED 是"被动"等待(等别人释放锁),WAITING 是"主动"等待(自己调了 wait/join,等另一个线程来叫)。<code>jstack</code> 可以看到所有线程的状态,排查死锁时重点关注 BLOCKED 状态的线程。</p>
+</blockquote>
+<h3 id="3-synchronized-reentrantlock">3. <code>synchronized</code> 和 <code>ReentrantLock</code> 的区别?</h3>
+<table>
+<thead>
+<tr>
+<th>对比维度</th>
+<th>synchronized</th>
+<th>ReentrantLock</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>实现</td>
+<td>JVM 内置关键字</td>
+<td>Java API(AQS 框架)</td>
+</tr>
+<tr>
+<td>释放</td>
+<td>自动(退出代码块/异常)</td>
+<td><strong>必须手动</strong> unlock(finally)</td>
+</tr>
+<tr>
+<td>可中断</td>
+<td>不支持,死等</td>
+<td><code>lockInterruptibly()</code> 可被中断</td>
+</tr>
+<tr>
+<td>超时获取</td>
+<td>不支持</td>
+<td><code>tryLock(timeout)</code> 拿不到就走</td>
+</tr>
+<tr>
+<td>公平性</td>
+<td>非公平</td>
+<td>可选公平/非公平</td>
+</tr>
+<tr>
+<td>条件变量</td>
+<td>wait/notify(单条件队列)</td>
+<td>Condition(多条件队列)</td>
+</tr>
+<tr>
+<td>性能</td>
+<td>JDK 6+ 优化后差不多</td>
+<td>差不多</td>
+</tr>
+</tbody>
+</table>
+<pre><code>选择建议:
+简单场景 → synchronized(省心,不担心忘 unlock)
+需要中断/超时 → ReentrantLock
+需要多条件协作 → ReentrantLock + Condition
+需要公平锁 → ReentrantLock(true)
+</code></pre>
+<blockquote>
+<p><strong>扩展</strong>:ReentrantLock 的 Condition 可以实现精确唤醒--比如生产者消费者中,生产者只唤醒消费者,消费者只唤醒生产者,而不是把所有人叫醒(notifyAll)。<code>synchronized</code> 只有一个等待队列,notifyAll 唤醒所有等待线程,效率低。此外 ReentrantLock 支持 <code>isHeldByCurrentThread()</code> 和 <code>getHoldCount()</code>,可以检查锁的持有状态,这对调试很有用。</p>
+</blockquote>
+<h3 id="4-casaba">4. 什么是 CAS?ABA 问题怎么解决?</h3>
+<pre><code>CAS(Compare And Swap)原理:
+
+do {
+  1 读取内存当前值 E
+  2 计算新值 V = E + 1
+  3 CAS(内存地址, E, V):如果内存值 == E,则改为 V;否则什么都不做
+} while (!CAS成功);  // 失败了重试
+
+CPU 指令级:CMPXCHG(x86),一条原子指令
+</code></pre>
+<p>CAS 就像<strong>排队办理业务</strong>--你拿到的号是 5,走到窗口前看看现在几号:是 5 就办,不是就说明有人插队了,重新看号再等。</p>
+<p><strong>ABA 问题</strong>:值从 A → B → A,CAS 只看最终值还是 A,以为没变过,实际中间被改过两次。就像你离开座位一分钟,回来水杯还在原位--但可能被你同事拿去喝了口水又放了回来。</p>
+<p><strong>解决</strong>:加版本号(<code>AtomicStampedReference</code>),每次修改版本号 +1。不只是比较值,还比较版本号。JDK 还提供了 <code>AtomicMarkableReference</code>(只关心"有没有被改过"而不关心改了几次)。</p>
+<blockquote>
+<p><strong>扩展</strong>:CAS 是 JUC(java.util.concurrent)的基石--<code>AtomicInteger</code>、<code>ConcurrentHashMap</code>、<code>ReentrantLock</code> 的底层都用 CAS。但 CAS 有"自旋开销"--高并发下 CAS 频繁失败导致线程一直空转(忙等)。JDK 8 的 <code>LongAdder</code> 对此做了优化--将单一变量拆成多个 Cell,并发更新分散到不同 Cell,最后 sum 汇总,减少了 CAS 碰撞。</p>
+</blockquote>
+<h3 id="5-aqs">5. AQS 原理?</h3>
+<pre><code>AQS(AbstractQueuedSynchronizer)结构:
+
+  volatile int state          ← 锁状态(0=空闲,1=被占用,&gt;1=重入次数)
+  CLH 双向队列(FIFO)         ← 等待线程排队
+  ┌───┐   ┌───┐   ┌───┐
+  │头 │←→ │B  │←→ │C  │←→ tail
+  │节点│   │   │   │   │
+  └───┘   └───┘   └───┘
+
+获取锁流程:
+  tryAcquire(1) → CAS 尝试改 state
+    ├── 成功:当前线程持有锁,继续执行
+    └── 失败:线程打包成 Node,CAS 入队尾部
+              → 自旋检查:我是第一个排队的人吗?
+                → 是:再尝试获取锁
+                → 否:park() 挂起,等前驱叫醒
+</code></pre>
+<p>AQS 是 JUC 包的<strong>核心骨架</strong>。你只需要重写 <code>tryAcquire</code>/<code>tryRelease</code>(独占模式)或 <code>tryAcquireShared</code>/<code>tryReleaseShared</code>(共享模式),排队和唤醒由 AQS 帮你搞定。</p>
+<p>基于 AQS 的常见实现:
+- <code>ReentrantLock</code>:独占锁,state 表示重入次数
+- <code>CountDownLatch</code>:共享模式,state 是计数器
+- <code>Semaphore</code>:共享模式,state 是许可数
+- <code>ReadWriteLock</code>:state 高 16 位是读锁计数,低 16 位是写锁计数</p>
+<blockquote>
+<p><strong>扩展</strong>:CLH 队列为什么用双向链表而不是单向?因为需要从队尾唤醒下一个节点(后继)--当前节点释放锁后,通过 next 指针找到下一个等待者并 unpark。队头节点(持有锁的线程)释放时触发队头的后继被唤醒。AQS 中 Condition 的等待队列是单独的单向链表,当 signal 时节点从 Condition 队列转移到 CLH 主队列。</p>
+</blockquote>
+<h3 id="6-wait-sleep">6. <code>wait()</code> 和 <code>sleep()</code> 的区别?</h3>
+<table>
+<thead>
+<tr>
+<th></th>
+<th>wait()</th>
+<th>sleep()</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>所属</td>
+<td>Object 的方法</td>
+<td>Thread 的静态方法</td>
+</tr>
+<tr>
+<td><strong>锁释放</strong></td>
+<td><strong>会释放锁</strong></td>
+<td><strong>不释放锁</strong></td>
+</tr>
+<tr>
+<td>唤醒</td>
+<td>notify/notifyAll</td>
+<td>时间到自动醒 / interrupt</td>
+</tr>
+<tr>
+<td>调用前提</td>
+<td>必须在 synchronized 块里</td>
+<td>随便调</td>
+</tr>
+<tr>
+<td>用途</td>
+<td>线程间通信协作</td>
+<td>线程暂停等待</td>
+</tr>
+</tbody>
+</table>
+<p><strong>核心区别图解</strong>:</p>
+<pre><code>sleep(抱着锁睡):
+  线程A: synchronized(lock) { sleep(5000); }
+  线程B: synchronized(lock) { ... }  ← 等 5 秒!锁被占着
+
+wait(让出锁):
+  线程A: synchronized(lock) { wait(); }
+  → 释放锁,B 可以拿到锁执行
+  → B 调 notify() 后 A 重新抢锁
+</code></pre>
+<p><code>sleep</code> 是"我想休息一会,但我的东西不给你用"--不释放锁。<code>wait</code> 是"我先不干活了,东西你用"--释放锁,等别人叫我再干。</p>
+<p><strong>最佳实践</strong>:永远用 <code>while</code> 而不是 <code>if</code> 来包裹 <code>wait()</code> 的条件判断--防止虚假唤醒(线程被意外唤醒但条件不满足)。</p>
+<pre><code class="language-java">synchronized (lock) {
+    while (condition_not_met) {  // while 不是 if!
+        lock.wait();
+    }
+}
+</code></pre>
+<blockquote>
+<p><strong>扩展</strong>:<code>wait()</code> 和 <code>notify()</code> 必须在 synchronized 中调用,否则抛 <code>IllegalMonitorStateException</code>。因为 JVM 需要知道是"哪个对象上的等待队列"--只有持有该对象的监视器锁才能操作它的等待队列。<code>Condition.await()</code> 是 Lock 体系下 wait 的等价物,同样需要先获取锁。</p>
+</blockquote>
+<h3 id="7-7">7. 线程池的核心参数(7 个)?</h3>
+<pre><code>线程池任务调度流程(ThreadPoolExecutor):
+
+新任务到来
+  │
+  ├─ 当前线程数 &lt; corePoolSize?
+  │   是 → 新建线程执行(即使有空闲线程)
+  │   否 ↓
+  ├─ 队列未满?
+  │   是 → 任务入队等待
+  │   否 ↓
+  ├─ 当前线程数 &lt; maximumPoolSize?
+  │   是 → 新建线程执行
+  │   否 ↓
+  └─ 执行拒绝策略
+</code></pre>
+<p><strong>7 个参数</strong>:
+- <code>corePoolSize</code>:常驻核心线程数。即使空闲也保留(除非设了 <code>allowCoreThreadTimeOut</code>)
+- <code>maximumPoolSize</code>:最大线程数上限
+- <code>keepAliveTime</code>:超过核心线程数的多余线程,空闲多久后销毁
+- <code>unit</code>:keepAliveTime 的时间单位
+- <strong><code>workQueue</code></strong>:排队队列。三种常见选择:
+  - <code>SynchronousQueue</code>:不存储,直接提交(适合任务数可控,要求快速响应)
+  - <code>LinkedBlockingQueue</code>(无界):无限排队(核心线程忙就先排着,永远不会到 max)⚠️ 容易 OOM
+  - <code>ArrayBlockingQueue</code>(有界):有上限的排队
+- <code>threadFactory</code>:线程工厂,给线程起有意义的名字(排查问题时救命)
+- <code>rejectedExecutionHandler</code>:队列满且线程数达 max 时的处理</p>
+<blockquote>
+<p><strong>扩展</strong>:生产上不要用 <code>Executors.newFixedThreadPool()</code> 和 <code>newCachedThreadPool()</code>--《阿里巴巴 Java 开发手册》指出,前者用无界 <code>LinkedBlockingQueue</code> 可能 OOM,后者用 <code>SynchronousQueue</code> + <code>Integer.MAX_VALUE</code> max 可能创建无限线程。请直接用 <code>new ThreadPoolExecutor(...)</code>。IO 密集任务的核心线程数可以设 <code>CPU 核数 * 2</code> 或更多,CPU 密集任务设 <code>CPU 核数 + 1</code>。</p>
+</blockquote>
+<h3 id="8_1">8. 拒绝策略有哪几种?</h3>
+<table>
+<thead>
+<tr>
+<th>策略</th>
+<th>行为</th>
+<th>通俗解释</th>
+<th>适用</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>AbortPolicy</strong>(默认)</td>
+<td>抛 <code>RejectedExecutionException</code></td>
+<td>"满了!不干了!报错!"</td>
+<td>需要感知拒绝的场景</td>
+</tr>
+<tr>
+<td><strong>CallerRunsPolicy</strong></td>
+<td>提交任务的线程自己执行</td>
+<td>"你送来的,你自己做"</td>
+<td>利用调用线程做缓冲</td>
+</tr>
+<tr>
+<td><strong>DiscardPolicy</strong></td>
+<td>静默丢弃新任务</td>
+<td>"假装没看见"</td>
+<td>允许丢任务的场景</td>
+</tr>
+<tr>
+<td><strong>DiscardOldestPolicy</strong></td>
+<td>丢弃队列里最老的任务</td>
+<td>"对不起等最久的走人"</td>
+<td>新任务优先于旧任务</td>
+</tr>
+</tbody>
+</table>
+<p><strong>CallerRunsPolicy 的两个作用</strong>:</p>
+<ol>
+<li>让提交任务的线程(通常是主线程或关键线程)亲自执行,相当于天然限流--调用方执行时无法提交更多任务</li>
+<li>不会丢任务,任务只是被"延后"执行了</li>
+</ol>
+<p><strong>什么时候自定义</strong>:记录日志、写入持久化队列(MQ/数据库)、发送告警通知。比如 Dubbo 的自定义策略--把拒绝的任务写到日志并打印 dump 信息便于排查。</p>
+<blockquote>
+<p><strong>扩展</strong>:<code>ThreadPoolExecutor</code> 的 <code>beforeExecute</code> 和 <code>afterExecute</code> 钩子方法可以用来监控任务执行(记录耗时、异常通知等)。结合 <code>getPoolSize()</code>、<code>getActiveCount()</code>、<code>getQueue().size()</code> 可以做线程池监控大盘,实时查看线程池健康度。</p>
+</blockquote>
+<h3 id="9-countdownlatch-cyclicbarrier">9. <code>CountDownLatch</code> 和 <code>CyclicBarrier</code> 的区别?</h3>
+<pre><code>CountDownLatch(减法计数器,一次性):
+  主线程: latch.await() → 等着...
+  线程A/B/C: 做完各自的事 → latch.countDown()
+  计数器归零 → 主线程醒来继续
+  场景:等其他线程都做完再继续
+  比喻:保安等所有运动员冲过终点才收工
+
+CyclicBarrier(加法计数器,可复用):
+  线程A/B/C: 各自跑到 barrier.await() → 互相等
+  所有线程到齐 → 屏障打开,大家一起继续
+  场景:所有线程准备好再同时出发
+  比喻:几个朋友约好同时出发旅行,人到齐了再走
+</code></pre>
+<table>
+<thead>
+<tr>
+<th>对比</th>
+<th>CountDownLatch</th>
+<th>CyclicBarrier</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>计数方向</td>
+<td>减(N→0)</td>
+<td>加(0→N)</td>
+</tr>
+<tr>
+<td>可重用</td>
+<td>不可(用一次)</td>
+<td>可(reset 重新用)</td>
+</tr>
+<tr>
+<td>触发规则</td>
+<td>一个/多个线程等别的线程</td>
+<td>所有线程互相等</td>
+</tr>
+<tr>
+<td>回调</td>
+<td>没有</td>
+<td>支持 barrierAction(人到齐后执行)</td>
+</tr>
+<tr>
+<td>比喻</td>
+<td>保安等冲线</td>
+<td>朋友等出发</td>
+</tr>
+</tbody>
+</table>
+<blockquote>
+<p><strong>扩展</strong>:<code>Phaser</code>(JDK 7+)是两者增强版--动态增减参与线程数、多阶段协调。<code>CyclicBarrier</code> reset 时若还有线程在等待,会抛 BrokenBarrierException。</p>
+</blockquote>
+<h3 id="10-threadlocal">10. ThreadLocal 应用场景?</h3>
+<pre><code>ThreadLocal 经典三场景:
+
+1 数据库连接管理
+  每个线程绑定自己的 Connection,事务操作互不干扰
+  Spring 的 TransactionSynchronizationManager 就用的 ThreadLocal
+
+2 用户上下文传递
+  拦截器从 Token 解析用户信息 → 存入 ThreadLocal
+  → Controller/Service/Dao 链路上任何位置都能取到
+  不用把 userId 从 Controller 一路传到 Dao!
+
+3 SimpleDateFormat 线程安全
+  SimpleDateFormat 线程不安全 → 每个线程一个实例
+  或直接用 DateTimeFormatter(线程安全,不用 ThreadLocal 也行)
+</code></pre>
+<p><strong>为什么不用全局变量</strong>:Web 服务器是线程池模式,多个请求复用同一个线程。全局变量在请求间会串,ThreadLocal 天然隔离。</p>
+<p><strong>使用链路</strong>:拦截器 <code>set</code> 用户信息 → 业务代码 <code>get</code> → 请求结束时 <code>remove</code>(防泄漏!)</p>
+<blockquote>
+<p><strong>扩展</strong>:ThreadLocal 不解决共享变量安全问题--只是复制隔离。父线程值不传子线程,线程池用 <code>InheritableThreadLocal</code> 也有复用问题,推荐阿里 TransmittableThreadLocal。</p>
+</blockquote>
+<h3 id="11-semaphore">11. <code>Semaphore</code> 的原理和应用?</h3>
+<pre><code>Semaphore 原理:
+
+  Semaphore sem = new Semaphore(5);  // 5 个许可
+
+  线程调用 acquire():
+    有许可 → 许可 -1,线程通过
+    没有许可 → 阻塞,等别人 release()
+
+  线程调用 release():
+    许可 +1,唤醒一个等待线程
+</code></pre>
+<p><strong>核心能力</strong>:控制<strong>最多允许多少个线程同时访问</strong>某个资源。就像停车场只有 10 个车位--满了后来的车就得在门口等。</p>
+<p><strong>经典场景</strong>:</p>
+<ul>
+<li><strong>限流</strong>:接口 QPS 控制,最多允许 N 个线程同时处理</li>
+<li><strong>数据库连接池</strong>:限制并发连接数(<code>acquire()</code> 拿连接,<code>release()</code> 还连接)</li>
+<li><strong>秒杀系统</strong>:控制进入下单环节的并发数,超过的直接拒绝</li>
+</ul>
+<p><strong>Semaphore 可以一次性获取/释放多个许可</strong>:<code>acquire(3)</code> 拿 3 个,<code>release(3)</code> 还 3 个。这在分页下载等场景有用。</p>
+<blockquote>
+<p><strong>扩展</strong>:<code>Semaphore(permits, true)</code> 公平模式(等待最久先拿),默认非公平。Semaphore 管并发数量,CountDownLatch 等全员完成。</p>
+</blockquote>
+<h3 id="12-readwritelock">12. <code>ReadWriteLock</code> 的读写锁机制?</h3>
+<pre><code>读写锁规则:
+
+┌──────┬───────┬───────┐
+│      │ 读锁  │ 写锁  │
+├──────┼───────┼───────┤
+│ 读锁 │ ✓共享 │ ✗互斥 │
+│ 写锁 │ ✗互斥 │ ✗互斥 │
+└──────┴───────┴───────┘
+
+场景:
+  线程A 持有读锁 → 线程B 可以同时持有读锁(共享)
+  线程A 持有读锁 → 线程C 不能获取写锁(互斥,防止读到脏数据)
+  线程A 持有写锁 → 其他所有人都不能获取任何锁
+</code></pre>
+<p><strong>锁降级</strong>(写锁 → 读锁,允许):</p>
+<pre><code class="language-java">// 先写后读,保证数据一致性
+writeLock.lock();
+  updateData();           // 写操作
+  readLock.lock();        // 先拿读锁
+writeLock.unlock();        // 再释放写锁 ← 降级为读锁
+  readData();             // 此时仍持有读锁,看到的是自己刚写的数据
+readLock.unlock();
+</code></pre>
+<p><strong>锁升级</strong>(读锁 → 写锁,不允许/会死锁):持有读锁时直接获取写锁会死锁,因为写锁要等所有读锁释放,而你持有读锁没释放。</p>
+<blockquote>
+<p><strong>扩展</strong>:<code>StampedLock</code>(JDK 8+)是读写锁升级版,支持乐观读(读完验证stamp)。不可重入,非 <code>ReadWriteLock</code> 实现。读多写少用乐观读,写锁可能饿死(非公平模式)。</p>
+</blockquote>
+<h3 id="13-completablefuture">13. <code>CompletableFuture</code> 的作用?</h3>
+<pre><code>CompletableFuture 核心方法:
+
+1 创建异步任务
+   supplyAsync(() -&gt; 查订单)      ← 有返回值
+   runAsync(() -&gt; 发通知)          ← 无返回值
+
+2 结果转换
+   .thenApply(order -&gt; 计算金额)   ← 同步转换
+   .thenCompose(order -&gt; 异步查物流) ← 异步串联(拍平)
+
+3 组合多个任务
+   .thenCombine(查库存, (订单, 库存) -&gt; 合并结果)  ← 两者都完成
+   .applyToEither(备选方案, result -&gt; result)    ← 谁先返回用谁
+
+4 异常处理
+   .exceptionally(ex -&gt; 兜底值)     ← 异常时返回默认值
+   .handle((result, ex) -&gt; ...)     ← 正常和异常都走这里
+</code></pre>
+<p>以前用 <code>Future</code> 只能 <code>get()</code> 阻塞拿结果。CompletableFuture 可以像流水线一样链式编排:"查订单 → 算金额 → 查库存 → 合并结果",每一步不阻塞。</p>
+<p><strong><code>thenApply</code> vs <code>thenCompose</code></strong>:
+- <code>thenApply</code>:同步转换,A 的结果变成 B(<code>A → B</code>)
+- <code>thenCompose</code>:异步串联,A 的结果作为 B 的输入(<code>A → CompletableFuture&lt;B&gt;</code>),不会套两层 <code>CompletableFuture&lt;CompletableFuture&lt;B&gt;&gt;</code></p>
+<blockquote>
+<p><strong>扩展</strong>:默认用 <code>ForkJoinPool.commonPool()</code>(CPU-1 线程),生产建议传自定义线程池。JDK 9+:<code>orTimeout()</code>、<code>completeOnTimeout()</code>、<code>copy()</code>、<code>allOf()</code>、<code>anyOf()</code>。</p>
+</blockquote>
+<h3 id="14-forkjoin">14. <code>Fork/Join</code> 框架的原理?</h3>
+<pre><code>Fork/Join 工作流程:
+
+大任务: 算 1+2+...+10000
+  │ fork: 拆分成子任务
+  ├─ 子任务1: 算 1+...+2500     → 线程A 执行
+  ├─ 子任务2: 算 2501+...+5000   → 线程B 执行
+  ├─ 子任务3: 算 5001+...+7500   → 线程C 执行
+  └─ 子任务4: 算 7501+...+10000  → 线程D 执行
+  │ join: 汇总结果
+  └─ 合并 = 结果1 + 结果2 + 结果3 + 结果4
+</code></pre>
+<p><strong>核心组件</strong>:
+- <code>ForkJoinPool</code>:线程池,每个线程维护一个<strong>双端队列</strong>(deque)
+- <code>RecursiveTask&lt;T&gt;</code>:有返回值的任务
+- <code>RecursiveAction</code>:无返回值的任务</p>
+<p><strong>工作窃取算法</strong>:线程先干完自己的任务 → 看到别人队列里还有很多 → <strong>从别人队列的尾部偷一个任务</strong>来干,不会重复。这样避免了忙的线程忙死、闲的线程闲死。</p>
+<blockquote>
+<p><strong>扩展</strong>:并行流底层用公共 ForkJoinPool(CPU-1 线程),多并行流共享可能互相阻塞,可自定义隔离。<code>invoke()</code> 同步等结果,<code>submit()+get()</code> 异步。JDK 8 <code>Arrays.parallelSort()</code> 基于 Fork/Join。</p>
+</blockquote>
+<h3 id="15">15. 什么是伪共享?如何避免?</h3>
+<pre><code>伪共享(False Sharing)原理:
+
+CPU 缓存行 = 64 字节(x86)
+
+线程A 频繁写变量 X → X 所在的整个缓存行失效
+线程B 频繁读变量 Y → 虽然 Y 没变,但和 X 在同一行 → 缓存行失效 → 线程B 得重新从主存加载 → 性能大幅下降!
+</code></pre>
+<p>就像两个室友各住一间,但共用一面墙--这边装修咚咚敲,那边也不得安宁。两人做的事完全不同,但物理上被绑在了一起。</p>
+<p><strong>如何避免</strong>:</p>
+<ol>
+<li><strong>填充法</strong>(JDK 8 之前):</li>
+</ol>
+<pre><code class="language-java">public volatile long value;
+private long p1, p2, p3, p4, p5, p6, p7; // 填充到 64 字节
+</code></pre>
+<p>在变量前后填充无用的 long,让目标变量独占一个缓存行</p>
+<ol>
+<li>
+<p><strong><code>@Contended</code> 注解</strong>(JDK 8+):JVM 自动填充,需加 <code>-XX:-RestrictContended</code> 开启</p>
+</li>
+<li>
+<p><strong>用数组分散</strong>:<code>AtomicLongArray</code> 中不同元素大概率在不同缓存行</p>
+</li>
+</ol>
+<blockquote>
+<p><strong>扩展</strong>:ConcurrentHashMap CounterCell、Thread 字段用 <code>@Contended</code> 填充。Disruptor 高频写场景最明显。普通业务代码很少遇到,过度优化没必要。</p>
+</blockquote>
+<hr />
+<h3 id="16-happens-before">16. 什么是 Happens-Before 原则?</h3>
+<p>JMM 核心规则,判断操作可见性和有序性。
+- 程序次序:同一线程前面操作 happens-before 后面
+- 锁规则:unlock happens-before 后一个 lock
+- volatile 规则:volatile 写 happens-before volatile 读
+- 传递性</p>
+<hr />
+<h3 id="17-threadpoolexecutor-7">17. ThreadPoolExecutor 的 7 个参数怎么配?</h3>
+<p>线程池就像一个<strong>外包团队</strong>:核心员工(corePoolSize)一直在岗,忙不过来了就招临时工(maxPoolSize - corePoolSize),任务堆在任务池(workQueue),临时工闲着就裁掉(keepAliveTime),任务池满了还来人就拒绝(handler)。</p>
+<pre><code>线程池工作流程(execute 一个任务时):
+
+新任务来了
+    │
+    ▼
+核心线程有空? ──是──▶ 核心线程执行
+    │
+   否
+    │
+    ▼
+队列满了? ──否──▶ 扔队列排队
+    │
+   是
+    │
+    ▼
+线程数 &lt; maxPoolSize?──是──▶ 新建临时线程执行
+    │
+   否
+    │
+    ▼
+走拒绝策略 ❌
+</code></pre>
+<p><strong>7 个参数详解</strong>:</p>
+<pre><code class="language-java">new ThreadPoolExecutor(
+    corePoolSize,      // 1 核心线程数:平时在岗的最少线程
+    maxPoolSize,       // 2 最大线程数:最忙时能扩展到多少
+    keepAliveTime,     // 3 空闲存活时间:临时线程闲多久后回收
+    unit,              // 4 时间单位
+    workQueue,         // 5 任务队列:任务排队的队伍
+    threadFactory,     // 6 线程工厂:怎么创建线程(起名字用)
+    handler            // 7 拒绝策略:队列满了怎么办
+);
+</code></pre>
+<p><strong>1 corePoolSize(核心线程数)</strong>:一直活着的线程(除非 <code>allowCoreThreadTimeOut=true</code>)。就像公司的正式员工。
+- CPU 密集型(计算任务为主):<code>CPU 核数 + 1</code>(太少浪费 CPU,太多上下文切换)
+- IO 密集型(网络/数据库操作多):<code>CPU 核数 × 2</code> 或更高(CPU 大部分时间在等 IO)</p>
+<p><strong>2 maxPoolSize(最大线程数)</strong>:能开到的最多线程数。核心线程 + 临时线程的总上限。</p>
+<p><strong>3 keepAliveTime(空闲存活时间)</strong>:临时线程没活干时,等多长时间被回收。</p>
+<p><strong>4 时间单位</strong>:<code>TimeUnit.SECONDS</code> / <code>TimeUnit.MILLISECONDS</code> 等。</p>
+<p><strong>5 workQueue(任务队列)</strong>:核心线程满了,新任务先排队。三种常见选择:</p>
+<table>
+<thead>
+<tr>
+<th>队列类型</th>
+<th>特点</th>
+<th>场景</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>SynchronousQueue</code></td>
+<td>不存任务,直接交给线程。没有线程就新建(上限 maxPoolSize)</td>
+<td>任务少但需要快速响应</td>
+</tr>
+<tr>
+<td><code>LinkedBlockingQueue</code>(无界)</td>
+<td>无限排队(Integer.MAX_VALUE)。核心线程满了全进队列,<strong>maxPoolSize 失效!</strong></td>
+<td>任务稳定可预测</td>
+</tr>
+<tr>
+<td><code>ArrayBlockingQueue</code>(有界)</td>
+<td>有界排队,满了才创建新线程</td>
+<td><strong>生产推荐</strong></td>
+</tr>
+</tbody>
+</table>
+<p>⚠️ <strong>最容易踩的坑</strong>:用 <code>Executors.newFixedThreadPool(n)</code> 底层是 <code>LinkedBlockingQueue</code>(无界队列),任务永远进不了拒绝策略--堆着堆着 OOM 了!</p>
+<p><strong>6 threadFactory(线程工厂)</strong>:给线程起名字。生产上必须自定义--出问题查 jstack 时看到 <code>order-pool-1</code> 比看到 <code>pool-1-thread-1</code> 有用一万倍。</p>
+<p><strong>7 handler(拒绝策略)</strong>:</p>
+<table>
+<thead>
+<tr>
+<th>策略</th>
+<th>行为</th>
+<th>场景</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>AbortPolicy</code>(默认)</td>
+<td>抛异常</td>
+<td>必须感知过载</td>
+</tr>
+<tr>
+<td><code>CallerRunsPolicy</code></td>
+<td>让提交任务的线程自己执行</td>
+<td><strong>推荐</strong>,自然降速</td>
+</tr>
+<tr>
+<td><code>DiscardPolicy</code></td>
+<td>直接丢弃(不通知)</td>
+<td>不重要的任务</td>
+</tr>
+<tr>
+<td><code>DiscardOldestPolicy</code></td>
+<td>丢弃最老的,插队</td>
+<td>需要最新数据</td>
+</tr>
+</tbody>
+</table>
+<pre><code class="language-java">// 生产推荐配置示例
+ThreadPoolExecutor executor = new ThreadPoolExecutor(
+    Runtime.getRuntime().availableProcessors(),  // core = CPU 核数
+    Runtime.getRuntime().availableProcessors() * 2,  // max = 2 倍核数
+    60L, TimeUnit.SECONDS,            // 临时线程 60s 不用就回收
+    new ArrayBlockingQueue&lt;&gt;(200),    // 有界队列,防 OOM
+    new ThreadFactoryBuilder().setNameFormat(&quot;biz-pool-%d&quot;).build(),
+    new ThreadPoolExecutor.CallerRunsPolicy()  // 满了自己跑,自然降速
+);
+</code></pre>
+<blockquote>
+<p><strong>扩展</strong>:Executors 4 个工厂方法均不推荐生产直接用(无界队列/无限线程 OOM 风险)。一律 <code>new ThreadPoolExecutor(...)</code> 显式设参。<code>beforeExecute/afterExecute</code> 钩子可记录任务耗时。</p>
+</blockquote>
+<hr />
+<h3 id="18-completablefuture">18. CompletableFuture 怎么编排异步任务?</h3>
+<p><code>CompletableFuture</code> 是 Java 8 引入的<strong>异步任务编排器</strong>。它解决了两个问题:1 回调地狱(嵌套回调越叠越深);2 多异步任务的依赖关系(A 完成才能 B,C 和 D 并行等 A 的结果)。</p>
+<p><strong>核心 API 速查</strong>:</p>
+<pre><code>创建异步任务:
+  supplyAsync(() -&gt; result)     → 有返回值
+  runAsync(() -&gt; {})            → 无返回值
+
+转换/消费(任务完成后的回调):
+  thenApply(result → newResult)     → 转换结果(T → U)
+  thenAccept(result → {})           → 消费结果(无返回值)
+  thenRun(() → {})                  → 不关心结果,只要完成了就执行
+
+组合:
+  thenCompose(result → future)      → 扁平化(避免 Future&lt;Future&lt;T&gt;&gt;)
+  thenCombine(otherFuture, bifunc)   → 合并两个独立 Future 的结果
+
+异常处理:
+  exceptionally(ex → fallback)       → 异常时返回兜底值
+  handle((result, ex) → {...})       → 无论成败都处理(类似 finally)
+
+等待所有/任一:
+  allOf(f1, f2, f3)                 → 所有完成
+  anyOf(f1, f2, f3)                 → 任意一个完成
+</code></pre>
+<p><strong>实际编排示例</strong>:</p>
+<pre><code class="language-java">// 场景:查用户 → 同时查订单和算积分 → 合并推荐 → 返回
+
+CompletableFuture&lt;User&gt; userFuture =
+    CompletableFuture.supplyAsync(() -&gt; userService.getUser(userId));
+
+CompletableFuture&lt;Recommendation&gt; result = userFuture
+    .thenApply(user -&gt; {
+        // 并行获取订单和积分
+        CompletableFuture&lt;List&lt;Order&gt;&gt; orders =
+            CompletableFuture.supplyAsync(() -&gt; orderService.getOrders(user.getId()));
+        CompletableFuture&lt;Integer&gt; points =
+            CompletableFuture.supplyAsync(() -&gt; pointService.getPoints(user.getId()));
+        // 等待两个都完成 → 合并推荐
+        return orders.thenCombine(points,
+            (ol, pt) -&gt; recommendService.recommend(user, ol, pt));
+    })
+    .thenCompose(f -&gt; f)           // 扁平化 Future&lt;Future&lt;T&gt;&gt;
+    .orTimeout(3, TimeUnit.SECONDS)  // Java 9+:3 秒超时
+    .exceptionally(ex -&gt; RecommendService.defaultRecommend());  // 降级
+
+// allOf 收集所有结果(常见坑:allOf 返回 Void,要手动 collect)
+List&lt;CompletableFuture&lt;String&gt;&gt; futures = ids.stream()
+    .map(id -&gt; CompletableFuture.supplyAsync(() -&gt; fetch(id)))
+    .toList();
+CompletableFuture&lt;List&lt;String&gt;&gt; allResults =
+    CompletableFuture.allOf(futures.toArray(new CompletableFuture[0]))
+        .thenApply(v -&gt; futures.stream()
+            .map(CompletableFuture::join)
+            .toList());
+</code></pre>
+<p><strong>面试高频对比</strong>:</p>
+<pre><code>thenApply vs thenCompose:
+  thenApply:  T → U(类似 map)
+  thenCompose: T → CompletableFuture&lt;U&gt;(类似 flatMap)
+  关键:thenCompose 避免嵌套的 CompletableFuture&lt;CompletableFuture&lt;T&gt;&gt;
+
+supplyAsync 的线程池:
+  默认用 ForkJoinPool.commonPool()(不适合阻塞 IO 任务)
+  生产上必须传自定义线程池!supplyAsync(task, executor)
+
+handle vs exceptionally:
+  handle: 成功和失败都执行(类似 try+catch+finally)
+  exceptionally: 只在异常时执行
+</code></pre>
+<blockquote>
+<p><strong>扩展</strong>:Java 21 虚拟线程可替代线程池做 IO 密集任务。<code>StructuredTaskScope</code>(Java 21+)结构化并发--fork 多子任务、自动等待、一个失败全取消,比 CompletableFuture 更安全。</p>
+</blockquote>
+<h3 id="19-completablefuture">19. CompletableFuture 如何实现异步编排？</h3>
+<p><code>CompletableFuture</code> 是 Java 8 的异步编程核心，比 <code>Future</code> 更强大：</p>
+<pre><code class="language-java">// 场景：查询用户信息 → 查用户画像 → 查推荐列表
+CompletableFuture&lt;User&gt; userFuture = CompletableFuture
+    .supplyAsync(() -&gt; userService.getUser(userId));  // 异步查用户
+
+CompletableFuture&lt;UserProfile&gt; profileFuture = userFuture
+    .thenCompose(user -&gt;  // 串行依赖
+        CompletableFuture.supplyAsync(() -&gt; profileService.get(user.getId())));
+
+CompletableFuture&lt;List&lt;Recommend&gt;&gt; recommendFuture = userFuture
+    .thenCombine(profileFuture, (user, profile) -&gt;  // 并行合并
+        recommendService.getRecommend(user, profile));
+
+// 最终结果
+List&lt;Recommend&gt; result = recommendFuture.join();
+</code></pre>
+<p><strong>常用组合方法</strong>：</p>
+<table>
+<thead>
+<tr>
+<th>方法</th>
+<th>含义</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>thenApply</code></td>
+<td>异步结果转换</td>
+</tr>
+<tr>
+<td><code>thenCompose</code></td>
+<td>扁平化（链式依赖）</td>
+</tr>
+<tr>
+<td><code>thenCombine</code></td>
+<td>两个异步任务并行，合并结果</td>
+</tr>
+<tr>
+<td><code>thenAccept</code></td>
+<td>消费结果，无返回值</td>
+</tr>
+<tr>
+<td><code>exceptionally</code></td>
+<td>异常处理兜底</td>
+</tr>
+<tr>
+<td><code>allOf/anyOf</code></td>
+<td>等待所有/任一完成</td>
+</tr>
+</tbody>
+</table>
+<blockquote>
+<p><strong>扩展</strong>：默认用 ForkJoinPool.commonPool()（并行度 = CPU 核数 - 1）；需要自定义线程池时用 <code>supplyAsync(supplier, executor)</code>；大量异步 IO 用自定义 <code>ExecutorService</code> 避免公共池耗尽。</p>
+</blockquote>
+
+<script>
+// Scroll spy — highlight active sidebar item
+window.addEventListener('scroll', function() {
+    var links = document.querySelectorAll('.sidebar-toc a');
+    var scrollY = window.scrollY + 120;
+    var current = '';
+    for (var i = links.length - 1; i >= 0; i--) {
+        var target = document.getElementById(links[i].getAttribute('href').slice(1));
+        if (target && target.offsetTop <= scrollY) {
+            current = links[i];
+            break;
+        }
+    }
+    links.forEach(function(a) { a.style.fontWeight = 'normal'; a.style.color = '#555'; });
+    if (current) { current.style.fontWeight = 'bold'; current.style.color = '#0366d6'; }
+});
+</script>
+
+
+<script>
+document.querySelectorAll('pre > code').forEach(function(codeBlock, i) {
+    var pre = codeBlock.parentNode;
+    pre.style.position = 'relative';
+    var btn = document.createElement('button');
+    btn.className = 'copy-btn';
+    btn.textContent = '复制';
+    pre.appendChild(btn);
+    btn.addEventListener('click', function() {
+        var text = codeBlock.textContent;
+        navigator.clipboard.writeText(text).then(function() {
+            btn.textContent = '已复制';
+            btn.classList.add('copied');
+            setTimeout(function() {
+                btn.textContent = '复制';
+                btn.classList.remove('copied');
+            }, 2000);
+        }).catch(function() {
+            // Fallback
+            var ta = document.createElement('textarea');
+            ta.value = text; ta.style.position = 'fixed'; ta.style.opacity = '0';
+            document.body.appendChild(ta); ta.select();
+            document.execCommand('copy'); document.body.removeChild(ta);
+            btn.textContent = '已复制'; btn.classList.add('copied');
+            setTimeout(function() { btn.textContent = '复制'; btn.classList.remove('copied'); }, 2000);
+        });
+    });
+});
+</script>
+
+
+<script>document.querySelectorAll("pre>code").forEach(function(c){var p=c.parentNode;p.style.position="relative";var b=document.createElement("button");b.className="copy-btn";b.textContent="复制";p.appendChild(b);b.addEventListener("click",function(){var t=c.textContent;navigator.clipboard.writeText(t).then(function(){b.textContent="已复制";b.classList.add("copied");setTimeout(function(){b.textContent="复制";b.classList.remove("copied")},2000)}).catch(function(){var a=document.createElement("textarea");a.value=t;a.style.position="fixed";a.style.opacity="0";document.body.appendChild(a);a.select();document.execCommand("copy");document.body.removeChild(a);b.textContent="已复制";b.classList.add("copied");setTimeout(function(){b.textContent="复制";b.classList.remove("copied")},2000)})})})</script>
+</body>
+</html>

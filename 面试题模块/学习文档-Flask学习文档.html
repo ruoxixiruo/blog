@@ -1,0 +1,2214 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Flask学习文档</title>
+<style>
+body {
+    transition: margin-left .25s ease;
+    font-family: -apple-system, "Noto Sans SC", "Microsoft YaHei", sans-serif;
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 20px 24px 60px;
+    line-height: 1.8;
+    color: #333;
+    background: #fff;
+}
+h1 { border-bottom: 2px solid #eee; padding-bottom: 10px; color: #222; }
+h2 { color: #333; margin-top: 32px; }
+h3 { color: #555; }
+a { color: #0366d6; text-decoration: none; }
+a:hover { text-decoration: underline; }
+pre {
+    background: #f6f8fa;
+    border-radius: 6px;
+    padding: 16px;
+    overflow-x: auto;
+    font-size: 14px;
+    line-height: 1.45;
+}
+code {
+    background: #f0f2f4;
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-size: 14px;
+}
+pre code { background: none; padding: 0; }
+blockquote {
+    border-left: 4px solid #ddd;
+    margin: 0;
+    padding: 0 16px;
+    color: #666;
+}
+table {
+    border-collapse: collapse;
+    width: 100%;
+    margin: 16px 0;
+}
+th, td {
+    border: 1px solid #ddd;
+    padding: 8px 12px;
+    text-align: left;
+}
+th { background: #f6f8fa; }
+img { max-width: 100%; }
+.back-link {
+    margin-bottom: 20px;
+    display: block;
+    color: #666;
+}
+.back-link:hover { color: #0366d6; }
+
+.sidebar-toc {
+    transition: left .25s ease;
+    position: fixed;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    width: 220px;
+    background: #f8f9fa;
+    border-right: 1px solid #e9ecef;
+    padding: 20px 0;
+    overflow-y: auto;
+    font-size: 13px;
+    z-index: 100;
+}
+.sidebar-toc a {
+    display: block;
+    padding: 6px 16px;
+    color: #555;
+    text-decoration: none;
+    border-left: 3px solid transparent;
+    line-height: 1.5;
+}
+.sidebar-toc a:hover {
+    background: #e9ecef;
+    color: #0366d6;
+    border-left-color: #0366d6;
+}
+.sidebar-toc .toc-h2 { padding-left: 16px; font-weight: 500; }
+.sidebar-toc .toc-h3 { padding-left: 32px; font-size: 12px; }
+body { margin-left: 240px; }
+
+
+.copy-btn {
+    position: absolute; top: 6px; right: 6px;
+    background: #e9ecef; border: none;
+    border-radius: 4px; padding: 3px 10px;
+    font-size: 12px; color: #555; cursor: pointer;
+    opacity: 0; transition: opacity 0.2s;
+    z-index: 1;
+}
+pre:hover .copy-btn { opacity: 1; }
+.copy-btn:hover { background: #d0d7de; }
+.copy-btn.copied { opacity: 1; background: #2da44e; color: #fff; }
+.copy-btn{position:absolute;top:6px;right:6px;background:#e9ecef;border:none;border-radius:4px;padding:3px 10px;font-size:12px;color:#555;cursor:pointer;opacity:0;transition:opacity .2s;z-index:1}pre:hover .copy-btn{opacity:1}.copy-btn:hover{background:#d0d7de}.copy-btn.copied{opacity:1;background:#2da44e;color:#fff}
+.copy-btn{position:absolute;top:6px;right:6px;background:#e9ecef;border:none;border-radius:4px;padding:3px 10px;font-size:12px;color:#555;cursor:pointer;opacity:0;transition:opacity .2s;z-index:1}pre:hover .copy-btn{opacity:1}.copy-btn:hover{background:#d0d7de}.copy-btn.copied{opacity:1;background:#2da44e;color:#fff}
+.copy-btn{position:absolute;top:6px;right:6px;background:#e9ecef;border:none;border-radius:4px;padding:3px 10px;font-size:12px;color:#555;cursor:pointer;opacity:0;transition:opacity .2s;z-index:1}pre:hover .copy-btn{opacity:1}.copy-btn:hover{background:#d0d7de}.copy-btn.copied{opacity:1;background:#2da44e;color:#fff}
+.sidebar-toggle-btn {
+  position: fixed;
+  left: 220px;
+  top: 0;
+  width: 28px;
+  height: 40px;
+  background: #f8f9fa;
+  border: 1px solid #e9ecef;
+  border-left: none;
+  border-radius: 0 4px 4px 0;
+  cursor: pointer;
+  font-size: 16px;
+  color: #555;
+  z-index: 101;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: left .25s, background .2s;
+  padding: 0;
+  line-height: 1;
+}
+.sidebar-toggle-btn:hover { background: #e9ecef; color: #0366d6; }
+.sidebar-collapsed .sidebar-toc { left: -220px; }
+.sidebar-collapsed .sidebar-toggle-btn { left: 0; }
+.sidebar-collapsed body, body.sidebar-collapsed { margin-left: 28px; }
+.sidebar-overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,.3);
+  z-index: 99;
+}
+@media (max-width: 768px) {
+  .sidebar-collapsed .sidebar-overlay { display: none; }
+  .sidebar-toc { left: -220px; }
+  .sidebar-toggle-btn { left: 0; }
+  body { margin-left: 28px; }
+}
+
+</style>
+</head>
+</head>
+<body>
+<nav class="sidebar-toc"><a class="toc-h2" href="#1-flask">1. 先搞懂：Flask到底是个啥？</a><a class="toc-h3" href="#11">1.1 用大白话说</a><a class="toc-h3" href="#12">1.2 技术定义</a><a class="toc-h3" href="#13-flask-vs-django">1.3 Flask vs Django——一张表看懂</a><a class="toc-h3" href="#14-6">1.4 最小应用——6行代码跑起来</a><a class="toc-h2" href="#2">2. 路由系统——用户访问哪个页面</a><a class="toc-h3" href="#21">2.1 用大白话说路由</a><a class="toc-h3" href="#22">2.2 基础路由</a><a class="toc-h3" href="#23-urlurl">2.3 动态 URL——URL 里带参数</a><a class="toc-h3" href="#24-http">2.4 HTTP 方法限定</a><a class="toc-h3" href="#25-url-url_for-url">2.5 URL 生成（url_for）——别手写 URL</a><a class="toc-h3" href="#26-blueprint">2.6 红图绑定 (Blueprint 路由)</a><a class="toc-h2" href="#3">3. 请求与响应——和浏览器对话</a><a class="toc-h3" href="#31">3.1 用大白话说</a><a class="toc-h3" href="#32-request">3.2 Request 对象——拿到用户发来的所有东西</a><a class="toc-h3" href="#33-response">3.3 Response 对象——你想怎么回就怎么回</a><a class="toc-h3" href="#34-session">3.4 Session 操作——记住你是谁</a><a class="toc-h2" href="#4-jinja2">4. 模板引擎 Jinja2——动态生成网页</a><a class="toc-h3" href="#41">4.1 用大白话说</a><a class="toc-h3" href="#42">4.2 模板渲染</a><a class="toc-h3" href="#43">4.3 模板语法</a><a class="toc-h3" href="#44">4.4 自定义过滤器</a><a class="toc-h3" href="#45">4.5 上下文处理器——所有模板都能用的变量</a><a class="toc-h2" href="#5-flask">5. 上下文机制——Flask面试的灵魂考点</a><a class="toc-h3" href="#51">5.1 大白话：两个上下文是什么、为什么分开</a><a class="toc-h3" href="#52-localstack-localproxy">5.2 底层原理：LocalStack + LocalProxy</a><a class="toc-h3" href="#53">5.3 一次请求的完整生命周期（源码路径）</a><a class="toc-h3" href="#54-requestcontext-appcontext">5.4 RequestContext 和 AppContext 的内部结构</a><a class="toc-h3" href="#55-g">5.5 g 对象专题（面试深挖核心）</a><a class="toc-h3" href="#56">5.6 面试深挖：追问三连</a><a class="toc-h3" href="#57">5.7 手动管理上下文</a><a class="toc-h3" href="#58">5.8 常见陷阱</a><a class="toc-h3" href="#59">5.9 速查表 + 终极面试话术</a><a class="toc-h2" href="#6">6. 数据库集成——让数据有地方存</a><a class="toc-h3" href="#61-flask-sqlalchemy">6.1 Flask-SQLAlchemy</a><a class="toc-h3" href="#62-flask-migrate">6.2 数据库迁移 (Flask-Migrate)</a><a class="toc-h3" href="#63">6.3 常用查询操作</a><a class="toc-h3" href="#64">6.4 其他数据库扩展</a><a class="toc-h2" href="#7-blueprint">7. 蓝图 Blueprint——把大项目拆成小模块</a><a class="toc-h3" href="#71">7.1 用大白话说蓝图</a><a class="toc-h3" href="#72">7.2 定义蓝图</a><a class="toc-h3" href="#73">7.3 注册蓝图</a><a class="toc-h3" href="#74">7.4 蓝图模板与静态文件</a><a class="toc-h3" href="#75-url_for">7.5 url_for 在蓝图中</a><a class="toc-h2" href="#8">8. 表单处理——别让用户随便填</a><a class="toc-h3" href="#81-flask-wtf">8.1 Flask-WTF</a><a class="toc-h3" href="#82">8.2 常用验证器</a><a class="toc-h3" href="#83">8.3 自定义验证器</a><a class="toc-h3" href="#84">8.4 文件上传</a><a class="toc-h2" href="#9">9. 错误处理——出问题了优雅应对</a><a class="toc-h3" href="#91">9.1 自定义错误页面</a><a class="toc-h3" href="#92">9.2 统一错误处理</a><a class="toc-h3" href="#93-abort">9.3 abort 主动中断</a><a class="toc-h2" href="#10-flask">10. Flask 扩展生态——乐高积木大全</a><a class="toc-h3" href="#101">10.1 核心扩展一览</a><a class="toc-h3" href="#102">10.2 选择扩展的原则</a><a class="toc-h2" href="#11-restful-api">11. RESTful API 开发——前后端分离标配</a><a class="toc-h3" href="#111-flask">11.1 使用 Flask 原生方式</a><a class="toc-h3" href="#112-flask-restful">11.2 Flask-RESTful 扩展</a><a class="toc-h3" href="#113-flask-marshmallow">11.3 Flask + Marshmallow 序列化</a><a class="toc-h3" href="#114-cors">11.4 CORS 跨域</a><a class="toc-h2" href="#12_1">12. 认证与安全——你是谁、你能干啥</a><a class="toc-h3" href="#121-flask-login">12.1 Flask-Login</a><a class="toc-h3" href="#122-jwt-flask-jwt-extended">12.2 JWT 认证（Flask-JWT-Extended）——前后端分离首选</a><a class="toc-h3" href="#123-csrf">12.3 CSRF 防护</a><a class="toc-h3" href="#124">12.4 安全最佳实践</a><a class="toc-h2" href="#13">13. 中间件与钩子——请求的前中后</a><a class="toc-h3" href="#131">13.1 用大白话说钩子</a><a class="toc-h3" href="#132">13.2 请求全局钩子</a><a class="toc-h3" href="#133">13.3 应用级钩子</a><a class="toc-h3" href="#134">13.4 自定义中间件</a><a class="toc-h2" href="#14">14. 日志与配置管理——生产环境基本功</a><a class="toc-h3" href="#141">14.1 配置管理</a><a class="toc-h3" href="#142">14.2 日志配置</a><a class="toc-h2" href="#15">15. 测试——写代码是盖楼，测试是质检</a><a class="toc-h3" href="#151">15.1 单元测试</a><a class="toc-h3" href="#152-pytest">15.2 pytest 方式</a><a class="toc-h2" href="#16">16. 部署与生产化——从开发到上线</a><a class="toc-h3" href="#161-wsgi">16.1 生产环境 WSGI 服务器</a><a class="toc-h3" href="#162-checklist">16.2 生产环境 Checklist</a><a class="toc-h3" href="#163-docker">16.3 Docker 部署</a><a class="toc-h2" href="#17-flask">17. 性能优化——让Flask跑得更快</a><a class="toc-h3" href="#171-n1">17.1 查询优化——解决 N+1 问题</a><a class="toc-h3" href="#172">17.2 缓存</a><a class="toc-h3" href="#173">17.3 异步处理</a><a class="toc-h3" href="#174">17.4 其他优化</a><a class="toc-h2" href="#18">18. 高频面试题——临门一脚</a><a class="toc-h3" href="#q1flask">Q1：Flask 的请求上下文和应用上下文是什么？调用顺序？（必考！）</a><a class="toc-h3" href="#q2flask-g">Q2：Flask 的 g 对象是做什么的？</a><a class="toc-h3" href="#q3flask-django">Q3：Flask 和 Django 各适合什么场景？</a><a class="toc-h3" href="#q4flask">Q4：Flask 如何实现模块化？</a><a class="toc-h3" href="#q5-n1">Q5：如何处理数据库的 N+1 问题？</a><a class="toc-h3" href="#q6flask-after_request-teardown_request">Q6：Flask 的 after_request 和 teardown_request 区别？</a><a class="toc-h3" href="#q7flask">Q7：Flask 中如何做用户认证？</a><a class="toc-h3" href="#q8flask-werkzeug">Q8：Flask 的路由如何工作？Werkzeug 的作用是什么？</a><a class="toc-h3" href="#q9flask">Q9：Flask 有哪些防止安全的措施？</a><a class="toc-h3" href="#q10flask-apprun">Q10：Flask 的 app.run() 为什么不适用于生产？</a><a class="toc-h3" href="#q11-flask">Q11：如何在 Flask 中处理大规模文件上传？</a><a class="toc-h3" href="#q12flask-appbefore_first_request-23">Q12：Flask 的 @app.before_first_request 在 2.3+ 怎么替代？</a><a class="toc-h3" href="#q13flask-api">Q13：Flask 如何实现 API 限流？</a><a class="toc-h3" href="#q14flask">Q14：Flask 的应用工厂模式是什么？</a><a class="toc-h3" href="#q15flask-websocket">Q15：Flask 中如何处理 WebSocket？</a><a class="toc-h2" href="#flask_2">附录：Flask 配置速查表</a></nav>
+<button class="sidebar-toggle-btn" onclick="toggleSidebar()" title="切换侧栏">&#9776;</button>
+
+<div class="sidebar-overlay" onclick="toggleSidebar()"></div>
+
+<script>
+function toggleSidebar() {
+  document.body.classList.toggle('sidebar-collapsed');
+  try { localStorage.setItem('sidebarCollapsed', document.body.classList.contains('sidebar-collapsed')); } catch(e) {}
+}
+(function() {
+  try {
+    if (localStorage.getItem('sidebarCollapsed') === 'true') {
+      document.body.classList.add('sidebar-collapsed');
+    }
+  } catch(e) {}
+})();
+</script>
+<a class="back-link" href="/blog/2026/05/16/面试题/面试题/">&#8592; 返回面试题目录</a>
+<h1 id=page-title>Flask 面试学习文档</h1>
+
+<hr />
+<h2 id="1-flask">1. Flask 是什么</h2>
+<h3 id="11">1.1 一句话</h3>
+<p>Flask 是 Python 轻量级 Web 微框架，核心精简（只含 Werkzeug WSGI 工具箱 + Jinja2 模板引擎），功能靠扩展按需装配。</p>
+<h3 id="12">1.2 技术定义</h3>
+<ul>
+<li><strong>微框架 (Microframework)</strong>：核心极简，扩展生态丰富</li>
+<li><strong>Werkzeug</strong>：底层 WSGI 工具箱（路由、请求/响应、调试器）</li>
+<li><strong>Jinja2</strong>：模板引擎</li>
+<li>默认不含 ORM、表单验证、认证等，但都有官方/社区扩展</li>
+</ul>
+<h3 id="13-flask-vs-django">1.3 Flask vs Django</h3>
+<table>
+<thead>
+<tr>
+<th>对比项</th>
+<th>Flask</th>
+<th>Django</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>设计哲学</td>
+<td>微框架，灵活扩展</td>
+<td>全栈，开箱即用</td>
+</tr>
+<tr>
+<td>上手难度</td>
+<td>低</td>
+<td>中（需学整套体系）</td>
+</tr>
+<tr>
+<td>可定制性</td>
+<td>高</td>
+<td>中</td>
+</tr>
+<tr>
+<td>内置功能</td>
+<td>核心+扩展</td>
+<td>全功能（ORM/Admin/认证）</td>
+</tr>
+<tr>
+<td>适用场景</td>
+<td>微服务、API、中小项目</td>
+<td>大型应用、CMS、企业级</td>
+</tr>
+<tr>
+<td>学习曲线</td>
+<td>平缓</td>
+<td>陡峭</td>
+</tr>
+</tbody>
+</table>
+<blockquote>
+<p><strong>面试话术</strong>："Flask vs Django 不是优劣问题，是场景问题。大而全的项目用 Django；灵活度要求高、做微服务或 API 用 Flask。我偏向 Flask，因为它能让人吃透 Web 框架底层原理。"</p>
+</blockquote>
+<h3 id="14-6">1.4 最小应用——6 行跑起来</h3>
+<pre><code class="language-python">from flask import Flask
+
+app = Flask(__name__)
+
+@app.route('/')
+def hello():
+    return 'Hello, World!'
+
+if __name__ == '__main__':
+    app.run(debug=True)
+</code></pre>
+<blockquote>
+<p>6 行，一个 Web 服务就跑起来了。</p>
+</blockquote>
+<hr />
+<h2 id="2">2. 路由系统</h2>
+
+<h3 id="wsgi-flow">WSGI 请求流向图</h3>
+<pre><code>                  HTTP Request
+                       |
+                       v
+              +------------------+
+              |   Nginx / 反向代理  |
+              +------------------+
+                       |
+                       v
+              +------------------+
+              |  WSGI Server      |
+              |  (Gunicorn/uWSGI) |
+              |  监听端口，管理进程 |
+              +------------------+
+                       |
+                       v environ (dict)
+              +------------------+
+              |  Flask.wsgi_app() |
+              |  WSGI 入口函数     |
+              +------------------+
+                       |
+         +-------------+-------------+
+         |                           |
+         v                           v
+  +-------------+            +-------------+
+  | 创建         |            | 调用视图函数  |
+  | RequestContext|           | full_dispatch |
+  | push 上下文   |            | _request()    |
+  +-------------+            +-------------+
+         |                           |
+         v                           v
+  +-------------+            +-------------+
+  | 路由匹配     |            | 生成 Response |
+  | Werkzeug    |            | 返回给 WSGI   |
+  | Router.match|            | Server        |
+  +-------------+            +-------------+
+                                       |
+                                       v
+                                  HTTP Response
+                                  (返回客户端)
+</code></pre>
+
+<h3 id="21">2.1 什么是路由</h3>
+<p>路由就是把 URL 映射到视图函数的机制。用户访问某个 URL，Flask 通过 Werkzeug Router 匹配到对应的处理函数。</p>
+<h3 id="22">2.2 基础路由</h3>
+<pre><code class="language-python">@app.route('/')
+def index():
+    return '首页'
+
+@app.route('/about')
+def about():
+    return '关于页面'
+</code></pre>
+<h3 id="23-urlurl">2.3 动态 URL</h3>
+<pre><code class="language-python">@app.route('/user/&lt;username&gt;')
+def profile(username):
+    return f'用户: {username}'
+
+@app.route('/post/&lt;int:post_id&gt;')
+def show_post(post_id):
+    return f'文章 ID: {post_id}'
+
+@app.route('/path/&lt;path:subpath&gt;')
+def show_subpath(subpath):
+    """path: 匹配完整路径（含 /）"""
+    return f'路径: {subpath}'
+</code></pre>
+<h4>转换器类型</h4>
+<table>
+<thead>
+<tr>
+<th>转换器</th>
+<th>说明</th>
+<th>匹配内容</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>string</code></td>
+<td>默认</td>
+<td>不含 / 的文本</td>
+</tr>
+<tr>
+<td><code>int</code></td>
+<td>整数</td>
+<td>正整数</td>
+</tr>
+<tr>
+<td><code>float</code></td>
+<td>浮点数</td>
+<td>-</td>
+</tr>
+<tr>
+<td><code>path</code></td>
+<td>路径</td>
+<td>含 / 的完整路径</td>
+</tr>
+<tr>
+<td><code>uuid</code></td>
+<td>UUID</td>
+<td>UUID 格式</td>
+</tr>
+</tbody>
+</table>
+<h3 id="24-http">2.4 HTTP 方法限定</h3>
+<pre><code class="language-python">@app.route('/login', methods=['GET', 'POST'])
+def login():
+    if request.method == 'POST':
+        return '处理登录'
+    return '登录页面'
+</code></pre>
+<h3 id="25-url-url_for-url">2.5 URL 生成（url_for）——不要硬编码</h3>
+<blockquote>
+<p><code>url_for()</code> 根据视图函数名生成 URL。URL 变更时只改路由一处，其他引用自动更新。</p>
+</blockquote>
+<pre><code class="language-python">from flask import url_for
+
+@app.route('/')
+def index():
+    return '首页'
+
+@app.route('/user/&lt;name&gt;')
+def profile(name):
+    return f'用户 {name}'
+
+with app.test_request_context():
+    print(url_for('index'))                        # /
+    print(url_for('profile', name='张三'))          # /user/%E5%BC%A0%E4%B8%89
+    print(url_for('profile', name='test', page=2)) # /user/test?page=2
+</code></pre>
+<h3 id="26-blueprint">2.6 Blueprint 路由</h3>
+<pre><code class="language-python">from flask import Blueprint
+
+admin = Blueprint('admin', __name__)
+
+@admin.route('/dashboard')
+def dashboard():
+    return '管理员仪表盘'
+</code></pre>
+<blockquote>
+<p>详见第 7 章蓝图。</p>
+</blockquote>
+<hr />
+<h2 id="3">3. 请求与响应</h2>
+<h3 id="31">3.1 概念</h3>
+<p><strong>Request</strong>：浏览器发给服务器的数据（参数、表单、JSON、文件）。<strong>Response</strong>：服务器返回给浏览器的内容（HTML、JSON、状态码）。</p>
+<h3 id="32-request">3.2 Request 对象</h3>
+<pre><code class="language-python">from flask import request
+
+@app.route('/search')
+def search():
+    # GET 参数
+    q = request.args.get('q', '')
+    page = request.args.get('page', 1, type=int)
+
+    # POST 表单
+    username = request.form.get('username')
+    password = request.form.get('password')
+
+    # JSON 数据
+    data = request.get_json(force=True)
+
+    # 请求头
+    user_agent = request.headers.get('User-Agent')
+    content_type = request.content_type
+
+    # 文件上传
+    f = request.files.get('file')
+    f.save(f'/tmp/{f.filename}')
+
+    # 请求元信息
+    url = request.url
+    path = request.path            # 不含查询参数
+    full_path = request.full_path  # 含查询参数
+    host = request.host
+    remote_addr = request.remote_addr
+    method = request.method
+
+    return 'OK'
+</code></pre>
+<h3 id="33-response">3.3 Response 对象</h3>
+<pre><code class="language-python">from flask import make_response, jsonify, redirect, abort
+
+@app.route('/response-demo')
+def response_demo():
+    # 1. 返回字符串（最简单）
+    return 'Hello'
+
+    # 2. 元组 (响应体, 状态码, 头部)
+    return 'Not Found', 404, {'X-Custom': 'value'}
+
+    # 3. make_response
+    resp = make_response('Error', 500)
+    resp.headers['X-Error-Code'] = 'E001'
+    resp.set_cookie('key', 'value', max_age=3600)
+    return resp
+
+    # 4. JSON
+    return jsonify({'username': 'admin', 'role': 'admin'})
+
+    # 5. 重定向
+    return redirect(url_for('index'))
+
+    # 6. 中止
+    abort(403, description='无权限访问')
+</code></pre>
+<h3 id="34-session">3.4 Session</h3>
+<pre><code class="language-python">from flask import session
+import os
+
+app.secret_key = os.urandom(24)
+
+@app.route('/login')
+def login():
+    session['user_id'] = 123
+    session['role'] = 'admin'
+    session.permanent = True
+    return '已登录'
+
+@app.route('/logout')
+def logout():
+    session.clear()
+    return '已登出'
+
+@app.route('/profile')
+def profile():
+    user_id = session.get('user_id')
+    if user_id is None:
+        return '请先登录', 401
+    return f'用户ID: {user_id}'
+</code></pre>
+<blockquote>
+<p>默认 Session 存储在客户端 Cookie（经过签名），生产环境应使用 Redis 等服务端 Session。</p>
+</blockquote>
+<hr />
+<h2 id="4-jinja2">4. 模板引擎 Jinja2</h2>
+<h3 id="41">4.1 概念</h3>
+<p>Jinja2 是 HTML 模板引擎：<code>{{ }}</code> 标记变量占位，<code>{% %}</code> 标记控制逻辑。渲染时将数据填入模板，生成最终 HTML。</p>
+<h3 id="42">4.2 模板渲染</h3>
+<pre><code class="language-python">from flask import render_template
+
+@app.route('/hello/&lt;name&gt;')
+def hello(name):
+    return render_template('hello.html', name=name, title='欢迎')
+</code></pre>
+<h3 id="43">4.3 模板语法</h3>
+<pre><code class="language-html">&lt;!-- hello.html --&gt;
+&lt;!DOCTYPE html&gt;
+&lt;html&gt;
+&lt;head&gt;
+    &lt;title&gt;{{ title }}&lt;/title&gt;
+&lt;/head&gt;
+&lt;body&gt;
+    &lt;!-- 变量 --&gt;
+    &lt;h1&gt;Hello, {{ name }}!&lt;/h1&gt;
+
+    &lt;!-- 过滤器 --&gt;
+    &lt;p&gt;{{ name|upper }}&lt;/p&gt;
+    &lt;p&gt;{{ &quot;hello&quot;|capitalize }}&lt;/p&gt;
+    &lt;p&gt;{{ 123.456|round(1) }}&lt;/p&gt;
+    &lt;p&gt;{{ long_text|truncate(50) }}&lt;/p&gt;
+
+    &lt;!-- 条件 --&gt;
+    {% if user.is_admin %}
+        &lt;a href=&quot;/admin&quot;&gt;管理后台&lt;/a&gt;
+    {% elif user.is_logged_in %}
+        &lt;a href=&quot;/profile&quot;&gt;个人中心&lt;/a&gt;
+    {% else %}
+        &lt;a href=&quot;/login&quot;&gt;登录&lt;/a&gt;
+    {% endif %}
+
+    &lt;!-- 循环 --&gt;
+    &lt;ul&gt;
+    {% for item in items %}
+        &lt;li&gt;{{ loop.index }}. {{ item.name }}&lt;/li&gt;
+    {% else %}
+        &lt;li&gt;列表为空&lt;/li&gt;
+    {% endfor %}
+    &lt;/ul&gt;
+
+    &lt;!-- 宏 --&gt;
+    {% macro input(name, type='text') %}
+        &lt;input type=&quot;{{ type }}&quot; name=&quot;{{ name }}&quot;&gt;
+    {% endmacro %}
+    {{ input('username') }}
+
+    &lt;!-- 模板继承 --&gt;
+    {% extends &quot;base.html&quot; %}
+    {% block content %}
+        &lt;p&gt;页面内容&lt;/p&gt;
+    {% endblock %}
+&lt;/body&gt;
+&lt;/html&gt;
+</code></pre>
+<h3 id="44">4.4 自定义过滤器</h3>
+<pre><code class="language-python">@app.template_filter('time_format')
+def time_format(value, fmt='%Y-%m-%d'):
+    """模板中使用: {{ created_at|time_format }}"""
+    return value.strftime(fmt)
+
+@app.template_filter()
+def reverse_str(s):
+    return s[::-1]
+</code></pre>
+<h3 id="45">4.5 上下文处理器</h3>
+<pre><code class="language-python">@app.context_processor
+def inject_globals():
+    """所有模板中可用 {{ current_year }}"""
+    return {
+        'current_year': datetime.now().year,
+        'site_name': 'My Site'
+    }
+</code></pre>
+<hr />
+<h2 id="5-flask">5. 上下文机制——面试核心考点</h2>
+
+<h3 id="context-stack-flow">上下文栈架构图</h3>
+<pre><code>                     Flask Application
+          +--------------------------------------+
+          |                                      |
+          |   _request_ctx_stack  (LocalStack)   |
+          |   +------------------------------+   |
+          |   |  (per-thread)                |   |
+          |   |  +------------------------+  |   |
+          |   |  |  RequestContext         |  |   |
+          |   |  |  .request   (Request obj)|  |   |  &lt;-- request = LocalProxy(
+          |   |  |  .session   (Session obj)|  |   |       lambda: _request_ctx_stack.top.request)
+          |   |  +------------------------+  |   |  &lt;-- session = LocalProxy(
+          |   +------------------------------+   |       lambda: _request_ctx_stack.top.session)
+          |                                      |
+          |   _app_ctx_stack      (LocalStack)   |
+          |   +------------------------------+   |
+          |   |  (per-thread)                |   |
+          |   |  +------------------------+  |   |
+          |   |  |  AppContext             |  |   |  &lt;-- current_app = LocalProxy(
+          |   |  |  .app  (Flask instance) |  |   |       lambda: _app_ctx_stack.top.app)
+          |   |  |  .g    (_AppCtxGlobals) |  |   |  &lt;-- g = LocalProxy(
+          |   |  +------------------------+  |   |       lambda: _app_ctx_stack.top.g)
+          |   +------------------------------+   |
+          +--------------------------------------+
+
+          线程隔离: 底层 threading.local, 每个线程独立栈
+</code></pre>
+
+<h3 id="51">5.1 两个上下文：是什么、为什么分开</h3>
+<ul>
+<li><strong>请求上下文 (Request Context)</strong>：每次请求创建，含 <code>request</code>（请求数据）+ <code>session</code>（用户会话）。请求结束即销毁。</li>
+<li><strong>应用上下文 (Application Context)</strong>：含 <code>current_app</code>（应用实例）+ <code>g</code>（请求级临时存储）。Web 请求中自动随 RequestContext 创建；CLI/脚本中手动 <code>with app.app_context()</code> 使用。</li>
+</ul>
+<p><strong>分开的原因</strong>：</p>
+<ol>
+<li><strong>线程安全</strong>：底层 <code>threading.local</code>，并发请求各自独立栈，数据不串</li>
+<li><strong>非请求场景可用</strong>：CLI 脚本、Celery 任务不需要 <code>request</code>，但需要 <code>current_app.config</code> 和 ORM</li>
+</ol>
+
+<h3 id="flask-request-lifecycle">Flask 请求完整生命周期</h3>
+<pre><code>HTTP Request 到达 WSGI Server
+        |
+        v
+Flask.wsgi_app(environ, start_response)
+        |
+        +--&gt; 1. ctx = self.request_context(environ)
+        |        创建 RequestContext (包含 Request 对象)
+        |
+        +--&gt; 2. ctx.push()
+        |        |
+        |        +--&gt; _app_ctx_stack.top is None?
+        |        |       YES --&gt; 自动创建 AppContext 并 push
+        |        |              (记录到 _implicit_app_ctx_stack)
+        |        |       NO  --&gt; 跳过 (手动创建的已存在)
+        |        |
+        |        +--&gt; push RequestContext 到 _request_ctx_stack
+        |        +--&gt; 加载 session (从 Cookie 解密)
+        |
+        +--&gt; 3. response = self.full_dispatch_request()
+        |        |
+        |        +--&gt; preprocess_request()
+        |        |      执行 before_request 钩子
+        |        |
+        |        +--&gt; dispatch_request()
+        |        |      Werkzeug Router 匹配 URL
+        |        |      调用视图函数
+        |        |
+        |        +--&gt; finalize_request()
+        |        |      执行 after_request 钩子
+        |        |      包装返回值成 Response 对象
+        |
+        +--&gt; 4. return response(environ, start_response)
+        |        |
+        |        +--&gt; WSGI Server 发送 HTTP 响应
+        |
+        +--&gt; 5. ctx.auto_pop(error)
+        |        |
+        |        +--&gt; 保存 session (如有修改)
+        |        +--&gt; 执行 teardown_request 钩子
+        |        +--&gt; pop RequestContext
+        |        +--&gt; 弹掉 _implicit_app_ctx_stack 中的 AppContext
+        |        +--&gt; do_teardown_appcontext (换新 g 对象)
+        |
+        v
+    请求结束, 所有上下文释放
+</code></pre>
+
+<pre><code class="language-python"># wsgi_app() 源码结构
+def wsgi_app(self, environ, start_response):
+    ctx = self.request_context(environ)
+    error = None
+    try:
+        try:
+            ctx.push()
+            response = self.full_dispatch_request()
+        except Exception as e:
+            error = e
+            response = self.handle_exception(e)
+        return response(environ, start_response)
+    finally:
+        ctx.auto_pop(error)
+</code></pre>
+
+<hr />
+<h3 id="52-localstack-localproxy">5.2 底层原理：LocalStack + LocalProxy</h3>
+<p>Flask 上下文机制建立在 Werkzeug 的两个基础设施之上。</p>
+<h4>LocalStack：线程隔离的栈</h4>
+<pre><code class="language-python"># Werkzeug LocalStack 简化原理
+class LocalStack:
+    def __init__(self):
+        self._local = Local()  # 底层是 threading.local，按线程 ID 隔离
+
+    def push(self, obj):
+        rv = getattr(self._local, 'stack', None)
+        if rv is None:
+            self._local.stack = rv = []
+        rv.append(obj)
+
+    def pop(self):
+        stack = getattr(self._local, 'stack', None)
+        if stack is None:
+            return None
+        elif len(stack) == 1:
+            self._local.stack = None
+            return stack[-1]
+        else:
+            return stack.pop()
+
+    @property
+    def top(self):
+        try:
+            return self._local.stack[-1]
+        except (AttributeError, IndexError):
+            return None
+
+# Flask 全局维护两个栈（globals.py）
+_request_ctx_stack = LocalStack()   # 请求上下文栈
+_app_ctx_stack = LocalStack()       # 应用上下文栈
+</code></pre>
+
+<h4>线程隔离示意图</h4>
+<pre><code>线程 A                            线程 B
++----------------------+          +----------------------+
+|  _local.stack        |          |  _local.stack        |
+|  +----------------+  |          |  +----------------+  |
+|  | AppContext     |  |          |  | AppContext     |  |
+|  +----------------+  |          |  +----------------+  |
+|  | RequestContext |  |          |  | RequestContext |  |
+|  +----------------+  |          |  +----------------+  |
++----------------------+          +----------------------+
+    独立 LocalStack，物理隔离，完全不串！
+</code></pre>
+
+<h4>LocalProxy：延迟绑定的代理</h4>
+<p><code>request</code>、<code>session</code>、<code>current_app</code>、<code>g</code> 都是 <strong>LocalProxy</strong>。你写 <code>request.method</code> 时，它不是访问全局变量，而是<strong>动态去当前线程栈顶取真实对象</strong>。</p>
+<pre><code class="language-python">class LocalProxy:
+    def __init__(self, local, name):
+        object.__setattr__(self, '_LocalProxy__local', local)
+        object.__setattr__(self, '__name__', name)
+
+    def _get_current_object(self):
+        return self.__local()  # 调用查找函数取真实对象
+
+    def __getattr__(self, name):
+        return getattr(self._get_current_object(), name)
+
+# 四个核心变量的定义
+# request      = LocalProxy(lambda: _request_ctx_stack.top.request)
+# session      = LocalProxy(lambda: _request_ctx_stack.top.session)
+# current_app  = LocalProxy(lambda: _app_ctx_stack.top.app)
+# g            = LocalProxy(lambda: _app_ctx_stack.top.g)
+</code></pre>
+<blockquote>
+<p><strong>关键话术</strong>："<code>request</code> 不是真正的全局变量，它是 <code>LocalProxy</code>，每次访问动态从当前线程的 <code>LocalStack</code> 栈顶取真实对象。写起来像全局变量，用起来线程安全。"</p>
+</blockquote>
+
+<hr />
+<h3 id="53">5.3 请求生命周期（源码路径）</h3>
+<p><strong>PUSH 时（<code>RequestContext.push()</code>）：</strong></p>
+<pre><code>ctx.push()
+  |
+  +-- _app_ctx_stack.top 是空的？
+  |     YES --&gt; 自动创建 AppContext 并 push 到 _app_ctx_stack
+  |           记录到 _implicit_app_ctx_stack (标记为"隐式创建")
+  |     NO  --&gt; 跳过（已有手动创建的 AppContext）
+  |
+  +-- push RequestContext 到 _request_ctx_stack
+  +-- 加载 session
+</code></pre>
+<p><strong>POP 时（<code>RequestContext.pop()</code>）：</strong></p>
+<pre><code>ctx.pop()
+  |
+  +-- 保存 session（如果被修改过）
+  +-- pop RequestContext
+  +-- 弹掉所有 _implicit_app_ctx_stack 中的 AppContext
+      (手动创建的不会被弹掉)
+</code></pre>
+<p><strong>AppContext 创建时机——核心结论：每个请求创建一个，用完销毁。</strong></p>
+<pre><code>请求1: _app_ctx_stack: [] --&gt; push 创建 AppContext① --&gt; 处理 --&gt; pop 销毁 --&gt; []
+请求2: _app_ctx_stack: [] --&gt; push 创建 AppContext② --&gt; 处理 --&gt; pop 销毁 --&gt; []
+请求3: _app_ctx_stack: [] --&gt; push 创建 AppContext③ --&gt; ...
+</code></pre>
+<blockquote>
+<p>常见误解："应用启动时创建一次 AppContext，之后一直存在"<br>
+正确理解：Web 请求场景下是 <strong>per-request</strong>，每个请求创建新的、结束销毁。只有手动 <code>with app.app_context()</code> 才可能跨请求存活。</p>
+</blockquote>
+
+<hr />
+<h3 id="54-requestcontext-appcontext">5.4 RequestContext 和 AppContext 内部结构</h3>
+<pre><code class="language-python">class RequestContext:
+    def __init__(self, app, environ):
+        self.app = app
+        self.request = app.request_class(environ)  # Request 对象
+        self.session = None                         # 稍后从 Cookie 加载
+        self._implicit_app_ctx_stack = []           # 记录隐式创建的 AppContext
+
+    def push(self):
+        if _app_ctx_stack.top is None:
+            app_ctx = self.app.app_context()
+            app_ctx.push()
+            self._implicit_app_ctx_stack.append(app_ctx)  # 标记，pop 时会清理
+        _request_ctx_stack.push(self)
+        if self.session is None:
+            self.session = self.app.open_session(self.request)
+
+    def pop(self, exc=None):
+        self.app.save_session(self.session, ...)
+        _request_ctx_stack.pop()
+        while self._implicit_app_ctx_stack:           # 只清理隐式创建的
+            self._implicit_app_ctx_stack.pop().pop()
+
+
+class AppContext:
+    def __init__(self, app):
+        self.app = app
+        self.g = app.app_ctx_globals_class()          # g 在此创建
+
+    def push(self):
+        _app_ctx_stack.push(self)
+
+    def pop(self, exc=None):
+        _app_ctx_stack.pop()
+</code></pre>
+<p>四个变量与栈的对应：</p>
+<table>
+<thead>
+<tr>
+<th>变量</th>
+<th>所属上下文</th>
+<th>代理来源</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>request</code></td>
+<td>ReqContext</td>
+<td><code>_request_ctx_stack.top.request</code></td>
+<td>请求数据</td>
+</tr>
+<tr>
+<td><code>session</code></td>
+<td>ReqContext</td>
+<td><code>_request_ctx_stack.top.session</code></td>
+<td>用户会话（默认存 Cookie）</td>
+</tr>
+<tr>
+<td><code>current_app</code></td>
+<td>AppContext</td>
+<td><code>_app_ctx_stack.top.app</code></td>
+<td>当前应用实例</td>
+</tr>
+<tr>
+<td><code>g</code></td>
+<td>AppContext</td>
+<td><code>_app_ctx_stack.top.g</code></td>
+<td>请求级临时存储</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h3 id="55-g">5.5 g 对象专题（面试深挖核心）</h3>
+<h4>创建：随 AppContext 实例化</h4>
+<pre><code class="language-python">class AppContext:
+    def __init__(self, app):
+        self.g = app.app_ctx_globals_class()  # 空 _AppCtxGlobals
+</code></pre>
+<h4>重置：每个请求结束后替换为新对象</h4>
+<pre><code class="language-python"># 不是清空 g 的属性，而是直接把 g 换成全新空对象！
+def do_teardown_appcontext(self, exc=None):
+    app_ctx = _app_ctx_stack.top
+    if app_ctx is not None:
+        app_ctx.g = self.app_ctx_globals_class()  # 换新对象
+</code></pre>
+<h4>两层保障</h4>
+<pre><code>保障1: do_teardown 把 g 替换为新对象
+       --&gt; 即便 AppContext 被复用，g 也是干净的（换对象 != 清属性）
+
+保障2: AppContext 本身 per-request 创建和销毁
+       --&gt; 下一个请求拿到全新 AppContext + 全新 g
+</code></pre>
+<h4>使用示例</h4>
+<pre><code class="language-python">@app.before_request
+def before_request():
+    g.request_id = str(uuid.uuid4())   # 每个请求开始，g 是全新的
+    g.user = load_user_from_token()
+
+@app.route('/order')
+def order():
+    user = g.user                      # 同一请求内共享
+    return f'Order for {user.name}'
+
+@app.teardown_request
+def teardown(exc):
+    pass  # g 即将被 teardown 重置，可在此清理资源
+</code></pre>
+<h4>并发安全：多请求 g 会弄混吗？——不会</h4>
+<pre><code>防线1 (并发): LocalStack 线程隔离 -- threading.local
+  线程A: g.user --&gt; 线程A的栈顶 --&gt; {user:A}
+  线程B: g.user --&gt; 线程B的栈顶 --&gt; {user:B}
+  不同的栈，物理上不可能串
+
+防线2 (同线程先后): do_teardown_appcontext 换新对象
+  请求1 --&gt; g 填充 --&gt; teardown 换新对象
+  请求2 --&gt; g 是全新的空对象
+  不会看到请求1的残留数据
+</code></pre>
+<blockquote>
+<p><strong>面试话术</strong>："<code>g</code> 不会串数据，有两条防线。并发层面——<code>LocalStack</code> 底层是 <code>threading.local</code>，不同线程走不同栈，物理隔离。同线程先后——<code>do_teardown_appcontext</code> 把 <code>g</code> 替换成新对象（不是清属性），即使有遗漏字段也绝对看不到。再加上 AppContext 本身 per-request 创建销毁，已是双重保障。"</p>
+</blockquote>
+<hr />
+<h3 id="56">5.6 面试深挖：追问三连</h3>
+<h4>追问 1：应用上下文什么时候创建？只创建一次吗？</h4>
+<p>错误："应用启动时创建一次。"<br>
+正确：<strong>每个请求创建一个，结束就销毁。来几个请求创建几次。</strong></p>
+<pre><code>请求1: [] --&gt; 创建 AppContext① --&gt; 销毁 --&gt; []
+请求2: [] --&gt; 创建 AppContext② --&gt; 销毁 --&gt; []
+请求3: [] --&gt; 创建 AppContext③ --&gt; 销毁 --&gt; []
+</code></pre>
+<p>跨请求存在的唯一情况：手动 <code>app.app_context().push()</code>（一般不推荐）。</p>
+<h4>追问 2：g 什么时候创建？什么时候销毁？</h4>
+<p>错误："g 随请求创建和销毁。"（不够精确）<br>
+正确：<strong>创建：<code>AppContext.__init__</code> 中 <code>self.g = _AppCtxGlobals()</code>。重置：<code>do_teardown_appcontext</code> 把 <code>g</code> 替换成全新空对象（换对象，不是清属性）。</strong></p>
+<h4>追问 3：多个请求同时进来，g 会弄混吗？</h4>
+<p>错误："不会，因为 Flask 是单线程的。"（Flask 支持多线程/多进程）<br>
+正确：<strong>不会。并发用 LocalStack（threading.local）物理隔离，同线程先后用 do_teardown 换新对象逻辑隔离。两道防线。</strong></p>
+<hr />
+<h3 id="57">5.7 手动管理上下文</h3>
+<h4>场景1：CLI / 脚本</h4>
+<pre><code class="language-python">app = create_app()
+
+# 错误 RuntimeError: Working outside of application context.
+# db.create_all()
+
+# 正确: with 语句
+with app.app_context():
+    db.create_all()
+
+# 正确: CLI 命令（Flask 自动 push）
+@app.cli.command('init-db')
+def init_db():
+    db.create_all()
+</code></pre>
+<h4>场景2：测试中模拟请求</h4>
+<pre><code class="language-python"># 只需应用上下文
+with app.app_context():
+    print(url_for('index'))  # '/'
+
+# 需要完整请求环境
+with app.test_request_context('/search?q=flask'):
+    print(request.args.get('q'))    # 'flask'
+    print(request.path)            # '/search'
+</code></pre>
+<h4>场景3：多应用共存</h4>
+<pre><code class="language-python">app1 = Flask('app1')
+app2 = Flask('app2')
+
+with app1.app_context():
+    current_app.config['DB'] = 'db1'
+    with app2.app_context():
+        current_app.config['DB'] = 'db2'  # 影响 app2
+    print(current_app.config['DB'])  # 'db1'（回到 app1）
+</code></pre>
+<hr />
+<h3 id="58">5.8 常见陷阱</h3>
+<pre><code class="language-python"># 陷阱1：视图外用 request
+print(request.method)  # RuntimeError
+
+# 陷阱2：上下文外用 current_app
+print(current_app.config['KEY'])  # RuntimeError
+# 正确: with app.app_context(): ...
+
+# 陷阱3：g 跨请求不共享
+# 请求1 设了 g.user，请求2 中 g.user 不存在！每个请求需在 before_request 中重新加载
+
+# 陷阱4：子线程上下文丢失
+def bg_task():
+    print(current_app.config['KEY'])  # 子线程没有上下文
+# 正确: 传递 app 对象，子线程内 with app.app_context(): ...
+</code></pre>
+<hr />
+<h3 id="59">5.9 速查表 + 终极面试话术</h3>
+<table>
+<thead>
+<tr>
+<th>变量</th>
+<th>来源</th>
+<th>何时可用</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>request</code></td>
+<td><code>_request_ctx_stack.top.request</code></td>
+<td>请求上下文中</td>
+</tr>
+<tr>
+<td><code>session</code></td>
+<td><code>_request_ctx_stack.top.session</code></td>
+<td>请求上下文中</td>
+</tr>
+<tr>
+<td><code>current_app</code></td>
+<td><code>_app_ctx_stack.top.app</code></td>
+<td>应用上下文中</td>
+</tr>
+<tr>
+<td><code>g</code></td>
+<td><code>_app_ctx_stack.top.g</code></td>
+<td>应用上下文中（请求级生命周期）</td>
+</tr>
+</tbody>
+</table>
+<blockquote>
+<p><strong>终极面试话术</strong>：</p>
+<p>"Flask 的上下文机制基于 Werkzeug 的 <code>LocalStack</code> + <code>LocalProxy</code> 实现线程隔离。两个全局栈——<code>_request_ctx_stack</code> 和 <code>_app_ctx_stack</code>——底层是 <code>threading.local</code>，不同线程互不干扰。<code>request</code>、<code>session</code>、<code>current_app</code>、<code>g</code> 都是 <code>LocalProxy</code>，访问时动态从当前线程栈顶取真实对象，写起来像全局变量，用起来线程安全。</p>
+<p>AppContext 在 Web 请求场景下是 <strong>per-request</strong> 的——每个请求通过 <code>RequestContext.push()</code> 自动创建，结束后一起销毁，不是启动时创建一次。<code>g</code> 随 AppContext 创建而诞生，每个请求结束后由 <code>do_teardown_appcontext</code> 替换为新对象（换对象而非清属性），配合 AppContext 的 per-request 生命周期，形成双重保障。</p>
+<p>分开两个上下文的设计，让没有 HTTP 请求的场景（CLI、测试、Celery）也能使用 <code>current_app.config</code> 和 ORM，这是 Flask 设计最精妙的地方。"</p>
+</blockquote>
+<hr />
+<h2 id="6">6. 数据库集成</h2>
+<h3 id="61-flask-sqlalchemy">6.1 Flask-SQLAlchemy</h3>
+<pre><code class="language-python">from flask import Flask
+from flask_sqlalchemy import SQLAlchemy
+
+app = Flask(__name__)
+app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///app.db'
+app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+db = SQLAlchemy(app)
+
+class User(db.Model):
+    __tablename__ = 'users'
+
+    id = db.Column(db.Integer, primary_key=True)
+    username = db.Column(db.String(80), unique=True, nullable=False)
+    email = db.Column(db.String(120), unique=True, nullable=False)
+    posts = db.relationship('Post', backref='author', lazy='dynamic')
+
+    def __repr__(self):
+        return f'&lt;User {self.username}&gt;'
+
+class Post(db.Model):
+    __tablename__ = 'posts'
+
+    id = db.Column(db.Integer, primary_key=True)
+    title = db.Column(db.String(200), nullable=False)
+    body = db.Column(db.Text, nullable=False)
+    user_id = db.Column(db.Integer, db.ForeignKey('users.id'))
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+</code></pre>
+<h3 id="62-flask-migrate">6.2 数据库迁移 (Flask-Migrate)</h3>
+<pre><code class="language-python">from flask_migrate import Migrate
+
+migrate = Migrate(app, db)
+
+# 命令行
+# flask db init                    # 初始化迁移仓库
+# flask db migrate -m "创建用户表"  # 生成迁移文件
+# flask db upgrade                 # 执行迁移
+# flask db downgrade               # 回滚
+</code></pre>
+<h3 id="63">6.3 常用查询操作</h3>
+<pre><code class="language-python"># 创建
+user = User(username='admin', email='admin@test.com')
+db.session.add(user)
+db.session.commit()
+
+# 查询
+User.query.all()                                       # 全部
+User.query.get(1)                                      # 主键查询
+User.query.filter_by(username='admin').first()         # 简单过滤
+User.query.filter(User.email.like('%@test.com')).all() # LIKE
+User.query.filter(User.id.in_([1,2,3])).all()          # IN
+User.query.order_by(User.id.desc()).limit(10).all()    # 排序+限制
+
+# 分页
+page = User.query.paginate(page=1, per_page=20, error_out=False)
+page.items        # 当前页数据
+page.total        # 总数
+page.has_prev     # 是否有上一页
+page.has_next     # 是否有下一页
+
+# 更新
+user = User.query.get(1)
+user.username = 'new_name'
+db.session.commit()
+
+# 删除
+user = User.query.get(1)
+db.session.delete(user)
+db.session.commit()
+</code></pre>
+<h3 id="64">6.4 其他数据库扩展</h3>
+<table>
+<thead>
+<tr>
+<th>扩展</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Flask-SQLAlchemy</td>
+<td>最主流的 ORM 扩展</td>
+</tr>
+<tr>
+<td>Flask-MongoEngine</td>
+<td>MongoDB ODM</td>
+</tr>
+<tr>
+<td>Flask-Redis</td>
+<td>Redis 集成</td>
+</tr>
+<tr>
+<td>flask-marshmallow</td>
+<td>序列化/反序列化（类似 DRF Serializer）</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="7-blueprint">7. 蓝图 Blueprint——模块化拆分</h2>
+<h3 id="71">7.1 概念</h3>
+<p>项目变大后，一个 <code>app.py</code> 上千行难以维护。蓝图将路由按功能分组，每个蓝图拥有自己的路由、模板、静态文件。</p>
+<h3 id="72">7.2 定义蓝图</h3>
+<pre><code class="language-python"># auth.py
+from flask import Blueprint, render_template
+
+auth = Blueprint('auth', __name__, url_prefix='/auth')
+
+@auth.route('/login')
+def login():
+    return render_template('auth/login.html')
+
+@auth.route('/register')
+def register():
+    return render_template('auth/register.html')
+
+# blog.py
+blog = Blueprint('blog', __name__, url_prefix='/blog')
+
+@blog.route('/')
+def index():
+    return '博客列表'
+
+@blog.route('/&lt;int:post_id&gt;')
+def detail(post_id):
+    return f'文章 {post_id}'
+</code></pre>
+<h3 id="73">7.3 注册蓝图</h3>
+<pre><code class="language-python"># app.py
+from auth import auth
+from blog import blog
+
+app.register_blueprint(auth)
+app.register_blueprint(blog)
+
+# 生成的 URL:
+# /auth/login
+# /auth/register
+# /blog/
+# /blog/123
+</code></pre>
+<h3 id="74">7.4 蓝图模板与静态文件</h3>
+<pre><code class="language-python">admin = Blueprint('admin', __name__,
+                  template_folder='templates',   # 蓝图模板目录
+                  static_folder='static')        # 蓝图静态文件
+</code></pre>
+<h3 id="75-url_for">7.5 url_for 在蓝图中</h3>
+<pre><code class="language-python"># 格式: 蓝图名.视图名
+url_for('auth.login')
+url_for('blog.detail', post_id=1)
+url_for('blog.index')  # /blog/
+</code></pre>
+<hr />
+<h2 id="8">8. 表单处理</h2>
+<h3 id="81-flask-wtf">8.1 Flask-WTF</h3>
+<pre><code class="language-python">from flask_wtf import FlaskForm
+from wtforms import StringField, PasswordField, SubmitField
+from wtforms.validators import DataRequired, Length, Email
+
+class LoginForm(FlaskForm):
+    username = StringField('用户名', validators=[
+        DataRequired(),
+        Length(min=3, max=20)
+    ])
+    password = PasswordField('密码', validators=[
+        DataRequired(),
+        Length(min=6, max=128)
+    ])
+    submit = SubmitField('登录')
+
+@app.route('/login', methods=['GET', 'POST'])
+def login():
+    form = LoginForm()
+    if form.validate_on_submit():
+        username = form.username.data
+        password = form.password.data
+        return redirect(url_for('dashboard'))
+    return render_template('login.html', form=form)
+</code></pre>
+<h3 id="82">8.2 常用验证器</h3>
+<table>
+<thead>
+<tr>
+<th>验证器</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>DataRequired()</code></td>
+<td>不能为空</td>
+</tr>
+<tr>
+<td><code>Length(min, max)</code></td>
+<td>长度限制</td>
+</tr>
+<tr>
+<td><code>Email()</code></td>
+<td>邮箱格式</td>
+</tr>
+<tr>
+<td><code>EqualTo(field)</code></td>
+<td>两字段相等（如密码确认）</td>
+</tr>
+<tr>
+<td><code>NumberRange(min, max)</code></td>
+<td>数值范围</td>
+</tr>
+<tr>
+<td><code>URL()</code></td>
+<td>URL 格式</td>
+</tr>
+<tr>
+<td><code>Regexp(regex)</code></td>
+<td>正则匹配</td>
+</tr>
+</tbody>
+</table>
+<h3 id="83">8.3 自定义验证器</h3>
+<pre><code class="language-python">class RegisterForm(FlaskForm):
+    username = StringField('用户名', validators=[DataRequired()])
+
+    def validate_username(self, field):
+        """validate_&lt;字段名&gt;() 自定义校验"""
+        if User.query.filter_by(username=field.data).first():
+            raise ValidationError('用户名已存在')
+</code></pre>
+<h3 id="84">8.4 文件上传</h3>
+<pre><code class="language-python">from werkzeug.utils import secure_filename
+import os
+
+app.config['UPLOAD_FOLDER'] = 'uploads'
+app.config['MAX_CONTENT_LENGTH'] = 16 * 1024 * 1024  # 16MB
+
+@app.route('/upload', methods=['GET', 'POST'])
+def upload_file():
+    if request.method == 'POST':
+        f = request.files.get('file')
+        if f and allowed_file(f.filename):
+            filename = secure_filename(f.filename)
+            f.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
+            return '上传成功'
+    return render_template('upload.html')
+
+def allowed_file(filename):
+    ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'gif'}
+    return '.' in filename and \
+           filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
+</code></pre>
+<hr />
+<h2 id="9">9. 错误处理</h2>
+<h3 id="91">9.1 自定义错误页面</h3>
+<pre><code class="language-python">@app.errorhandler(404)
+def not_found(e):
+    return render_template('404.html'), 404
+
+@app.errorhandler(500)
+def server_error(e):
+    return render_template('500.html'), 500
+
+@app.errorhandler(403)
+def forbidden(e):
+    return jsonify(error="无权限访问"), 403
+</code></pre>
+<h3 id="92">9.2 统一错误处理</h3>
+<pre><code class="language-python">@app.errorhandler(Exception)
+def handle_exception(e):
+    app.logger.error(f'未捕获异常: {str(e)}')
+
+    if isinstance(e, HTTPException):
+        return jsonify(error=e.description), e.code
+
+    # 生产环境不暴露内部错误
+    if not app.debug:
+        return jsonify(error="服务器内部错误"), 500
+    raise e
+</code></pre>
+<h3 id="93-abort">9.3 abort 主动中断</h3>
+<pre><code class="language-python">from flask import abort
+
+@app.route('/admin')
+def admin():
+    if not session.get('is_admin'):
+        abort(403)
+    return '管理后台'
+</code></pre>
+<hr />
+<h2 id="10-flask">10. Flask 扩展生态</h2>
+<h3 id="101">10.1 核心扩展一览</h3>
+<table>
+<thead>
+<tr>
+<th>扩展</th>
+<th>用途</th>
+<th>安装</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Flask-SQLAlchemy</td>
+<td>ORM 数据库操作</td>
+<td><code>pip install flask-sqlalchemy</code></td>
+</tr>
+<tr>
+<td>Flask-Migrate</td>
+<td>数据库迁移</td>
+<td><code>pip install flask-migrate</code></td>
+</tr>
+<tr>
+<td>Flask-WTF</td>
+<td>表单处理与验证</td>
+<td><code>pip install flask-wtf</code></td>
+</tr>
+<tr>
+<td>Flask-Login</td>
+<td>用户会话管理</td>
+<td><code>pip install flask-login</code></td>
+</tr>
+<tr>
+<td>Flask-Mail</td>
+<td>邮件发送</td>
+<td><code>pip install flask-mail</code></td>
+</tr>
+<tr>
+<td>Flask-Caching</td>
+<td>缓存（Redis/Memcached）</td>
+<td><code>pip install flask-caching</code></td>
+</tr>
+<tr>
+<td>Flask-CORS</td>
+<td>跨域支持</td>
+<td><code>pip install flask-cors</code></td>
+</tr>
+<tr>
+<td>Flask-RESTful</td>
+<td>RESTful API</td>
+<td><code>pip install flask-restful</code></td>
+</tr>
+<tr>
+<td>Flask-SocketIO</td>
+<td>WebSocket</td>
+<td><code>pip install flask-socketio</code></td>
+</tr>
+<tr>
+<td>Flask-APScheduler</td>
+<td>定时任务</td>
+<td><code>pip install flask-apscheduler</code></td>
+</tr>
+</tbody>
+</table>
+<h3 id="102">10.2 选择扩展的原则</h3>
+<ol>
+<li>优先官方维护或社区活跃的扩展</li>
+<li>不是扩展越多越好，Flask 的优势就是灵活</li>
+<li>复杂逻辑可直接使用底层库代替扩展</li>
+<li>扩展版本需与 Flask 版本兼容</li>
+</ol>
+<hr />
+<h2 id="11-restful-api">11. RESTful API 开发</h2>
+<h3 id="111-flask">11.1 Flask 原生方式</h3>
+<pre><code class="language-python">from flask import jsonify, request
+
+@app.route('/api/users', methods=['GET'])
+def list_users():
+    page = request.args.get('page', 1, type=int)
+    users = User.query.paginate(page=page, per_page=20)
+    return jsonify({
+        'users': [{'id': u.id, 'name': u.username} for u in users.items],
+        'page': page,
+        'total': users.total
+    })
+
+@app.route('/api/users/&lt;int:user_id&gt;', methods=['GET'])
+def get_user(user_id):
+    user = User.query.get_or_404(user_id)
+    return jsonify(id=user.id, username=user.username)
+
+@app.route('/api/users', methods=['POST'])
+def create_user():
+    data = request.get_json()
+    if not data or 'username' not in data:
+        return jsonify(error='缺少用户名'), 400
+
+    user = User(username=data['username'], email=data.get('email'))
+    db.session.add(user)
+    db.session.commit()
+    return jsonify(id=user.id, username=user.username), 201
+</code></pre>
+<h3 id="112-flask-restful">11.2 Flask-RESTful 扩展</h3>
+<pre><code class="language-python">from flask_restful import Api, Resource, reqparse
+
+api = Api(app)
+
+parser = reqparse.RequestParser()
+parser.add_argument('username', type=str, required=True, help='用户名不能为空')
+parser.add_argument('email', type=str)
+
+class UserListResource(Resource):
+    def get(self):
+        users = User.query.all()
+        return [{'id': u.id, 'username': u.username} for u in users]
+
+    def post(self):
+        args = parser.parse_args()
+        user = User(username=args['username'], email=args.get('email'))
+        db.session.add(user)
+        db.session.commit()
+        return {'id': user.id, 'username': user.username}, 201
+
+class UserResource(Resource):
+    def get(self, user_id):
+        user = User.query.get_or_404(user_id)
+        return {'id': user.id, 'username': user.username}
+
+    def put(self, user_id):
+        user = User.query.get_or_404(user_id)
+        args = parser.parse_args()
+        user.username = args['username']
+        db.session.commit()
+        return {'id': user.id, 'username': user.username}
+
+    def delete(self, user_id):
+        user = User.query.get_or_404(user_id)
+        db.session.delete(user)
+        db.session.commit()
+        return '', 204
+
+api.add_resource(UserListResource, '/api/users')
+api.add_resource(UserResource, '/api/users/&lt;int:user_id&gt;')
+</code></pre>
+<h3 id="113-flask-marshmallow">11.3 Flask + Marshmallow 序列化</h3>
+<pre><code class="language-python">from flask_marshmallow import Marshmallow
+
+ma = Marshmallow(app)
+
+class UserSchema(ma.SQLAlchemyAutoSchema):
+    class Meta:
+        model = User
+        fields = ('id', 'username', 'email', 'created_at')
+        load_instance = True  # 反序列化生成模型实例
+
+user_schema = UserSchema()
+users_schema = UserSchema(many=True)
+
+@app.route('/api/users')
+def list_users():
+    users = User.query.all()
+    return users_schema.jsonify(users)  # 自动序列化
+
+@app.route('/api/users', methods=['POST'])
+def create_user():
+    data = request.get_json()
+    errors = user_schema.validate(data)
+    if errors:
+        return jsonify(errors), 400
+
+    user = user_schema.load(data)
+    db.session.add(user)
+    db.session.commit()
+    return user_schema.jsonify(user), 201
+</code></pre>
+<h3 id="114-cors">11.4 CORS 跨域</h3>
+<pre><code class="language-python">from flask_cors import CORS
+
+# 全局启用
+CORS(app)
+
+# 或按路由
+CORS(app, resources={r'/api/*': {'origins': 'http://example.com'}})
+</code></pre>
+<hr />
+<h2 id="12_1">12. 认证与安全</h2>
+<h3 id="121-flask-login">12.1 Flask-Login</h3>
+<pre><code class="language-python">from flask_login import LoginManager, login_user, logout_user, login_required, current_user
+
+login_manager = LoginManager()
+login_manager.init_app(app)
+login_manager.login_view = 'auth.login'
+login_manager.login_message = '请先登录'
+
+@login_manager.user_loader
+def load_user(user_id):
+    return User.query.get(int(user_id))
+
+class User(db.Model, UserMixin):
+    id = db.Column(db.Integer, primary_key=True)
+    username = db.Column(db.String(80), unique=True)
+    password_hash = db.Column(db.String(200))
+
+    def set_password(self, password):
+        self.password_hash = generate_password_hash(password)
+
+    def check_password(self, password):
+        return check_password_hash(self.password_hash, password)
+
+@app.route('/login', methods=['POST'])
+def login():
+    user = User.query.filter_by(username=request.form['username']).first()
+    if user and user.check_password(request.form['password']):
+        login_user(user)
+        return redirect(url_for('dashboard'))
+    return '用户名或密码错误', 401
+
+@app.route('/logout')
+@login_required
+def logout():
+    logout_user()
+    return redirect(url_for('index'))
+</code></pre>
+<h3 id="122-jwt-flask-jwt-extended">12.2 JWT 认证 (Flask-JWT-Extended)</h3>
+<pre><code class="language-python">from flask_jwt_extended import (
+    JWTManager, create_access_token, jwt_required, get_jwt_identity
+)
+
+app.config['JWT_SECRET_KEY'] = 'super-secret'
+app.config['JWT_ACCESS_TOKEN_EXPIRES'] = timedelta(hours=1)
+jwt = JWTManager(app)
+
+@app.route('/login', methods=['POST'])
+def login():
+    username = request.json.get('username')
+    password = request.json.get('password')
+    user = User.query.filter_by(username=username).first()
+    if user and user.check_password(password):
+        access_token = create_access_token(identity=user.id)
+        return jsonify(access_token=access_token)
+    return jsonify(msg='认证失败'), 401
+
+@app.route('/protected')
+@jwt_required()
+def protected():
+    current_user_id = get_jwt_identity()
+    return jsonify(user_id=current_user_id)
+</code></pre>
+<h3 id="123-csrf">12.3 CSRF 防护</h3>
+<pre><code class="language-python">from flask_wtf.csrf import CSRFProtect
+
+csrf = CSRFProtect(app)
+# 自动保护所有 POST/PUT/DELETE 请求
+# 表单中使用 {{ form.hidden_tag() }} 自动添加 CSRF token
+</code></pre>
+<h3 id="124">12.4 安全最佳实践</h3>
+<pre><code class="language-python"># 1. 密码哈希（永远不存明文）
+from werkzeug.security import generate_password_hash, check_password_hash
+
+# 2. SQL 注入防御（SQLAlchemy 自动参数化）
+User.query.filter_by(username=username).first()  # 安全
+
+# 3. XSS 防御（Jinja2 默认转义）
+# {{ user_input }} 自动转义
+# 用 |safe 过滤器需谨慎
+
+# 4. 使用 HTTPS
+
+# 5. 敏感信息从环境变量读取
+import os
+app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY')
+app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get('DATABASE_URL')
+</code></pre>
+<hr />
+<h2 id="13">13. 中间件与钩子</h2>
+<h3 id="131">13.1 概念</h3>
+<p>Flask 在请求处理的不同阶段提供钩子函数，让你插入自定义逻辑：</p>
+<ul>
+<li><code>before_request</code>：请求到来后、视图处理前（可中断并返回响应）</li>
+<li><code>after_request</code>：视图处理后、响应返回前（必须接收并返回 response）</li>
+<li><code>teardown_request</code>：请求完全结束后（无论是否异常，用于清理）</li>
+</ul>
+<h3 id="132">13.2 请求全局钩子</h3>
+<pre><code class="language-python">@app.before_request
+def before_request():
+    """每次请求前执行"""
+    g.start_time = time.time()
+    g.user = None
+    app.logger.info(f'{request.method} {request.path}')
+
+@app.after_request
+def after_request(response):
+    """每次请求后执行（接收响应，返回响应）"""
+    elapsed = time.time() - g.get('start_time', 0)
+    app.logger.info(f'{request.method} {request.path} -&gt; {response.status_code} ({elapsed:.3f}s)')
+    return response
+
+@app.teardown_request
+def teardown_request(exc=None):
+    """请求结束清理（无论是否发生异常）"""
+    db.session.close()
+</code></pre>
+<h3 id="133">13.3 应用级钩子</h3>
+<pre><code class="language-python"># Flask 2.3+ 不再支持 before_first_request
+# 替代方案1：用 before_request + 状态标记
+@app.before_request
+def init_once():
+    if not current_app.config.get('_initialized'):
+        # 执行一次性初始化
+        current_app.config['_initialized'] = True
+
+# 替代方案2：使用 CLI 命令
+@app.cli.command('init-db')
+def init_db_command():
+    db.create_all()
+    print('数据库初始化完成')
+
+# 替代方案3：应用工厂 + 惰性初始化
+def get_app():
+    app = Flask(__name__)
+    init_extensions(app)
+    return app
+</code></pre>
+<h3 id="134">13.4 自定义中间件</h3>
+<pre><code class="language-python">class RequestTimingMiddleware:
+    """自定义中间件：为每个请求添加 X-Request-Time 头"""
+    def __init__(self, app):
+        self.app = app
+
+    def __call__(self, environ, start_response):
+        start = time.time()
+
+        def custom_start_response(status, headers, *args):
+            elapsed = time.time() - start
+            headers.append(('X-Request-Time', f'{elapsed:.3f}s'))
+            return start_response(status, headers, *args)
+
+        return self.app(environ, custom_start_response)
+
+app.wsgi_app = RequestTimingMiddleware(app.wsgi_app)
+</code></pre>
+<hr />
+<h2 id="14">14. 日志与配置管理</h2>
+<h3 id="141">14.1 配置管理</h3>
+<pre><code class="language-python">import os
+
+class Config:
+    """基础配置"""
+    SECRET_KEY = os.environ.get('SECRET_KEY', 'dev-secret-key')
+    SQLALCHEMY_TRACK_MODIFICATIONS = False
+
+class DevelopmentConfig(Config):
+    DEBUG = True
+    SQLALCHEMY_DATABASE_URI = 'sqlite:///dev.db'
+
+class ProductionConfig(Config):
+    DEBUG = False
+    SQLALCHEMY_DATABASE_URI = os.environ.get('DATABASE_URL', 'postgresql://localhost/db')
+
+class TestingConfig(Config):
+    TESTING = True
+    SQLALCHEMY_DATABASE_URI = 'sqlite:///:memory:'
+
+# 配置映射
+config = {
+    'development': DevelopmentConfig,
+    'production': ProductionConfig,
+    'testing': TestingConfig,
+}
+
+# 应用启动
+app.config.from_object(config[os.environ.get('FLASK_ENV', 'development')])
+
+# 优先级: 环境变量 &gt; 配置文件 &gt; 默认值
+app.config.from_pyfile('instance/config.py', silent=True)
+</code></pre>
+<h3 id="142">14.2 日志配置</h3>
+<pre><code class="language-python">import logging
+
+# 基础日志
+app.logger.setLevel(logging.DEBUG)
+
+# 生产环境日志配置
+if not app.debug:
+    file_handler = logging.FileHandler('logs/app.log')
+    file_handler.setLevel(logging.WARNING)
+
+    formatter = logging.Formatter(
+        '%(asctime)s %(levelname)s %(name)s: %(message)s'
+    )
+    file_handler.setFormatter(formatter)
+    app.logger.addHandler(file_handler)
+
+# 使用日志
+app.logger.debug('调试信息')
+app.logger.info('请求处理完成')
+app.logger.warning('资源瓶颈')
+app.logger.error('数据库连接失败')
+app.logger.critical('系统宕机')
+</code></pre>
+<hr />
+<h2 id="15">15. 测试</h2>
+<h3 id="151">15.1 单元测试</h3>
+<pre><code class="language-python">import unittest
+from app import app, db
+
+class BasicTestCase(unittest.TestCase):
+    def setUp(self):
+        app.config['TESTING'] = True
+        app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///:memory:'
+        self.app = app.test_client()
+        with app.app_context():
+            db.create_all()
+
+    def tearDown(self):
+        with app.app_context():
+            db.session.remove()
+            db.drop_all()
+
+    def test_index(self):
+        response = self.app.get('/')
+        self.assertEqual(response.status_code, 200)
+
+    def test_user_creation(self):
+        from models import User
+        user = User(username='test', email='test@test.com')
+        db.session.add(user)
+        db.session.commit()
+        self.assertEqual(User.query.count(), 1)
+
+    def test_api_post(self):
+        response = self.app.post('/api/users',
+            json={'username': 'test', 'email': 'test@test.com'},
+            content_type='application/json')
+        self.assertEqual(response.status_code, 201)
+
+    def test_login_required(self):
+        response = self.app.get('/dashboard')
+        self.assertEqual(response.status_code, 302)  # 重定向到登录页
+
+if __name__ == '__main__':
+    unittest.main()
+</code></pre>
+<h3 id="152-pytest">15.2 pytest 方式</h3>
+<pre><code class="language-python"># conftest.py
+import pytest
+from app import create_app, db
+
+@pytest.fixture
+def app():
+    app = create_app('testing')
+    with app.app_context():
+        db.create_all()
+        yield app
+        db.session.remove()
+        db.drop_all()
+
+@pytest.fixture
+def client(app):
+    return app.test_client()
+
+# test_auth.py
+def test_login_success(client):
+    response = client.post('/login', json={
+        'username': 'admin',
+        'password': 'password'
+    })
+    assert response.status_code == 200
+</code></pre>
+<hr />
+<h2 id="16">16. 部署与生产化</h2>
+<h3 id="161-wsgi">16.1 生产环境 WSGI 服务器</h3>
+<pre><code class="language-python"># Gunicorn (Linux)
+# gunicorn -w 4 -b 0.0.0.0:8000 wsgi:app
+
+# Waitress (Windows / 跨平台)
+# waitress-serve --port=8000 wsgi:app
+
+# uWSGI
+# uwsgi --http :8000 --wsgi-file wsgi.py --callable app
+
+# wsgi.py 入口文件
+from app import app
+
+if __name__ == '__main__':
+    app.run()
+</code></pre>
+<h3 id="162-checklist">16.2 生产环境 Checklist</h3>
+<pre><code class="language-python"># 1. 设置 SECRET_KEY 为环境变量
+SECRET_KEY = os.environ.get('SECRET_KEY')
+assert SECRET_KEY, '必须设置 SECRET_KEY 环境变量'
+
+# 2. 关闭 DEBUG
+app.config['DEBUG'] = False
+
+# 3. 使用生产级数据库
+SQLALCHEMY_DATABASE_URI = os.environ.get('DATABASE_URL')
+
+# 4. 使用 Redis 做缓存和 Session 存储
+SESSION_TYPE = 'redis'
+SESSION_REDIS = redis.from_url('redis://localhost:6379')
+
+# 5. 反向代理 + Nginx
+# proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+# proxy_set_header X-Forwarded-Proto $scheme;
+
+# 6. 日志持久化
+
+# 7. 限流（Flask-Limiter）
+from flask_limiter import Limiter
+from flask_limiter.util import get_remote_address
+
+limiter = Limiter(
+    app, key_func=get_remote_address,
+    default_limits=["200 per day", "50 per hour"]
+)
+</code></pre>
+<h3 id="163-docker">16.3 Docker 部署</h3>
+<pre><code class="language-dockerfile"># Dockerfile
+FROM python:3.11-slim
+
+WORKDIR /app
+
+COPY requirements.txt .
+RUN pip install --no-cache-dir -r requirements.txt
+
+COPY . .
+
+EXPOSE 8000
+
+CMD ["gunicorn", "-w", "4", "-b", "0.0.0.0:8000", "wsgi:app"]
+</code></pre>
+<hr />
+<h2 id="17-flask">17. 性能优化</h2>
+<h3 id="171-n1">17.1 查询优化——解决 N+1 问题</h3>
+<pre><code class="language-python"># N+1 问题：循环中每次访问关联对象都查一次数据库
+user = User.query.get(1)
+print(user.posts)  # 此时才查数据库
+
+# 解决：joinedload 即时加载
+from sqlalchemy.orm import joinedload
+user = User.query.options(joinedload(User.posts)).get(1)
+print(user.posts)  # 通过 JOIN 一次性查完
+
+# 查询精简
+User.query.options(load_only('id', 'username')).all()
+
+# 分页查询
+users = User.query.paginate(page=page, per_page=20)
+</code></pre>
+<h3 id="172">17.2 缓存</h3>
+<pre><code class="language-python">from flask_caching import Cache
+
+cache = Cache(app, config={'CACHE_TYPE': 'redis'})
+
+@app.route('/stats')
+@cache.cached(timeout=300)  # 缓存 5 分钟
+def stats():
+    return render_template('stats.html', data=compute_stats())
+
+# 按 key 缓存
+@cache.cached(timeout=60, key_prefix='user_list')
+def get_users():
+    return User.query.all()
+
+# 手动缓存
+cache.set('my_key', my_data, timeout=300)
+data = cache.get('my_key')
+</code></pre>
+<h3 id="173">17.3 异步处理</h3>
+<pre><code class="language-python"># Flask 原生同步模式下的耗时任务处理
+from threading import Thread
+from queue import Queue
+
+def long_task(data, result_queue):
+    import time
+    time.sleep(10)
+    result_queue.put('完成')
+
+@app.route('/async-task')
+def async_task():
+    q = Queue()
+    Thread(target=long_task, args=(data, q)).start()
+    return '任务已提交'
+
+# 或使用 Celery
+# @celery.task
+# def send_email_task(recipient, body):
+#     send_email(recipient, body)
+</code></pre>
+<h3 id="174">17.4 其他优化</h3>
+<ul>
+<li><strong>静态文件</strong>：Nginx 直接服务，不经过 Flask</li>
+<li><strong>Gzip 压缩</strong>：减少传输体积</li>
+<li><strong>连接池</strong>：数据库/Memcached/Redis 使用连接池</li>
+<li><strong>Session 存储</strong>：存 Redis 而非客户端 Cookie</li>
+<li><strong>Jinja2 模板缓存</strong>：生产环境自动开启</li>
+</ul>
+<hr />
+<h2 id="18">18. 高频面试题</h2>
+<h3 id="q1flask">Q1：Flask 的请求上下文和应用上下文是什么？调用顺序？（必考！）</h3>
+<p><strong>两个上下文：</strong></p>
+<ul>
+<li><strong>请求上下文 (Request Context)</strong>：含 <code>request</code>（请求数据）和 <code>session</code>（用户会话），请求期间活跃，请求结束销毁</li>
+<li><strong>应用上下文 (Application Context)</strong>：含 <code>current_app</code>（应用实例）和 <code>g</code>（请求级临时存储），可脱离请求独立存在</li>
+</ul>
+<p><strong>底层实现：<code>LocalStack</code> + <code>LocalProxy</code></strong></p>
+<ul>
+<li>两个全局 <code>LocalStack</code>：<code>_request_ctx_stack</code> 和 <code>_app_ctx_stack</code>，底层 <code>threading.local</code> 实现线程隔离</li>
+<li><code>request</code>/<code>session</code>/<code>current_app</code>/<code>g</code> 都是 <code>LocalProxy</code>，访问时动态从当前线程栈顶取真实对象</li>
+</ul>
+<p><strong>一次请求的调用链：</strong></p>
+<pre><code>1. wsgi_app() 创建 RequestContext
+2. ctx.push() --&gt; 如果 _app_ctx_stack 为空，自动创建并 push AppContext --&gt; push RequestContext
+3. 视图函数执行，request/session/current_app/g 全部可用
+4. ctx.pop() --&gt; pop RequestContext --&gt; 弹掉隐式创建的 AppContext
+</code></pre>
+<p><strong>AppContext 创建时机（高频深挖）：</strong> 不是"应用启动时创建一次"，而是<strong>每个请求创建一个，结束销毁</strong>。只有手动 <code>with app.app_context()</code> 才跨请求存活。</p>
+<p><strong><code>g</code> 的并发安全：</strong> 两条防线——并发用 <code>LocalStack</code>（threading.local）线程间物理隔离；同线程先后用 <code>do_teardown_appcontext</code> 替换新对象请求间逻辑隔离。<code>g</code> 绝对不会串。</p>
+<blockquote>
+<p><strong>面试话术</strong>："Flask 的上下文机制基于 LocalStack + LocalProxy 实现线程隔离。AppContext 是 per-request 的，每个请求创建销毁。g 随 AppContext 创建而诞生，teardown 时换新对象而非清属性，双重保障数据不串。两个上下文分开是为了让非 HTTP 场景也能用 current_app。"</p>
+</blockquote>
+<h3 id="q2flask-g">Q2：Flask 的 g 对象是做什么的？</h3>
+<p><code>g</code> 是请求级别的全局变量空间，在每个请求内共享。典型用法：</p>
+<pre><code class="language-python">@app.before_request
+def load_user():
+    g.user = get_user_by_token(request.headers.get('Authorization'))
+
+@app.route('/profile')
+def profile():
+    return render_template('profile.html', user=g.user)
+</code></pre>
+<p><strong>注意</strong>：<code>g</code> 只存活于一个请求周期，不跨请求。不适合存 Login 状态（用 session）。</p>
+<h3 id="q3flask-django">Q3：Flask 和 Django 各适合什么场景？</h3>
+<table>
+<thead>
+<tr>
+<th>场景</th>
+<th>推荐</th>
+<th>原因</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>微服务/API</td>
+<td>Flask</td>
+<td>轻量、灵活、低开销</td>
+</tr>
+<tr>
+<td>大型 Web 应用</td>
+<td>Django</td>
+<td>自带 ORM/Admin/Auth</td>
+</tr>
+<tr>
+<td>学习 Python Web</td>
+<td>Flask</td>
+<td>概念简洁，理解底层</td>
+</tr>
+<tr>
+<td>快速原型</td>
+<td>Flask</td>
+<td>启动快，配置少</td>
+</tr>
+<tr>
+<td>企业级 CMS</td>
+<td>Django</td>
+<td>生态成熟，功能丰富</td>
+</tr>
+</tbody>
+</table>
+<h3 id="q4flask">Q4：Flask 如何实现模块化？</h3>
+<p>使用 <strong>Blueprint（蓝图）</strong>：</p>
+<pre><code class="language-python"># 创建蓝图
+auth = Blueprint('auth', __name__, url_prefix='/auth')
+
+# 注册到应用
+app.register_blueprint(auth)
+</code></pre>
+<p>蓝图可拥有自己的路由、模板目录、静态文件，适合大型应用按功能拆分。</p>
+<h3 id="q5-n1">Q5：如何处理数据库的 N+1 问题？</h3>
+<p><strong>问题</strong>：查询主表后，循环访问每条记录关联的外表。</p>
+<pre><code class="language-python"># N+1 问题的代码（每次循环查一次数据库）
+users = User.query.all()
+for user in users:
+    print(user.posts.count())  # N 次额外查询
+
+# 解决方案：使用 joinedload / subqueryload
+from sqlalchemy.orm import joinedload
+users = User.query.options(joinedload(User.posts)).all()
+</code></pre>
+<h3 id="q6flask-after_request-teardown_request">Q6：Flask 的 after_request 和 teardown_request 区别？</h3>
+<table>
+<thead>
+<tr>
+<th>钩子</th>
+<th>触发时机</th>
+<th>特点</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>before_request</code></td>
+<td>请求处理前</td>
+<td>可返回响应中断请求</td>
+</tr>
+<tr>
+<td><code>after_request</code></td>
+<td>请求处理后，未发生异常</td>
+<td>必须接收并返回 response</td>
+</tr>
+<tr>
+<td><code>teardown_request</code></td>
+<td>请求处理结束（无论异常）</td>
+<td>用于清理，不能修改响应</td>
+</tr>
+</tbody>
+</table>
+<h3 id="q7flask">Q7：Flask 中如何做用户认证？</h3>
+<p>两种主流方式：</p>
+<ol>
+<li><strong>Flask-Login</strong>：适合传统 Web 应用，Session 存储用户状态，使用 <code>login_user()</code>/<code>logout_user()</code>/<code>@login_required</code></li>
+<li><strong>Flask-JWT-Extended</strong>：适合 API/SPA，Token 存储在客户端，使用 <code>create_access_token()</code>/<code>@jwt_required()</code></li>
+</ol>
+<h3 id="q8flask-werkzeug">Q8：Flask 的路由如何工作？Werkzeug 的作用是什么？</h3>
+<p><strong>路由工作方式</strong>：</p>
+<ol>
+<li><code>@app.route('/user/&lt;int:id&gt;')</code> 注册路由到 Werkzeug 的 Router</li>
+<li>请求到来时 Werkzeug 匹配 URL，调用对应视图函数</li>
+</ol>
+<p><strong>Werkzeug 提供的功能</strong>：WSGI 协议实现、URL 路由解析、请求/响应对象、调试器、中间件。</p>
+<p>Flask 底层本质上是对 Werkzeug 的封装。</p>
+<h3 id="q9flask">Q9：Flask 有哪些防止安全的措施？</h3>
+<ol>
+<li><strong>CSRF 防护</strong>：Flask-WTF + CSRF token</li>
+<li><strong>XSS 防护</strong>：Jinja2 模板默认自动转义 <code>{{ }}</code></li>
+<li><strong>密码哈希</strong>：<code>werkzeug.security.generate_password_hash</code></li>
+<li><strong>SQL 注入防护</strong>：ORM 参数化查询</li>
+<li><strong>请求大小限制</strong>：<code>MAX_CONTENT_LENGTH</code></li>
+<li><strong>安全 Header</strong>：<code>Flask-Talisman</code> 或自定义</li>
+</ol>
+<h3 id="q10flask-apprun">Q10：Flask 的 app.run() 为什么不适用于生产？</h3>
+<ol>
+<li><strong>单进程、单线程</strong>：无法处理并发请求</li>
+<li><strong>性能差</strong>：~500 RPS vs Gunicorn 可达数千+</li>
+<li><strong>存在已知安全问题</strong>：调试模式泄露信息</li>
+<li><strong>无自动重启</strong>：进程崩溃不会自动恢复</li>
+</ol>
+<p><strong>生产环境应用</strong>：Gunicorn（Linux）、Waitress（Windows）、uWSGI，前面加 Nginx 做反向代理。</p>
+<h3 id="q11-flask">Q11：如何在 Flask 中处理大规模文件上传？</h3>
+<pre><code class="language-python"># 1. 使用流式上传
+@app.route('/upload-large', methods=['POST'])
+def upload_large():
+    with open('/tmp/large_file', 'wb') as f:
+        chunk_size = 4096
+        while True:
+            chunk = request.stream.read(chunk_size)
+            if not chunk:
+                break
+            f.write(chunk)
+    return '完成'
+
+# 2. 使用分片上传 + Celery 异步处理
+# 3. 限制文件大小
+app.config['MAX_CONTENT_LENGTH'] = 100 * 1024 * 1024  # 100MB
+</code></pre>
+<h3 id="q12flask-appbefore_first_request-23">Q12：Flask 的 before_first_request 在 2.3+ 怎么替代？</h3>
+<p>Flask 2.3+ 移除了 <code>before_first_request</code>。替代方案：</p>
+<pre><code class="language-python"># 方案1：应用工厂 + 惰性初始化
+app = Flask(__name__)
+app.config['DB_INITIALIZED'] = False
+
+@app.before_request
+def init_db_once():
+    if not current_app.config['DB_INITIALIZED']:
+        db.create_all()
+        current_app.config['DB_INITIALIZED'] = True
+
+# 方案2：使用 CLI 命令
+@app.cli.command('init-db')
+def init_db():
+    db.create_all()
+
+# 方案3：使用 WSGI 中间件
+class InitMiddleware:
+    def __init__(self, app):
+        self.app = app
+        self.initialized = False
+
+    def __call__(self, environ, start_response):
+        if not self.initialized:
+            with self.app.app_context():
+                db.create_all()
+            self.initialized = True
+        return self.app(environ, start_response)
+</code></pre>
+<h3 id="q13flask-api">Q13：Flask 如何实现 API 限流？</h3>
+<pre><code class="language-python">from flask_limiter import Limiter
+
+limiter = Limiter(
+    app,
+    key_func=lambda: request.remote_addr,
+    default_limits=["200 per day", "50 per hour"]
+)
+
+@app.route("/api/data")
+@limiter.limit("10 per minute")
+def api_data():
+    return jsonify(data="limited")
+
+# 按用户限流
+@limiter.limit("100/hour", key_func=lambda: request.headers.get("Authorization"))
+def protected_api():
+    pass
+</code></pre>
+<h3 id="q14flask">Q14：Flask 的应用工厂模式是什么？</h3>
+<pre><code class="language-python"># factory.py
+def create_app(config_name='development'):
+    app = Flask(__name__)
+    app.config.from_object(config[config_name])
+
+    # 初始化扩展
+    db.init_app(app)
+    migrate.init_app(app, db)
+    login_manager.init_app(app)
+
+    # 注册蓝图
+    from auth import auth_bp
+    from blog import blog_bp
+    app.register_blueprint(auth_bp)
+    app.register_blueprint(blog_bp)
+
+    # 注册错误处理
+    @app.errorhandler(404)
+    def not_found(e):
+        return jsonify(error='Not Found'), 404
+
+    return app
+</code></pre>
+<p><strong>优点</strong>：可测试性（不同配置创建不同实例）、可配置性（开发/测试/生产）、避免循环导入。</p>
+<h3 id="q15flask-websocket">Q15：Flask 中如何处理 WebSocket？</h3>
+<pre><code class="language-python">from flask_socketio import SocketIO, emit
+
+socketio = SocketIO(app)
+
+@socketio.on('connect')
+def handle_connect():
+    emit('message', {'data': '连接成功'})
+
+@socketio.on('message')
+def handle_message(data):
+    print(f'收到消息: {data}')
+    emit('response', {'data': '已收到'}, broadcast=True)
+
+if __name__ == '__main__':
+    socketio.run(app, debug=True)  # 使用 socketio.run 替代 app.run
+</code></pre>
+<hr />
+<h2 id="flask_2">附录：Flask 配置速查表</h2>
+<pre><code class="language-python"># 常用配置项
+app.config.update(
+    # 调试模式
+    DEBUG=False,  # 生产务必为 False
+
+    # 密钥（必须设置）
+    SECRET_KEY=os.environ.get('SECRET_KEY'),
+
+    # 数据库
+    SQLALCHEMY_DATABASE_URI='postgresql://user:pass@localhost/db',
+    SQLALCHEMY_TRACK_MODIFICATIONS=False,
+
+    # 文件上传
+    MAX_CONTENT_LENGTH=16 * 1024 * 1024,  # 16MB
+    UPLOAD_FOLDER='/path/to/uploads',
+
+    # Session
+    SESSION_COOKIE_HTTPONLY=True,
+    SESSION_COOKIE_SECURE=True,  # HTTPS 环境下
+    SESSION_COOKIE_SAMESITE='Lax',
+    PERMANENT_SESSION_LIFETIME=timedelta(days=7),
+
+    # JWT (flask-jwt-extended)
+    JWT_SECRET_KEY=os.environ.get('JWT_SECRET_KEY'),
+    JWT_ACCESS_TOKEN_EXPIRES=timedelta(hours=1),
+
+    # 缓存
+    CACHE_TYPE='redis',
+
+    # CORS
+    CORS_ORIGINS=['http://localhost:3000'],
+
+    # 国际化和时区
+    BABEL_DEFAULT_LOCALE='zh_CN',
+    BABEL_DEFAULT_TIMEZONE='Asia/Shanghai',
+)
+</code></pre>
+<hr />
+<blockquote>
+<p><strong>学习建议</strong>：先掌握路由、请求/响应、Jinja2 模板、蓝图四个核心概念。然后重点理解上下文机制（Flask 面试最高频考点），再学习 SQLAlchemy 集成和认证机制。最后根据面试岗位方向补充 API/部署/性能优化内容。</p>
+<p><strong>Flask 面试特点</strong>：相比 DRF 更关注框架原理（上下文机制、Werkzeug 关系、请求生命周期）、灵活性及扩展选择能力。面试官通常希望你能解释"为什么要这么实现"而不仅是"怎么写代码"。</p>
+</blockquote>
+
+<script>
+// Scroll spy — highlight active sidebar item
+window.addEventListener('scroll', function() {
+    var links = document.querySelectorAll('.sidebar-toc a');
+    var scrollY = window.scrollY + 120;
+    var current = '';
+    for (var i = links.length - 1; i >= 0; i--) {
+        var target = document.getElementById(links[i].getAttribute('href').slice(1));
+        if (target && target.offsetTop <= scrollY) {
+            current = links[i];
+            break;
+        }
+    }
+    links.forEach(function(a) { a.style.fontWeight = 'normal'; a.style.color = '#555'; });
+    if (current) { current.style.fontWeight = 'bold'; current.style.color = '#0366d6'; }
+});
+</script>
+
+
+<script>
+document.querySelectorAll("pre>code").forEach(function(c){var p=c.parentNode;p.style.position="relative";var b=document.createElement("button");b.className="copy-btn";b.textContent="复制";p.appendChild(b);b.addEventListener("click",function(){var t=c.textContent;navigator.clipboard.writeText(t).then(function(){b.textContent="已复制";b.classList.add("copied");setTimeout(function(){b.textContent="复制";b.classList.remove("copied")},2000)}).catch(function(){var a=document.createElement("textarea");a.value=t;a.style.position="fixed";a.style.opacity="0";document.body.appendChild(a);a.select();document.execCommand("copy");document.body.removeChild(a);b.textContent="已复制";b.classList.add("copied");setTimeout(function(){b.textContent="复制";b.classList.remove("copied")},2000)})})})
+</script>
+</body>
+</html>

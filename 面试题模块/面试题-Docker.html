@@ -1,0 +1,668 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>面试题 - Docker</title>
+<style>
+body {
+    transition: margin-left .25s ease;
+    font-family: -apple-system, "Noto Sans SC", "Microsoft YaHei", sans-serif;
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 20px 24px 60px;
+    line-height: 1.8;
+    color: #333;
+    background: #fff;
+}
+h1 { border-bottom: 2px solid #eee; padding-bottom: 10px; color: #222; }
+h2 { color: #333; margin-top: 32px; }
+h3 { color: #555; }
+a { color: #0366d6; text-decoration: none; }
+a:hover { text-decoration: underline; }
+pre {
+    background: #f6f8fa;
+    border-radius: 6px;
+    padding: 16px;
+    overflow-x: auto;
+    font-size: 14px;
+    line-height: 1.45;
+}
+code {
+    background: #f0f2f4;
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-size: 14px;
+}
+pre code { background: none; padding: 0; }
+blockquote {
+    border-left: 4px solid #ddd;
+    margin: 0;
+    padding: 0 16px;
+    color: #666;
+}
+table {
+    border-collapse: collapse;
+    width: 100%;
+    margin: 16px 0;
+}
+th, td {
+    border: 1px solid #ddd;
+    padding: 8px 12px;
+    text-align: left;
+}
+th { background: #f6f8fa; }
+img { max-width: 100%; }
+.back-link {
+    margin-bottom: 20px;
+    display: block;
+    color: #666;
+}
+.back-link:hover { color: #0366d6; }
+
+.sidebar-toc {
+    transition: left .25s ease;
+    position: fixed;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    width: 220px;
+    background: #f8f9fa;
+    border-right: 1px solid #e9ecef;
+    padding: 20px 0;
+    overflow-y: auto;
+    font-size: 13px;
+    z-index: 100;
+}
+.sidebar-toc a {
+    display: block;
+    padding: 6px 16px;
+    color: #555;
+    text-decoration: none;
+    border-left: 3px solid transparent;
+    line-height: 1.5;
+}
+.sidebar-toc a:hover {
+    background: #e9ecef;
+    color: #0366d6;
+    border-left-color: #0366d6;
+}
+.sidebar-toc .toc-h3 { padding-left: 20px; font-size: 12px; }
+body { margin-left: 240px; }
+
+
+.copy-btn {
+    position: absolute; top: 6px; right: 6px;
+    background: #e9ecef; border: none;
+    border-radius: 4px; padding: 3px 10px;
+    font-size: 12px; color: #555; cursor: pointer;
+    opacity: 0; transition: opacity 0.2s;
+    z-index: 1;
+}
+pre:hover .copy-btn { opacity: 1; }
+.copy-btn:hover { background: #d0d7de; }
+.copy-btn.copied { opacity: 1; background: #2da44e; color: #fff; }
+.copy-btn{position:absolute;top:6px;right:6px;background:#e9ecef;border:none;border-radius:4px;padding:3px 10px;font-size:12px;color:#555;cursor:pointer;opacity:0;transition:opacity .2s;z-index:1}pre:hover .copy-btn{opacity:1}.copy-btn:hover{background:#d0d7de}.copy-btn.copied{opacity:1;background:#2da44e;color:#fff}
+.copy-btn{position:absolute;top:6px;right:6px;background:#e9ecef;border:none;border-radius:4px;padding:3px 10px;font-size:12px;color:#555;cursor:pointer;opacity:0;transition:opacity .2s;z-index:1}pre:hover .copy-btn{opacity:1}.copy-btn:hover{background:#d0d7de}.copy-btn.copied{opacity:1;background:#2da44e;color:#fff}
+.copy-btn{position:absolute;top:6px;right:6px;background:#e9ecef;border:none;border-radius:4px;padding:3px 10px;font-size:12px;color:#555;cursor:pointer;opacity:0;transition:opacity .2s;z-index:1}pre:hover .copy-btn{opacity:1}.copy-btn:hover{background:#d0d7de}.copy-btn.copied{opacity:1;background:#2da44e;color:#fff}
+.sidebar-toggle-btn {
+  position: fixed;
+  left: 220px;
+  top: 0;
+  width: 28px;
+  height: 40px;
+  background: #f8f9fa;
+  border: 1px solid #e9ecef;
+  border-left: none;
+  border-radius: 0 4px 4px 0;
+  cursor: pointer;
+  font-size: 16px;
+  color: #555;
+  z-index: 101;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: left .25s, background .2s;
+  padding: 0;
+  line-height: 1;
+}
+.sidebar-toggle-btn:hover { background: #e9ecef; color: #0366d6; }
+.sidebar-collapsed .sidebar-toc { left: -220px; }
+.sidebar-collapsed .sidebar-toggle-btn { left: 0; }
+.sidebar-collapsed body, body.sidebar-collapsed { margin-left: 28px; }
+.sidebar-overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,.3);
+  z-index: 99;
+}
+@media (max-width: 768px) {
+  .sidebar-collapsed .sidebar-overlay { display: none; }
+  .sidebar-toc { left: -220px; }
+  .sidebar-toggle-btn { left: 0; }
+  body { margin-left: 28px; }
+}
+
+</style>
+</head>
+</head>
+<body>
+<nav class="sidebar-toc"><a class="toc-h3" href="#1">1. 镜像、容器、仓库的区别?</a><a class="toc-h3" href="#2-dockerfile">2. Dockerfile 常用指令?</a><a class="toc-h3" href="#3-cmd-entrypoint">3. CMD 和 ENTRYPOINT 的区别?</a><a class="toc-h3" href="#4-docker">4. 如何减小 Docker 镜像体积?</a><a class="toc-h3" href="#5-docker-compose">5. Docker Compose 是什么?</a><a class="toc-h3" href="#6-docker">6. Docker 网络模式有哪些?</a><a class="toc-h3" href="#7-copy-on-write">7. 什么是写时复制(Copy-on-Write)?</a><a class="toc-h3" href="#8-copy-add">8. COPY 和 ADD 的区别?</a><a class="toc-h3" href="#9-docker-volume">9. Docker Volume 的三种类型和区别?</a><a class="toc-h3" href="#10-docker">10. Docker 如何限制容器资源?</a><a class="toc-h3" href="#11-dockercontainerdrunc">11. Docker、containerd、runc 三者的关系?</a><a class="toc-h3" href="#12-docker">12. Docker 容器退出码的含义?</a><a class="toc-h3" href="#13-docker">13. Docker 镜像构建缓存机制是怎样的?</a><a class="toc-h3" href="#14-docker-swarm-kubernetes">14. Docker Swarm 和 Kubernetes 选哪个？</a></nav>
+<button class="sidebar-toggle-btn" onclick="toggleSidebar()" title="切换侧栏">☰</button>
+
+<div class="sidebar-overlay" onclick="toggleSidebar()"></div>
+
+<script>
+function toggleSidebar() {
+  document.body.classList.toggle('sidebar-collapsed');
+  try { localStorage.setItem('sidebarCollapsed', document.body.classList.contains('sidebar-collapsed')); } catch(e) {}
+}
+(function() {
+  try {
+    if (localStorage.getItem('sidebarCollapsed') === 'true') {
+      document.body.classList.add('sidebar-collapsed');
+    }
+  } catch(e) {}
+})();
+</script>
+<a class="back-link" href="/blog/2026/05/16/面试题/面试题/">← 返回面试题目录</a>
+<h1 id=page-title>Docker</h1>
+<h3 id="1">1. 镜像、容器、仓库的区别?</h3>
+<pre><code>镜像(Image) → 容器(Container) → 仓库(Registry)
+
+镜像     容器      仓库
+安装包   运行程序   应用商店
+.iso    进程       Docker Hub
+不可变   可写层     存储/分发
+</code></pre>
+<ul>
+<li><strong>镜像</strong>:只读模板,包含运行环境 + 代码。就像操作系统的 ISO 文件--你自己不改它,拿来装就行。分层存储,每层只读</li>
+<li><strong>容器</strong>:镜像跑起来的实例,在镜像只读层上加了<strong>可写层</strong>。就像用 ISO 装好了系统,你可以在里面装软件、改文件。容器停了,可写层还在(<code>docker start</code> 恢复);容器删了,可写层消失</li>
+<li><strong>仓库</strong>:存镜像的地方。Docker Hub(公有)、Harbor(私有)、阿里云容器镜像服务。<code>docker pull/push</code> 的对象</li>
+</ul>
+<blockquote>
+<p><strong>扩展</strong>:多个镜像共享基础层(如 10 个 Java 应用都基于 <code>openjdk:17</code>)。生产数据用 Volume 挂载。</p>
+</blockquote>
+<h3 id="2-dockerfile">2. Dockerfile 常用指令?</h3>
+<pre><code>Dockerfile 核心指令:
+
+FROM openjdk:17-slim           ← 基础镜像(越精简越好)
+WORKDIR /app                   ← 工作目录
+COPY target/*.jar app.jar      ← 复制文件(推荐 COPY,简单透明)
+RUN apt-get update &amp;&amp; apt-get install -y curl  ← 构建时执行
+ENV JAVA_OPTS=&quot;-Xms512m -Xmx512m&quot;             ← 环境变量
+EXPOSE 8080                    ← 声明端口(文档作用,不实际映射)
+ENTRYPOINT [&quot;java&quot;, &quot;-jar&quot;, &quot;app.jar&quot;]  ← 固定入口
+CMD [&quot;--server.port=8080&quot;]     ← 默认参数
+</code></pre>
+<table>
+<thead>
+<tr>
+<th>指令</th>
+<th>作用</th>
+<th>注意</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>FROM</td>
+<td>基础镜像</td>
+<td>尽量用 alpine/slim</td>
+</tr>
+<tr>
+<td>COPY</td>
+<td>复制文件</td>
+<td>比 ADD 更透明</td>
+</tr>
+<tr>
+<td>ADD</td>
+<td>复制 + 自动解压</td>
+<td>不需要解压就别用</td>
+</tr>
+<tr>
+<td>RUN</td>
+<td>构建时执行</td>
+<td>多条用 <code>&amp;&amp;</code> 合并减层</td>
+</tr>
+<tr>
+<td>CMD</td>
+<td>默认启动命令</td>
+<td>运行时可覆盖</td>
+</tr>
+<tr>
+<td>ENTRYPOINT</td>
+<td>固定入口</td>
+<td>不会被覆盖</td>
+</tr>
+</tbody>
+</table>
+<blockquote>
+<p><strong>扩展</strong>:<code>.dockerignore</code> 减小构建上下文。不常变的放前面(先 COPY 依赖再 COPY 源码),频繁改的放后面,充分利用层缓存。</p>
+</blockquote>
+<h3 id="3-cmd-entrypoint">3. CMD 和 ENTRYPOINT 的区别?</h3>
+<pre><code>组合关系:
+
+1 只有 CMD:
+  CMD [&quot;java&quot;, &quot;-jar&quot;, &quot;app.jar&quot;]
+  docker run myimage → 执行 java -jar app.jar
+  docker run myimage /bin/bash → 覆盖 CMD,执行 /bin/bash
+
+2 只有 ENTRYPOINT:
+  ENTRYPOINT [&quot;java&quot;, &quot;-jar&quot;, &quot;app.jar&quot;]
+  docker run myimage → 执行 java -jar app.jar
+  docker run myimage /bin/bash → 执行 java -jar app.jar /bin/bash(当参数加在后面!)
+
+3 ENTRYPOINT + CMD(最佳实践):
+  ENTRYPOINT [&quot;java&quot;, &quot;-jar&quot;, &quot;app.jar&quot;]
+  CMD [&quot;--server.port=8080&quot;]
+  docker run myimage → java -jar app.jar --server.port=8080
+  docker run myimage --server.port=9090 → java -jar app.jar --server.port=9090
+</code></pre>
+<p><strong>最佳实践</strong>:ENTRYPOINT 设主程序(不能被覆盖),CMD 设默认参数(可以被 <code>docker run</code> 后面参数覆盖)。就像 ENTRYPOINT 是"做什么菜",CMD 是"默认放多少盐"--你可以改放盐的量。</p>
+<blockquote>
+<p><strong>扩展</strong>:Shell 格式启动 <code>/bin/sh -c</code>,信号传递有问题。Exec 格式 PID 1 是程序本身,能正常接收 <code>docker stop</code> 的 SIGTERM。</p>
+</blockquote>
+<h3 id="4-docker">4. 如何减小 Docker 镜像体积?</h3>
+<pre><code>镜像瘦身三板斧:
+
+1 选对基础镜像(最省事):
+   openjdk:17         → ~470MB
+   openjdk:17-slim    → ~200MB
+   openjdk:17-alpine  → ~180MB
+   distroless-java    → ~120MB(连 shell 都没有,最安全)
+
+2 多阶段构建(最有效):
+   # 第一阶段:用大镜像编译
+   FROM maven:3.8-openjdk-17 AS builder
+   COPY src /app/src
+   RUN mvn package -DskipTests
+
+   # 第二阶段:只复制编译产物到精简镜像
+   FROM openjdk:17-slim
+   COPY --from=builder /app/target/*.jar app.jar
+   ENTRYPOINT [&quot;java&quot;, &quot;-jar&quot;, &quot;app.jar&quot;]
+
+   最终镜像只有 JRE + jar,没有 Maven/GCC 这些构建工具!
+
+3 合并 RUN 命令减少层:
+   RUN apt-get update &amp;&amp; apt-get install -y curl &amp;&amp; rm -rf /var/lib/apt/lists/*
+   三条合成一条 → 少两层
+</code></pre>
+<blockquote>
+<p><strong>扩展</strong>:Distroless 镜像连 shell 都没有,攻击面最小。<code>docker history &lt;image&gt;</code> 可定位肥胖层。</p>
+</blockquote>
+<h3 id="5-docker-compose">5. Docker Compose 是什么?</h3>
+<pre><code>Docker Compose 一个文件搞定多容器:
+
+version: '3.8'
+services:
+  mysql:
+    image: mysql:8.0
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+    volumes:
+      - mysql_data:/var/lib/mysql
+  app:
+    build: .
+    ports:
+      - &quot;8080:8080&quot;
+    depends_on:
+      - mysql
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:mysql://mysql:3306/mydb
+
+docker-compose up -d    → 后台启动所有服务(自动创建网络)
+docker-compose down     → 停止并删除容器
+docker-compose logs -f  → 看所有服务日志
+</code></pre>
+<p>Compose 让多容器应用一键启动--不用手动挨个 <code>docker run</code>、不用手动创建网络。特别适合本地开发和集成测试。</p>
+<blockquote>
+<p><strong>扩展</strong>:<code>depends_on</code> 只保证启动顺序,不保证 MySQL 就绪。<code>healthcheck</code> + <code>condition: service_healthy</code> 可确保依赖服务完全就绪。</p>
+</blockquote>
+<h3 id="6-docker">6. Docker 网络模式有哪些?</h3>
+<pre><code>四种网络模式:
+
+┌─────────────────────────────────────────────────────┐
+│ bridge(默认):独立网络栈 + NAT 出外网              │
+│   [容器A: 172.17.0.2] [容器B: 172.17.0.3]          │
+│   └── docker0 网桥 ──→ 宿主机 NAT ──→ 外网          │
+│   容器间通过 IP 互通,外部通过端口映射访问           │
+├─────────────────────────────────────────────────────┤
+│ host:直接用宿主机网络                               │
+│   容器和宿主机共享 IP,端口直接暴露                  │
+│   性能最好(无 NAT),但有端口冲突风险               │
+├─────────────────────────────────────────────────────┤
+│ none:无网络                                         │
+│   完全隔离,适合不需要网络的批处理任务               │
+├─────────────────────────────────────────────────────┤
+│ container:共享另一个容器的网络栈                    │
+│   容器A 和容器B 共享 localhost,适合紧密耦合的服务   │
+└─────────────────────────────────────────────────────┘
+</code></pre>
+<blockquote>
+<p><strong>扩展</strong>:自定义网络中容器可通过容器名 DNS 解析。Overlay 用于跨主机 Swarm,Macvlan 用于传统应用迁移。</p>
+</blockquote>
+<h3 id="7-copy-on-write">7. 什么是写时复制(Copy-on-Write)?</h3>
+<pre><code>写时复制(Copy-on-Write):
+
+镜像(只读层):
+  [Layer 4: 应用代码]        ← 最上层
+  [Layer 3: JDK]
+  [Layer 2: apt 包]
+  [Layer 1: Ubuntu 基础]     ← 底层
+
+容器(加可写层):
+  [Container 可写层]         ← 容器自己的修改
+  [Layer 4: 应用代码]        ← 共享,不改
+  ...
+
+修改 Layer 3 的文件时:
+1 把文件从 Layer 3 复制到 Container 可写层
+2 在可写层修改
+3 Layer 3 原文件不变(其他容器还能用)
+</code></pre>
+<p><strong>好处</strong>:多个容器共用同一套只读层(如 10 个容器都基于 <code>openjdk:17</code>,基础 JDK 只存一份)。每个容器只存自己的修改量,省磁盘空间。启动快--只创建空的可写层就行。</p>
+<blockquote>
+<p><strong>扩展</strong>:Docker 默认用 Overlay2 存储驱动。容器删掉后数据丢失--持久化数据用 Volume 挂载。</p>
+</blockquote>
+<h3 id="8-copy-add">8. COPY 和 ADD 的区别?</h3>
+<table>
+<thead>
+<tr>
+<th>指令</th>
+<th>功能</th>
+<th>使用建议</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>COPY</td>
+<td>从宿主机复制文件/目录到镜像</td>
+<td><strong>首选</strong>,简单透明</td>
+</tr>
+<tr>
+<td>ADD</td>
+<td>COPY + 自动解压 tar + 支持远程 URL</td>
+<td>有坑,谨慎使用</td>
+</tr>
+</tbody>
+</table>
+<pre><code class="language-dockerfile"># 推荐:用 COPY
+COPY target/app.jar /app/app.jar
+
+# ADD 的特殊行为(有坑):
+ADD archive.tar.gz /app/     # 自动解压 tar.gz(有时你不想解压!)
+ADD https://example.com/file /app/  # 能从 URL 下载(但不会清理缓存)
+</code></pre>
+<blockquote>
+<p><strong>扩展</strong>:Docker 官方推荐优先使用 COPY。需要下载文件时,用 <code>RUN curl/wget</code> 替代 ADD URL,可控制缓存和清理。</p>
+</blockquote>
+<h3 id="9-docker-volume">9. Docker Volume 的三种类型和区别?</h3>
+<table>
+<thead>
+<tr>
+<th>类型</th>
+<th>存储位置</th>
+<th>特点</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Volume</strong></td>
+<td><code>/var/lib/docker/volumes/</code>(Docker 管理)</td>
+<td><strong>推荐</strong>,Docker 完全管理,跨平台,可共享</td>
+</tr>
+<tr>
+<td><strong>Bind Mount</strong></td>
+<td>宿主机任意路径</td>
+<td>灵活但依赖目录结构,开发环境常用</td>
+</tr>
+<tr>
+<td><strong>tmpfs</strong></td>
+<td>内存</td>
+<td>临时数据,容器停止即消失</td>
+</tr>
+</tbody>
+</table>
+<pre><code>Volume(推荐):                Bind Mount(开发用):      tmpfs(临时):
+
+Docker 管理区域                宿主机 ←→ 容器              仅内存
+/var/lib/docker                 /home/user/                /tmpfs
+    │                              │                         │
+    └── data/ ──▶ 容器              └── code/ ──▶ 容器          └── 容器内临时数据
+    可共享、备份                   开发时热更新               速快、重启即丢
+</code></pre>
+<blockquote>
+<p><strong>扩展</strong>:生产用 Volume,开发用 Bind Mount(代码改后容器内立即生效)。<code>docker volume prune</code> 清理未用 Volume。</p>
+</blockquote>
+<h3 id="10-docker">10. Docker 如何限制容器资源?</h3>
+<pre><code class="language-bash"># 内存限制
+docker run -m 512m --memory-swap 1g nginx
+# -m: 物理内存上限
+# --memory-swap: 物理+交换空间上限(-1=无限制)
+
+# CPU 限制
+docker run --cpus 1.5 nginx        # 最多用 1.5 个 CPU 核心
+docker run --cpuset-cpus 0-2 nginx # 绑定到 CPU 0,1,2
+
+# 进程数限制
+docker run --pids-limit 100 nginx  # 最多 100 个进程
+</code></pre>
+<blockquote>
+<p><strong>扩展</strong>:生产环境<strong>必须</strong>给每个容器设 <code>-m</code> 和 <code>--cpus</code>。<code>docker stats</code> 可实时看每个容器的 CPU/内存/网络/磁盘 IO。</p>
+</blockquote>
+<h3 id="11-dockercontainerdrunc">11. Docker、containerd、runc 三者的关系?</h3>
+<pre><code>Docker(最高层)→ containerd(中层)→ runc(底层)
+                                            │
+                                     创建容器进程(OCI 标准)
+</code></pre>
+<table>
+<thead>
+<tr>
+<th>组件</th>
+<th>作用</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Docker</td>
+<td>面向用户的 CLI + API(<code>docker build</code>、<code>docker run</code>、镜像管理)</td>
+</tr>
+<tr>
+<td>containerd</td>
+<td>容器生命周期管理(拉镜像、创建/启动/停止容器、管理存储和网络)</td>
+</tr>
+<tr>
+<td>runc</td>
+<td>OCI 标准容器运行时,真正创建和运行容器进程</td>
+</tr>
+</tbody>
+</table>
+<blockquote>
+<p><strong>扩展</strong>:K8s 1.24 移除了 Dockershim,直接通过 CRI 接口调 containerd。更轻量--K8s 只需要 containerd 就够了。</p>
+</blockquote>
+<h3 id="12-docker">12. Docker 容器退出码的含义?</h3>
+<table>
+<thead>
+<tr>
+<th>退出码</th>
+<th>含义</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>0</td>
+<td>正常退出(成功)</td>
+</tr>
+<tr>
+<td>1</td>
+<td>应用错误(程序自己 exit 1)</td>
+</tr>
+<tr>
+<td>137</td>
+<td>被 SIGKILL 杀死(通常是 OOM:<code>dmesg \| grep -i oom</code> 确认)</td>
+</tr>
+<tr>
+<td>143</td>
+<td>收到 SIGTERM,优雅退出</td>
+</tr>
+</tbody>
+</table>
+<pre><code>排查流程:
+  docker ps -a 看到容器 Exited(137)
+       │
+       ▼
+  Exit 137 = 128 + 9(SIGKILL)
+       │
+       ▼
+  大概率 OOM → 检查内存限制是否太小 → 调大 -m 或排查内存泄漏
+</code></pre>
+<blockquote>
+<p><strong>扩展</strong>:退出码 137 = 128 + 9(SIGKILL),通常是 OOM。<code>docker inspect</code> 的 <code>State.OOMKilled</code> 字段可确认。</p>
+</blockquote>
+<hr />
+<h3 id="13-docker">13. Docker 镜像构建缓存机制是怎样的?</h3>
+<p>Docker 镜像是<strong>分层存储</strong>的,每一层对应 Dockerfile 的一条指令。构建时,Docker 会检查当前指令和上下文是否跟上次一样--一样就用缓存,不一样就重建(且后续所有层全部失效)。</p>
+<p><strong>缓存工作原理</strong>:</p>
+<pre><code>Dockerfile 逐行构建:
+
+FROM python:3.11          ← 第 1 层
+COPY requirements.txt .   ← 第 2 层(如果文件没变 → 缓存命中 ✅)
+RUN pip install -r ...    ← 第 3 层(如果上一层命中且命令没变 → 缓存命中 ✅)
+COPY . .                  ← 第 4 层(源码经常变 → 缓存失效 ❌)
+RUN python setup.py       ← 第 5 层(上一层失效 → 这一层也跟着失效 ❌)
+</code></pre>
+<p><strong>核心规则</strong>:某层缓存失效后,<strong>后续所有层全部失效</strong>--就像链条断了一节,后面全断。</p>
+<p><strong>优化技巧(面试必答)</strong>:</p>
+<pre><code class="language-dockerfile"># ❌ 差:COPY . . 在最前面,每次改代码都重建所有依赖
+FROM python:3.11
+COPY . .
+RUN pip install -r requirements.txt   # 代码一改,这层也重跑
+
+# ✅ 好:先单独 COPY 依赖文件,再 COPY 源码
+FROM python:3.11
+COPY requirements.txt .          # 依赖文件很少变 → 缓存命中
+RUN pip install -r requirements.txt   # 很长的一步,能用缓存省很多时间
+COPY . .                         # 最后才 COPY 常变的源码
+</code></pre>
+<p><strong>缓存为什么不命中?</strong>
+- COPY/ADD 的文件内容变了(最常见)
+- RUN 的命令字符串变了(即使逻辑一样)
+- 上一层没命中(级联失效)
+- 用了 <code>--no-cache</code> 参数
+- 构建上下文中有 <code>.dockerignore</code> 未排除的大文件变化</p>
+<blockquote>
+<p><strong>扩展</strong>:BuildKit <code>--mount=type=cache</code> 可跨构建共享依赖缓存。多阶段构建减小镜像体积--构建依赖在第一阶段,最终镜像只 COPY 编译产物。</p>
+</blockquote>
+<hr />
+<h3 id="14-docker-swarm-kubernetes">14. Docker Swarm 和 Kubernetes 选哪个？</h3>
+<p><strong>Docker Swarm</strong>：Docker 原生，部署极简，5 分钟上手：</p>
+<pre><code class="language-bash"># 初始化集群
+docker swarm init
+# 发布服务
+docker stack deploy -c docker-compose.yml myapp
+</code></pre>
+<p><strong>K8s vs Swarm 核心对比</strong>：</p>
+<table>
+<thead>
+<tr>
+<th>维度</th>
+<th>Docker Swarm</th>
+<th>Kubernetes</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>学习曲线</td>
+<td>低（1天）</td>
+<td>高（2-4周）</td>
+</tr>
+<tr>
+<td>功能</td>
+<td>基础</td>
+<td>完整云原生生态</td>
+</tr>
+<tr>
+<td>生产认可度</td>
+<td>轻量场景</td>
+<td>事实标准</td>
+</tr>
+<tr>
+<td>扩缩容</td>
+<td><code>replicas: 3</code></td>
+<td>HPA 自动弹性</td>
+</tr>
+<tr>
+<td>服务发现</td>
+<td>DNS 自动</td>
+<td>Ingress + Service</td>
+</tr>
+<tr>
+<td>社区/生态</td>
+<td>一般</td>
+<td>极其丰富</td>
+</tr>
+</tbody>
+</table>
+<p><strong>选型建议</strong>：
+- <strong>小团队、快速验证</strong> → Docker Swarm
+- <strong>生产级、长期运维</strong> → Kubernetes（自建 or EKS/GKE/ACK）
+- <strong>中大型企业</strong> → K3s（轻量 K8s，单节点也能跑）</p>
+<blockquote>
+<p><strong>扩展</strong>：Docker Compose 本地开发，<code>docker stack</code> 生产部署（Swarm）；生产用 K8s 时，Argo CD/GitOps 是推荐部署方式。</p>
+</blockquote>
+
+<script>
+// Scroll spy — highlight active sidebar item
+window.addEventListener('scroll', function() {
+    var links = document.querySelectorAll('.sidebar-toc a');
+    var scrollY = window.scrollY + 120;
+    var current = '';
+    for (var i = links.length - 1; i >= 0; i--) {
+        var target = document.getElementById(links[i].getAttribute('href').slice(1));
+        if (target && target.offsetTop <= scrollY) {
+            current = links[i];
+            break;
+        }
+    }
+    links.forEach(function(a) { a.style.fontWeight = 'normal'; a.style.color = '#555'; });
+    if (current) { current.style.fontWeight = 'bold'; current.style.color = '#0366d6'; }
+});
+</script>
+
+
+<script>
+document.querySelectorAll('pre > code').forEach(function(codeBlock, i) {
+    var pre = codeBlock.parentNode;
+    pre.style.position = 'relative';
+    var btn = document.createElement('button');
+    btn.className = 'copy-btn';
+    btn.textContent = '复制';
+    pre.appendChild(btn);
+    btn.addEventListener('click', function() {
+        var text = codeBlock.textContent;
+        navigator.clipboard.writeText(text).then(function() {
+            btn.textContent = '已复制';
+            btn.classList.add('copied');
+            setTimeout(function() {
+                btn.textContent = '复制';
+                btn.classList.remove('copied');
+            }, 2000);
+        }).catch(function() {
+            // Fallback
+            var ta = document.createElement('textarea');
+            ta.value = text; ta.style.position = 'fixed'; ta.style.opacity = '0';
+            document.body.appendChild(ta); ta.select();
+            document.execCommand('copy'); document.body.removeChild(ta);
+            btn.textContent = '已复制'; btn.classList.add('copied');
+            setTimeout(function() { btn.textContent = '复制'; btn.classList.remove('copied'); }, 2000);
+        });
+    });
+});
+</script>
+
+
+<script>document.querySelectorAll("pre>code").forEach(function(c){var p=c.parentNode;p.style.position="relative";var b=document.createElement("button");b.className="copy-btn";b.textContent="复制";p.appendChild(b);b.addEventListener("click",function(){var t=c.textContent;navigator.clipboard.writeText(t).then(function(){b.textContent="已复制";b.classList.add("copied");setTimeout(function(){b.textContent="复制";b.classList.remove("copied")},2000)}).catch(function(){var a=document.createElement("textarea");a.value=t;a.style.position="fixed";a.style.opacity="0";document.body.appendChild(a);a.select();document.execCommand("copy");document.body.removeChild(a);b.textContent="已复制";b.classList.add("copied");setTimeout(function(){b.textContent="复制";b.classList.remove("copied")},2000)})})})</script>
+</body>
+</html>

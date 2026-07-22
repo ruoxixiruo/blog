@@ -1,0 +1,2556 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SpringBoot学习文档</title>
+<style>
+body {
+    transition: margin-left .25s ease;
+    font-family: -apple-system, "Noto Sans SC", "Microsoft YaHei", sans-serif;
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 20px 24px 60px;
+    line-height: 1.8;
+    color: #333;
+    background: #fff;
+}
+h1 { border-bottom: 2px solid #eee; padding-bottom: 10px; color: #222; }
+h2 { color: #333; margin-top: 32px; }
+h3 { color: #555; }
+a { color: #0366d6; text-decoration: none; }
+a:hover { text-decoration: underline; }
+pre {
+    background: #f6f8fa;
+    border-radius: 6px;
+    padding: 16px;
+    overflow-x: auto;
+    font-size: 14px;
+    line-height: 1.45;
+}
+code {
+    background: #f0f2f4;
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-size: 14px;
+}
+pre code { background: none; padding: 0; }
+blockquote {
+    border-left: 4px solid #ddd;
+    margin: 0;
+    padding: 0 16px;
+    color: #666;
+}
+table {
+    border-collapse: collapse;
+    width: 100%;
+    margin: 16px 0;
+}
+th, td {
+    border: 1px solid #ddd;
+    padding: 8px 12px;
+    text-align: left;
+}
+th { background: #f6f8fa; }
+img { max-width: 100%; }
+.back-link {
+    margin-bottom: 20px;
+    display: block;
+    color: #666;
+}
+.back-link:hover { color: #0366d6; }
+
+.sidebar-toc {
+    transition: left .25s ease;
+    position: fixed;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    width: 220px;
+    background: #f8f9fa;
+    border-right: 1px solid #e9ecef;
+    padding: 20px 0;
+    overflow-y: auto;
+    font-size: 13px;
+    z-index: 100;
+}
+.sidebar-toc a {
+    display: block;
+    padding: 6px 16px;
+    color: #555;
+    text-decoration: none;
+    border-left: 3px solid transparent;
+    line-height: 1.5;
+}
+.sidebar-toc a:hover {
+    background: #e9ecef;
+    color: #0366d6;
+    border-left-color: #0366d6;
+}
+.sidebar-toc .toc-h2 { padding-left: 16px; font-weight: 500; }
+.sidebar-toc .toc-h3 { padding-left: 32px; font-size: 12px; }
+body { margin-left: 240px; }
+
+
+.copy-btn {
+    position: absolute; top: 6px; right: 6px;
+    background: #e9ecef; border: none;
+    border-radius: 4px; padding: 3px 10px;
+    font-size: 12px; color: #555; cursor: pointer;
+    opacity: 0; transition: opacity 0.2s;
+    z-index: 1;
+}
+pre:hover .copy-btn { opacity: 1; }
+.copy-btn:hover { background: #d0d7de; }
+.copy-btn.copied { opacity: 1; background: #2da44e; color: #fff; }
+.copy-btn{position:absolute;top:6px;right:6px;background:#e9ecef;border:none;border-radius:4px;padding:3px 10px;font-size:12px;color:#555;cursor:pointer;opacity:0;transition:opacity .2s;z-index:1}pre:hover .copy-btn{opacity:1}.copy-btn:hover{background:#d0d7de}.copy-btn.copied{opacity:1;background:#2da44e;color:#fff}
+.copy-btn{position:absolute;top:6px;right:6px;background:#e9ecef;border:none;border-radius:4px;padding:3px 10px;font-size:12px;color:#555;cursor:pointer;opacity:0;transition:opacity .2s;z-index:1}pre:hover .copy-btn{opacity:1}.copy-btn:hover{background:#d0d7de}.copy-btn.copied{opacity:1;background:#2da44e;color:#fff}
+.copy-btn{position:absolute;top:6px;right:6px;background:#e9ecef;border:none;border-radius:4px;padding:3px 10px;font-size:12px;color:#555;cursor:pointer;opacity:0;transition:opacity .2s;z-index:1}pre:hover .copy-btn{opacity:1}.copy-btn:hover{background:#d0d7de}.copy-btn.copied{opacity:1;background:#2da44e;color:#fff}
+.sidebar-toggle-btn {
+  position: fixed;
+  left: 220px;
+  top: 0;
+  width: 28px;
+  height: 40px;
+  background: #f8f9fa;
+  border: 1px solid #e9ecef;
+  border-left: none;
+  border-radius: 0 4px 4px 0;
+  cursor: pointer;
+  font-size: 16px;
+  color: #555;
+  z-index: 101;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: left .25s, background .2s;
+  padding: 0;
+  line-height: 1;
+}
+.sidebar-toggle-btn:hover { background: #e9ecef; color: #0366d6; }
+.sidebar-collapsed .sidebar-toc { left: -220px; }
+.sidebar-collapsed .sidebar-toggle-btn { left: 0; }
+.sidebar-collapsed body, body.sidebar-collapsed { margin-left: 28px; }
+.sidebar-overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,.3);
+  z-index: 99;
+}
+@media (max-width: 768px) {
+  .sidebar-collapsed .sidebar-overlay { display: none; }
+  .sidebar-toc { left: -220px; }
+  .sidebar-toggle-btn { left: 0; }
+  body { margin-left: 28px; }
+}
+
+</style>
+</head>
+</head>
+<body>
+<nav class="sidebar-toc"><a class="toc-h2" href="#1-spring-boot">1. 先搞懂：Spring Boot到底是个啥？</a><a class="toc-h3" href="#11">1.1 用大白话说</a><a class="toc-h3" href="#12">1.2 技术定义</a><a class="toc-h3" href="#13-spring-boot-vs-spring-mvc">1.3 Spring Boot vs Spring MVC ——一张表看懂进化</a><a class="toc-h3" href="#14-spring-boot">1.4 第一个 Spring Boot 应用——感受一下有多简单</a><a class="toc-h3" href="#15-spring-boot">1.5 Spring Boot 项目结构</a><a class="toc-h2" href="#2-spring-boot">2. 自动配置原理——Spring Boot的灵魂</a><a class="toc-h3" href="#21">2.1 用大白话说自动配置</a><a class="toc-h3" href="#22-springbootapplication">2.2 @SpringBootApplication 核心——三合一注解</a><a class="toc-h3" href="#23-enableautoconfiguration">2.3 自动配置流程（@EnableAutoConfiguration）</a><a class="toc-h3" href="#24">2.4 条件装配注解——"满足条件才干活"</a><a class="toc-h3" href="#25-starter">2.5 自定义 Starter</a><a class="toc-h3" href="#26">2.6 排除自动配置类</a><a class="toc-h2" href="#3-spring-mvc">3. Spring MVC 与请求处理——一条请求的奇幻漂流</a><a class="toc-h3" href="#31">3.1 请求处理流程——一步一关卡</a><a class="toc-h3" href="#32">3.2 常用参数注解</a><a class="toc-h3" href="#33">3.3 响应处理</a><a class="toc-h3" href="#34">3.4 请求数据校验</a><a class="toc-h3" href="#35">3.5 统一响应格式</a><a class="toc-h2" href="#4">4. 数据访问层——跟数据库打交道</a><a class="toc-h3" href="#41-spring-data-jpa">4.1 Spring Data JPA</a><a class="toc-h3" href="#42-spring-data-jdbc">4.2 Spring Data JDBC</a><a class="toc-h3" href="#43-mybatis">4.3 MyBatis 集成</a><a class="toc-h3" href="#44">4.4 多数据源配置</a><a class="toc-h2" href="#5">5. 事务管理——要么全做要么全不做</a><a class="toc-h3" href="#51">5.1 用大白话说事务</a><a class="toc-h3" href="#52-transactional">5.2 @Transactional 用法</a><a class="toc-h3" href="#53-4">5.3 事务隔离级别——4 个等级</a><a class="toc-h3" href="#54">5.4 事务传播行为</a><a class="toc-h3" href="#55">5.5 编程式事务</a><a class="toc-h2" href="#6-spring-security">6. Spring Security——你家大门的保安</a><a class="toc-h3" href="#61">6.1 用大白话说</a><a class="toc-h3" href="#62">6.2 核心概念</a><a class="toc-h3" href="#63">6.3 基本配置</a><a class="toc-h3" href="#64-jwt">6.4 JWT 认证实现</a><a class="toc-h3" href="#65">6.5 权限控制</a><a class="toc-h2" href="#7-spring-boot">7. Spring Boot 常用注解——速查表</a><a class="toc-h3" href="#71">7.1 核心注解</a><a class="toc-h3" href="#72-bean">7.2 Bean 注解</a><a class="toc-h3" href="#73">7.3 依赖注入</a><a class="toc-h3" href="#74-spring-mvc">7.4 Spring MVC 注解</a><a class="toc-h3" href="#75">7.5 数据访问注解</a><a class="toc-h3" href="#76-spring-boot">7.6 Spring Boot 特有注解</a><a class="toc-h2" href="#8-starter">8. Starter 与扩展——一键添加能力</a><a class="toc-h3" href="#81-starter">8.1 常用 Starter</a><a class="toc-h3" href="#82">8.2 常用第三方扩展</a><a class="toc-h3" href="#83-lombok">8.3 Lombok 核心注解</a><a class="toc-h2" href="#9">9. 配置管理——开发测试生产三套衣服</a><a class="toc-h3" href="#91">9.1 多环境配置</a><a class="toc-h3" href="#92">9.2 配置属性绑定</a><a class="toc-h3" href="#93-configurationproperties">9.3 @ConfigurationProperties 进阶</a><a class="toc-h3" href="#94-yaml-properties">9.4 YAML 与 Properties 对比</a><a class="toc-h2" href="#10">10. 监控与健康检查——给应用装个体检仪</a><a class="toc-h3" href="#101-actuator">10.1 Actuator 端点</a><a class="toc-h3" href="#102">10.2 常用端点</a><a class="toc-h3" href="#103">10.3 自定义健康检查</a><a class="toc-h2" href="#11_1">11. 缓存——常用的东西放身边</a><a class="toc-h3" href="#111-spring-cache">11.1 Spring Cache 抽象</a><a class="toc-h3" href="#112">11.2 多级缓存配置</a><a class="toc-h2" href="#12_1">12. 异步与定时任务——后台默默干活</a><a class="toc-h3" href="#121">12.1 异步任务</a><a class="toc-h3" href="#122">12.2 定时任务</a><a class="toc-h2" href="#13-websocket">13. WebSocket 与长连接——实时对话</a><a class="toc-h3" href="#131-websocket">13.1 WebSocket 配置</a><a class="toc-h3" href="#132-stomp">13.2 STOMP（推荐用于消息推送）</a><a class="toc-h2" href="#14">14. 测试——代码质检员</a><a class="toc-h3" href="#141">14.1 分层测试</a><a class="toc-h3" href="#142">14.2 测试切片注解</a><a class="toc-h2" href="#15">15. 部署与生产化——从开发到上线</a><a class="toc-h3" href="#151-jar">15.1 构建可执行 Jar</a><a class="toc-h3" href="#152-docker">15.2 Docker 部署</a><a class="toc-h3" href="#153-checklist">15.3 生产环境配置 Checklist</a><a class="toc-h2" href="#16">16. 性能优化——让应用飞起来</a><a class="toc-h3" href="#161">16.1 数据库优化</a><a class="toc-h3" href="#162">16.2 启动优化</a><a class="toc-h3" href="#163">16.3 并发优化</a><a class="toc-h2" href="#17">17. 高频面试题——临门一脚</a><a class="toc-h3" href="#q1spring-boot">Q1：Spring Boot 的自动配置原理？</a><a class="toc-h3" href="#q2springbootapplication">Q2：@SpringBootApplication 包含哪些注解？</a><a class="toc-h3" href="#q3spring-mvc">Q3：Spring MVC 的请求处理流程？</a><a class="toc-h3" href="#q4controller-restcontroller">Q4：@Controller 和 @RestController 的区别？</a><a class="toc-h3" href="#q5spring-boot">Q5：Spring Boot 如何做参数校验？</a><a class="toc-h3" href="#q6spring-boot">Q6：Spring Boot 如何实现事务？</a><a class="toc-h3" href="#q7spring-security">Q7：Spring Security 的认证流程？</a><a class="toc-h3" href="#q8jwt-spring-boot">Q8：JWT 在 Spring Boot 中的实现流程？</a><a class="toc-h3" href="#q9spring-boot-sql">Q9：Spring Boot 如何防止 SQL 注入？</a><a class="toc-h3" href="#q10mysql-spring">Q10：MySQL 的事务隔离级别在 Spring 中如何配置？</a><a class="toc-h3" href="#q11spring-boot">Q11：Spring Boot 如何做缓存？</a><a class="toc-h3" href="#q12spring-boot">Q12：Spring Boot 如何实现定时任务？</a><a class="toc-h3" href="#q13spring-boot-banner">Q13：Spring Boot 如何自定义启动Banner？</a><a class="toc-h3" href="#q14spring-boot-actuator">Q14：Spring Boot Actuator 有哪些实用端点？</a><a class="toc-h3" href="#q15spring-boot-mybatis">Q15：Spring Boot 如何集成 MyBatis？</a><a class="toc-h3" href="#q16spring-boot-value-configurationproperties">Q16：Spring Boot 中 @Value 和 @ConfigurationProperties 的区别？</a><a class="toc-h3" href="#q17spring-boot">Q17：Spring Boot 的启动流程？</a><a class="toc-h3" href="#q18-spring-boot">Q18：如何定位 Spring Boot 应用的性能瓶颈？</a><a class="toc-h2" href="#spring-boot-3x">附录：Spring Boot 3.x 新特性</a></nav>
+<button class="sidebar-toggle-btn" onclick="toggleSidebar()" title="切换侧栏">☰</button>
+
+<div class="sidebar-overlay" onclick="toggleSidebar()"></div>
+
+<script>
+function toggleSidebar() {
+  document.body.classList.toggle('sidebar-collapsed');
+  try { localStorage.setItem('sidebarCollapsed', document.body.classList.contains('sidebar-collapsed')); } catch(e) {}
+}
+(function() {
+  try {
+    if (localStorage.getItem('sidebarCollapsed') === 'true') {
+      document.body.classList.add('sidebar-collapsed');
+    }
+  } catch(e) {}
+})();
+</script>
+<a class="back-link" href="/blog/2026/05/16/面试题/面试题/">← 返回面试题目录</a>
+<h1 id=page-title>Spring Boot 面试学习文档</h1>
+<blockquote>
+<p>Spring Boot 的理念：<strong>约定大于配置，开箱即用</strong>。只需 <code>SpringApplication.run()</code> 一行代码，Web 服务、数据库连接、安全认证全部自动装配到位。</p>
+<p>整理日期：2026-06-14 | 目标：用最通俗的语言，拿下 Spring Boot 面试</p>
+</blockquote>
+<hr />
+
+<h2 id="1-spring-boot">1. Spring Boot 是什么</h2>
+<h3 id="11">1.1 痛点</h3>
+<p>传统 Spring 项目需要手写大量 XML 配置：<code>web.xml</code>、<code>applicationContext.xml</code>、<code>spring-mvc.xml</code>，还要手动管理依赖版本冲突、打成 WAR 包部署到外部 Tomcat。大部分配置在每个项目里都是重复的。</p>
+<h3 id="12">1.2 技术定义</h3>
+<ul>
+<li><strong>开箱即用</strong>：starter 依赖自动引入关联库</li>
+<li><strong>内嵌服务器</strong>：Jar 包直接运行（内嵌 Tomcat/Jetty/Undertow）</li>
+<li><strong>自动配置</strong>：自动装配 Spring 和第三方库</li>
+<li><strong>生产就绪</strong>：内置 Actuator 健康检查、metrics、外部化配置</li>
+</ul>
+<h3 id="13-spring-boot-vs-spring-mvc">1.3 Spring Boot vs Spring MVC</h3>
+<table>
+<thead>
+<tr>
+<th>对比项</th>
+<th>Spring MVC</th>
+<th>Spring Boot</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>配置</td>
+<td>XML 或 Java Config，大量手动配置</td>
+<td>自动配置，零 XML</td>
+</tr>
+<tr>
+<td>依赖管理</td>
+<td>手动管理版本和依赖冲突</td>
+<td>starter 自动管理</td>
+</tr>
+<tr>
+<td>部署</td>
+<td>WAR 包到外部 Tomcat</td>
+<td>Jar 内嵌服务器，独立运行</td>
+</tr>
+<tr>
+<td>开发体验</td>
+<td>配置繁琐</td>
+<td>快速启动，立即运行</td>
+</tr>
+<tr>
+<td>监控</td>
+<td>无内置</td>
+<td>Actuator 端点</td>
+</tr>
+<tr>
+<td>外部配置</td>
+<td>手动读取</td>
+<td><code>@ConfigurationProperties</code> 自动绑定</td>
+</tr>
+</tbody>
+</table>
+<h3 id="14-spring-boot">1.4 第一个 Spring Boot 应用</h3>
+<pre><code class="language-xml">&lt;!-- pom.xml --&gt;
+&lt;parent&gt;
+    &lt;groupId&gt;org.springframework.boot&lt;/groupId&gt;
+    &lt;artifactId&gt;spring-boot-starter-parent&lt;/artifactId&gt;
+    &lt;version&gt;3.2.0&lt;/version&gt;
+&lt;/parent&gt;
+
+&lt;dependencies&gt;
+    &lt;dependency&gt;
+        &lt;groupId&gt;org.springframework.boot&lt;/groupId&gt;
+        &lt;artifactId&gt;spring-boot-starter-web&lt;/artifactId&gt;
+    &lt;/dependency&gt;
+&lt;/dependencies&gt;
+</code></pre>
+<pre><code class="language-java">// 主启动类
+@SpringBootApplication
+public class Application {
+    public static void main(String[] args) {
+        SpringApplication.run(Application.class, args);
+    }
+}
+
+// 控制器
+@RestController
+@RequestMapping(&quot;/api&quot;)
+public class UserController {
+
+    @GetMapping(&quot;/users/{id}&quot;)
+    public User getUser(@PathVariable Long id) {
+        return userService.findById(id);
+    }
+
+    @PostMapping(&quot;/users&quot;)
+    public User createUser(@RequestBody @Valid UserDTO dto) {
+        return userService.create(dto);
+    }
+}
+</code></pre>
+<blockquote>
+<p>一个 <code>@SpringBootApplication</code> + 一行 <code>run()</code>，完整 Web 服务就跑起来了。</p>
+</blockquote>
+<h3 id="15-spring-boot">1.5 项目结构</h3>
+<pre><code>src/main/java/com/example/demo/
+├── Application.java              # 主启动类（根包下）
+├── config/                       # 配置类
+│   └── SecurityConfig.java
+├── controller/                   # 控制器层
+│   └── UserController.java
+├── service/                      # 服务层
+│   ├── UserService.java
+│   └── impl/
+│       └── UserServiceImpl.java
+├── repository/                   # 数据访问层
+│   └── UserRepository.java
+├── entity/                       # 实体类
+│   └── User.java
+├── dto/                          # 数据传输对象
+│   └── UserDTO.java
+└── exception/                     # 异常处理
+    └── GlobalExceptionHandler.java
+
+src/main/resources/
+├── application.yml               # 主配置文件
+├── application-dev.yml           # 开发环境
+├── application-prod.yml          # 生产环境
+└── static/                       # 静态资源
+    └── css/, js/, images/
+
+src/test/java/                    # 测试代码
+</code></pre>
+<hr />
+<h2 id="2-spring-boot">2. 自动配置原理 -- Spring Boot 的灵魂</h2>
+<h3 id="21">2.1 自动配置流程（ASCII 流程图）</h3>
+<pre><code>
+SpringApplication.run()
+        |
+        v
+@EnableAutoConfiguration
+        |
+        v
+SpringFactoriesLoader 扫描所有 jar 包中的
+  META-INF/spring.factories  /  META-INF/spring/org.springframework.boot.autoconfigure.AutoConfiguration.imports
+        |
+        v
+读取所有 AutoConfiguration 类列表
+        |
+        v
+  +-----------------------------------------------+
+  |  逐条执行 @Conditional* 条件过滤（见 2.4 表）     |
+  |                                               |
+  |  @ConditionalOnClass    -- classpath 有这个类?   |
+  |  @ConditionalOnBean     -- 容器已有这个 Bean?    |
+  |  @ConditionalOnProperty -- 配置文件有这个属性?    |
+  |  @ConditionalOnMissingBean -- 容器没有这个 Bean? |
+  +-----------------------------------------------+
+        |
+  +-----+-----+
+  |           |
+ 满足条件    不满足
+  |           |
+  v           v
+注册该配置类   跳过
+  |
+  v
+自动装配对应的 Bean（如 DataSource、EntityManager、DispatcherServlet）
+</code></pre>
+<p>本质：Spring Boot 把常见的"如果引入了某依赖就自动配好"的逻辑写在了 <code>spring-boot-autoconfigure</code> 包里。启动时逐个检查条件，满足就装配。</p>
+<h3 id="22-springbootapplication">2.2 @SpringBootApplication -- 三合一注解</h3>
+<pre><code class="language-java">@SpringBootApplication  // 等价于以下三个：
+// @SpringBootConfiguration  -- 继承 @Configuration（标注配置类）
+// @EnableAutoConfiguration  -- 启用自动配置（核心）
+// @ComponentScan            -- 扫描同包及子包下的 @Component/@Service 等
+public class Application { ... }
+</code></pre>
+<h3 id="23-enableautoconfiguration">2.3 自动配置源码追踪</h3>
+<pre><code>@EnableAutoConfiguration
+  → @Import(AutoConfigurationImportSelector.class)
+    → AutoConfigurationImportSelector.selectImports()
+      → SpringFactoriesLoader.loadFactoryNames()
+        → 读取 spring.factories 中的 EnableAutoConfiguration 配置
+      → 用 @Conditional 过滤器筛选
+      → 返回最终要导入的配置类列表
+</code></pre>
+<h3 id="24">2.4 条件装配注解</h3>
+<table>
+<thead>
+<tr>
+<th>注解</th>
+<th>条件</th>
+<th>白话</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>@ConditionalOnClass</code></td>
+<td>classpath 存在指定类时生效</td>
+<td>"有这个依赖才配"</td>
+</tr>
+<tr>
+<td><code>@ConditionalOnMissingClass</code></td>
+<td>classpath 不存在指定类时生效</td>
+<td>"没有这个依赖才配"</td>
+</tr>
+<tr>
+<td><code>@ConditionalOnBean</code></td>
+<td>容器中存在指定 Bean 时生效</td>
+<td>"有别人先干活了我再干"</td>
+</tr>
+<tr>
+<td><code>@ConditionalOnMissingBean</code></td>
+<td>容器中不存在指定 Bean 时生效</td>
+<td>"没人干我才干"</td>
+</tr>
+<tr>
+<td><code>@ConditionalOnProperty</code></td>
+<td>配置属性满足条件时生效</td>
+<td>"配置文件里写了这个才配"</td>
+</tr>
+<tr>
+<td><code>@ConditionalOnApplication</code></td>
+<td>在特定应用类型中生效</td>
+<td>"是 Web 应用才配"</td>
+</tr>
+</tbody>
+</table>
+<h3 id="25-starter">2.5 自定义 Starter</h3>
+<pre><code class="language-java">// 1. 自动配置类
+@Configuration
+@ConditionalOnClass(MyService.class)
+@EnableConfigurationProperties(MyProperties.class)
+public class MyAutoConfiguration {
+
+    @Bean
+    @ConditionalOnMissingBean
+    public MyService myService(MyProperties props) {
+        return new MyService(props.getName());
+    }
+}
+
+// 2. 配置属性类
+@ConfigurationProperties(&quot;my.service&quot;)
+public class MyProperties {
+    private String name = &quot;default&quot;;
+
+    public String getName() { return name; }
+    public void setName(String name) { this.name = name; }
+}
+
+// 3. 注册到 spring.factories
+// src/main/resources/META-INF/spring.factories
+org.springframework.boot.autoconfigure.EnableAutoConfiguration=\
+  com.example.mystarter.MyAutoConfiguration
+</code></pre>
+<h3 id="26">2.6 排除自动配置类</h3>
+<pre><code class="language-yaml"># application.yml
+spring:
+  autoconfigure:
+    exclude:
+      - org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration
+      - org.springframework.boot.autoconfigure.orm.jpa.HibernateJpaAutoConfiguration
+</code></pre>
+<blockquote>
+<p><strong>面试话术</strong>：自动配置是面试必问题。核心三步：SpringFactoriesLoader 加载 spring.factories 中注册的配置类 → @Conditional 系列注解按条件过滤 → 满足条件的装配为 Bean。举例：DataSourceAutoConfiguration 检查 classpath 是否有数据源驱动，有则自动创建 DataSource Bean。</p>
+</blockquote>
+<hr />
+<h2 id="3-spring-mvc">3. Spring MVC 与请求处理</h2>
+<h3 id="31">3.1 请求处理流程（ASCII 流程图）</h3>
+<pre><code>
+                    HTTP Request
+                         |
+                         v
+        +-------------------------------+
+        |         Filter Chain           |  (编码、CORS、认证等)
+        +-------------------------------+
+                         |
+                         v
+        +-------------------------------+
+        |      DispatcherServlet         |  前端控制器 -- 统一调度中心
+        +-------------------------------+
+                         |
+            +------------+-------------+
+            |                          |
+            v                          v
+   +-----------------+      +--------------------------+
+   |  HandlerMapping  |      |     HandlerAdapter       |
+   |  匹配 URL->方法   |      |  反射调用 Controller 方法  |
+   +-----------------+      +--------------------------+
+            |                          |
+            v                          v
+   +----------------------+   +------------------+
+   |  interceptor.preHandle() | |  参数解析 & 绑定   |
+   +----------------------+   |  (@PathVariable,  |
+            |                 |   @RequestBody,   |
+            v                 |   @RequestParam)  |
+   +----------------------+   +------------------+
+   |   Controller 执行业务  |            |
+   +----------------------+            v
+            |              +-----------------------+
+            v              | 返回值处理:             |
+   +----------------------+ | @ResponseBody -> JSON  |
+   | interceptor.postHandle()| | ViewName -> 视图渲染   |
+   +----------------------+ +-----------------------+
+            |                          |
+            +------------+-------------+
+                         |
+            +------------+-------------+
+            |  Exception? (异常处理分支) |
+            +--------------------------+
+            |  HandlerExceptionResolver |
+            |  @ExceptionHandler 方法   |
+            |  @ControllerAdvice       |
+            +--------------------------+
+                         |
+                         v
+        +-------------------------------+
+        |         Filter Chain           |
+        +-------------------------------+
+                         |
+                         v
+                    HTTP Response
+</code></pre>
+<blockquote>
+<p>DispatcherServlet 就像火车站的调度中心 -- 所有请求都得经过它安排"站台"（HandlerMapping）和"站台服务"（HandlerAdapter）。</p>
+</blockquote>
+<h3 id="32">3.2 常用参数注解</h3>
+<pre><code class="language-java">// 路径变量
+@GetMapping(&quot;/users/{id}/posts/{postId}&quot;)
+public Post getPost(@PathVariable(&quot;id&quot;) Long userId,
+                    @PathVariable Long postId) { ... }
+
+// 查询参数（?page=1&amp;size=10）
+@GetMapping(&quot;/users&quot;)
+public Page&lt;User&gt; listUsers(
+    @RequestParam(defaultValue = &quot;1&quot;) int page,
+    @RequestParam(required = false) Integer size,
+    @RequestParam(name = &quot;sort&quot;, defaultValue = &quot;createdAt,desc&quot;) String sort) { ... }
+
+// 请求体
+@PostMapping(&quot;/users&quot;)
+public User create(@RequestBody @Valid UserDTO dto) { ... }
+
+// 请求头
+@GetMapping(&quot;/users&quot;)
+public String getToken(@RequestHeader(&quot;Authorization&quot;) String token) { ... }
+
+// Cookie
+@GetMapping(&quot;/users&quot;)
+public String getTheme(@CookieValue(name = &quot;theme&quot;, defaultValue = &quot;light&quot;) String theme) { ... }
+
+// 表单参数（Content-Type: application/x-www-form-urlencoded）
+@PostMapping(&quot;/login&quot;)
+public String login(@RequestParam String username,
+                    @RequestParam String password) { ... }
+
+// 整个请求对象
+@GetMapping(&quot;/test&quot;)
+public String test(HttpServletRequest request,
+                   HttpServletResponse response,
+                   HttpSession session) { ... }
+
+// @RequestAttribute：从请求属性域获取（forward 过来的）
+@GetMapping(&quot;/admin&quot;)
+public String admin(@RequestAttribute(&quot;userId&quot;) Long userId) { ... }
+</code></pre>
+<h3 id="33">3.3 响应处理</h3>
+<pre><code class="language-java">// 返回 JSON（默认，@RestController）
+@GetMapping(&quot;/users/{id}&quot;)
+public User getUser(@PathVariable Long id) {
+    return userService.findById(id);
+}
+
+// 返回视图名
+@Controller
+public class PageController {
+    @GetMapping(&quot;/about&quot;)
+    public String about() {
+        return &quot;about&quot;;  // → templates/about.html (Thymeleaf)
+    }
+}
+
+// 重定向
+@GetMapping(&quot;/old-url&quot;)
+public String redirect() {
+    return &quot;redirect:/new-url&quot;;
+}
+
+// Flash 属性（重定向后仍可访问一次）
+@PostMapping(&quot;/users&quot;)
+public String create(UserForm form, RedirectAttributes ra) {
+    userService.create(form);
+    ra.addFlashAttribute(&quot;message&quot;, &quot;创建成功&quot;);
+    return &quot;redirect:/users&quot;;
+}
+
+// 自定义响应头
+@GetMapping(&quot;/download&quot;)
+public ResponseEntity&lt;Resource&gt; download() {
+    Resource file = new ClassPathResource(&quot;report.pdf&quot;);
+    return ResponseEntity.ok()
+        .contentType(MediaType.APPLICATION_PDF)
+        .header(HttpHeaders.CONTENT_DISPOSITION,
+                &quot;attachment; filename=report.pdf&quot;)
+        .body(file);
+}
+
+// 自定义状态码
+@GetMapping(&quot;/not-found&quot;)
+public ResponseEntity&lt;Void&gt; notFound() {
+    return ResponseEntity.notFound().build();
+}
+</code></pre>
+<h3 id="34">3.4 请求数据校验</h3>
+<pre><code class="language-java">// DTO + @Valid 注解
+public class UserDTO {
+    @NotBlank(message = &quot;用户名不能为空&quot;)
+    @Size(min = 3, max = 20, message = &quot;用户名长度为3-20字符&quot;)
+    private String username;
+
+    @NotBlank(message = &quot;邮箱不能为空&quot;)
+    @Email(message = &quot;邮箱格式不正确&quot;)
+    private String email;
+
+    @NotNull(message = &quot;年龄不能为空&quot;)
+    @Min(value = 18, message = &quot;年龄至少18岁&quot;)
+    @Max(value = 100, message = &quot;年龄不超过100岁&quot;)
+    private Integer age;
+
+    @Pattern(regexp = &quot;^1[3-9]\\d{9}$&quot;, message = &quot;手机号格式不正确&quot;)
+    private String phone;
+
+    @Past(message = &quot;生日必须是过去的时间&quot;)
+    private LocalDate birthday;
+}
+
+@PostMapping(&quot;/users&quot;)
+public User create(@RequestBody @Validated UserDTO dto,
+                   BindingResult result) {
+    if (result.hasErrors()) {
+        result.getFieldErrors().forEach(e -&gt;
+            System.out.println(e.getField() + &quot;: &quot; + e.getDefaultMessage()));
+    }
+    return userService.create(dto);
+}
+</code></pre>
+<h3 id="35">3.5 统一响应格式</h3>
+<pre><code class="language-java">// 统一响应包装类
+public class ApiResponse&lt;T&gt; {
+    private int code;
+    private String message;
+    private T data;
+
+    public static &lt;T&gt; ApiResponse&lt;T&gt; success(T data) {
+        return ApiResponse.&lt;T&gt;builder()
+            .code(200).message(&quot;成功&quot;).data(data).build();
+    }
+
+    public static &lt;T&gt; ApiResponse&lt;T&gt; error(int code, String msg) {
+        return ApiResponse.&lt;T&gt;builder()
+            .code(code).message(msg).build();
+    }
+}
+
+// 全局异常统一处理
+@RestControllerAdvice
+public class GlobalExceptionHandler {
+
+    @ExceptionHandler(MethodArgumentNotValidException.class)
+    public ApiResponse&lt;Void&gt; handleValidException(MethodArgumentNotValidException e) {
+        String msg = e.getBindingResult().getFieldErrors().stream()
+            .map(FieldError::getDefaultMessage)
+            .collect(Collectors.joining(&quot;; &quot;));
+        return ApiResponse.error(400, msg);
+    }
+
+    @ExceptionHandler(BusinessException.class)
+    public ApiResponse&lt;Void&gt; handleBusinessException(BusinessException e) {
+        return ApiResponse.error(e.getCode(), e.getMessage());
+    }
+
+    @ExceptionHandler(Exception.class)
+    public ApiResponse&lt;Void&gt; handleException(Exception e) {
+        log.error(&quot;系统异常&quot;, e);
+        return ApiResponse.error(500, &quot;系统内部错误&quot;);
+    }
+}
+</code></pre>
+<hr />
+<h2 id="4">4. 数据访问层</h2>
+<h3 id="41-spring-data-jpa">4.1 Spring Data JPA</h3>
+<pre><code class="language-java">// 实体类
+@Entity
+@Table(name = &quot;users&quot;)
+public class User {
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+
+    @Column(unique = true, nullable = false, length = 50)
+    private String username;
+
+    @Column(length = 100)
+    private String email;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = &quot;status&quot;)
+    private Status status = Status.ACTIVE;
+
+    @Column(name = &quot;created_at&quot;)
+    private LocalDateTime createdAt = LocalDateTime.now();
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = &quot;department_id&quot;)
+    private Department department;
+
+    @OneToMany(mappedBy = &quot;user&quot;, cascade = CascadeType.ALL)
+    private List&lt;Order&gt; orders;
+
+    public enum Status { ACTIVE, INACTIVE, BANNED }
+}
+
+// Repository 接口
+public interface UserRepository extends JpaRepository&lt;User, Long&gt; {
+
+    // 方法名自动解析查询
+    Optional&lt;User&gt; findByUsername(String username);
+    List&lt;User&gt; findByEmailContaining(String keyword);
+    List&lt;User&gt; findByStatusAndDepartmentId(Status status, Long deptId);
+    List&lt;User&gt; findByCreatedAtBetween(LocalDateTime start, LocalDateTime end);
+
+    // 自定义 JPQL
+    @Query(&quot;SELECT u FROM User u WHERE u.username = :username AND u.status = :status&quot;)
+    Optional&lt;User&gt; findByUsernameAndStatus(
+        @Param(&quot;username&quot;) String username,
+        @Param(&quot;status&quot;) Status status);
+
+    // 原生 SQL
+    @Query(value = &quot;SELECT * FROM users WHERE email LIKE %:kw% LIMIT 10&quot;,
+           nativeQuery = true)
+    List&lt;User&gt; searchByEmail(@Param(&quot;kw&quot;) String keyword);
+
+    // 分页
+    Page&lt;User&gt; findByStatus(Status status, Pageable pageable);
+
+    // 删除（不返回数据）
+    @Modifying
+    @Query(&quot;UPDATE User u SET u.status = :status WHERE u.id = :id&quot;)
+    int updateStatus(@Param(&quot;id&quot;) Long id, @Param(&quot;status&quot;) Status status);
+}
+</code></pre>
+<h3 id="42-spring-data-jdbc">4.2 Spring Data JDBC</h3>
+<pre><code class="language-java">// 轻量级方案，无自动脏检查，需手动 save
+public interface UserRepository extends CrudRepository&lt;User, Long&gt; {
+    Optional&lt;User&gt; findByUsername(String username);
+}
+
+@Query(&quot;SELECT * FROM users WHERE username = :name&quot;, nativeQuery = true)
+Optional&lt;User&gt; findByName(@Param(&quot;name&quot;) String name);
+</code></pre>
+<h3 id="43-mybatis">4.3 MyBatis 集成</h3>
+<pre><code class="language-yaml"># application.yml
+mybatis:
+  mapper-locations: classpath:mapper/*.xml
+  type-aliases-package: com.example.demo.entity
+  configuration:
+    map-underscore-to-camel-case: true
+    log-impl: org.apache.ibatis.logging.slf4j.Slf4jImpl
+</code></pre>
+<pre><code class="language-xml">&lt;!-- resources/mapper/UserMapper.xml --&gt;
+&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot;?&gt;
+&lt;!DOCTYPE mapper PUBLIC &quot;-//mybatis.org//DTD Mapper 3.0//EN&quot;
+        &quot;http://mybatis.org/dtd/mybatis-3-mapper.dtd&quot;&gt;
+&lt;mapper namespace=&quot;com.example.demo.mapper.UserMapper&quot;&gt;
+
+    &lt;resultMap id=&quot;BaseResultMap&quot; type=&quot;User&quot;&gt;
+        &lt;id column=&quot;id&quot; property=&quot;id&quot;/&gt;
+        &lt;result column=&quot;username&quot; property=&quot;username&quot;/&gt;
+        &lt;result column=&quot;email&quot; property=&quot;email&quot;/&gt;
+        &lt;result column=&quot;created_at&quot; property=&quot;createdAt&quot;/&gt;
+    &lt;/resultMap&gt;
+
+    &lt;select id=&quot;selectById&quot; resultMap=&quot;BaseResultMap&quot;&gt;
+        SELECT * FROM users WHERE id = #{id}
+    &lt;/select&gt;
+
+    &lt;insert id=&quot;insert&quot; useGeneratedKeys=&quot;true&quot; keyProperty=&quot;id&quot;&gt;
+        INSERT INTO users (username, email, created_at)
+        VALUES (#{username}, #{email}, NOW())
+    &lt;/insert&gt;
+
+    &lt;update id=&quot;update&quot;&gt;
+        UPDATE users
+        SET username = #{username}, email = #{email}
+        WHERE id = #{id}
+    &lt;/update&gt;
+
+    &lt;delete id=&quot;delete&quot;&gt;
+        DELETE FROM users WHERE id = #{id}
+    &lt;/delete&gt;
+&lt;/mapper&gt;
+</code></pre>
+<pre><code class="language-java">// Mapper 接口
+@Mapper
+public interface UserMapper {
+    User selectById(@Param(&quot;id&quot;) Long id);
+    void insert(User user);
+    void update(User user);
+    void delete(@Param(&quot;id&quot;) Long id);
+}
+</code></pre>
+<h3 id="44">4.4 多数据源配置</h3>
+<pre><code class="language-java">@Configuration
+public class DataSourceConfig {
+
+    @Bean
+    @Primary
+    @ConfigurationProperties(prefix = &quot;spring.datasource.primary&quot;)
+    public DataSource primaryDataSource() {
+        return DataSourceBuilder.create().build();
+    }
+
+    @Bean
+    @ConfigurationProperties(prefix = &quot;spring.datasource.secondary&quot;)
+    public DataSource secondaryDataSource() {
+        return DataSourceBuilder.create().build();
+    }
+
+    @Bean
+    public SqlSessionFactory primarySqlSessionFactory(...) throws Exception {
+        SqlSessionFactoryBean factory = new SqlSessionFactoryBean();
+        factory.setDataSource(primaryDataSource());
+        factory.setMapperLocations(new PathMatchingResourcePatternResolver()
+            .getResources(&quot;classpath:mapper/primary/*.xml&quot;));
+        return factory.getObject();
+    }
+}
+</code></pre>
+<hr />
+<h2 id="5">5. 事务管理 -- 要么全做要么全不做</h2>
+<h3 id="51">5.1 核心原则</h3>
+<p>事务保证一组操作原子性。典型场景：转账（A 扣钱 + B 加钱必须同时成功），Spring 通过 <code>@Transactional</code> 实现声明式事务：方法内所有数据库操作共享一个事务，任何 RuntimeException 触发自动回滚。</p>
+<h3 id="52-transactional">5.2 @Transactional 用法</h3>
+<pre><code class="language-java">@Service
+public class UserService {
+
+    @Transactional
+    public void transfer(Long fromId, Long toId, BigDecimal amount) {
+        Account from = accountRepository.findById(fromId).orElseThrow();
+        Account to = accountRepository.findById(toId).orElseThrow();
+
+        from.setBalance(from.getBalance().subtract(amount));
+        to.setBalance(to.getBalance().add(amount));
+
+        accountRepository.save(from);
+        accountRepository.save(to);
+        // 异常时自动回滚
+    }
+
+    @Transactional(rollbackFor = Exception.class)   // 手动设置回滚条件
+    public void createUser(UserDTO dto) { ... }
+
+    @Transactional(noRollbackFor = BusinessException.class)  // 不回滚
+    public void processOrder(OrderDTO dto) { ... }
+
+    @Transactional(readOnly = true)                 // 只读事务
+    public List&lt;User&gt; listUsers() { ... }
+
+    @Transactional(isolation = Isolation.READ_COMMITTED)  // 隔离级别
+    public void updateUser(Long id, String name) { ... }
+
+    @Transactional(propagation = Propagation.REQUIRES_NEW)  // 传播行为
+    public void sendNotification(Long userId, String message) { ... }
+}
+</code></pre>
+<h3 id="53-4">5.3 事务隔离级别 -- 4 个等级</h3>
+<table>
+<thead>
+<tr>
+<th>级别</th>
+<th>说明</th>
+<th>脏读</th>
+<th>不可重复读</th>
+<th>幻读</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>READ_UNCOMMITTED</td>
+<td>未提交读</td>
+<td>可能</td>
+<td>可能</td>
+<td>可能</td>
+</tr>
+<tr>
+<td>READ_COMMITTED</td>
+<td>已提交读</td>
+<td>否</td>
+<td>可能</td>
+<td>可能</td>
+</tr>
+<tr>
+<td>REPEATABLE_READ</td>
+<td>可重复读</td>
+<td>否</td>
+<td>否</td>
+<td>可能</td>
+</tr>
+<tr>
+<td>SERIALIZABLE</td>
+<td>串行化</td>
+<td>否</td>
+<td>否</td>
+<td>否</td>
+</tr>
+</tbody>
+</table>
+<blockquote>
+<p>默认：MySQL 是 REPEATABLE_READ；@Transactional 不指定时用数据库默认值。</p>
+</blockquote>
+<h3 id="54">5.4 事务传播行为</h3>
+<table>
+<thead>
+<tr>
+<th>传播行为</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>REQUIRED</td>
+<td>默认，有事务则加入，无则创建新事务</td>
+</tr>
+<tr>
+<td>REQUIRES_NEW</td>
+<td>挂起当前事务，创建新事务</td>
+</tr>
+<tr>
+<td>SUPPORTS</td>
+<td>有事务则加入，无则无事务执行</td>
+</tr>
+<tr>
+<td>MANDATORY</td>
+<td>必须有事务，否则抛异常</td>
+</tr>
+<tr>
+<td>NOT_SUPPORTED</td>
+<td>无事务执行，挂起当前事务</td>
+</tr>
+<tr>
+<td>NEVER</td>
+<td>必须无事务，否则抛异常</td>
+</tr>
+<tr>
+<td>NESTED</td>
+<td>在当前事务内嵌套执行（Savepoint）</td>
+</tr>
+</tbody>
+</table>
+<h3 id="55">5.5 编程式事务</h3>
+<pre><code class="language-java">@Service
+public class OrderService {
+
+    @Autowired
+    private PlatformTransactionManager txManager;
+
+    public void createOrder(OrderDTO dto) {
+        TransactionDefinition def = new DefaultTransactionDefinition();
+        TransactionStatus status = txManager.getTransaction(def);
+
+        try {
+            orderRepository.save(dto);
+            inventoryService.decrease(dto.getItems());
+            txManager.commit(status);
+        } catch (Exception e) {
+            txManager.rollback(status);
+            throw e;
+        }
+    }
+}
+</code></pre>
+<hr />
+<h2 id="6-spring-security">6. Spring Security -- 认证与授权</h2>
+<h3 id="61">6.1 核心概念</h3>
+<ul>
+<li><strong>认证（Authentication）</strong>：你是谁？（用户名密码 / JWT Token）</li>
+<li><strong>授权（Authorization）</strong>：你能干什么？（角色/权限）</li>
+</ul>
+<h3 id="62">6.2 Bean 生命周期与 AOP 代理（ASCII 流程图）</h3>
+<pre><code>
+  ==================== Bean 生命周期 ====================
+
+  BeanDefinition 定义（解析 @Component/@Service/@Bean 等）
+        |
+        v
+  依赖注入 (@Autowired/@Value)
+        |
+        v
+  +---------------------------------------------+
+  |  BeanPostProcessor.postProcessBeforeInitialization()  |
+  |  如: @PostConstruct 方法、InitializingBean 回调      |
+  +---------------------------------------------+
+        |
+        v
+  初始化 (init-method)
+        |
+        v
+  +---------------------------------------------+
+  |  BeanPostProcessor.postProcessAfterInitialization()   |
+  |  *** AOP 代理生成阶段 ***                              |
+  |  如果 Bean 需要被代理(@Transactional/@Async/@Cacheable  |
+  |  等方法上有切面), 此时创建 CGLIB/JDK 动态代理对象        |
+  +---------------------------------------------+
+        |
+        v
+  Bean 就绪，放入单例池（singletonObjects）
+        |
+        v
+  销毁 (@PreDestroy / DisposableBean)
+
+  ==================== AOP 代理流程 ====================
+
+  @Transactional / @Cacheable / @Async 标注的方法调用
+        |
+        v
+  +---------------------------+
+  | 调用者 → 代理对象 (Proxy)    |  ← 代理对象包装了原始 Bean
+  +---------------------------+
+        |
+        v
+  +---------------------------+
+  | MethodInterceptor 链       |
+  | (TransactionInterceptor,  |
+  |  CacheInterceptor, etc.)  |
+  +---------------------------+
+        |
+  +-----+------------+
+  |                  |
+  前置通知 (Before)   环绕通知 (Around)
+  |                  |
+  +-----+------------+
+        |
+        v
+  +---------------------------+
+  | 调用原始目标方法 (target)    |
+  +---------------------------+
+        |
+  +-----+------------+
+  |                  |
+  后置通知 (After)    返回通知 (AfterReturning)
+  |                  |
+  +-----+------------+
+        |
+        v
+  +---------------------------+
+  | 异常? → 异常通知 (Throwing) |
+  +---------------------------+
+        |
+        v
+  返回结果给调用者
+</code></pre>
+<h3 id="63">6.3 基本配置</h3>
+<pre><code class="language-java">@Configuration
+@EnableWebSecurity
+public class SecurityConfig {
+
+    @Bean
+    public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+        http
+            .csrf(csrf -&gt; csrf.disable())  // API 场景通常禁用
+
+            .authorizeHttpRequests(auth -&gt; auth
+                .requestMatchers(&quot;/api/auth/**&quot;, &quot;/public/**&quot;).permitAll()
+                .requestMatchers(&quot;/api/admin/**&quot;).hasRole(&quot;ADMIN&quot;)
+                .requestMatchers(&quot;/api/user/**&quot;).hasAnyRole(&quot;USER&quot;, &quot;ADMIN&quot;)
+                .anyRequest().authenticated()
+            )
+
+            .formLogin(form -&gt; form
+                .loginProcessingUrl(&quot;/api/login&quot;)
+                .successHandler((req, res, auth) -&gt; {
+                    res.setContentType(&quot;application/json&quot;);
+                    res.getWriter().write(&quot;{\&quot;message\&quot;:\&quot;登录成功\&quot;}&quot;);
+                })
+                .failureHandler((req, res, ex) -&gt; {
+                    res.setStatus(401);
+                    res.getWriter().write(&quot;{\&quot;message\&quot;:\&quot;登录失败\&quot;}&quot;);
+                })
+            )
+
+            .oauth2ResourceServer(oauth2 -&gt; oauth2
+                .jwt(jwt -&gt; jwt.jwtAuthenticationConverter(jwtAuthenticationConverter()))
+            )
+
+            .logout(logout -&gt; logout
+                .logoutUrl(&quot;/api/logout&quot;)
+                .logoutSuccessHandler((req, res, auth) -&gt; {
+                    res.setContentType(&quot;application/json&quot;);
+                    res.getWriter().write(&quot;{\&quot;message\&quot;:\&quot;登出成功\&quot;}&quot;);
+                })
+            )
+
+            .cors(cors -&gt; cors.configure(http));
+
+        return http.build();
+    }
+
+    @Bean
+    public PasswordEncoder passwordEncoder() {
+        return new BCryptPasswordEncoder();
+    }
+}
+</code></pre>
+<h3 id="64-jwt">6.4 JWT 认证实现</h3>
+<pre><code class="language-java">@Service
+public class JwtService {
+
+    @Value(&quot;${jwt.secret}&quot;)
+    private String secret;
+
+    @Value(&quot;${jwt.expiration}&quot;)
+    private Long expiration;
+
+    // 生成 Token
+    public String generateToken(Authentication auth) {
+        Map&lt;String, Object&gt; claims = new HashMap&lt;&gt;();
+        claims.put(&quot;roles&quot;, auth.getAuthorities().stream()
+            .map(GrantedAuthority::getAuthority)
+            .collect(Collectors.toList()));
+
+        return Jwts.builder()
+            .claims(claims)
+            .subject(auth.getUsername())
+            .issuedAt(new Date())
+            .expiration(new Date(System.currentTimeMillis() + expiration))
+            .signWith(Keys.hmacShaKeyFor(secret.getBytes()))
+            .compact();
+    }
+
+    // 验证并解析 Token
+    public Claims parseToken(String token) {
+        return Jwts.parser()
+            .verifyWith(Keys.hmacShaKeyFor(secret.getBytes()))
+            .build()
+            .parseSignedClaims(token)
+            .getPayload();
+    }
+
+    public String getUsernameFromToken(String token) {
+        return parseToken(token).getSubject();
+    }
+}
+
+// 过滤器
+@Component
+public class JwtAuthenticationFilter extends OncePerRequestFilter {
+
+    @Autowired
+    private JwtService jwtService;
+
+    @Override
+    protected void doFilterInternal(HttpServletRequest request,
+                                    HttpServletResponse response,
+                                    FilterChain chain) throws ServletException, IOException {
+        String header = request.getHeader(&quot;Authorization&quot;);
+
+        if (header != null &amp;&amp; header.startsWith(&quot;Bearer &quot;)) {
+            String token = header.substring(7);
+            try {
+                String username = jwtService.getUsernameFromToken(token);
+                if (username != null) {
+                    UserDetails userDetails = userDetailsService.loadUserByUsername(username);
+                    UsernamePasswordAuthenticationToken auth =
+                        new UsernamePasswordAuthenticationToken(
+                            userDetails, null, userDetails.getAuthorities());
+                    auth.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
+                    SecurityContextHolder.getContext().setAuthentication(auth);
+                }
+            } catch (JwtException e) {
+                response.setStatus(401);
+                response.getWriter().write(&quot;{\&quot;error\&quot;:\&quot;无效的 Token\&quot;}&quot;);
+                return;
+            }
+        }
+        chain.doFilter(request, response);
+    }
+}
+</code></pre>
+<h3 id="65">6.5 权限控制</h3>
+<pre><code class="language-java">// 基于角色的权限
+.hasRole(&quot;ADMIN&quot;)          // 前缀 ROLE_ 自动添加
+.hasAnyRole(&quot;USER&quot;, &quot;ADMIN&quot;)
+
+// 基于权限的细粒度控制
+.hasAuthority(&quot;user:read&quot;)
+.hasAnyAuthority(&quot;user:read&quot;, &quot;user:write&quot;)
+
+// SpEL 表达式
+@PreAuthorize(&quot;hasRole('ADMIN') and #userId == authentication.principal.id&quot;)
+public void deleteUser(Long userId) { ... }
+
+// 自定义权限注解
+@Target({ElementType.METHOD, ElementType.TYPE})
+@Retention(RetentionPolicy.RUNTIME)
+@PreAuthorize(&quot;hasAuthority('user:write')&quot;)
+public @interface RequiresWritePermission {}
+
+@RequiresWritePermission
+public void updateUser(UserDTO dto) { ... }
+</code></pre>
+<hr />
+<h2 id="7-spring-boot">7. Spring Boot 常用注解速查表</h2>
+<h3 id="71">7.1 核心注解</h3>
+<table>
+<thead>
+<tr>
+<th>注解</th>
+<th>作用</th>
+<th>位置</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>@SpringBootApplication</code></td>
+<td>主启动类，组合注解</td>
+<td>主类</td>
+</tr>
+<tr>
+<td><code>@Configuration</code></td>
+<td>声明配置类（替代 XML）</td>
+<td>配置类</td>
+</tr>
+<tr>
+<td><code>@Bean</code></td>
+<td>声明 Bean（工厂方法）</td>
+<td>配置类方法</td>
+</tr>
+<tr>
+<td><code>@ComponentScan</code></td>
+<td>组件扫描路径</td>
+<td>主类</td>
+</tr>
+<tr>
+<td><code>@EnableAutoConfiguration</code></td>
+<td>启用自动配置</td>
+<td>主类</td>
+</tr>
+</tbody>
+</table>
+<h3 id="72-bean">7.2 Bean 注解</h3>
+<table>
+<thead>
+<tr>
+<th>注解</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>@Component</code></td>
+<td>通用组件</td>
+</tr>
+<tr>
+<td><code>@Service</code></td>
+<td>业务逻辑层</td>
+</tr>
+<tr>
+<td><code>@Repository</code></td>
+<td>数据访问层（异常转换）</td>
+</tr>
+<tr>
+<td><code>@Controller</code></td>
+<td>控制器</td>
+</tr>
+<tr>
+<td><code>@RestController</code></td>
+<td>= @Controller + @ResponseBody</td>
+</tr>
+<tr>
+<td><code>@Configuration</code></td>
+<td>配置类</td>
+</tr>
+</tbody>
+</table>
+<h3 id="73">7.3 依赖注入</h3>
+<table>
+<thead>
+<tr>
+<th>注解</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>@Autowired</code></td>
+<td>按类型注入（Spring）</td>
+</tr>
+<tr>
+<td><code>@Qualifier("beanName")</code></td>
+<td>指定 Bean 名称</td>
+</tr>
+<tr>
+<td><code>@Primary</code></td>
+<td>优先注入</td>
+</tr>
+<tr>
+<td><code>@Resource(name="beanName")</code></td>
+<td>按名称注入（JDK）</td>
+</tr>
+<tr>
+<td><code>@Inject</code></td>
+<td>按类型注入（JSR-330）</td>
+</tr>
+<tr>
+<td><code>@Value("${prop.key:default}")</code></td>
+<td>注入配置属性</td>
+</tr>
+</tbody>
+</table>
+<h3 id="74-spring-mvc">7.4 Spring MVC 注解</h3>
+<table>
+<thead>
+<tr>
+<th>注解</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>@GetMapping</code> / <code>@PostMapping</code> 等</td>
+<td>HTTP 方法映射</td>
+</tr>
+<tr>
+<td><code>@RequestMapping</code></td>
+<td>通用请求映射</td>
+</tr>
+<tr>
+<td><code>@PathVariable</code></td>
+<td>路径变量</td>
+</tr>
+<tr>
+<td><code>@RequestParam</code></td>
+<td>查询参数</td>
+</tr>
+<tr>
+<td><code>@RequestBody</code></td>
+<td>请求体</td>
+</tr>
+<tr>
+<td><code>@ResponseBody</code></td>
+<td>响应体</td>
+</tr>
+<tr>
+<td><code>@RequestHeader</code></td>
+<td>请求头</td>
+</tr>
+<tr>
+<td><code>@CookieValue</code></td>
+<td>Cookie</td>
+</tr>
+<tr>
+<td><code>@SessionAttribute</code></td>
+<td>会话属性</td>
+</tr>
+<tr>
+<td><code>@ModelAttribute</code></td>
+<td>模型属性</td>
+</tr>
+<tr>
+<td><code>@Valid</code></td>
+<td>触发校验</td>
+</tr>
+<tr>
+<td><code>@Validated</code></td>
+<td>分组校验</td>
+</tr>
+<tr>
+<td><code>@ExceptionHandler</code></td>
+<td>异常处理方法</td>
+</tr>
+</tbody>
+</table>
+<h3 id="75">7.5 数据访问注解</h3>
+<table>
+<thead>
+<tr>
+<th>注解</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>@Entity</code></td>
+<td>JPA 实体类</td>
+</tr>
+<tr>
+<td><code>@Table</code></td>
+<td>表名映射</td>
+</tr>
+<tr>
+<td><code>@Id</code></td>
+<td>主键</td>
+</tr>
+<tr>
+<td><code>@GeneratedValue</code></td>
+<td>主键生成策略</td>
+</tr>
+<tr>
+<td><code>@Column</code></td>
+<td>列映射</td>
+</tr>
+<tr>
+<td><code>@OneToMany</code> / <code>@ManyToOne</code></td>
+<td>一对多/多对一</td>
+</tr>
+<tr>
+<td><code>@ManyToMany</code></td>
+<td>多对多</td>
+</tr>
+<tr>
+<td><code>@Transactional</code></td>
+<td>事务</td>
+</tr>
+<tr>
+<td><code>@Modifying</code></td>
+<td>更新/删除操作（JPQL）</td>
+</tr>
+</tbody>
+</table>
+<h3 id="76-spring-boot">7.6 Spring Boot 特有注解</h3>
+<table>
+<thead>
+<tr>
+<th>注解</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>@ConfigurationProperties</code></td>
+<td>外部配置绑定到类</td>
+</tr>
+<tr>
+<td><code>@EnableConfigurationProperties</code></td>
+<td>启用配置属性类</td>
+</tr>
+<tr>
+<td><code>@ConditionalOnProperty</code></td>
+<td>条件配置</td>
+</tr>
+<tr>
+<td><code>@ConditionalOnClass</code></td>
+<td>条件配置</td>
+</tr>
+<tr>
+<td><code>@ImportResource</code></td>
+<td>导入 XML 配置</td>
+</tr>
+<tr>
+<td><code>@PropertySource</code></td>
+<td>加载配置文件</td>
+</tr>
+<tr>
+<td><code>@RefreshScope</code></td>
+<td>配置刷新（Spring Cloud）</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="8-starter">8. Starter 与扩展</h2>
+<h3 id="81-starter">8.1 常用 Starter</h3>
+<table>
+<thead>
+<tr>
+<th>Starter</th>
+<th>用途</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>spring-boot-starter-web</code></td>
+<td>Web MVC + 内嵌 Tomcat</td>
+</tr>
+<tr>
+<td><code>spring-boot-starter-data-jpa</code></td>
+<td>JPA ORM</td>
+</tr>
+<tr>
+<td><code>spring-boot-starter-data-redis</code></td>
+<td>Redis 客户端</td>
+</tr>
+<tr>
+<td><code>spring-boot-starter-security</code></td>
+<td>安全认证</td>
+</tr>
+<tr>
+<td><code>spring-boot-starter-validation</code></td>
+<td>参数校验</td>
+</tr>
+<tr>
+<td><code>spring-boot-starter-cache</code></td>
+<td>缓存抽象</td>
+</tr>
+<tr>
+<td><code>spring-boot-starter-mail</code></td>
+<td>邮件发送</td>
+</tr>
+<tr>
+<td><code>spring-boot-starter-websocket</code></td>
+<td>WebSocket</td>
+</tr>
+<tr>
+<td><code>spring-boot-starter-actuator</code></td>
+<td>健康检查与监控</td>
+</tr>
+<tr>
+<td><code>spring-boot-starter-test</code></td>
+<td>测试</td>
+</tr>
+</tbody>
+</table>
+<h3 id="82">8.2 常用第三方扩展</h3>
+<table>
+<thead>
+<tr>
+<th>库</th>
+<th>Starter</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>MyBatis</td>
+<td><code>mybatis-spring-boot-starter</code></td>
+<td>ORM 框架</td>
+</tr>
+<tr>
+<td>JWT</td>
+<td><code>jjwt-api</code></td>
+<td>Token 生成与验证</td>
+</tr>
+<tr>
+<td>Swagger</td>
+<td><code>springdoc-openapi-starter-webmvc-ui</code></td>
+<td>API 文档（Boot 3.x）</td>
+</tr>
+<tr>
+<td>Lombok</td>
+<td><code>lombok</code></td>
+<td>注解自动生成代码</td>
+</tr>
+<tr>
+<td>HikariCP</td>
+<td>默认自带</td>
+<td>数据库连接池</td>
+</tr>
+<tr>
+<td>Caffeine</td>
+<td><code>spring-boot-starter-cache</code> + caffeine</td>
+<td>本地缓存</td>
+</tr>
+</tbody>
+</table>
+<h3 id="83-lombok">8.3 Lombok 核心注解</h3>
+<pre><code class="language-java">@Data             // getter/setter/toString/equals/hashCode
+@Getter          // 只生成 getter
+@Setter          // 只生成 setter
+@NoArgsConstructor
+@AllArgsConstructor
+@RequiredArgsConstructor  // final 字段的构造函数
+@Builder                   // 构建者模式
+@Slf4j                     // 自动生成 log
+@Value                      // 不可变类（所有字段 final）
+</code></pre>
+<hr />
+<h2 id="9">9. 配置管理</h2>
+<h3 id="91">9.1 多环境配置</h3>
+<pre><code class="language-yaml"># application.yml（公共配置）
+spring:
+  profiles:
+    active: dev  # 默认激活 dev
+
+# 特定配置文件
+application-dev.yml    # 开发环境
+application-test.yml   # 测试环境
+application-prod.yml   # 生产环境
+
+# 命令行激活：java -jar app.jar --spring.profiles.active=prod
+# 环境变量：SPRING_PROFILES_ACTIVE=prod
+</code></pre>
+<h3 id="92">9.2 配置属性绑定</h3>
+<pre><code class="language-yaml"># application.yml
+app:
+  name: &quot;My App&quot;
+  version: &quot;1.0.0&quot;
+  upload:
+    max-size: 10
+    allowed-types: [jpg, png, pdf]
+</code></pre>
+<pre><code class="language-java">// 方式1：@ConfigurationProperties（推荐）
+@Component
+@ConfigurationProperties(prefix = &quot;app&quot;)
+public class AppProperties {
+    private String name;
+    private String version;
+    private UploadConfig upload = new UploadConfig();
+
+    // getter/setter 必须
+    public static class UploadConfig {
+        private int maxSize = 5;
+        private List&lt;String&gt; allowedTypes = new ArrayList&lt;&gt;();
+        // getter/setter
+    }
+}
+
+// 方式2：@Value
+@Value(&quot;${app.name:默认值}&quot;)
+private String appName;
+</code></pre>
+<h3 id="93-configurationproperties">9.3 @ConfigurationProperties 进阶</h3>
+<pre><code class="language-java">// 自动校验
+@Component
+@ConfigurationProperties(prefix = &quot;app&quot;)
+@Validated
+public class AppProperties {
+    @NotBlank
+    private String name;
+
+    @Min(1) @Max(100)
+    private int maxSize;
+}
+
+// 开启配置扫描
+@EnableConfigurationProperties(AppProperties.class)
+public class SecurityConfig { ... }
+
+// relaxed binding（松散绑定）
+# 以下写法都可以绑定到 maxSize 字段
+app.upload.max-size=10
+app.upload.maxSize=10
+app.upload.MAX_SIZE=10
+</code></pre>
+<h3 id="94-yaml-properties">9.4 YAML 与 Properties 对比</h3>
+<table>
+<thead>
+<tr>
+<th>对比项</th>
+<th>YAML</th>
+<th>Properties</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>语法</td>
+<td>缩进层级</td>
+<td>key=value</td>
+</tr>
+<tr>
+<td>多环境</td>
+<td>同文件多 <code>---</code> 分隔</td>
+<td>多文件</td>
+</tr>
+<tr>
+<td>注释</td>
+<td><code>#</code></td>
+<td><code>#</code></td>
+</tr>
+<tr>
+<td>数组</td>
+<td><code>- item</code> 或 <code>[a,b]</code></td>
+<td><code>list[0]=a</code></td>
+</tr>
+<tr>
+<td>可读性</td>
+<td>更高</td>
+<td>一般</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="10">10. 监控与健康检查 -- Actuator</h2>
+<h3 id="101-actuator">10.1 配置</h3>
+<pre><code class="language-xml">&lt;dependency&gt;
+    &lt;groupId&gt;org.springframework.boot&lt;/groupId&gt;
+    &lt;artifactId&gt;spring-boot-starter-actuator&lt;/artifactId&gt;
+&lt;/dependency&gt;
+</code></pre>
+<pre><code class="language-yaml">management:
+  endpoints:
+    web:
+      exposure:
+        include: health, info, metrics, prometheus, logfile, env, beans, configprops
+      base-path: /actuator
+  endpoint:
+    health:
+      show-details: when_authorized
+  health:
+    db:
+      enabled: true
+    redis:
+      enabled: true
+    mail:
+      enabled: true
+</code></pre>
+<h3 id="102">10.2 常用端点</h3>
+<table>
+<thead>
+<tr>
+<th>端点</th>
+<th>路径</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>health</td>
+<td><code>/actuator/health</code></td>
+<td>健康检查</td>
+</tr>
+<tr>
+<td>info</td>
+<td><code>/actuator/info</code></td>
+<td>应用信息</td>
+</tr>
+<tr>
+<td>metrics</td>
+<td><code>/actuator/metrics/{name}</code></td>
+<td>指标</td>
+</tr>
+<tr>
+<td>prometheus</td>
+<td><code>/actuator/prometheus</code></td>
+<td>Prometheus 格式</td>
+</tr>
+<tr>
+<td>env</td>
+<td><code>/actuator/env</code></td>
+<td>环境变量</td>
+</tr>
+<tr>
+<td>beans</td>
+<td><code>/actuator/beans</code></td>
+<td>所有 Bean</td>
+</tr>
+<tr>
+<td>configprops</td>
+<td><code>/actuator/configprops</code></td>
+<td>配置属性</td>
+</tr>
+<tr>
+<td>mappings</td>
+<td><code>/actuator/mappings</code></td>
+<td>所有 URL 映射</td>
+</tr>
+<tr>
+<td>threaddump</td>
+<td><code>/actuator/threaddump</code></td>
+<td>线程 dump</td>
+</tr>
+<tr>
+<td>heapdump</td>
+<td><code>/actuator/heapdump</code></td>
+<td>堆 dump</td>
+</tr>
+</tbody>
+</table>
+<h3 id="103">10.3 自定义健康检查</h3>
+<pre><code class="language-java">@Component
+public class MyHealthIndicator implements HealthIndicator {
+    @Override
+    public Health health() {
+        try {
+            boolean isHealthy = checkMyService();
+            if (isHealthy) {
+                return Health.up()
+                    .withDetail(&quot;component&quot;, &quot;MyService&quot;)
+                    .withDetail(&quot;status&quot;, &quot;UP&quot;)
+                    .build();
+            }
+            return Health.down()
+                .withDetail(&quot;error&quot;, &quot;连接失败&quot;)
+                .build();
+        } catch (Exception e) {
+            return Health.down(e).build();
+        }
+    }
+}
+</code></pre>
+<hr />
+<h2 id="11_1">11. 缓存</h2>
+<h3 id="111-spring-cache">11.1 Spring Cache 抽象</h3>
+<pre><code class="language-java">@SpringBootApplication
+@EnableCaching
+public class Application { ... }
+</code></pre>
+<pre><code class="language-java">@Service
+public class UserService {
+
+    @Cacheable(value = &quot;users&quot;, key = &quot;#id&quot;, unless = &quot;#result == null&quot;)
+    public User findById(Long id) {
+        return userRepository.findById(id).orElse(null);
+    }
+
+    @CachePut(value = &quot;users&quot;, key = &quot;#result.id&quot;)
+    public User update(User user) {
+        return userRepository.save(user);
+    }
+
+    @CacheEvict(value = &quot;users&quot;, key = &quot;#id&quot;)
+    public void delete(Long id) {
+        userRepository.deleteById(id);
+    }
+
+    @CacheEvict(value = &quot;users&quot;, allEntries = true)
+    public void clearAllUsers() { ... }
+
+    @Cacheable(value = &quot;users&quot;, key = &quot;#id + ':' + #root.method.name&quot;)
+    public User findById(Long id) { ... }
+}
+</code></pre>
+<h3 id="112">11.2 多级缓存配置</h3>
+<pre><code class="language-yaml"># application.yml
+spring:
+  cache:
+    type: caffeine          # 本地缓存
+  cache.caffeine.spec: maximumSize=1000,expireAfterWrite=300s
+
+# 或使用 Redis
+  cache:
+    type: redis
+    redis:
+      time-to-live: 600000  # 10分钟
+</code></pre>
+<pre><code class="language-java">@Configuration
+@EnableCaching
+public class CacheConfig {
+
+    @Bean
+    public CacheManager cacheManager(RedisConnectionFactory factory) {
+        RedisCacheConfiguration defaultConfig = RedisCacheConfiguration.defaultCacheConfig()
+            .entryTtl(Duration.ofMinutes(30))
+            .serializeKeysWith(RedisSerializationContext.SerializationPair
+                .fromSerializer(new StringRedisSerializer()))
+            .serializeValuesWith(RedisSerializationContext.SerializationPair
+                .fromSerializer(new GenericJackson2JsonRedisSerializer()));
+
+        return RedisCacheManager.builder(factory)
+            .cacheDefaults(defaultConfig)
+            .withCacheConfiguration(&quot;users&quot;,
+                defaultConfig.entryTtl(Duration.ofMinutes(10)))
+            .withCacheConfiguration(&quot;products&quot;,
+                defaultConfig.entryTtl(Duration.ofHours(1)))
+            .build();
+    }
+}
+</code></pre>
+<hr />
+<h2 id="12_1">12. 异步与定时任务</h2>
+<h3 id="121">12.1 异步任务</h3>
+<pre><code class="language-java">@SpringBootApplication
+@EnableAsync
+public class Application { ... }
+
+@Service
+public class EmailService {
+
+    @Async
+    public CompletableFuture&lt;Void&gt; sendEmailAsync(String to, String body) {
+        return CompletableFuture.supplyAsync(() -&gt; {
+            emailClient.send(to, body);
+            return null;
+        });
+    }
+
+    @Async(&quot;taskExecutor&quot;)
+    public void processInParallel(List&lt;Long&gt; ids) {
+        ids.parallelStream().forEach(this::process);
+    }
+}
+
+// 自定义线程池
+@Configuration
+public class AsyncConfig {
+    @Bean(&quot;taskExecutor&quot;)
+    public Executor taskExecutor() {
+        ThreadPoolTaskExecutor executor = new ThreadPoolTaskExecutor();
+        executor.setCorePoolSize(4);
+        executor.setMaxPoolSize(8);
+        executor.setQueueCapacity(100);
+        executor.setThreadNamePrefix(&quot;async-&quot;);
+        executor.setRejectedExecutionHandler(new CallerRunsPolicy());
+        executor.initialize();
+        return executor;
+    }
+}
+</code></pre>
+<h3 id="122">12.2 定时任务</h3>
+<pre><code class="language-java">@SpringBootApplication
+@EnableScheduling
+public class Application { ... }
+
+@Service
+public class ScheduledService {
+
+    @Scheduled(fixedRate = 300000)            // 每 5 分钟
+    public void cleanupExpiredTokens() {
+        tokenRepository.deleteExpiredTokens();
+    }
+
+    @Scheduled(fixedDelay = 60000)            // 上次结束后 60 秒
+    public void syncData() {
+        syncClient.fetchUpdates();
+    }
+
+    @Scheduled(cron = &quot;0 0 2 * * *&quot;)         // 每天凌晨 2 点
+    public void dailyReport() {
+        reportGenerator.generate();
+    }
+
+    @Scheduled(initialDelay = 10000, fixedDelay = Long.MAX_VALUE)
+    public void initCache() {                  // 启动 10 秒后执行一次
+        cacheLoader.warmUp();
+    }
+}
+</code></pre>
+<hr />
+<h2 id="13-websocket">13. WebSocket 与长连接</h2>
+<h3 id="131-websocket">13.1 WebSocket 配置</h3>
+<pre><code class="language-java">@Configuration
+@EnableWebSocket
+public class WebSocketConfig implements WebSocketConfigurer {
+
+    @Override
+    public void registerWebSocketHandlers(WebSocketHandlerRegistry registry) {
+        registry.addHandler(myHandler(), &quot;/ws&quot;)
+            .setAllowedOrigins(&quot;*&quot;);
+    }
+
+    @Bean
+    public WebSocketHandler myHandler() {
+        return new MyWebSocketHandler();
+    }
+}
+
+public class MyWebSocketHandler extends TextWebSocketHandler {
+    @Override
+    public void afterConnectionEstablished(WebSocketSession session) {
+        sessions.add(session);
+    }
+
+    @Override
+    protected void handleTextMessage(WebSocketSession session, TextMessage message) {
+        String data = message.getPayload();
+        session.sendMessage(new TextMessage(&quot;收到: &quot; + data));
+    }
+
+    @Override
+    public void afterConnectionClosed(WebSocketSession session, CloseStatus status) {
+        sessions.remove(session);
+    }
+}
+</code></pre>
+<h3 id="132-stomp">13.2 STOMP（推荐用于消息推送）</h3>
+<pre><code class="language-java">@Configuration
+@EnableWebSocketMessageBroker
+public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
+
+    @Override
+    public void configureMessageBroker(MessageBrokerRegistry registry) {
+        registry.enableSimpleBroker(&quot;/topic&quot;, &quot;/queue&quot;);  // 广播/点对点
+        registry.setApplicationDestinationPrefixes(&quot;/app&quot;);
+    }
+
+    @Override
+    public void registerStompEndpoints(StompEndpointRegistry registry) {
+        registry.addEndpoint(&quot;/ws&quot;).setAllowedOrigins(&quot;*&quot;);
+    }
+}
+
+@Controller
+public class ChatController {
+    @MessageMapping(&quot;/chat&quot;)
+    @SendTo(&quot;/topic/messages&quot;)
+    public Message handleMessage(Message message) {
+        return message;
+    }
+}
+</code></pre>
+<hr />
+<h2 id="14">14. 测试</h2>
+<h3 id="141">14.1 分层测试</h3>
+<pre><code class="language-java">// 1. 单元测试（Service）
+@ExtendWith(MockitoExtension.class)
+class UserServiceTest {
+    @Mock
+    private UserRepository userRepository;
+
+    @InjectMocks
+    private UserService userService;
+
+    @Test
+    void findByUsername_returnsUser() {
+        User user = new User(&quot;admin&quot;, &quot;admin@test.com&quot;);
+        when(userRepository.findByUsername(&quot;admin&quot;)).thenReturn(Optional.of(user));
+
+        Optional&lt;User&gt; result = userService.findByUsername(&quot;admin&quot;);
+
+        assertTrue(result.isPresent());
+        assertEquals(&quot;admin&quot;, result.get().getUsername());
+        verify(userRepository, times(1)).findByUsername(&quot;admin&quot;);
+    }
+}
+
+// 2. 集成测试（Controller + Spring Context）
+@SpringBootTest
+@AutoConfigureMockMvc
+class UserControllerTest {
+
+    @Autowired
+    private MockMvc mockMvc;
+
+    @Autowired
+    private ObjectMapper objectMapper;
+
+    @Test
+    void createUser_returns201() throws Exception {
+        UserDTO dto = new UserDTO(&quot;test&quot;, &quot;test@test.com&quot;);
+
+        mockMvc.perform(post(&quot;/api/users&quot;)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(dto)))
+            .andExpect(status().isCreated())
+            .andExpect(jsonPath(&quot;$.username&quot;).value(&quot;test&quot;));
+    }
+
+    @Test
+    void getUser_notFound_returns404() throws Exception {
+        mockMvc.perform(get(&quot;/api/users/9999&quot;))
+            .andExpect(status().isNotFound());
+    }
+}
+
+// 3. Web 层切片测试（@WebMvcTest，仅加载 Controller）
+@WebMvcTest(UserController.class)
+class UserControllerSliceTest {
+    @Autowired
+    private MockMvc mockMvc;
+
+    @MockBean
+    private UserService userService;
+
+    @Test
+    void listUsers() throws Exception {
+        when(userService.listUsers()).thenReturn(List.of(new User(&quot;a&quot;, &quot;a@b.com&quot;)));
+
+        mockMvc.perform(get(&quot;/api/users&quot;))
+            .andExpect(status().isOk())
+            .andExpect(jsonPath(&quot;$[0].username&quot;).value(&quot;a&quot;));
+    }
+}
+
+// 4. Data 层测试
+@DataJpaTest
+class UserRepositoryTest {
+    @Autowired
+    private UserRepository userRepository;
+
+    @Test
+    void findByUsername_returnsUser() {
+        User user = userRepository.save(new User(&quot;findme&quot;, &quot;find@test.com&quot;));
+        Optional&lt;User&gt; found = userRepository.findByUsername(&quot;findme&quot;);
+        assertTrue(found.isPresent());
+        assertEquals(&quot;find@test.com&quot;, found.get().getEmail());
+    }
+}
+
+// 5. 事务测试（自动回滚）
+@DataJpaTest
+class UserRepositoryTransactionTest {
+    @Test
+    void testRollback(@Autowired UserRepository repo) {
+        repo.save(new User(&quot;tx&quot;, &quot;tx@test.com&quot;));
+        // 测试结束后自动回滚，不污染数据库
+    }
+}
+</code></pre>
+<h3 id="142">14.2 测试切片注解</h3>
+<table>
+<thead>
+<tr>
+<th>注解</th>
+<th>加载范围</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>@SpringBootTest</code></td>
+<td>全量（完整应用上下文）</td>
+</tr>
+<tr>
+<td><code>@WebMvcTest(Controller.class)</code></td>
+<td>仅 Controller + MVC 组件</td>
+</tr>
+<tr>
+<td><code>@DataJpaTest</code></td>
+<td>仅 JPA + Repository</td>
+</tr>
+<tr>
+<td><code>@JsonTest</code></td>
+<td>仅 JSON 序列化</td>
+</tr>
+<tr>
+<td><code>@RestClientTest</code></td>
+<td>REST 客户端测试</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="15">15. 部署与生产化</h2>
+<h3 id="151-jar">15.1 构建可执行 Jar</h3>
+<pre><code class="language-xml">&lt;build&gt;
+    &lt;plugins&gt;
+        &lt;plugin&gt;
+            &lt;groupId&gt;org.springframework.boot&lt;/groupId&gt;
+            &lt;artifactId&gt;spring-boot-maven-plugin&lt;/artifactId&gt;
+            &lt;executions&gt;
+                &lt;execution&gt;
+                    &lt;goals&gt;
+                        &lt;goal&gt;repackage&lt;/goal&gt;
+                    &lt;/goals&gt;
+                &lt;/execution&gt;
+            &lt;/executions&gt;
+        &lt;/plugin&gt;
+    &lt;/plugins&gt;
+&lt;/build&gt;
+</code></pre>
+<pre><code class="language-bash"># 构建
+mvn clean package -DskipTests
+
+# 运行
+java -jar target/demo-1.0.0.jar
+java -jar demo.jar --spring.profiles.active=prod
+</code></pre>
+<h3 id="152-docker">15.2 Docker 部署</h3>
+<pre><code class="language-dockerfile">FROM eclipse-temurin:17-jdk-alpine AS build
+WORKDIR app
+COPY pom.xml .
+COPY src ./src
+RUN mvn clean package -DskipTests
+
+FROM eclipse-temurin:17-jre-alpine
+WORKDIR app
+COPY --from=build /app/target/*.jar app.jar
+EXPOSE 8080
+ENTRYPOINT [&quot;java&quot;, &quot;-jar&quot;, &quot;app.jar&quot;]
+</code></pre>
+<h3 id="153-checklist">15.3 生产环境配置 Checklist</h3>
+<pre><code class="language-yaml"># application-prod.yml
+spring:
+  datasource:
+    url: ${DB_URL}
+    username: ${DB_USER}
+    password: ${DB_PASSWORD}
+    hikari:
+      maximum-pool-size: 20
+      minimum-idle: 5
+      connection-timeout: 30000
+      idle-timeout: 600000
+      max-lifetime: 1800000
+
+  jpa:
+    show-sql: false
+    open-in-view: false        # 防止 OSIV
+
+logging:
+  level:
+    root: WARN
+    com.example: INFO
+    org.hibernate.SQL: WARN
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics
+  endpoint:
+    health:
+      show-details: when_authorized
+</code></pre>
+<hr />
+<h2 id="16">16. 性能优化</h2>
+<h3 id="161">16.1 数据库优化</h3>
+<pre><code class="language-java">// 1. 使用分页
+Page&lt;User&gt; findByStatus(Status status, Pageable pageable);
+
+// 2. N+1 解决：@EntityGraph
+@EntityGraph(attributePaths = {&quot;department&quot;, &quot;roles&quot;})
+Optional&lt;User&gt; findByUsername(String username);
+
+// 3. Projections 投影
+public interface UserNameProjection {
+    String getUsername();
+    String getEmail();
+}
+Optional&lt;UserNameProjection&gt; findProjectedByUsername(String username);
+
+// 4. HikariCP 连接池调优
+spring:
+  datasource:
+    hikari:
+      maximum-pool-size: 20
+      minimum-idle: 5
+      connection-timeout: 30000
+</code></pre>
+<h3 id="162">16.2 启动优化</h3>
+<pre><code class="language-java">// 懒加载 Bean
+@SpringBootApplication
+public class Application { ... }
+
+@Bean
+@Lazy
+public MyService myService() { ... }
+
+// 排除不需要的自动配置
+@SpringBootApplication(exclude = {
+    DataSourceAutoConfiguration.class,
+    HibernateJpaAutoConfiguration.class
+})
+</code></pre>
+<h3 id="163">16.3 并发优化</h3>
+<pre><code class="language-java">// 合理使用缓存
+@Cacheable(value = &quot;config&quot;, key = &quot;#key&quot;)
+public Config getConfig(String key) { ... }
+
+// 异步减少响应时间
+@Async
+public CompletableFuture&lt;Result&gt; processAsync(Data data) { ... }
+
+// 连接池
+@Bean
+public RestTemplate restTemplate() {
+    PoolingHttpClientConnectionManager cm = new PoolingHttpClientConnectionManager();
+    cm.setMaxTotal(200);
+    return new RestTemplateBuilder()
+        .setConnectTimeout(Duration.ofSeconds(5))
+        .setReadTimeout(Duration.ofSeconds(30))
+        .build();
+}
+</code></pre>
+<hr />
+<h2 id="17">17. 高频面试题</h2>
+<h3 id="q1spring-boot">Q1：Spring Boot 的自动配置原理？</h3>
+<blockquote>
+<p><strong>第一高频题。</strong> 回答抓住"加载 → 过滤 → 装配"三部曲。</p>
+</blockquote>
+<p>Spring Boot 通过 <code>@EnableAutoConfiguration</code> 触发自动装配：
+1. <code>SpringFactoriesLoader</code> 加载 <code>META-INF/spring.factories</code>
+2. 读取所有 <code>AutoConfiguration</code> 类
+3. 通过 <code>@Conditional*</code> 系列注解过滤
+4. 将满足条件的配置类注册为 Bean</p>
+<p>关键包：<code>spring-boot-autoconfigure</code> 包含大量自动配置类（如 <code>DataSourceAutoConfiguration</code>、<code>WebMvcAutoConfiguration</code>）。</p>
+<h3 id="q2springbootapplication">Q2：@SpringBootApplication 包含哪些注解？</h3>
+<pre><code class="language-java">@SpringBootApplication  // = 三合一
+// @SpringBootConfiguration   -- 继承 @Configuration
+// @EnableAutoConfiguration   -- 启用自动配置
+// @ComponentScan             -- 扫描主类所在包及子包
+</code></pre>
+<h3 id="q3spring-mvc">Q3：Spring MVC 的请求处理流程？</h3>
+<pre><code>请求 → Filter → DispatcherServlet
+  → HandlerMapping 匹配 Controller
+  → HandlerAdapter 执行（经过 Interceptor）
+  → ViewResolver  / @ResponseBody 序列化
+  → Filter → 响应
+</code></pre>
+<h3 id="q4controller-restcontroller">Q4：@Controller 和 @RestController 的区别？</h3>
+<ul>
+<li><code>@Controller</code>：返回视图名，配合 <code>@ResponseBody</code> 可返回数据</li>
+<li><code>@RestController</code> = <code>@Controller</code> + <code>@ResponseBody</code>，直接返回 JSON</li>
+</ul>
+<h3 id="q5spring-boot">Q5：Spring Boot 如何做参数校验？</h3>
+<pre><code class="language-java">// 1. DTO 加校验注解
+public class UserDTO {
+    @NotBlank @Size(min=3, max=20) private String username;
+    @Email private String email;
+}
+
+// 2. Controller 加 @Valid
+@PostMapping(&quot;/users&quot;)
+public User create(@RequestBody @Valid UserDTO dto, BindingResult result) { ... }
+
+// 3. 全局异常处理
+@ExceptionHandler(MethodArgumentNotValidException.class)
+public ApiResponse&lt;Void&gt; handle(MethodArgumentNotValidException e) { ... }
+</code></pre>
+<h3 id="q6spring-boot">Q6：Spring Boot 如何实现事务？</h3>
+<p><strong>声明式事务（最常用）：</strong></p>
+<pre><code class="language-java">@Transactional
+public void transfer(Long from, Long to, BigDecimal amount) {
+    // 异常时自动回滚（默认仅 RuntimeException）
+}
+</code></pre>
+<p><strong>编程式事务：</strong></p>
+<pre><code class="language-java">@Autowired
+private PlatformTransactionManager txManager;
+
+public void transfer(...) {
+    TransactionStatus status = txManager.getTransaction(def);
+    try {
+        // 业务逻辑
+        txManager.commit(status);
+    } catch (Exception e) {
+        txManager.rollback(status);
+        throw e;
+    }
+}
+</code></pre>
+<h3 id="q7spring-security">Q7：Spring Security 的认证流程？</h3>
+<pre><code>请求 → SecurityFilterChain
+  → UsernamePasswordAuthenticationFilter
+  → AuthenticationManager（调用 UserDetailsService）
+  → UserDetailsService.loadUserByUsername()
+  → 验证密码
+  → 返回 Authentication（Principal + Authorities）
+  → SecurityContextHolder 保存
+</code></pre>
+<h3 id="q8jwt-spring-boot">Q8：JWT 在 Spring Boot 中的实现流程？</h3>
+<pre><code>登录 → 验证用户名密码 → JwtService.generateToken(user)
+  → 返回 access_token + refresh_token
+
+后续请求 → Authorization: Bearer &lt;token&gt;
+  → JwtAuthenticationFilter 拦截
+  → JwtService.parseToken(token)
+  → 验证签名和过期时间 → 提取用户信息
+  → SecurityContextHolder.setAuthentication(auth)
+</code></pre>
+<h3 id="q9spring-boot-sql">Q9：Spring Boot 如何防止 SQL 注入？</h3>
+<ul>
+<li><strong>JPA/Spring Data</strong>：自动使用参数化查询</li>
+<li><strong>MyBatis</strong>：使用 <code>#{}</code> 占位符（参数化），避免 <code>${}</code>（直接拼接）
+```xml
+<!-- 安全 -->
+<select id="findById" resultType="User">
+    SELECT * FROM users WHERE id = #{id}
+</select>
+<!-- 危险 -->
+<select id="findById" resultType="User">
+    SELECT * FROM users WHERE id = ${id}
+</select>
+```</li>
+</ul>
+<h3 id="q10mysql-spring">Q10：MySQL 的事务隔离级别在 Spring 中如何配置？</h3>
+<pre><code class="language-java">// 方式1：@Transactional 注解
+@Transactional(isolation = Isolation.REPEATABLE_READ)
+
+// 方式2：配置文件
+spring:
+  jpa:
+    properties:
+      hibernate.connection.isolation: 2  # READ_COMMITTED
+</code></pre>
+<h3 id="q11spring-boot">Q11：Spring Boot 如何做缓存？</h3>
+<pre><code class="language-java">@EnableCaching  // 启动类
+
+@Cacheable(&quot;users&quot;)     // 读取
+@CachePut(&quot;users&quot;)      // 更新
+@CacheEvict(&quot;users&quot;)    // 删除
+
+// 切换实现
+spring.cache.type=redis | caffeine | simple
+</code></pre>
+<h3 id="q12spring-boot">Q12：Spring Boot 如何实现定时任务？</h3>
+<pre><code class="language-java">@SpringBootApplication
+@EnableScheduling
+public class Application { ... }
+
+@Scheduled(cron = &quot;0 0 2 * * *&quot;)
+public void dailyTask() { ... }
+</code></pre>
+<h3 id="q13spring-boot-banner">Q13：Spring Boot 如何自定义启动Banner？</h3>
+<pre><code class="language-yaml"># application.yml
+spring:
+  banner:
+    location: classpath:banner.txt
+
+# 关闭
+spring:
+  main:
+    banner-mode: off
+</code></pre>
+<pre><code class="language-java">// 编程方式
+new SpringApplicationBuilder()
+    .bannerMode(Banner.Mode.OFF)
+    .sources(Application.class)
+    .run(args);
+</code></pre>
+<h3 id="q14spring-boot-actuator">Q14：Spring Boot Actuator 有哪些实用端点？</h3>
+<table>
+<thead>
+<tr>
+<th>端点</th>
+<th>用途</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>/actuator/health</code></td>
+<td>监控应用存活状态</td>
+</tr>
+<tr>
+<td><code>/actuator/metrics</code></td>
+<td>JVM、内存、GC、线程指标</td>
+</tr>
+<tr>
+<td><code>/actuator/info</code></td>
+<td>自定义应用信息</td>
+</tr>
+<tr>
+<td><code>/actuator/beans</code></td>
+<td>所有注册的 Bean</td>
+</tr>
+<tr>
+<td><code>/actuator/env</code></td>
+<td>所有环境变量</td>
+</tr>
+<tr>
+<td><code>/actuator/configprops</code></td>
+<td>所有配置属性</td>
+</tr>
+</tbody>
+</table>
+<h3 id="q15spring-boot-mybatis">Q15：Spring Boot 如何集成 MyBatis？</h3>
+<ol>
+<li>添加依赖：<code>mybatis-spring-boot-starter</code></li>
+<li>配置 <code>mybatis.mapper-locations</code>、<code>mybatis.type-aliases-package</code></li>
+<li><code>@Mapper</code> 注解标记 Mapper 接口</li>
+<li>在启动类加 <code>@MapperScan("包路径")</code></li>
+</ol>
+<h3 id="q16spring-boot-value-configurationproperties">Q16：@Value 和 @ConfigurationProperties 的区别？</h3>
+<table>
+<thead>
+<tr>
+<th>对比项</th>
+<th>@Value</th>
+<th>@ConfigurationProperties</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>类型</td>
+<td>单个值注入</td>
+<td>批量绑定到对象</td>
+</tr>
+<tr>
+<td>松散绑定</td>
+<td>不支持</td>
+<td>支持（maxSize / max-size 均可）</td>
+</tr>
+<tr>
+<td>元数据</td>
+<td>无</td>
+<td>支持 IDE 自动提示</td>
+</tr>
+<tr>
+<td>校验</td>
+<td>需手动加 <code>@Validated</code></td>
+<td>直接加 <code>@Validated</code></td>
+</tr>
+<tr>
+<td>适用场景</td>
+<td>单个简单值</td>
+<td>多相关配置项</td>
+</tr>
+</tbody>
+</table>
+<h3 id="q17spring-boot">Q17：Spring Boot 的启动流程？</h3>
+<pre><code>main() → SpringApplication.run()
+  → createApplicationContext()           创建上下文
+  → prepareEnvironment()                 准备环境
+  → printBanner()                       打印 Banner
+  → refreshContext(context)              *** 核心步骤 ***
+    → invokeBeanFactoryPostProcessors()    调用 BeanFactory 后置处理器
+    → registerBeanPostProcessors()        注册 Bean 后置处理器
+    → initMessageSource()                初始化消息源
+    → initApplicationEventMulticaster()   初始化事件广播器
+    → onRefresh()                        创建内嵌 Web 服务器
+    → registerListeners()                注册监听器
+    → finishBeanFactoryInitialization()   实例化所有非懒加载单例 Bean
+  → callRunners()                        执行 ApplicationRunner / CommandLineRunner
+</code></pre>
+<h3 id="q18-spring-boot">Q18：如何定位 Spring Boot 应用的性能瓶颈？</h3>
+<ol>
+<li><strong>Actuator + Micrometer</strong>：监控接口响应时间</li>
+<li><strong>Profiler</strong>：JVM 性能分析工具</li>
+<li><strong>Arthas</strong>：在线诊断工具，不重启应用</li>
+<li><strong>数据库</strong>：开启慢查询日志，分析 EXPLAIN</li>
+<li><strong>@Timed 注解</strong>：记录方法执行时间</li>
+</ol>
+<hr />
+<h2 id="spring-boot-3x">附录：Spring Boot 3.x 新特性</h2>
+<table>
+<thead>
+<tr>
+<th>特性</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Java 17+ 最低要求</td>
+<td>Spring Boot 3.x 最低 Java 17</td>
+</tr>
+<tr>
+<td>Jakarta EE</td>
+<td>从 <code>javax.*</code> 迁移到 <code>jakarta.*</code></td>
+</tr>
+<tr>
+<td>GraalVM 原生镜像</td>
+<td>支持构建为原生可执行文件（极快启动）</td>
+</tr>
+<tr>
+<td>Spring Security 6.x</td>
+<td>安全配置语法变化（Lambda DSL）</td>
+</tr>
+<tr>
+<td>springdoc-openapi</td>
+<td>替换 springfox（Swagger）</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<blockquote>
+<p><strong>学习建议</strong>：Spring Boot 面试核心围绕三个关键词 -- <strong>自动配置</strong>（原理）、<strong>Web 请求处理</strong>（流程和注解）、<strong>Spring Security</strong>（认证授权）。先理解框架设计哲学（约定大于配置），再深入自动配置原理，最后根据实际项目经验准备深度问题。Spring Boot 3.x 面试还会涉及 GraalVM 原生镜像、Jakarta EE 迁移等新特性。</p>
+<p><strong>与 Python Web 框架的对比</strong>：Java 生态更强调工程化（配置、架构、设计模式）和企业级特性（事务、安全、监控），面试更关注你是否能承担大型项目的架构设计。</p>
+</blockquote>
+
+<script>
+// Scroll spy — highlight active sidebar item
+window.addEventListener('scroll', function() {
+    var links = document.querySelectorAll('.sidebar-toc a');
+    var scrollY = window.scrollY + 120;
+    var current = '';
+    for (var i = links.length - 1; i >= 0; i--) {
+        var target = document.getElementById(links[i].getAttribute('href').slice(1));
+        if (target && target.offsetTop <= scrollY) {
+            current = links[i];
+            break;
+        }
+    }
+    links.forEach(function(a) { a.style.fontWeight = 'normal'; a.style.color = '#555'; });
+    if (current) { current.style.fontWeight = 'bold'; current.style.color = '#0366d6'; }
+});
+</script>
+
+
+<script>
+document.querySelectorAll('pre > code').forEach(function(codeBlock, i) {
+    var pre = codeBlock.parentNode;
+    pre.style.position = 'relative';
+    var btn = document.createElement('button');
+    btn.className = 'copy-btn';
+    btn.textContent = '复制';
+    pre.appendChild(btn);
+    btn.addEventListener('click', function() {
+        var text = codeBlock.textContent;
+        navigator.clipboard.writeText(text).then(function() {
+            btn.textContent = '已复制';
+            btn.classList.add('copied');
+            setTimeout(function() {
+                btn.textContent = '复制';
+                btn.classList.remove('copied');
+            }, 2000);
+        }).catch(function() {
+            // Fallback
+            var ta = document.createElement('textarea');
+            ta.value = text; ta.style.position = 'fixed'; ta.style.opacity = '0';
+            document.body.appendChild(ta); ta.select();
+            document.execCommand('copy'); document.body.removeChild(ta);
+            btn.textContent = '已复制'; btn.classList.add('copied');
+            setTimeout(function() { btn.textContent = '复制'; btn.classList.remove('copied'); }, 2000);
+        });
+    });
+});
+</script>
+
+
+<script>document.querySelectorAll("pre>code").forEach(function(c){var p=c.parentNode;p.style.position="relative";var b=document.createElement("button");b.className="copy-btn";b.textContent="复制";p.appendChild(b);b.addEventListener("click",function(){var t=c.textContent;navigator.clipboard.writeText(t).then(function(){b.textContent="已复制";b.classList.add("copied");setTimeout(function(){b.textContent="复制";b.classList.remove("copied")},2000)}).catch(function(){var a=document.createElement("textarea");a.value=t;a.style.position="fixed";a.style.opacity="0";document.body.appendChild(a);a.select();document.execCommand("copy");document.body.removeChild(a);b.textContent="已复制";b.classList.add("copied");setTimeout(function(){b.textContent="复制";b.classList.remove("copied")},2000)})})})</script>
+</body>
+</html>

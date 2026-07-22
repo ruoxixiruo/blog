@@ -1,0 +1,1183 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>FastAPI学习文档</title>
+<style>
+body {
+    transition: margin-left .25s ease;
+    font-family: -apple-system, "Noto Sans SC", "Microsoft YaHei", sans-serif;
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 20px 24px 60px;
+    line-height: 1.8;
+    color: #333;
+    background: #fff;
+}
+h1 { border-bottom: 2px solid #eee; padding-bottom: 10px; color: #222; }
+h2 { color: #333; margin-top: 32px; }
+h3 { color: #555; }
+a { color: #0366d6; text-decoration: none; }
+a:hover { text-decoration: underline; }
+pre {
+    background: #f6f8fa;
+    border-radius: 6px;
+    padding: 16px;
+    overflow-x: auto;
+    font-size: 14px;
+    line-height: 1.45;
+}
+code {
+    background: #f0f2f4;
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-size: 14px;
+}
+pre code { background: none; padding: 0; }
+blockquote {
+    border-left: 4px solid #ddd;
+    margin: 0;
+    padding: 0 16px;
+    color: #666;
+}
+table {
+    border-collapse: collapse;
+    width: 100%;
+    margin: 16px 0;
+}
+th, td {
+    border: 1px solid #ddd;
+    padding: 8px 12px;
+    text-align: left;
+}
+th { background: #f6f8fa; }
+img { max-width: 100%; }
+.back-link {
+    margin-bottom: 20px;
+    display: block;
+    color: #666;
+}
+.back-link:hover { color: #0366d6; }
+
+.sidebar-toc {
+    transition: left .25s ease;
+    position: fixed;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    width: 220px;
+    background: #f8f9fa;
+    border-right: 1px solid #e9ecef;
+    padding: 20px 0;
+    overflow-y: auto;
+    font-size: 13px;
+    z-index: 100;
+}
+.sidebar-toc a {
+    display: block;
+    padding: 6px 16px;
+    color: #555;
+    text-decoration: none;
+    border-left: 3px solid transparent;
+    line-height: 1.5;
+}
+.sidebar-toc a:hover {
+    background: #e9ecef;
+    color: #0366d6;
+    border-left-color: #0366d6;
+}
+.sidebar-toc .toc-h2 { padding-left: 16px; font-weight: 500; }
+.sidebar-toc .toc-h3 { padding-left: 32px; font-size: 12px; }
+body { margin-left: 240px; }
+
+
+.copy-btn {
+    position: absolute; top: 6px; right: 6px;
+    background: #e9ecef; border: none;
+    border-radius: 4px; padding: 3px 10px;
+    font-size: 12px; color: #555; cursor: pointer;
+    opacity: 0; transition: opacity 0.2s;
+    z-index: 1;
+}
+pre:hover .copy-btn { opacity: 1; }
+.copy-btn:hover { background: #d0d7de; }
+.copy-btn.copied { opacity: 1; background: #2da44e; color: #fff; }
+.copy-btn{position:absolute;top:6px;right:6px;background:#e9ecef;border:none;border-radius:4px;padding:3px 10px;font-size:12px;color:#555;cursor:pointer;opacity:0;transition:opacity .2s;z-index:1}pre:hover .copy-btn{opacity:1}.copy-btn:hover{background:#d0d7de}.copy-btn.copied{opacity:1;background:#2da44e;color:#fff}
+.copy-btn{position:absolute;top:6px;right:6px;background:#e9ecef;border:none;border-radius:4px;padding:3px 10px;font-size:12px;color:#555;cursor:pointer;opacity:0;transition:opacity .2s;z-index:1}pre:hover .copy-btn{opacity:1}.copy-btn:hover{background:#d0d7de}.copy-btn.copied{opacity:1;background:#2da44e;color:#fff}
+.copy-btn{position:absolute;top:6px;right:6px;background:#e9ecef;border:none;border-radius:4px;padding:3px 10px;font-size:12px;color:#555;cursor:pointer;opacity:0;transition:opacity .2s;z-index:1}pre:hover .copy-btn{opacity:1}.copy-btn:hover{background:#d0d7de}.copy-btn.copied{opacity:1;background:#2da44e;color:#fff}
+.sidebar-toggle-btn {
+  position: fixed;
+  left: 220px;
+  top: 0;
+  width: 28px;
+  height: 40px;
+  background: #f8f9fa;
+  border: 1px solid #e9ecef;
+  border-left: none;
+  border-radius: 0 4px 4px 0;
+  cursor: pointer;
+  font-size: 16px;
+  color: #555;
+  z-index: 101;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: left .25s, background .2s;
+  padding: 0;
+  line-height: 1;
+}
+.sidebar-toggle-btn:hover { background: #e9ecef; color: #0366d6; }
+.sidebar-collapsed .sidebar-toc { left: -220px; }
+.sidebar-collapsed .sidebar-toggle-btn { left: 0; }
+.sidebar-collapsed body, body.sidebar-collapsed { margin-left: 28px; }
+.sidebar-overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,.3);
+  z-index: 99;
+}
+@media (max-width: 768px) {
+  .sidebar-collapsed .sidebar-overlay { display: none; }
+  .sidebar-toc { left: -220px; }
+  .sidebar-toggle-btn { left: 0; }
+  body { margin-left: 28px; }
+}
+
+</style>
+</head>
+</head>
+<body>
+<nav class="sidebar-toc"><a class="toc-h2" href="#1-fastapi">1. FastAPI 核心定位</a><a class="toc-h2" href="#2-3">2. 快速起步</a><a class="toc-h2" href="#3-request-lifecycle">3. 请求生命周期</a><a class="toc-h2" href="#3_1">4. 三种参数（路径 / 查询 / 请求体）</a><a class="toc-h3" href="#31-path-parameter-url">4.1 路径参数</a><a class="toc-h3" href="#32-query-parameter-url">4.2 查询参数</a><a class="toc-h3" href="#33-request-body-postput-json">4.3 请求体</a><a class="toc-h3" href="#34">4.4 三种参数混用</a><a class="toc-h3" href="#_8">参数速查图</a><a class="toc-h2" href="#4-pydantic">5. Pydantic：类型即校验</a><a class="toc-h3" href="#41-field">5.1 Field 基础校验</a><a class="toc-h3" href="#42-json">5.2 嵌套模型</a><a class="toc-h3" href="#43-response_model">5.3 response_model 出参过滤</a><a class="toc-h3" href="#44-field">5.4 Field 约束速查表</a><a class="toc-h2" href="#5-fastapi">6. 依赖注入</a><a class="toc-h3" href="#51">6.1 公共参数复用</a><a class="toc-h3" href="#52">6.2 数据库连接管理</a><a class="toc-h3" href="#53">6.3 认证依赖</a><a class="toc-h3" href="#54">6.4 依赖嵌套</a><a class="toc-h2" href="#6-sqlalchemy">7. 数据库操作（异步 SQLAlchemy）</a><a class="toc-h3" href="#61">7.1 数据模型</a><a class="toc-h3" href="#62-schema">7.2 Schema 校验层</a><a class="toc-h3" href="#63-crud">7.3 完整 CRUD</a><a class="toc-h2" href="#7-jwt">8. JWT 登录认证</a><a class="toc-h3" href="#71-jwt">8.1 JWT 工具代码</a><a class="toc-h3" href="#72">8.2 登录 + 受保护接口</a><a class="toc-h2" href="#8">9. 中间件 &amp; 异常处理</a><a class="toc-h3" href="#81">9.1 请求计时中间件</a><a class="toc-h3" href="#82-cors">9.2 CORS 跨域</a><a class="toc-h3" href="#83">9.3 统一异常处理</a><a class="toc-h3" href="#84">9.4 路由分组</a><a class="toc-h2" href="#9-20">10. 面试高频 20 问</a><a class="toc-h3" href="#_13">基础概念</a><a class="toc-h3" href="#pydantic">Pydantic &amp; 校验</a><a class="toc-h3" href="#_14">依赖注入</a><a class="toc-h3" href="#_15">数据库 &amp; 异步</a><a class="toc-h3" href="#_16">生产环境</a><a class="toc-h3" href="#_17">对比 &amp; 场景</a><a class="toc-h2" href="#10">11. 面试话术模板</a><a class="toc-h2" href="#a">附录A：项目结构模板</a><a class="toc-h2" href="#b">附录B：常用依赖</a><a class="toc-h2" href="#c">附录C：学习路线图</a></nav>
+<button class="sidebar-toggle-btn" onclick="toggleSidebar()" title="切换侧栏">☰</button>
+
+<div class="sidebar-overlay" onclick="toggleSidebar()"></div>
+
+<script>
+function toggleSidebar() {
+  document.body.classList.toggle('sidebar-collapsed');
+  try { localStorage.setItem('sidebarCollapsed', document.body.classList.contains('sidebar-collapsed')); } catch(e) {}
+}
+(function() {
+  try {
+    if (localStorage.getItem('sidebarCollapsed') === 'true') {
+      document.body.classList.add('sidebar-collapsed');
+    }
+  } catch(e) {}
+})();
+</script>
+<a class="back-link" href="/blog/2026/05/16/面试题/面试题/">← 返回面试题目录</a>
+<h1 id=page-title>FastAPI学习文档</h1>
+<blockquote>
+<p><strong>副标题：Python 选手的面试外挂——没写过 FastAPI？读完这篇你能聊到面试官以为你用了两年</strong></p>
+<p>收拾于 2026-06-14 | 目标：零基础起步，一天速成，面试问到 FastAPI 不虚</p>
+</blockquote>
+<hr />
+
+<h2 id="1-fastapi">1. FastAPI 核心定位</h2>
+
+<p>FastAPI 是一个现代 Python Web 框架，专为构建 API 设计。三大核心卖点：</p>
+<ul>
+<li><strong>自动文档</strong>：写完接口即生成 Swagger UI（/docs）和 ReDoc（/redoc），可在线交互测试。</li>
+<li><strong>类型即校验</strong>：用 Python 类型提示声明参数 → Pydantic 自动校验 → 不合法直接返回 422 + 详细错误。</li>
+<li><strong>原生异步</strong>：async/await 语法糖，单线程处理上千并发，性能逼近 Node/Go。</li>
+</ul>
+
+<h3>和 Flask / Django 对比</h3>
+<table>
+<thead>
+<tr>
+<th>特性</th>
+<th>Flask</th>
+<th>Django</th>
+<th>FastAPI</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>类型</td>
+<td>微框架（极简）</td>
+<td>全栈框架（笨重）</td>
+<td>现代异步框架</td>
+</tr>
+<tr>
+<td>异步支持</td>
+<td>需插件</td>
+<td>半吊子</td>
+<td>原生 async/await</td>
+</tr>
+<tr>
+<td>自动文档</td>
+<td>需手写</td>
+<td>需装 DRF</td>
+<td>自带 Swagger / ReDoc</td>
+</tr>
+<tr>
+<td>数据校验</td>
+<td>手动</td>
+<td>手动</td>
+<td>Pydantic 自动</td>
+</tr>
+<tr>
+<td>性能</td>
+<td>一般</td>
+<td>一般</td>
+<td>逼近 Node/Go</td>
+</tr>
+<tr>
+<td>学习曲线</td>
+<td>低</td>
+<td>高</td>
+<td>低</td>
+</tr>
+</tbody>
+</table>
+
+<h3>面试必提的 3 个亮点</h3>
+<pre><code>亮点1：自动 API 文档
+  → 写完接口打开 /docs，Swagger UI 自动生成
+  → 前端可在线调试，告别"接口参数是什么格式"的沟通成本
+
+亮点2：类型即校验
+  → def create(user: User) → 入参不符合 User 定义？
+  → 自动返回 422 + 逐字段错误详情，一行校验代码都不用写
+
+亮点3：原生异步
+  → async/await 协程，单线程处理上千并发
+  → 底层 Starlette + Uvicorn，单机 8 核纯 CRUD 轻松过万 QPS</code></pre>
+
+<blockquote>
+<p><strong>面试话术</strong>："FastAPI 三个核心能力——自动文档省沟通成本、Pydantic 校验省代码量、原生异步提性能。和 Flask 比，它更适合高并发 API；和 Django 比，它更轻量、学习成本更低。"</p>
+</blockquote>
+<hr />
+
+<h2 id="2-3">2. 快速起步</h2>
+
+<h3>安装</h3>
+<pre><code class="language-bash">pip install fastapi uvicorn</code></pre>
+
+<h3>Hello World</h3>
+<pre><code class="language-python"># main.py
+from fastapi import FastAPI
+
+app = FastAPI(title="我的第一个 API", version="1.0.0")
+
+@app.get("/")
+def root():
+    return {"message": "Hello World"}
+
+@app.get("/hello/{name}")
+def hello(name: str):
+    return {"greeting": f"你好, {name}!"}</code></pre>
+
+<h3>启动</h3>
+<pre><code class="language-bash">uvicorn main:app --reload --port 8000</code></pre>
+
+<h3>验证</h3>
+<pre><code>http://localhost:8000              → {"message": "Hello World"}
+http://localhost:8000/hello/张三    → {"greeting": "你好, 张三!"}
+
+http://localhost:8000/docs          → Swagger UI（可在线调接口）
+http://localhost:8000/redoc         → ReDoc 文档风格</code></pre>
+
+<blockquote>
+<p><strong>面试小心机</strong>：带着电脑打开 <code>/docs</code> 展示 Swagger UI——能交互的 API 文档是最直观的冲击力。</p>
+</blockquote>
+<hr />
+
+<h2 id="3-request-lifecycle">3. FastAPI 请求生命周期</h2>
+
+<p>理解一个 HTTP 请求从进来到出去的完整流程，是区分"会用"和"真懂"的分水岭。</p>
+
+<pre><code>
+                    FastAPI 请求生命周期
+===========================================================
+
+  客户端                    FastAPI 服务端
+    |                           |
+    |  GET /users/1?page=1      |
+    |--------------------------&gt;|
+    |                           |
+    |                    ┌──────┴──────┐
+    |                    │  Middleware  │  ← 中间件层（CORS, 计时, 日志）
+    |                    └──────┬──────┘
+    |                           |
+    |                    ┌──────┴──────┐
+    |                    │   路由匹配   │  ← 匹配 @app.get("/users/{user_id}")
+    |                    └──────┬──────┘
+    |                           |
+    |                    ┌──────┴──────┐
+    |                    │  依赖解析    │  ← Depends(get_db), Depends(get_current_user)
+    |                    │  (嵌套执行)  │     嵌套依赖按拓扑序依次执行
+    |                    └──────┬──────┘
+    |                           |
+    |                    ┌──────┴──────┐
+    |                    │  参数解析    │  ← 路径参数 {user_id} → int
+    |                    │  + 校验      │     查询参数 page → int
+    |                    │  (Pydantic)  │     不合法 → 立即 422
+    |                    └──────┬──────┘
+    |                           |
+    |                    ┌──────┴──────┐
+    |                    │  业务逻辑    │  ← 你的函数体
+    |                    │  (端点函数)  │     async def get_user(...)
+    |                    └──────┬──────┘
+    |                           |
+    |                    ┌──────┴──────┐
+    |                    │  响应处理    │  ← response_model 过滤字段
+    |                    │  (序列化)    │     dict/ORM对象 → JSON
+    |                    └──────┬──────┘
+    |                           |
+    |                    ┌──────┴──────┐
+    |                    │  依赖清理    │  ← yield 后的 finally 块
+    |                    │  (释放资源)  │     关闭 DB 连接等
+    |                    └──────┬──────┘
+    |                           |
+    |  200 OK  {"id":1,...}    |
+    |&lt;--------------------------|
+    |                           |
+
+关键时序：
+  Middleware.in  →  依赖执行  →  参数校验  →  端点函数  →  响应序列化  →  依赖清理  →  Middleware.out</code></pre>
+
+<blockquote>
+<p><strong>面试话术</strong>："FastAPI 的请求处理是分层的——中间件先拦截，接着解析路由、执行依赖链、校验参数，然后才进入业务函数。响应阶段用 response_model 过滤字段，最后在依赖的 finally 块里释放资源。这套流程保证了每个请求的资源生命周期是确定性的。"</p>
+</blockquote>
+<hr />
+
+<h2 id="3_1">4. 三种参数（路径 / 查询 / 请求体）</h2>
+
+<p>FastAPI 根据参数声明位置自动判断参数类型，无需注解。</p>
+
+<h3 id="31-path-parameter-url">4.1 路径参数 Path Parameter</h3>
+<pre><code class="language-python"># {user_id} 写在 URL 路径里 → 路径参数
+@app.get("/users/{user_id}")
+def get_user(user_id: int):          # 声明类型 = 自动校验
+    return {"user_id": user_id}
+
+# GET /users/abc  → 422（"abc" 不是 int）
+# GET /users/123  → {"user_id": 123}
+
+# 枚举约束
+from enum import Enum
+
+class Category(str, Enum):
+    phone = "phone"
+    laptop = "laptop"
+
+@app.get("/products/{category}")
+def list_products(category: Category):
+    return {"category": category}
+
+# GET /products/tablet  → 422（不在枚举里）
+# GET /products/phone   → {"category": "phone"}</code></pre>
+
+<h3 id="32-query-parameter-url">4.2 查询参数 Query Parameter</h3>
+<pre><code class="language-python"># 不在路径里的函数参数 → 自动当作查询参数
+@app.get("/search")
+def search(
+    keyword: str,                     # 必填
+    page: int = 1,                    # 有默认值 → 选填
+    size: int = 20,                   # 有默认值 → 选填
+    sort: str | None = None           # Optional → 选填
+):
+    return {"keyword": keyword, "page": page, "size": size, "sort": sort}
+
+# GET /search?keyword=手机              → page=1, size=20, sort=null
+# GET /search?keyword=手机&page=2&size=10 → 参数全覆盖</code></pre>
+
+<h3 id="33-request-body-postput-json">4.3 请求体 Request Body</h3>
+<pre><code class="language-python">from pydantic import BaseModel
+
+class ProductCreate(BaseModel):
+    name: str
+    price: float
+    stock: int = 0
+    tags: list[str] = []
+
+@app.post("/products")
+def create_product(product: ProductCreate):   # Pydantic 模型 → 请求体
+    return {"created": product.name, "price": product.price}
+
+# POST /products  Body: {"name": "iPhone", "price": 9999}
+# → {"created": "iPhone", "price": 9999.0}
+
+# POST /products  Body: {"name": "iPhone"}   ← 缺少 price
+# → 422: price field required（逐字段报错）</code></pre>
+
+<h3 id="34">4.4 三种参数混用</h3>
+<pre><code class="language-python">@app.put("/products/{product_id}")              # 路径参数：product_id
+def update_product(
+    product_id: int,                            # ← 路径里捕获
+    product: ProductCreate,                     # ← 请求体（Pydantic = body）
+    force: bool = False                         # ← 查询参数
+):
+    return {
+        "product_id": product_id,
+        "update": product.name,
+        "force": force
+    }
+
+# PUT /products/123?force=true
+# Body: {"name": "iPhone 15", "price": 7999}</code></pre>
+
+<h3 id="_8">参数速查图</h3>
+<pre><code>URL:  GET /products/123?page=1&size=10
+          ───────── ──  ─────────────
+          路径参数   路径  查询参数
+
+POST /products
+Body: {"name": "iPhone", "price": 9999}
+      ─────────────────────────────────
+                  请求体</code></pre>
+<hr />
+
+<h2 id="4-pydantic">5. Pydantic：类型即校验</h2>
+
+<p>Pydantic 在 FastAPI 中承担双重角色：入参校验 + 出参过滤。你写一个 Pydantic 模型，FastAPI 自动用它校验请求体，不符合返回 422 + 逐字段错误；同时所有约束会自动生成到 Swagger 文档。</p>
+
+<h3 id="41-field">5.1 Field 基础校验</h3>
+<pre><code class="language-python">from pydantic import BaseModel, Field
+
+class UserCreate(BaseModel):
+    name: str = Field(..., min_length=2, max_length=50, description="用户名")
+    age: int = Field(ge=18, le=120, description="年龄")
+    email: str = Field(..., pattern=r"^\S+@\S+\.\S+$", description="邮箱")
+    score: float = Field(default=0.0, ge=0, le=100)
+    tags: list[str] = Field(
+        default_factory=list,
+        max_length=10,
+        description="标签列表"
+    )
+
+# 请求体不符合？→ 422，逐字段错误详情
+# 去 /docs 看 Swagger？→ 所有字段说明、约束、示例自动展示</code></pre>
+
+<h3 id="42-json">5.2 嵌套模型</h3>
+<pre><code class="language-python">class Address(BaseModel):
+    city: str
+    street: str
+    zip_code: str
+
+class UserFull(BaseModel):
+    name: str
+    address: Address          # 嵌套对象
+    addresses: list[Address]  # 嵌套对象数组
+
+# 请求体示例：
+# {
+#   "name": "张三",
+#   "address": {"city": "北京", "street": "长安街", "zip_code": "100000"},
+#   "addresses": [...]
+# }</code></pre>
+
+<h3 id="43-response_model">5.3 response_model 出参过滤</h3>
+<pre><code class="language-python">class UserInDB(BaseModel):
+    id: int
+    name: str
+    password_hash: str       # 数据库里有，绝不能返回给前端
+
+class UserOut(BaseModel):
+    id: int
+    name: str
+    # 没有 password_hash → 接口响应里不会出现
+
+@app.get("/users/{user_id}", response_model=UserOut)
+def get_user(user_id: int):
+    user = UserInDB(id=1, name="张三", password_hash="xxx")
+    return user
+    # FastAPI 自动过滤 password_hash，只返回 UserOut 定义的字段</code></pre>
+
+<blockquote>
+<p><strong>面试话术</strong>："Pydantic 在 FastAPI 里是双重角色——入参校验 + 出参过滤。response_model 自动过滤敏感字段，Field 约束配合 Swagger 自动生成文档，前后端协作体验极好。"</p>
+</blockquote>
+
+<h3 id="44-field">5.4 Field 约束速查表</h3>
+<table>
+<thead>
+<tr>
+<th>约束</th>
+<th>示例</th>
+<th>作用</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>min_length / max_length</code></td>
+<td><code>Field(min_length=2)</code></td>
+<td>字符串长度限制</td>
+</tr>
+<tr>
+<td><code>ge / le / gt / lt</code></td>
+<td><code>Field(ge=0, le=100)</code></td>
+<td>数值范围（>=, <=, >, <）</td>
+</tr>
+<tr>
+<td><code>pattern</code></td>
+<td><code>Field(pattern=r"^1[3-9]\d{9}$")</code></td>
+<td>正则校验</td>
+</tr>
+<tr>
+<td><code>default / default_factory</code></td>
+<td><code>Field(default_factory=list)</code></td>
+<td>默认值</td>
+</tr>
+<tr>
+<td><code>description</code></td>
+<td><code>Field(description="用户名")</code></td>
+<td>Swagger 文档说明</td>
+</tr>
+<tr>
+<td><code>example</code></td>
+<td><code>Field(examples=["张三"])</code></td>
+<td>Swagger 示例值</td>
+</tr>
+</tbody>
+</table>
+<hr />
+
+<h2 id="5-fastapi">6. 依赖注入</h2>
+
+<p>FastAPI 的依赖注入系统将公共逻辑（鉴权、DB 连接、参数校验）抽成可复用函数，通过 <code>Depends()</code> 自动执行并注入结果。支持 yield 管理资源生命周期，支持嵌套依赖链。</p>
+
+<h3>依赖注入执行流程</h3>
+<pre><code>
+                   FastAPI 依赖注入流程
+===========================================================
+
+  请求进入
+      |
+      v
+  ┌───────────────────────────────────────┐
+  │  FastAPI 分析端点函数签名              │
+  │  发现 Depends(get_db)                 │
+  │  发现 Depends(get_current_user)       │
+  └───────────────────┬───────────────────┘
+                      |
+                      v
+  ┌───────────────────────────────────────┐
+  │  构建依赖图（Dependency Graph）        │
+  │                                       │
+  │  get_db ──────────┐                   │
+  │                   │                   │
+  │  get_current_user─┼── 依赖 db         │
+  │                   │                   │
+  │  端点函数 ────────┼── 依赖 db + user  │
+  └───────────────────┬───────────────────┘
+                      |
+                      v
+  ┌───────────────────────────────────────┐
+  │  按拓扑序执行依赖（子依赖先执行）      │
+  │                                       │
+  │  1. get_db()       → 创建 DB 会话     │
+  │  2. get_current_user(db) → 解析 Token │
+  │  3. 端点函数(db, user)  → 执行业务    │
+  └───────────────────┬───────────────────┘
+                      |
+                      v
+  ┌───────────────────────────────────────┐
+  │  响应返回后，逆序执行清理              │
+  │                                       │
+  │  1. 端点清理                          │
+  │  2. get_current_user finally          │
+  │  3. get_db finally → 关闭 DB 连接     │
+  └───────────────────────────────────────┘
+                      |
+                      v
+                  响应返回
+
+  关键点：
+  - 同一请求内，同一依赖只执行一次（结果缓存）
+  - yield 之前的代码在请求时执行，finally 在响应后执行
+  - 依赖图自动检测循环依赖，报错提示</code></pre>
+
+<h3 id="51">6.1 公共参数复用</h3>
+<pre><code class="language-python">from fastapi import Depends
+
+def common_params(page: int = 1, size: int = 20):
+    return {"page": page, "size": size}
+
+@app.get("/products")
+def list_products(params: dict = Depends(common_params)):
+    return params  # {"page": 1, "size": 20}
+
+@app.get("/orders")
+def list_orders(params: dict = Depends(common_params)):
+    return params  # 同一个依赖复用，不写重复代码</code></pre>
+
+<h3 id="52">6.2 数据库连接管理</h3>
+<pre><code class="language-python"># database.py
+from sqlalchemy.ext.asyncio import create_async_engine, AsyncSession, async_sessionmaker
+
+DATABASE_URL = "sqlite+aiosqlite:///./test.db"
+engine = create_async_engine(DATABASE_URL)
+AsyncSessionLocal = async_sessionmaker(engine, expire_on_commit=False)
+
+async def get_db():
+    async with AsyncSessionLocal() as session:
+        try:
+            yield session           # 把连接"借"给业务代码
+        finally:
+            await session.close()   # 请求结束自动关闭
+
+# main.py
+@app.get("/users")
+async def get_users(db: AsyncSession = Depends(get_db)):
+    result = await db.execute(select(UserModel))
+    return result.scalars().all()
+    # 连接创建和关闭全自动</code></pre>
+
+<h3 id="53">6.3 认证依赖</h3>
+<pre><code class="language-python">from fastapi import Header, HTTPException
+
+async def get_current_user(token: str = Header(alias="Authorization")):
+    if not token.startswith("Bearer "):
+        raise HTTPException(status_code=401, detail="未登录")
+    user = decode_token(token[7:])
+    if user is None:
+        raise HTTPException(status_code=401, detail="Token 无效")
+    return user
+
+@app.get("/me")
+async def read_me(current_user = Depends(get_current_user)):
+    return {"user": current_user}
+
+# 20 个需要登录的接口？每个加一句 Depends(get_current_user) 即可</code></pre>
+
+<h3 id="54">6.4 依赖嵌套</h3>
+<pre><code class="language-python"># get_db → get_current_user(依赖 db) → 业务函数(依赖 user)
+# 依赖可以层层嵌套，FastAPI 自动按拓扑序解套，结果注入下一层</code></pre>
+
+<blockquote>
+<p><strong>面试话术</strong>："FastAPI 的依赖注入系统是我最喜欢的特性。用 Depends 把鉴权、DB 连接、参数校验等公共逻辑抽成可复用函数，yield 管理资源释放。和 Flask 装饰器、Django 中间件比，依赖注入更灵活——可在函数级别精确控制，还支持嵌套依赖链。"</p>
+</blockquote>
+<hr />
+
+<h2 id="6-sqlalchemy">7. 数据库操作（异步 SQLAlchemy）</h2>
+
+<p>SQLAlchemy 2.0 异步模式通过 <code>create_async_engine</code> + <code>AsyncSession</code> 实现非阻塞数据库访问。FastAPI 用 <code>Depends</code> 注入 session，请求结束自动关闭。</p>
+
+<h3 id="61">7.1 数据模型</h3>
+<pre><code class="language-python"># models.py
+from sqlalchemy import Column, Integer, String, Float, DateTime
+from sqlalchemy.ext.declarative import declarative_base
+import datetime
+
+Base = declarative_base()
+
+class Product(Base):
+    __tablename__ = "products"
+
+    id = Column(Integer, primary_key=True, index=True)
+    name = Column(String(100), nullable=False)
+    price = Column(Float, nullable=False)
+    stock = Column(Integer, default=0)
+    created_at = Column(DateTime, default=datetime.datetime.utcnow)</code></pre>
+
+<h3 id="62-schema">7.2 Schema 校验层</h3>
+<pre><code class="language-python"># schemas.py
+from pydantic import BaseModel
+from datetime import datetime
+
+class ProductCreate(BaseModel):
+    name: str
+    price: float
+    stock: int = 0
+
+class ProductResponse(BaseModel):
+    id: int
+    name: str
+    price: float
+    stock: int
+    created_at: datetime
+
+    class Config:
+        from_attributes = True    # ORM 对象 → Pydantic 对象</code></pre>
+
+<h3 id="63-crud">7.3 完整 CRUD</h3>
+<pre><code class="language-python"># main.py
+from fastapi import FastAPI, Depends, HTTPException
+from sqlalchemy import select
+from sqlalchemy.ext.asyncio import AsyncSession
+
+app = FastAPI()
+
+@app.post("/products", response_model=ProductResponse, status_code=201)
+async def create_product(product: ProductCreate, db: AsyncSession = Depends(get_db)):
+    db_product = Product(**product.model_dump())
+    db.add(db_product)
+    await db.commit()
+    await db.refresh(db_product)
+    return db_product
+
+@app.get("/products", response_model=list[ProductResponse])
+async def list_products(
+    skip: int = 0,
+    limit: int = 20,
+    db: AsyncSession = Depends(get_db)
+):
+    result = await db.execute(select(Product).offset(skip).limit(limit))
+    return result.scalars().all()
+
+@app.get("/products/{product_id}", response_model=ProductResponse)
+async def get_product(product_id: int, db: AsyncSession = Depends(get_db)):
+    result = await db.execute(select(Product).where(Product.id == product_id))
+    product = result.scalar_one_or_none()
+    if not product:
+        raise HTTPException(status_code=404, detail="商品不存在")
+    return product
+
+@app.put("/products/{product_id}", response_model=ProductResponse)
+async def update_product(
+    product_id: int,
+    product: ProductCreate,
+    db: AsyncSession = Depends(get_db)
+):
+    result = await db.execute(select(Product).where(Product.id == product_id))
+    db_product = result.scalar_one_or_none()
+    if not db_product:
+        raise HTTPException(status_code=404, detail="商品不存在")
+    for key, value in product.model_dump().items():
+        setattr(db_product, key, value)
+    await db.commit()
+    await db.refresh(db_product)
+    return db_product
+
+@app.delete("/products/{product_id}", status_code=204)
+async def delete_product(product_id: int, db: AsyncSession = Depends(get_db)):
+    result = await db.execute(select(Product).where(Product.id == product_id))
+    product = result.scalar_one_or_none()
+    if not product:
+        raise HTTPException(status_code=404, detail="商品不存在")
+    await db.delete(product)
+    await db.commit()
+    return None</code></pre>
+
+<blockquote>
+<p>打开 <code>http://localhost:8000/docs</code> —— 5 个接口全都能直接在 Swagger 页面测试。</p>
+</blockquote>
+<hr />
+
+<h2 id="7-jwt">8. JWT 登录认证</h2>
+
+<p>JWT（JSON Web Token）是无状态认证方案：登录成功后签发 Token，后续请求携带 Token 即可识别用户身份，无需服务端存储 Session。</p>
+
+<h3>JWT 认证流程</h3>
+<pre><code>
+                      JWT 认证流程
+===========================================================
+
+  客户端                              FastAPI 服务端
+    |                                      |
+    |                                      |
+    |  [注册/登录]                          |
+    |                                      |
+    |  POST /login                         |
+    |  Body: {username, password}          |
+    |-------------------------------------&gt;|
+    |                                      |
+    |                    ┌─────────────────┴─────────────────┐
+    |                    │  1. 查数据库，验证用户名密码        │
+    |                    │  2. passlib.verify(明文, 哈希)     │
+    |                    │  3. 失败 → 401                    │
+    |                    │  4. 成功 → 签发 JWT                │
+    |                    │     Header:  {"alg": "HS256"}     │
+    |                    │     Payload: {"sub": user_id,     │
+    |                    │               "exp": 过期时间}     │
+    |                    │     Signature: HMAC-SHA256        │
+    |                    └─────────────────┬─────────────────┘
+    |                                      |
+    |  200 OK                              |
+    |  {"access_token": "eyJ...",          |
+    |   "token_type": "bearer"}            |
+    |&lt;-------------------------------------|
+    |                                      |
+    |  [后续请求 — 携带 Token]              |
+    |                                      |
+    |  GET /me                             |
+    |  Authorization: Bearer eyJ...        |
+    |-------------------------------------&gt;|
+    |                                      |
+    |                    ┌─────────────────┴─────────────────┐
+    |                    │  1. OAuth2PasswordBearer 提取 Token│
+    |                    │  2. jwt.decode(Token, SECRET_KEY)  │
+    |                    │  3. 校验 exp（过期时间）            │
+    |                    │  4. 提取 payload["sub"] → user_id │
+    |                    │  5. 注入到端点函数                  │
+    |                    └─────────────────┬─────────────────┘
+    |                                      |
+    |  200 OK  {"username": "zhangsan"}   |
+    |&lt;-------------------------------------|
+    |                                      |
+
+  关键点：
+  - Token 分三段：Header.Payload.Signature（Base64 编码，用 "." 分隔）
+  - 服务端无需存储 Token 状态（无状态认证）
+  - 过期时间写在 Payload.exp 里，jwt.decode() 自动校验
+  - SECRET_KEY 是签名的核心，生产环境必须使用强随机值
+  - Swagger /docs 页面的 Authorize 按钮可直接粘贴 Token 测试</code></pre>
+
+<h3 id="71-jwt">8.1 JWT 工具代码</h3>
+<pre><code class="language-python"># auth.py
+from datetime import datetime, timedelta
+from jose import jwt, JWTError          # pip install python-jose[cryptography]
+from passlib.context import CryptContext  # pip install passlib[bcrypt]
+from fastapi import Depends, HTTPException
+from fastapi.security import OAuth2PasswordBearer
+
+SECRET_KEY = "your-secret-key-change-in-production"
+ALGORITHM = "HS256"
+ACCESS_TOKEN_EXPIRE_MINUTES = 30
+
+pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
+oauth2_scheme = OAuth2PasswordBearer(tokenUrl="login")
+
+def hash_password(password: str) -> str:
+    return pwd_context.hash(password)
+
+def verify_password(plain: str, hashed: str) -> bool:
+    return pwd_context.verify(plain, hashed)
+
+def create_access_token(data: dict):
+    to_encode = data.copy()
+    expire = datetime.utcnow() + timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
+    to_encode.update({"exp": expire})
+    return jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
+
+async def get_current_user(token: str = Depends(oauth2_scheme)):
+    try:
+        payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
+        user_id: int = payload.get("sub")
+        if user_id is None:
+            raise HTTPException(401, "无效凭证")
+        return {"user_id": user_id}
+    except JWTError:
+        raise HTTPException(401, "凭证已过期或无效")</code></pre>
+
+<h3 id="72">8.2 登录接口 + 受保护接口</h3>
+<pre><code class="language-python"># main.py
+from fastapi.security import OAuth2PasswordRequestForm
+
+@app.post("/login")
+async def login(form_data: OAuth2PasswordRequestForm = Depends()):
+    # 实际应查数据库验证用户
+    token = create_access_token(data={"sub": form_data.username})
+    return {"access_token": token, "token_type": "bearer"}
+
+@app.get("/me")
+async def read_me(current_user = Depends(get_current_user)):
+    return {"username": current_user["user_id"]}</code></pre>
+
+<blockquote>
+<p><strong>面试话术</strong>："认证用 OAuth2PasswordBearer 自动从请求头提取 Bearer Token，python-jose 做 JWT 签发和校验，passlib + bcrypt 做密码哈希。FastAPI 的 /docs 页面自带 Authorize 按钮，测试受保护接口时直接粘贴 Token 即可。"</p>
+</blockquote>
+<hr />
+
+<h2 id="8">9. 中间件 &amp; 异常处理</h2>
+
+<ul>
+<li><strong>中间件</strong>：每个请求都会经过的拦截层，适合做计时、日志、CORS 等横切关注点。</li>
+<li><strong>异常处理</strong>：统一捕获异常并返回一致格式的 JSON 错误响应。</li>
+</ul>
+
+<h3 id="81">9.1 请求计时中间件</h3>
+<pre><code class="language-python">import time
+from fastapi import Request
+
+@app.middleware("http")
+async def add_process_time_header(request: Request, call_next):
+    start = time.time()
+    response = await call_next(request)
+    process_time = time.time() - start
+    response.headers["X-Process-Time"] = str(process_time)
+    return response</code></pre>
+
+<h3 id="82-cors">9.2 CORS 跨域</h3>
+<pre><code class="language-python">from fastapi.middleware.cors import CORSMiddleware
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["http://localhost:3000"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)</code></pre>
+
+<h3 id="83">9.3 统一异常处理</h3>
+<pre><code class="language-python">from fastapi import Request
+from fastapi.responses import JSONResponse
+
+class BusinessError(Exception):
+    def __init__(self, message: str, code: int = 400):
+        self.message = message
+        self.code = code
+
+@app.exception_handler(BusinessError)
+async def business_exception_handler(request: Request, exc: BusinessError):
+    return JSONResponse(
+        status_code=exc.code,
+        content={"error": exc.message}
+    )
+
+@app.exception_handler(404)
+async def not_found_handler(request: Request, exc):
+    return JSONResponse(status_code=404, content={"error": "资源不存在"})
+
+# 业务代码直接抛异常
+@app.get("/items/{item_id}")
+async def get_item(item_id: int):
+    if item_id == 0:
+        raise BusinessError("ID 不能为 0", code=400)
+    return {"item_id": item_id}</code></pre>
+
+<h3 id="84">9.4 路由分组</h3>
+<pre><code class="language-python"># routers/products.py
+from fastapi import APIRouter
+
+router = APIRouter(prefix="/products", tags=["商品管理"])
+
+@router.get("/")
+async def list_products():
+    return [{"id": 1, "name": "iPhone"}]
+
+@router.post("/")
+async def create_product():
+    return {"status": "created"}
+
+# main.py
+from routers import products
+
+app = FastAPI()
+app.include_router(products.router)</code></pre>
+
+<blockquote>
+<p><strong>面试话术</strong>："项目结构上用 APIRouter 按业务模块拆分，中间件处理跨域和请求计时，exception_handler 统一错误返回格式——确保前端调用任何接口，报错格式始终一致。"</p>
+</blockquote>
+<hr />
+
+<h2 id="9-20">10. 面试高频 20 问</h2>
+
+<h3 id="_13">基础概念</h3>
+
+<p><strong>Q1: FastAPI 和 Flask 有什么本质区别？</strong></p>
+<blockquote>
+<p>FastAPI 原生异步（async/await），Flask 同步。FastAPI 用 Pydantic 自动校验和生成文档，Flask 手动处理。FastAPI 基于 ASGI（Starlette），性能逼近 Node.js；Flask 基于 WSGI，传统同步模型。</p>
+</blockquote>
+
+<p><strong>Q2: FastAPI 为什么这么快？</strong></p>
+<blockquote>
+<p>底层 Starlette（最快 ASGI 框架之一）+ Uvicorn（uvloop 驱动）。Pydantic 核心校验逻辑用 Rust 实现。异步 I/O 不阻塞线程。三个引擎叠加，单机轻松过万 QPS。</p>
+</blockquote>
+
+<p><strong>Q3: ASGI 和 WSGI 的区别？</strong></p>
+<blockquote>
+<p>WSGI 是同步接口（Django/Flask），一个请求处理完才能处理下一个。ASGI 是异步接口，支持 WebSocket、HTTP/2，FastAPI 基于 ASGI。简单说：WSGI 单车道，ASGI 多车道。</p>
+</blockquote>
+
+<p><strong>Q4: 路径参数、查询参数、请求体怎么区分？</strong></p>
+<blockquote>
+<p>路径里 <code>{param}</code> 是路径参数，URL 后 <code>?key=value</code> 是查询参数，函数参数里的 Pydantic 模型自动被当作请求体。FastAPI 靠参数声明位置自动判断，无需额外注解。</p>
+</blockquote>
+
+<h3 id="pydantic">Pydantic &amp; 校验</h3>
+
+<p><strong>Q5: Pydantic 是什么？FastAPI 怎么用它？</strong></p>
+<blockquote>
+<p>Pydantic 是基于 Python 类型提示的数据校验库。FastAPI 做两件事：请求进来自动校验（不符合返回 422 + 详细错误），响应出去用 response_model 过滤敏感字段。一套模型定义，两头受益。</p>
+</blockquote>
+
+<p><strong>Q6: response_model 有什么用？</strong></p>
+<blockquote>
+<p>自动过滤返回字段——数据库模型有 20 个字段，response_model 只定义 5 个，就只返回 5 个。密码哈希永远不漏。还能自动转换数据类型、生成响应文档。</p>
+</blockquote>
+
+<p><strong>Q7: 怎么自定义校验？</strong></p>
+<blockquote>
+<p>Field 约束（min_length、ge/le、pattern）覆盖 80% 场景。复杂逻辑用 <code>@field_validator</code>（Pydantic v2）或 <code>@validator</code>（v1）写自定义校验函数。</p>
+</blockquote>
+
+<p><strong>Q8: Optional 类型怎么写？</strong></p>
+<blockquote>
+<p><code>name: str | None = None</code>（Python 3.10+）。FastAPI 自动识别为选填参数，Swagger 文档标记为 optional。</p>
+</blockquote>
+
+<h3 id="_14">依赖注入</h3>
+
+<p><strong>Q9: Depends 是什么？解决了什么问题？</strong></p>
+<blockquote>
+<p>依赖注入系统。把公共逻辑（鉴权、DB 连接、参数校验）抽成函数，通过 Depends() 自动执行并注入结果。消除重复代码，函数签名干净，资源生命周期自动管理。</p>
+</blockquote>
+
+<p><strong>Q10: yield 在依赖里怎么用？</strong></p>
+<blockquote>
+<p>yield 之前获取资源（如数据库连接），yield 把资源给业务代码用，finally 块在请求结束后自动释放。本质是 Python 的 context manager，FastAPI 做得更优雅。</p>
+</blockquote>
+
+<h3 id="_15">数据库 &amp; 异步</h3>
+
+<p><strong>Q11: FastAPI 怎么连数据库？</strong></p>
+<blockquote>
+<p>SQLAlchemy 2.0 async 模式（<code>create_async_engine</code> + <code>AsyncSession</code>）。用 Depends 注入 session，请求结束自动关闭。一行 <code>Depends(get_db)</code> 搞定。</p>
+</blockquote>
+
+<p><strong>Q12: async 函数里调同步代码会怎样？</strong></p>
+<blockquote>
+<p>阻塞事件循环，拖慢整个服务。同步耗时操作必须用 <code>run_in_executor</code> 扔到线程池，或直接用异步库。数据库操作用 async SQLAlchemy，HTTP 调用用 httpx。</p>
+</blockquote>
+
+<p><strong>Q13: 怎么管数据库迁移？</strong></p>
+<blockquote>
+<p>Alembic。<code>alembic init</code> → <code>alembic revision --autogenerate</code> 生成迁移脚本 → <code>alembic upgrade head</code> 执行迁移。</p>
+</blockquote>
+
+<h3 id="_16">生产环境</h3>
+
+<p><strong>Q14: 生产环境怎么部署？</strong></p>
+<blockquote>
+<p><code>gunicorn -k uvicorn.workers.UvicornWorker main:app</code>，前面挂 Nginx 反向代理。容器化用 Docker + K8s。uvicorn 单跑适合开发，生产必须配 gunicorn 多 worker。</p>
+</blockquote>
+
+<p><strong>Q15: 后台任务怎么搞？</strong></p>
+<blockquote>
+<p><code>BackgroundTasks</code> 处理轻量后台任务（接口先返回）。重任务（不允许丢失）用 Celery，别用 BackgroundTasks 扛重活。</p>
+</blockquote>
+
+<p><strong>Q16: 大文件上传怎么处理？</strong></p>
+<blockquote>
+<p><code>UploadFile</code> 类型，流式读取不占满内存。配合 <code>shutil.copyfileobj</code> 分块写入磁盘。</p>
+</blockquote>
+
+<p><strong>Q17: WebSocket 支持吗？</strong></p>
+<blockquote>
+<p>原生支持。<code>from fastapi import WebSocket</code>，<code>@app.websocket("/ws")</code> 几行代码起一个 WebSocket 服务。</p>
+</blockquote>
+
+<h3 id="_17">对比 &amp; 场景</h3>
+
+<p><strong>Q18: 什么场景用 FastAPI，什么场景用 Django？</strong></p>
+<blockquote>
+<p>API 服务、微服务、高并发 → FastAPI。全栈 CMS、Admin 后台（需自带 ORM + Admin 面板）→ Django。做接口用 FastAPI，做网站用 Django。</p>
+</blockquote>
+
+<p><strong>Q19: FastAPI 有什么缺点？</strong></p>
+<blockquote>
+<p>不自带 ORM（需自己集成 SQLAlchemy），生态不如 Django 成熟，异步编程对初学者有门槛。但不自带 ORM 也是优点——选型灵活。</p>
+</blockquote>
+
+<p><strong>Q20: 你在项目里怎么用的 FastAPI？</strong></p>
+<blockquote>
+<p>见下一节"面试话术模板"。</p>
+</blockquote>
+<hr />
+
+<h2 id="10">11. 面试话术模板</h2>
+
+<h3>应届生 / 自学项目</h3>
+<blockquote>
+<p>"我用 FastAPI 做了一个 XX 管理系统的后端 API。核心功能包括用户注册登录（JWT）、商品数据的增删改查、分页查询。数据库用 MySQL + async SQLAlchemy，Pydantic 做入参校验和出参过滤。所有接口在 /docs 页面上可以直接在线测试，开发效率非常高。异步编程的心智模型是主要学习点——一个地方用了 async，调用它的地方也得 async。"</p>
+</blockquote>
+
+<h3>有经验的回答</h3>
+<blockquote>
+<p>"项目中用 FastAPI 搭了微服务的 API 网关——负责路由转发、统一鉴权和请求限流。用依赖注入管理了 10+ 个微服务的 Token 校验逻辑（一个依赖函数搞定）。异步 httpx 并发调用下游服务，配合 asyncio.gather 聚合结果。踩过的坑是 Pydantic v2 迁移时自定义 validator 写法变了。上线后用 Prometheus + Grafana 监控 QPS 和 P99 延迟。"</p>
+</blockquote>
+
+<h3>追问应对速查表</h3>
+<table>
+<thead>
+<tr>
+<th>追问</th>
+<th>回答</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>"能扛多少 QPS？"</td>
+<td>"单机 4 核 8G，纯 CRUD 接口压测到 8000+ QPS。加了数据库查询降到 3000 左右，瓶颈在 DB 不在框架。"</td>
+</tr>
+<tr>
+<td>"怎么测试 API？"</td>
+<td>"pytest + httpx.AsyncClient 写异步测试，配合 FastAPI 自带的 TestClient 做端到端验证。数据库用测试专用的 SQLite 内存库，跑完就销毁。"</td>
+</tr>
+<tr>
+<td>"怎么处理并发？"</td>
+<td>"async/await 协程 + 数据库连接池。核心原则：别在 async 函数里调同步阻塞代码——会拖慢整个事件循环。"</td>
+</tr>
+<tr>
+<td>"项目结构怎么组织？"</td>
+<td>"routers/ schemas/ models/ services/ core/ —— 按职责分层。router 只管路由，service 写业务逻辑，model 管 ORM，schema 管校验。"</td>
+</tr>
+<tr>
+<td>"怎么保证代码质量？"</td>
+<td>"pre-commit hook + ruff 格式化 + mypy 静态类型检查。CI 里跑 pytest，覆盖率要求 80%+。"</td>
+</tr>
+</tbody>
+</table>
+<hr />
+
+<h2 id="a">附录A：项目结构模板</h2>
+<pre><code>my_fastapi_project/
+├── main.py                 # 入口，创建 app
+├── core/
+│   ├── config.py           # 配置（环境变量）
+│   ├── security.py         # JWT / 密码哈希
+│   └── database.py         # 数据库引擎 + get_db 依赖
+├── models/
+│   └── user.py             # SQLAlchemy 数据模型
+├── schemas/
+│   └── user.py             # Pydantic Schema（入参/出参）
+├── routers/
+│   ├── auth.py             # 登录/注册路由
+│   └── users.py            # 用户 CRUD 路由
+├── services/
+│   └── user_service.py     # 业务逻辑层（router 调 service，service 调 db）
+├── middleware/
+│   └── timing.py           # 自定义中间件
+└── tests/
+    └── test_users.py       # 测试文件</code></pre>
+
+<h2 id="b">附录B：常用依赖</h2>
+<pre><code class="language-bash">pip install fastapi uvicorn               # 框架 + 服务器（必装）
+pip install sqlalchemy[asyncio]           # ORM（异步版）
+pip install aiomysql                      # MySQL 异步驱动
+pip install databases                     # 轻量异步 ORM（备选）
+pip install alembic                       # 数据库迁移
+pip install python-jose[cryptography]     # JWT
+pip install passlib[bcrypt]               # 密码哈希
+pip install httpx                         # 异步 HTTP 客户端
+pip install pytest pytest-asyncio         # 测试</code></pre>
+
+<h2 id="c">附录C：学习路线图</h2>
+<pre><code>Day 1：安装 → Hello World → /docs 玩一圈 → 路径/查询/请求体参数搞明白
+Day 2：Pydantic 校验 → 依赖注入 → DB 连接 → JWT 登录 → CRUD 写一套
+Day 3：路由拆分 → 中间件 → 异常处理 → 过一遍面试题 → 自言自语模拟问答</code></pre>
+<hr />
+<blockquote>
+<p><strong>核心心法</strong>：面试官问 FastAPI，把 <strong>"类型即校验 + 自动文档 + 依赖注入 + 原生异步"</strong> 这四点讲清楚，已经超过 90% 的候选人。再打开 <code>localhost:8000/docs</code> 展示 Swagger 页面，直接拿下。</p>
+<p><strong>记住一句话</strong>：FastAPI 就是让你用最少量的代码，写出最快、最安全、最规范的 API。面试时说这句话，懂的人秒懂。</p>
+</blockquote>
+
+<script>
+// Scroll spy — highlight active sidebar item
+window.addEventListener('scroll', function() {
+    var links = document.querySelectorAll('.sidebar-toc a');
+    var scrollY = window.scrollY + 120;
+    var current = '';
+    for (var i = links.length - 1; i >= 0; i--) {
+        var target = document.getElementById(links[i].getAttribute('href').slice(1));
+        if (target && target.offsetTop <= scrollY) {
+            current = links[i];
+            break;
+        }
+    }
+    links.forEach(function(a) { a.style.fontWeight = 'normal'; a.style.color = '#555'; });
+    if (current) { current.style.fontWeight = 'bold'; current.style.color = '#0366d6'; }
+});
+</script>
+
+
+<script>
+document.querySelectorAll("pre>code").forEach(function(c){var p=c.parentNode;p.style.position="relative";var b=document.createElement("button");b.className="copy-btn";b.textContent="复制";p.appendChild(b);b.addEventListener("click",function(){var t=c.textContent;navigator.clipboard.writeText(t).then(function(){b.textContent="已复制";b.classList.add("copied");setTimeout(function(){b.textContent="复制";b.classList.remove("copied")},2000)}).catch(function(){var a=document.createElement("textarea");a.value=t;a.style.position="fixed";a.style.opacity="0";document.body.appendChild(a);a.select();document.execCommand("copy");document.body.removeChild(a);b.textContent="已复制";b.classList.add("copied");setTimeout(function(){b.textContent="复制";b.classList.remove("copied")},2000)})})})
+</script>
+</body>
+</html>

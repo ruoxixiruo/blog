@@ -1,0 +1,1495 @@
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>KnowBase 面试准备（从零讲起版）</title>
+<style>
+
+body {
+    transition: margin-left .25s ease;
+    font-family: -apple-system, "Noto Sans SC", "Microsoft YaHei", sans-serif;
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 20px 24px 60px;
+    line-height: 1.8;
+    color: #333;
+    background: #fff;
+}
+h1 { border-bottom: 2px solid #eee; padding-bottom: 10px; color: #222; }
+h2 { color: #333; margin-top: 32px; }
+h3 { color: #555; }
+a { color: #0366d6; text-decoration: none; }
+a:hover { text-decoration: underline; }
+pre {
+    background: #f6f8fa;
+    border-radius: 6px;
+    padding: 16px;
+    overflow-x: auto;
+    font-size: 14px;
+    line-height: 1.45;
+    position: relative;
+}
+code {
+    background: #f0f2f4;
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-size: 14px;
+    font-family: ui-monospace, Menlo, "Courier New", Consolas, monospace;
+}
+pre code { background: none; padding: 0; font-family: ui-monospace, Menlo, "Courier New", Consolas, monospace; }
+blockquote { border-left: 4px solid #ddd; margin: 0; padding: 0 16px; color: #666; }
+table { border-collapse: collapse; width: 100%; margin: 16px 0; }
+th, td { border: 1px solid #ddd; padding: 8px 12px; text-align: left; }
+th { background: #f6f8fa; }
+img { max-width: 100%; }
+.back-link { margin-bottom: 20px; display: block; color: #666; }
+.back-link:hover { color: #0366d6; }
+
+.sidebar-toc {
+    transition: left .25s ease;
+    position: fixed; left: 0; top: 0; bottom: 0;
+    width: 220px; background: #f8f9fa;
+    border-right: 1px solid #e9ecef;
+    padding: 20px 0; overflow-y: auto;
+    font-size: 13px; z-index: 100;
+}
+.sidebar-toc a {
+    display: block; padding: 6px 16px;
+    color: #555; text-decoration: none;
+    border-left: 3px solid transparent; line-height: 1.5;
+}
+.sidebar-toc a:hover { background: #e9ecef; color: #0366d6; border-left-color: #0366d6; }
+.sidebar-toc a.active { color: #0366d6; border-left-color: #0366d6; font-weight: 500; }
+.sidebar-toc .toc-h2 { padding-left: 16px; font-weight: 500; }
+.sidebar-toc .toc-h3 { padding-left: 32px; font-size: 12px; }
+body { margin-left: 240px; }
+
+.copy-btn {
+    position: absolute; top: 6px; right: 6px;
+    background: #e9ecef; border: none;
+    border-radius: 4px; padding: 3px 10px;
+    font-size: 12px; color: #555; cursor: pointer;
+    opacity: 0; transition: opacity 0.2s; z-index: 1;
+}
+pre:hover .copy-btn { opacity: 1; }
+.copy-btn:hover { background: #d0d7de; }
+.copy-btn.copied { opacity: 1; background: #2da44e; color: #fff; }
+
+.sidebar-toggle-btn {
+  position: fixed; left: 220px; top: 0;
+  width: 28px; height: 40px;
+  background: #f8f9fa; border: 1px solid #e9ecef;
+  border-left: none; border-radius: 0 4px 4px 0;
+  cursor: pointer; font-size: 16px; color: #555;
+  z-index: 101; display: flex; align-items: center;
+  justify-content: center;
+  transition: left .25s, background .2s;
+  padding: 0; line-height: 1;
+}
+.sidebar-toggle-btn:hover { background: #e9ecef; color: #0366d6; }
+.sidebar-collapsed .sidebar-toc { left: -220px; }
+.sidebar-collapsed .sidebar-toggle-btn { left: 0; }
+.sidebar-collapsed body, body.sidebar-collapsed { margin-left: 28px; }
+.sidebar-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,.3); z-index: 99; }
+@media (max-width: 768px) {
+  .sidebar-collapsed .sidebar-overlay { display: none; }
+  .sidebar-toc { left: -220px; }
+  .sidebar-toggle-btn { left: 0; }
+  body { margin-left: 28px; }
+}
+
+</style>
+</head><script>
+function toggleSidebar() {
+  document.body.classList.toggle('sidebar-collapsed');
+  try { localStorage.setItem('sidebarCollapsed', document.body.classList.contains('sidebar-collapsed')); } catch(e) {}
+}
+(function() {
+  try {
+    if (localStorage.getItem('sidebarCollapsed') === 'true') {
+      document.body.classList.add('sidebar-collapsed');
+    }
+  } catch(e) {}
+})();
+</script>
+<script>
+window.addEventListener('scroll', function() {
+    var links = document.querySelectorAll('.sidebar-toc a');
+    var scrollY = window.scrollY + 120;
+    var current = '';
+    for (var i = links.length - 1; i >= 0; i--) {
+        var target = document.getElementById(links[i].getAttribute('href').slice(1));
+        if (target && target.offsetTop <= scrollY) {
+            current = links[i];
+            break;
+        }
+    }
+    links.forEach(function(a){ a.classList.remove('active'); });
+    if (current) { current.classList.add('active'); }
+}, { passive: true });
+</script>
+<body>
+<nav class="sidebar-toc">
+  <a class="toc-h2" href="#rag">一、RAG 是什么（基础概念，必读）</a>
+  <a class="toc-h3" href="#11-rag">1.1 先搞懂：为什么需要 RAG？</a>
+  <a class="toc-h3" href="#12-rag-8">1.2 RAG 的完整流程（记住这 8 步）</a>
+  <a class="toc-h3" href="#13">1.3 必须理解的核心概念（面试必问）</a>
+  <a class="toc-h3" href="#14">1.4 概念之间的关系（核心关联图）</a>
+  <a class="toc-h2" href="#_6">二、项目整体架构（一张图看懂数据流）</a>
+  <a class="toc-h2" href="#_7">三、核心技术亮点</a>
+  <a class="toc-h3" href="#1-rrf">亮点 1：混合检索 + RRF 融合（召回阶段的核心）</a>
+  <a class="toc-h3" href="#2semantic-cache">亮点 2：语义缓存（Semantic Cache，降本提速）</a>
+  <a class="toc-h3" href="#3bge-reranker-v2-m3-cross-encoder">亮点 3：BGE-Reranker-v2-m3 精排（Cross-Encoder 实战）</a>
+  <a class="toc-h3" href="#4hyde">亮点 4：HyDE（假设性文档嵌入，提升召回）</a>
+  <a class="toc-h3" href="#5">亮点 5：多租户隔离架构（数据安全底线）</a>
+  <a class="toc-h3" href="#6celery">亮点 6：异步摄入管线（Celery，不卡用户）</a>
+  <a class="toc-h3" href="#7llm">亮点 7：LLM 路由器 + 降级链（高可用）</a>
+  <a class="toc-h3" href="#8jwt-bcrypt">亮点 8：JWT + bcrypt 认证体系（安全底线）</a>
+  <a class="toc-h2" href="#_8">四、架构设计亮点</a>
+  <a class="toc-h3" href="#1-fastapi">1. FastAPI 工厂模式</a>
+  <a class="toc-h3" href="#2">2. 请求上下文中间件（可观测性）</a>
+  <a class="toc-h3" href="#3-prometheus">3. Prometheus 指标监控</a>
+  <a class="toc-h3" href="#4-depends">4. 依赖注入（Depends）</a>
+  <a class="toc-h2" href="#_9">五、性能优化实践</a>
+  <a class="toc-h3" href="#1-sse">1. 流式响应（SSE）—— 打字机效果</a>
+  <a class="toc-h3" href="#2-hnsw">2. HNSW 向量索引 —— 毫秒级检索几百万向量</a>
+  <a class="toc-h3" href="#3-api">3. 批量向量化 —— 减少 API 调用</a>
+  <a class="toc-h3" href="#4">4. 数据库连接池 —— 别每次都建连接</a>
+  <a class="toc-h2" href="#_10">六、测试覆盖策略</a>
+  <a class="toc-h2" href="#10">七、面试常见题（10 道，含陷阱）</a>
+  <a class="toc-h2" href="#_11">八、每个亮点的"面试金句"（背下来）</a>
+</nav>
+<button class="sidebar-toggle-btn" onclick="toggleSidebar()" title="切换目录">☰</button>
+<div class="sidebar-overlay" onclick="toggleSidebar()"></div>
+<div id="content">
+<a class="back-link" href="../面试题目录.html">← 返回目录</a>
+<h1>KnowBase 面试准备（从零讲起版）</h1>
+<h1 id="knowbase">KnowBase 面试准备（从零讲起版）</h1>
+<blockquote>
+<p>本文档假设读者：会写代码，但<strong>没做过 RAG 项目</strong>。所以前半部分先把 RAG 的世界观讲清楚，后半部分再讲 KnowBase 这个项目具体怎么落地。</p>
+</blockquote>
+<hr />
+<h2 id="rag">一、RAG 是什么（基础概念，必读）</h2>
+<h3 id="11-rag">1.1 先搞懂：为什么需要 RAG？</h3>
+<p>你肯定用过 ChatGPT。它很聪明，但有两个硬伤：</p>
+<table>
+<thead>
+<tr>
+<th>硬伤</th>
+<th>说明</th>
+<th>例子</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>知识截止</strong></td>
+<td>模型训练完就"毕业"了，之后发生的事它不知道</td>
+<td>你问"我们公司上个月的退款政策"，它根本没你公司的数据</td>
+</tr>
+<tr>
+<td><strong>幻觉</strong></td>
+<td>它不知道时会"一本正经地编"</td>
+<td>你问"合同第3条说什么"，它可能编一条看起来合理的，但完全是假的</td>
+</tr>
+</tbody>
+</table>
+<p><strong>RAG 就是来解决这两个问题的。</strong></p>
+<p>RAG = <strong>R</strong>etrieval（检索） + <strong>A</strong>ugmented（增强） + <strong>G</strong>eneration（生成）。</p>
+<p>一句话：<strong>先去你的资料库里翻出相关内容，再把内容塞给 LLM，让它"基于这些资料"来回答。</strong> 这样 LLM 就不靠记忆编了，而是"开卷考试"。</p>
+<blockquote>
+<p>🎯 <strong>类比——开卷考试</strong>
+闭卷考试 = 纯 LLM：全靠脑子记，记不住就编。
+开卷考试 = RAG：桌上放着你的教科书（知识库），考题来了先翻书找相关页，照着书答。</p>
+</blockquote>
+<h3 id="12-rag-8">1.2 RAG 的完整流程（记住这 8 步）</h3>
+<pre><code>┌───────────────────────── 摄入阶段（文档入库，一次性）─────────────────────────┐
+│                                                                              │
+│  你的 PDF/Word 文档                                                           │
+│       ↓                                                                      │
+│  【1.解析】把 PDF 变成纯文本（提取文字，丢掉排版）                            │
+│       ↓                                                                      │
+│  【2.切片】把长文本切成一段一段（比如每段 500 字）                            │
+│       ↓                                                                      │
+│  【3.向量化】每段文字 → 变成一个&quot;坐标&quot;（一串数字，叫 Embedding）             │
+│       ↓                                                                      │
+│  【4.入库】把这些坐标存进&quot;向量数据库&quot;（Milvus）                             │
+│                                                                              │
+└──────────────────────────────────────────────────────────────────────────────┘
+
+┌───────────────────────── 问答阶段（用户提问，每次）─────────────────────────┐
+│                                                                              │
+│  用户问：&quot;你们退款政策是什么？&quot;                                               │
+│       ↓                                                                      │
+│  【5.向量化】把这个问题也变成&quot;坐标&quot;                                          │
+│       ↓                                                                      │
+│  【6.检索】在向量库里找&quot;离这个问题坐标最近的 20 个文档片段&quot;                  │
+│       ↓                                                                      │
+│  【7.拼 prompt】把找到的 20 个片段 + 用户问题，拼成一段话给 LLM             │
+│       ↓                                                                      │
+│  【8.生成】LLM 基于这些片段，生成最终答案                                    │
+│                                                                              │
+└──────────────────────────────────────────────────────────────────────────────┘
+</code></pre>
+<p><strong>两个核心阶段：</strong>
+- <strong>召回（Retrieval）</strong> = 步骤 5、6：去资料库里找相关内容。这一步追求"别漏掉相关的"。
+- <strong>生成（Generation）</strong> = 步骤 7、8：LLM 基于召回的内容作答。这一步追求"答得准、答得像人话"。</p>
+<h3 id="13">1.3 必须理解的核心概念（面试必问）</h3>
+<p>下面这些词，面试里一定会冒出来。逐个用大白话 + 类比讲清楚。</p>
+<h4 id="embedding">🔹 Embedding（向量化）—— 把文字变成"坐标"</h4>
+<p>计算机不懂"意思"，只认数字。Embedding 就是用一个模型（比如 OpenAI 的 text-embedding），把一段文字变成一串固定长度的数字（比如 1536 个数字），这串数字叫"向量"。</p>
+<p><strong>关键性质：语义相近的文字，向量在空间里离得近。</strong></p>
+<blockquote>
+<p>🎯 <strong>类比——地图坐标</strong>
+假设我们用 (经度, 纬度) 两个数字表示城市位置。北京 (116, 40) 和天津 (117, 39) 离得近，因为地理上近。
+Embedding 类似：把"猫"和"狗"变成两个向量，它们离得近（都是宠物）；"猫"和"汽车"离得远。
+但 Embedding 不是 2 个数字，而是 1536 个——相当于在一个 1536 维的"语义地图"里定位每个词。</p>
+</blockquote>
+<h4 id="milvus">🔹 向量数据库（Milvus）—— 存坐标的仓库</h4>
+<p>普通数据库（MySQL）擅长"精确查找"：SELECT * WHERE name='张三'。
+向量数据库擅长"近似查找"：<strong>给我一个点，找出离它最近的 N 个点</strong>。</p>
+<p>Milvus 就是我们用的向量库。它存的是：每段文档的向量 + 原文 + 元数据（属于哪个文档、哪个租户）。</p>
+<blockquote>
+<p>🎯 <strong>类比——图书馆的"找相似书"</strong>
+MySQL 像图书馆的检索台：输入书名精确找。
+Milvus 像"找主题相近的书"：你拿一本讲"机器学习"的书，它帮你找出架上最相近的 20 本。</p>
+</blockquote>
+<h4 id="cosine">🔹 相似度（Cosine 余弦）—— 怎么判断"近不近"</h4>
+<p>两个向量之间的"距离"有很多算法，我们用 <strong>Cosine（余弦相似度）</strong>：算两个向量的夹角。
+- 夹角 0°（完全重合）→ 相似度 1.0 → 意思几乎一样
+- 夹角 90°（垂直）→ 相似度 0 → 没关系
+- 夹角 180°（相反）→ 相似度 -1 → 意思相反</p>
+<p>值越接近 1，语义越相似。</p>
+<h4 id="bi-encoder-vs-cross-encoder">🔹 Bi-Encoder vs Cross-Encoder —— 两种"理解"方式</h4>
+<p>这是 RAG 里最重要的概念之一，面试高频。</p>
+<table>
+<thead>
+<tr>
+<th>类型</th>
+<th>工作方式</th>
+<th>类比</th>
+<th>速度</th>
+<th>精度</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Bi-Encoder（双编码器）</strong></td>
+<td>把"问题"和"文档"<strong>分别</strong>变成向量，再比距离</td>
+<td>考前把每本书都背熟、标好位置；考试时把题目也标个位置，找最近的书</td>
+<td>快（可提前算好）</td>
+<td>较低</td>
+</tr>
+<tr>
+<td><strong>Cross-Encoder（交叉编码器）</strong></td>
+<td>把"问题+文档"<strong>拼在一起</strong>送进模型，直接输出一个相关分数</td>
+<td>考试时，把题目和某本书摊开一起看，现场判断"这道题和这本书有多相关"</td>
+<td>慢（每次都要算）</td>
+<td>高</td>
+</tr>
+</tbody>
+</table>
+<p><strong>KnowBase 的用法：</strong> 召回阶段用 Bi-Encoder（快，从几万条里粗筛出 20~40 条），精排阶段用 Cross-Encoder（慢但准，从 20~40 条里挑出最相关的 5 条）。这叫"先粗筛后精排"。</p>
+<h4 id="bm25">🔹 BM25 —— 关键词匹配（不理解语义）</h4>
+<p>BM25 是个老算法（比 AI 还老），原理类似你用 Ctrl+F 在文档里搜关键词。</p>
+<ul>
+<li>优点：精确匹配强。比如你搜"iPhone 15 Pro Max"，BM25 能精确找到带这串字的段落。</li>
+<li>缺点：不理解语义。你搜"苹果手机"，它找不到写"iPhone"的段落（因为字面不一样）。</li>
+</ul>
+<blockquote>
+<p>🎯 <strong>类比</strong>
+BM25 = 图书管理员按"字面"找书：你说"苹果手机"，他只翻标题带"苹果手机"四个字的。
+Embedding = 懂行的朋友：你说"苹果手机"，他懂你其实想找"iPhone"相关的。</p>
+</blockquote>
+<h4 id="rrf">🔹 RRF 融合 —— 把两个排行榜合成一个</h4>
+<p>我们同时跑了"向量检索"和"BM25"两路召回，各自返回一个排行榜（Top 20）。怎么合并？</p>
+<p><strong>RRF（Reciprocal Rank Fusion，倒数排名融合）：</strong> 不看各自的绝对分数（因为向量相似度和 BM25 词频分数量纲不同，不能直接相加），<strong>只看排名</strong>——排第 1 名就拿最高分，排第 20 名就拿最低分，两路综合后决定最终排序。</p>
+<p><strong>完整公式：</strong></p>
+<pre><code>RRF_SCORE(doc) = Σ  1 / (k + rank_i)
+                  i∈{各路召回}
+</code></pre>
+<ul>
+<li><code>k</code> = 融合系数（我们用 60）</li>
+<li><code>rank_i</code> = 该文档在第 i 路召回里的名次（从 1 开始）</li>
+<li>只出现在某一路的文档，分数就是那一条的得分；两路都出现则分数叠加</li>
+</ul>
+<p><strong>实际算例（k=60）：</strong></p>
+<table>
+<thead>
+<tr>
+<th>文档</th>
+<th>向量路排名</th>
+<th>BM25路排名</th>
+<th>RRF 得分</th>
+<th>计算</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>退款流程操作步骤</td>
+<td>1</td>
+<td>2</td>
+<td>0.0329</td>
+<td>1/(60+1) + 1/(60+2)</td>
+</tr>
+<tr>
+<td>退款协议3.2条款</td>
+<td>5</td>
+<td>1</td>
+<td>0.0319</td>
+<td>1/(60+5) + 1/(60+1)</td>
+</tr>
+<tr>
+<td>苹果公司财报摘要</td>
+<td>3</td>
+<td>—</td>
+<td>0.0159</td>
+<td>1/(60+3)，仅一路</td>
+</tr>
+<tr>
+<td>争议处理条款</td>
+<td>—</td>
+<td>20</td>
+<td>0.0125</td>
+<td>1/(60+20)，仅一路</td>
+</tr>
+</tbody>
+</table>
+<p>「退款流程操作步骤」向量第1 + BM25第2，两路都有 → 分数最高，排第1。「苹果公司财报摘要」向量第3但 BM25 没有（该文档不相关），只加一路的分，排第3。「争议处理条款」仅 BM25 召回，排第4。</p>
+<p><strong>为什么 k=60 而不是 1？</strong> k 越大，排名的差异被越"抹平"——第1名和第20名的差距从 19/61² ≈ 31 倍缩小到约 0.5%。k 太小会让某一路的绝对排名主导，容易被单路偏好带偏。我们测试集上 k=60 时 MRR（排序质量指标）最高，选的它。</p>
+<blockquote>
+<p>🎯 <strong>类比——两个评委打分</strong>
+评委 A 用 100 分制，评委 B 用 5 星制，分数不能直接加。
+RRF 说：别管分数，只看名次。A 给你第 1 名、B 给你第 2 名，那你总分就高。两个评委都把你放前面，你就是真靠前。</p>
+</blockquote>
+<h4 id="re-ranker-2040-5">🔹 Re-ranker（精排）—— 从 20~40 条里挑 5</h4>
+<p>RRF 融合后得到 20~40 条（两路各召 20 条，并集后最多 40 条，最少 20 条，取决于两路重叠度）。精排模型（Cross-Encoder）把这 20~40 条逐一和问题"一起看"，打个相关分，取最高的 5 条喂给 LLM。</p>
+<blockquote>
+<p>🎯 <strong>类比——简历筛选</strong>
+召回 = HR 初筛：从 1000 份简历里，按关键词捞 20~40 份候选（两路各捞 20 份，并集去重后实际 20~40）。
+精排 = 部门主管细看：把 20~40 份逐一和岗位要求比对，挑出最匹配的 5 份给老板（LLM）做最终决策。</p>
+</blockquote>
+<h4 id="hyde">🔹 HyDE —— 先写"假答案"再去搜</h4>
+<p>用户的问题往往很口语、很短（"咋退钱？"），而知识库里的文档很正式（"自购买之日起 7 日内，可申请退款……"）。两者向量距离可能很远，导致搜不到。</p>
+<p><strong>HyDE（Hypothetical Document Embeddings）：</strong> 先让 LLM 针对问题，写一段"假设的知识库答案"（比如让它写"假设文档里会说：退款需在购买7日内……"），<strong>再用这段假答案去向量检索</strong>。因为假答案是"文档风格"，和真实文档离得近，更容易搜到。</p>
+<p><strong>和向量化是什么关系？</strong> HyDE 优化的是"向量化<strong>喂什么</strong>"，而不是"向量化<strong>这个动作</strong>"本身。<code>embed_query()</code> 始终都会被调用——开 HyDE 时，把 LLM 生成的假答案扔进 <code>embed_query()</code> 向量化；不开 HyDE 时，把用户原问题扔进 <code>embed_query()</code> 向量化。向量化是固定的，但它的输入来源由 HyDE 决定。</p>
+<blockquote>
+<p>🎯 <strong>类比：</strong> 好比写论文前去列提纲——提纲决定了你去图书馆搜什么关键词，而不是决定了搜索这个动作本身。</p>
+<p>🎯 <strong>类比——找人</strong>
+你只会说方言描述要找的人（"那个戴帽子的"），保安听不懂。
+HyDE = 先让翻译把你的描述写成标准简历（"男，戴黑色鸭舌帽，身高175"），再用这份简历去比对监控，更好找。</p>
+</blockquote>
+<h4 id="_1">🔹 语义缓存 —— 意思差不多的问题，复用答案</h4>
+<p>普通缓存靠"完全一样"才命中（"退款政策"和"怎么退钱"被认为不同）。语义缓存把问题也变成向量，只要新问题向量和缓存里某个老问题向量"够像"（相似度 ≥ 0.95），就直接返回老答案，省掉一次 LLM 调用（省钱省时间）。</p>
+<blockquote>
+<p>🎯 <strong>类比——客服话术库</strong>
+用户问"怎么退钱""退款流程""我要退货"——意思都一样。
+语义缓存 = 客服记得之前答过类似的，直接把那次的答案复制过来，不用再想一遍。</p>
+</blockquote>
+<h4 id="_2">🔹 多租户 —— 不同公司的数据要隔开</h4>
+<p>KnowBase 是 SaaS，多家公司（租户）共用一套系统。A 公司的文档绝不能出现在 B 公司的搜索结果里。</p>
+<p>做法：数据库里每段文档都打上 <code>tenant_id</code> 标签；向量库里每个租户一个独立的"集合"（collection），像写字楼里不同公司占不同楼层。</p>
+<blockquote>
+<p>🎯 <strong>类比——写字楼</strong>
+整栋楼是一家物业（KnowBase 系统），但 3 楼是 A 公司、5 楼是 B 公司。
+快递（查询请求）必须送到对应楼层，不能串门。</p>
+</blockquote>
+<h4 id="sse">🔹 流式响应（SSE）—— 打字机效果</h4>
+<p>LLM 生成答案要几秒。如果等它全部生成完再一次性返回，用户盯着转圈圈会急。</p>
+<p><strong>SSE（Server-Sent Events）：</strong> 让后端像打字机一样，生成出一个字就往前端的页面推一个字。用户体验是"答案在眼前慢慢浮现"。</p>
+<h4 id="celery">🔹 异步任务（Celery）—— 上传后后台处理</h4>
+<p>用户上传一个 200 页的 PDF。解析+切片+向量化可能要几分钟。如果让用户页面卡几分钟，体验极差。</p>
+<p><strong>Celery：</strong> 上传时，后端只记个"待处理"状态，立刻返回"已收到，后台处理中"。真正的重活丢给后台 worker 慢慢做。用户过会儿刷新页面，看到状态变成"已完成"。</p>
+<h4 id="jwt">🔹 JWT —— 临时门禁卡</h4>
+<p>用户登录后，后端发一张"门禁卡"（JWT token），里面写着"这是张三，属于 A 公司，权限是普通用户"。之后用户每次请求都带着这张卡，后端验一下卡没过期、没造假，就放行。</p>
+<p>特点：<strong>卡上有过期时间</strong>（比如 30 分钟），过期作废，得重新"刷脸"（登录）换一张。</p>
+<h4 id="bcrypt">🔹 bcrypt —— 密码不能明文存</h4>
+<p>如果数据库被黑客拖库，明文密码全泄露。所以密码要"加密"存——但普通加密能反向解，也不行。</p>
+<p><strong>bcrypt：</strong> 把密码"捣碎"成一串不可逆的渣（哈希），且每次捣都随机加点"盐"。验证时，把用户输入的密码用同样的盐再捣一遍，比对渣是否一样。<strong>原密码永远恢复不出来。</strong></p>
+<hr />
+<h4 id="hyde_1">🔍 HyDE 和语义缓存不是一回事（常见混淆）</h4>
+<p>这两个概念很容易混，实则<strong>完全不同阶段、不同目的</strong>。用一句话区分：</p>
+<blockquote>
+<p><strong>HyDE 改的是「用什么向量去搜」，语义缓存改的是「还要不要搜」。</strong></p>
+<p>⚠️ <strong>架构图中的位置也不同：</strong> 语义缓存在整个流水线最前面（拦截阶段），HyDE 在向量检索之前（检索增强阶段）。两者是完全独立的接入点。</p>
+</blockquote>
+<table>
+<thead>
+<tr>
+<th></th>
+<th><strong>HyDE</strong></th>
+<th><strong>语义缓存</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>在什么阶段</strong></td>
+<td>检索中（召回阶段）</td>
+<td>检索前（整个流水线之前）</td>
+</tr>
+<tr>
+<td><strong>嵌什么</strong></td>
+<td>LLM 生成的"假答案文档"</td>
+<td>用户问题本身</td>
+</tr>
+<tr>
+<td><strong>和谁比相似度</strong></td>
+<td>和<strong>知识库文档</strong>比（找资料）</td>
+<td>和<strong>历史提问</strong>比（省流程）</td>
+</tr>
+<tr>
+<td><strong>本质</strong></td>
+<td>查询改写/增强技术</td>
+<td>缓存短路（省钱省时）</td>
+</tr>
+<tr>
+<td><strong>结果</strong></td>
+<td>召回质量更高</td>
+<td>直接返回，跳过全部流程</td>
+</tr>
+</tbody>
+</table>
+<p><strong>HyDE 执行流程</strong>（<code>hybrid.py</code> 源码）：</p>
+<pre><code>用户问&quot;怎么退钱？&quot;
+  → LLM 先生成一段&quot;假答案&quot;
+    &quot;要退款，需先登录账户，进入订单页，点击申请退款，3-7 个工作日到账...&quot;
+  → 把这段假答案 Embedding 成向量
+  → 去 Milvus 检索（ANN，近似最近邻）
+  → 召回质量比直接嵌&quot;怎么退钱&quot;高很多
+</code></pre>
+<blockquote>
+<p>🎯 类比：你问图书馆员"怎么修水管"，直接拿这句话去书架找，可能找不到；但如果你先脑补一份"修水管要先关总阀、再拆龙头..."的草稿，拿草稿去比，反而能精准定位到《家庭维修手册》。</p>
+</blockquote>
+<p><strong>语义缓存执行流程</strong>（<code>cache.py</code> 源码）：</p>
+<pre><code>用户问&quot;退款一般几个工作日到？&quot;
+  → 嵌问题本身 → 和 _local_index（内存）逐一比余弦相似度
+  → ≥ 0.95？→ 直接返回历史答案（不走 RAG，毫秒级，零成本）
+  → 否则查 Redis md5 精确匹配？→ 直接返回
+  → 都 miss → 放行 RAG 流水线 → 结束后 set() 存入
+</code></pre>
+<p><strong>两者叠加关系</strong>：</p>
+<pre><code>用户问
+  ↓
+语义缓存拦截？──命中──→ 直接返回，跳过 HyDE + 检索 + LLM
+  ↓（miss）
+HyDE 开启？──是──→ LLM 生成假答案 → 嵌假答案 → Milvus 检索
+  ↓
+BM25 关键词召回
+  ↓
+RRF 融合 → BGE-Reranker 精排 → LLM 生成答案
+</code></pre>
+<p><strong>面试加分点</strong>：KnowBase 里 HyDE 和语义缓存<strong>独立共存、各司其职</strong>，一个让召回更准，一个让重复问题零成本返回。HyDE 是可配置开关（<code>HYDE_ENABLED</code>），语义缓存阈值 <strong>0.95</strong>（很严格，只有几乎一样的问题才命中，避免答非所问）。</p>
+<hr />
+<h3 id="14">1.4 概念之间的关系（核心关联图）</h3>
+<p>前面讲了每个概念是什么，这里用一张图说清楚<strong>它们是怎么串起来的</strong>。</p>
+<h4 id="_3">🔗 概念关系总览</h4>
+<pre><code>【摄入阶段】（一次性，文档入库）
+
+  PDF/Word 文档
+       │
+       ▼
+  ┌─────────────────────────────────────┐
+  │ 文档解析 ──→ 文本切片 ──→ Embedding  │
+  └──────────────────┬──────────────────┘
+                     │  向量 + 原文
+                     ▼
+            ┌────────────────┐
+            │   Milvus       │  ← 每租户独立集合（多租户隔离）
+            │  向量数据库     │
+            └────────────────┘
+
+【问答阶段】（每次用户提问，走完全链路）
+
+  用户提问（&quot;怎么退钱？&quot;）
+       │
+       ├──────────────────────────────────────────────┐
+       │                                              │
+       ▼                                              ▼
+  ┌──────────┐                              ┌──────────────────┐
+  │ 语义缓存  │←─命中则直接返回答案，           │ HyDE：LLM生成    │
+  │(毫秒级)   │  不走后续链路                  │ 假答案文档       │
+  └──────────┘  （和HyDE是两个独立组件）       └────────┬─────────┘
+       │                                               │
+       │ 未命中                                         │ 假答案向量
+       │                                               ▼
+       │                                    ┌───────────────────────┐
+       │                                    │ Embedding 向量化      │
+       │ 未命中                                         ▼
+       │                                    ┌───────────────────────┐
+       │                                    │ ① 向量检索 Top-20     │←── 向量路（Bi-Encoder）
+       │                                    │ ② BM25 召回 Top-20   │←── BM25路（关键词）──┐
+       │                                    └───────────┬───────────┘                       │
+       │                                                │                                   │
+       │                                                ▼                                   │
+       │                                    ┌───────────────────────┐                       │
+       │                                    │  RRF 融合 ──────────────────────→│───────────┤
+       │                                    │  合并两个排行榜       │   │
+       │                                    └───────────┬───────────┘   │
+       │                                                │               │
+       │                                                ▼               │
+       │                                    ┌───────────────────────┐   │
+       │                                    │  BGE-Reranker 精排    │   │
+       │                                    │  Top-20~40 → Top-5   │←──┘
+       │                                    └───────────┬───────────┘
+       │                                                │
+       │                                                ▼
+       │                                     ┌─────────────────┐
+       │                                     │ 拼 Prompt        │
+       │                                     │ (片段+问题+指令) │
+       │                                     └────────┬────────┘
+       │                                              │
+       │                                              ▼
+       │                                     ┌─────────────────┐
+       │                                     │  LLM 生成答案   │
+       │                                     │  (流式 SSE)     │
+       │                                     └────────┬────────┘
+       │                                              │
+       │                                              ▼
+       │                                      答案写入语义缓存
+       │                                              │
+       └───────────────────────────────────→ 最终答案返回用户
+</code></pre>
+<h4 id="_4">🔄 完整数据流转（以「怎么退钱？」为例）</h4>
+<table>
+<thead>
+<tr>
+<th>步骤</th>
+<th>用户操作/输入</th>
+<th>经过哪些组件</th>
+<th>变成什么</th>
+<th>产出</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>0</td>
+<td>用户问「怎么退钱？」</td>
+<td>—</td>
+<td>原始问题字符串</td>
+<td>待处理问题</td>
+</tr>
+<tr>
+<td>1</td>
+<td>缓存查询</td>
+<td><code>SemanticCache</code></td>
+<td>—</td>
+<td>命中→直接返答案；未命中→继续</td>
+</tr>
+<tr>
+<td>2</td>
+<td>向量化</td>
+<td><code>Embedder</code>（BGE-M3）</td>
+<td>→ 1536维向量</td>
+<td>问题向量</td>
+</tr>
+<tr>
+<td>3</td>
+<td>并行两路召回</td>
+<td><code>VectorStore</code>（Milvus） + <code>BM25</code></td>
+<td>—</td>
+<td>向量 Top-20 + BM25 Top-20</td>
+</tr>
+<tr>
+<td>4</td>
+<td>结果融合</td>
+<td><code>RRF Fuse</code>（k=60）</td>
+<td>—</td>
+<td>向量 Top-20 + BM25 Top-20 → RRF 融合 → 并集 Top-20~40 条（RRF 只排名不删内容，截断是精排的事）</td>
+</tr>
+<tr>
+<td>5</td>
+<td>精排精选</td>
+<td><code>BGE-Reranker</code>（Cross-Encoder）</td>
+<td>—</td>
+<td>Top-5 高置信度片段</td>
+</tr>
+<tr>
+<td>6</td>
+<td>组装 Prompt</td>
+<td><code>RAGEngine</code></td>
+<td>片段+系统指令+问题 → 一段文字</td>
+<td>发送给 LLM 的 Prompt</td>
+</tr>
+<tr>
+<td>7</td>
+<td>LLM 生成</td>
+<td><code>LLM Router</code> → OpenAI/GPT-4o-mini</td>
+<td>文字 → 流式 token</td>
+<td>SSE 流</td>
+</tr>
+<tr>
+<td>8</td>
+<td>边返边存</td>
+<td><code>SemanticCache</code></td>
+<td>问题和答案存入缓存</td>
+<td>供后续复用</td>
+</tr>
+<tr>
+<td>—</td>
+<td>前端渲染</td>
+<td>SSE 实时推送</td>
+<td>token 流 → 页面打字效果</td>
+<td>用户看到答案</td>
+</tr>
+</tbody>
+</table>
+<h4 id="_5">❓ 为什么这样链式组合？</h4>
+<p><strong>Q：向量检索用的 Bi-Encoder 还是 Cross-Encoder？</strong></p>
+<blockquote>
+<p><strong>Bi-Encoder</strong>。代码里 <code>embed_query()</code> 把用户问题单独编码成一个向量（1536 维），然后去 Milvus 做 ANN 余弦检索。问题和文档<strong>从未拼在一起看过</strong>，这是 Bi-Encoder 的本质特征。召回阶段必须用 Bi-Encoder——因为它可以提前把几万段文档的向量全部算好存进 Milvus，每次查询只算问题向量（毫秒级）。如果用 Cross-Encoder，每次查询都要把问题与几万段文档逐个拼接重算，根本跑不动。</p>
+</blockquote>
+<p><strong>Q：向量检索很强了，为什么还要 BM25？</strong></p>
+<blockquote>
+<p>语义相近 ≠ 字面相同。「iPhone」和「苹果手机」向量近，但「苹果公司」和「苹果手机」向量也可能近。BM25 专治关键词精确匹配，弥补向量检索对专有名词的遗漏。</p>
+</blockquote>
+<p><strong>Q：向量召回很强了，为什么还要 Cross-Encoder 精排？</strong></p>
+<blockquote>
+<p>Bi-Encoder 把问题和文档<strong>分开编码</strong>，算距离时是"盲比"。Cross-Encoder 把「问题+文档」<strong>一起看</strong>，能看到关键词对关键词的相关性，所以更准，但贵且慢。所以"粗筛 20~40 → 精排到 5"是性价比最高的方案。</p>
+</blockquote>
+<p><strong>深入拆解——向量召回的两个天生缺陷：</strong></p>
+<p><em>缺陷一：语义相似 ≠ 强相关</em></p>
+<table>
+<thead>
+<tr>
+<th>用户问</th>
+<th>向量召回路找到</th>
+<th>BM25 召回路找到</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>"怎么申请退款"</td>
+<td>"退款政策：平台支持退款申请，详情见退款协议第3.2条"（语义近，但没回答"怎么操作"）</td>
+<td>"打开APP→我的订单→点击退款→填写原因→提交"（关键词命中，但语义笼统）</td>
+</tr>
+</tbody>
+</table>
+<p>向量召回路找的是"大概在说同一件事"，但无法判断"这段是否真的直接回答了问题"。</p>
+<p><em>缺陷二：Bi-Encoder 分开编码，看不到 query 和 doc 的交互</em></p>
+<pre><code class="language-python"># Bi-Encoder（分开编码）—— 快但盲
+vec_q = embed(&quot;怎么申请退款&quot;)       # 单独算问题向量
+vec_d = embed(&quot;退款协议详情...&quot;)   # 单独算文档向量
+score = cosine(vec_q, vec_d)       # 两向量对比，模型不知道&quot;怎么&quot;对这个文档意味着什么
+
+# Cross-Encoder（拼在一起）—— 慢但精准
+score = reranker.score(&quot;怎么申请退款&quot;, &quot;退款协议详情...&quot;)
+# 模型看到&quot;怎么&quot;+&quot;申请&quot;+&quot;退款&quot;在&quot;退款协议&quot;语境下的权重——真正理解&quot;相关&quot;的含义
+</code></pre>
+<p><em>类比：</em>
+- <strong>Bi-Encoder</strong> = HR 拿着简历关键词表（"退款""订单""申请"）在走廊里快速扫一眼，筛掉明显不相关的
+- <strong>Cross-Encoder</strong> = 主管坐在会议室里，把你的简历和职位要求<strong>对照着逐条看</strong>，知道"3年经验"在"高级工程师"下是加分，在"初级岗"下可能是警告</p>
+<p><strong>为什么精排不能处理全量文档？</strong> Cross-Encoder 的计算复杂度是 O(N)，每条候选都要过一次模型。如果全库有几万段文档，每次查询让精排全跑一遍——延迟从毫秒级变成分钟级，根本无法接受。所以必须先用 Bi-Encoder + BM25 粗筛到 20~40 条，再用精排"优中选优"。这是质量和速度的折中。</p>
+<hr />
+<p><strong>Q：有了精排，为什么还要 RRF 融合？</strong></p>
+<blockquote>
+<p>RRF 融合发生在精排<strong>之前</strong>。两路各召 20 条，RRF 做并集——这一步是为了<strong>扩大召回面</strong>，防止某一路单独召回时"全军覆没"（比如向量检索被专有名词误导时，BM25 还能捞回来）。融合后得到 20~40 条（两路重叠越少越接近 40，完全重叠则是 20），最后 Reranker 从 20~40 条里挑 Top-5。</p>
+<p>⚠️ <strong>常见误解：</strong> RRF <strong>不缩减数量</strong>，它只负责排名。缩减到 5 条是 Reranker 精排阶段的工作，不是在 RRF 阶段发生的。</p>
+</blockquote>
+<p><strong>Q：RRF 的排名对精排计算有影响吗？</strong></p>
+<blockquote>
+<p><strong>没有影响。</strong> 精排（Cross-Encoder）是独立对每个 candidate 重新打分，分数只取决于「问题 + 该文档」拼在一起后模型判断出的相关度，和 RRF 排名是两套独立的信号。</p>
+<p>那 RRF 排名是不是白算了？<strong>不是白算——它决定了谁能进候选集。</strong></p>
+<p>假设精排最多处理 25 条（受延迟限制），当两路并集得到 38 条时：
+- <strong>无 RRF 截断</strong>：不知道按什么规则砍掉最后 13 条，可能是任意剔除
+- <strong>有 RRF 排序</strong>：按综合排名从高到低取 Top-25，淘汰的是「只有一路强、另一路很弱或没有」的文档——这类文档更可能是噪声</p>
+<p><strong>RRF 是入口过滤器，不影响精排分数，但决定精排看到什么输入。</strong></p>
+<table>
+<thead>
+<tr>
+<th>文档</th>
+<th>向量路排名</th>
+<th>BM25路排名</th>
+<th>RRF 得分</th>
+<th>是否进精排候选</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>A</td>
+<td>1</td>
+<td>4</td>
+<td>0.0327 ✅</td>
+<td>✅ Top-5 进</td>
+</tr>
+<tr>
+<td>C</td>
+<td>3</td>
+<td>2</td>
+<td>0.0319 ✅</td>
+<td>✅ Top-5 进</td>
+</tr>
+<tr>
+<td>H</td>
+<td>未召回</td>
+<td>5</td>
+<td>0.0154 ❌</td>
+<td>❌ 截断</td>
+</tr>
+</tbody>
+</table>
+<p><strong>一句话总结：</strong> RRF 的价值 = 去重（避免同一文档重复计算）+ 减小精排候选量（40→20~30）+ 有信息量的截断规则。排名本身不传精排，但截断决策决定精排的输入质量。</p>
+</blockquote>
+<p><strong>完整流水线职责分工：</strong></p>
+<pre><code>向量召回 Top-20        BM25 召回 Top-20
+（解决&quot;语义相近但说法不同&quot;）  （解决&quot;关键词精确匹配&quot;）
+        │                    │
+        └────────┬───────────┘
+                 ▼
+        ┌────────────────────┐
+        │   RRF 融合（k=60）  │  ← 只排名，不断章，不删内容
+        │  把两路排名信号融合   │
+        └────────┬────────────┘
+                 ▼
+        并集 Top-20~40 条候选
+                 │
+                 ▼
+        ┌────────────────────┐
+        │ Cross-Encoder 精排  │  ← 真正&quot;相关性&quot;判断，强制截断 Top-5
+        │  拼 query+doc 过模型 │
+        └────────┬────────────┘
+                 ▼
+           Top-5 → LLM 生成答案
+</code></pre>
+<p><strong>Q：40 → 5 的完整过程是什么？</strong></p>
+<blockquote>
+<p>下面用源码里的真实参数，走一遍每一步发生了什么。</p>
+</blockquote>
+<p><strong>默认参数（<code>config.py</code>）：</strong></p>
+<pre><code class="language-python">VECTOR_TOP_K   = 20   # 向量路召回头
+BM25_TOP_K     = 20   # BM25路召回头
+RRF_K          = 60   # 融合系数
+RERANK_TOP_K   = 5    # 精排输出
+</code></pre>
+<p><strong>第一步：两路并行召回，各 20 条（<code>hybrid.py</code> 第 48-52 行）</strong></p>
+<pre><code class="language-python">vector_hits = await self.vector_store.search(query_vec, settings.VECTOR_TOP_K, ...)
+# → Milvus ANN 检索，按余弦相似度返回 Top-20
+
+bm25_hits = self.bm25.search(effective_query, settings.BM25_TOP_K)
+# → Elasticsearch BM25，按词频得分返回 Top-20
+</code></pre>
+<table>
+<thead>
+<tr>
+<th>向量路（Top-20）</th>
+<th>BM25路（Top-20）</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>[1] 退款流程APP操作步骤...</td>
+<td>[1] 退款协议3.2条款...</td>
+</tr>
+<tr>
+<td>[2] 退货政策说明...</td>
+<td>[2] 订单取消操作步骤...</td>
+</tr>
+<tr>
+<td>...</td>
+<td>...</td>
+</tr>
+<tr>
+<td>[20] 退款查询入口...</td>
+<td>[20] 争议处理条款...</td>
+</tr>
+</tbody>
+</table>
+<p><strong>第二步：RRF 融合，20+20 → 20~40 条（<code>hybrid.py</code> 第 81 行）</strong></p>
+<p>两路结果合到一个排行榜，按 RRF 公式算综合得分：</p>
+<pre><code class="language-python"># _rrf_merge 核心逻辑
+for hit in 全部候选:
+    score = 0
+    if hit 在向量路排第 rank_v:
+        score += 1 / (60 + rank_v + 1)   # 排第1名→1/61分，排第20→1/80分
+    if hit 在BM25路排第 rank_b:
+        score += 1 / (60 + rank_b + 1)   # 两路都出现则分数叠加，越高越好
+</code></pre>
+<table>
+<thead>
+<tr>
+<th>结果</th>
+<th>向量路排名</th>
+<th>BM25路排名</th>
+<th>RRF得分</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>退款流程APP...</td>
+<td>1</td>
+<td>2</td>
+<td>1/61 + 1/62 ≈ 0.0329</td>
+<td>两路同时召回，分数最高</td>
+</tr>
+<tr>
+<td>退款协议3.2...</td>
+<td>5</td>
+<td>1</td>
+<td>1/65 + 1/61 ≈ 0.0319</td>
+<td>两路同时召回</td>
+</tr>
+<tr>
+<td>订单取消操作...</td>
+<td>—</td>
+<td>2</td>
+<td>1/62 ≈ 0.0161</td>
+<td>仅BM25路召回</td>
+</tr>
+<tr>
+<td>退货政策说明...</td>
+<td>2</td>
+<td>—</td>
+<td>1/62 ≈ 0.0161</td>
+<td>仅向量路召回</td>
+</tr>
+<tr>
+<td>争议处理条款...</td>
+<td>—</td>
+<td>20</td>
+<td>1/80 ≈ 0.0125</td>
+<td>仅BM25路召回</td>
+</tr>
+</tbody>
+</table>
+<p><strong>并集数量 = 20~40 条</strong>（完全重叠→20，完全不重叠→40，实际通常在之间）</p>
+<p><strong>第三步：Cross-Encoder 精排，20~40 → Top-5（<code>reranker.py</code> 第 35-41 行）</strong></p>
+<p>把这 20~40 条逐条和问题拼成 pair，批量过 Cross-Encoder 模型：</p>
+<pre><code class="language-python">pairs = [[query, h.content] for h in fused]   # 拼成 [&quot;怎么退钱？&quot;, &quot;退款流程APP...&quot;]
+scores = self._model.compute_score(pairs)     # 批量过模型，按相关分打分
+return hits[:top_k]                          # 截断 Top-5
+</code></pre>
+<table>
+<thead>
+<tr>
+<th>精排后排名</th>
+<th>文档内容</th>
+<th>Cross-Encoder分</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>[1]</td>
+<td>退款流程APP操作步骤...</td>
+<td>0.93</td>
+<td>直接回答"怎么"操作</td>
+</tr>
+<tr>
+<td>[2]</td>
+<td>退款协议3.2条款...</td>
+<td>0.71</td>
+<td>政策依据，相关度高</td>
+</tr>
+<tr>
+<td>[3]</td>
+<td>订单取消操作步骤...</td>
+<td>0.65</td>
+<td>操作相关</td>
+</tr>
+<tr>
+<td>[4]</td>
+<td>退货政策说明...</td>
+<td>0.58</td>
+<td>语义相关</td>
+</tr>
+<tr>
+<td>[5]</td>
+<td>争议处理条款...</td>
+<td>0.41</td>
+<td>边缘相关</td>
+</tr>
+</tbody>
+</table>
+<p><strong>全流程串联：</strong></p>
+<pre><code>向量召回 Top-20           BM25召回 Top-20
+    │                          │
+    └──────────┬───────────────┘
+               ▼
+        ┌──────────────────┐
+        │  RRF 融合（k=60） │ ← 第2步：排名，不删内容，输入40→输出20~40
+        └────────┬─────────┘
+                 ▼
+         统一排行榜 Top-20~40
+                 │
+                 ▼
+        ┌──────────────────┐
+        │ Cross-Encoder   │ ← 第3步：query+doc配对过模型，按相关分重排
+        │  精排 Top-5      │   输入20~40→输出Top-5（截断）
+        └────────┬─────────┘
+                 ▼
+           Top-5 → LLM 生成答案
+</code></pre>
+<hr />
+<p><strong>Q：HyDE 和语义缓存在哪接入？</strong></p>
+<blockquote>
+<ul>
+<li><strong>HyDE</strong>：在步骤 2「向量化」之前，把用户问题先发给 LLM，让它生成一段"假文档风格答案"，再用假答案去向量检索。适合口语化/短问题场景，可选开关。</li>
+<li><strong>语义缓存</strong>：在步骤 0（用户提问）后立即触发，优先于所有检索步骤。一旦命中，后续 1~7 全部跳过，直接返答案。</li>
+</ul>
+</blockquote>
+<hr />
+<h2 id="_6">二、项目整体架构（一张图看懂数据流）</h2>
+<pre><code>                         ┌─────────────────────────────────────────┐
+                         │              用户 / 前端                  │
+                         └────────────┬───────────────┬─────────────┘
+                             上传文档 │               │ 提问
+                                      ↓               ↓
+┌─────────────────────────────────────────────────────────────────────────────┐
+│                           FastAPI 应用（无状态，可多实例）                     │
+│                                                                              │
+│  ┌──────────┐    ┌──────────────────┐    ┌──────────────────────────────┐    │
+│  │ 中间件层 │    │   API 路由层      │    │  认证/限流/成本追踪中间件     │    │
+│  │(日志/ID) │    │ /documents /chat  │    │  JWT 校验 → 取出 tenant_id    │    │
+│  └──────────┘    └────────┬─────────┘    └──────────────────────────────┘    │
+│                           │                                                 │
+│              ┌────────────┴────────────┐                                    │
+│              │      RAG 引擎编排        │                                    │
+│              │  (services/kb/engine)   │                                    │
+│              └────────────┬────────────┘                                    │
+│       ┌───────────────────┼───────────────────┐                            │
+│       ↓                   ↓                   ↓                            │
+│ ┌────────────┐    ┌──────────────┐    ┌────────────────┐                  │
+│ │ 混合检索   │    │ 语义缓存      │    │ LLM 路由+降级  │                  │
+│ │向量+BM25   │    │ (命中即返回)  │    │ OpenAI→国产    │                  │
+│ │  +RRF融合  │    └──────────────┘    └───────┬────────┘                  │
+│ │ +Reranker  │                                │                            │
+│ └─────┬──────┘                                │                            │
+└───────┼──────────────────────────────────────┼────────────────────────────┘
+        ↓                                       ↓
+┌──────────────────┐                  ┌──────────────────────┐
+│ Milvus 向量库     │                  │ LLM 服务              │
+│ (每个租户独立集合)│                  │ (GPT-4o-mini等)       │
+└──────────────────┘                  └──────────────────────┘
+
+  摄入链路（异步，Celery worker）：
+  上传文件 → 解析 → 切片 → Embedder向量化 → 写入 Milvus
+  （状态机: pending → processing → indexed / failed）
+</code></pre>
+<p><strong>一句话总结架构：</strong> 无状态 API 层 + 异步摄入链路 + 多租户隔离的向量/关系存储 + 混合检索 + 流式生成。</p>
+<hr />
+<h2 id="_7">三、核心技术亮点</h2>
+<h3 id="1-rrf">亮点 1：混合检索 + RRF 融合（召回阶段的核心）</h3>
+<p><strong>一句话是什么：</strong> 同时用"向量检索"（懂语义）和"BM25"（懂关键词）两路召回，再用 RRF 算法合成一个排行榜，最后用 Cross-Encoder 精排。</p>
+<p><strong>为什么需要它（痛点）：</strong>
+- 纯向量检索：搜"iPhone 15 Pro Max"可能漏掉精确型号，因为它更关注"语义相近"。
+- 纯 BM25：搜"怎么退钱"找不到写"退款流程"的段落（字面不同）。
+- <strong>两路互补</strong>，才能既懂语义又认关键词。</p>
+<p><strong>生活类比：</strong> 找对象，朋友介绍（懂你性格，像向量）和相亲网站筛选（按硬条件匹配，像 BM25），两路都靠谱，合起来命中率最高。</p>
+<p><strong>代码级实现（这段代码做了什么）：</strong></p>
+<pre><code class="language-python"># services/retrieval/hybrid.py
+# 输入：两路召回结果 lists（向量榜 + BM25榜），每个元素是 [Hit, Hit, ...] 按相关度排好序
+def _rrf_merge(lists: Sequence[list[Hit]], k: int = 60) -&gt; list[Hit]:
+    scores: dict[str, float] = {}      # 记录每个文档的融合总分
+    merged: dict[str, Hit] = {}        # 去重用，保证每个文档只出现一次
+    for hits in lists:                 # 遍历每一路召回
+        for rank, hit in enumerate(hits):       # rank = 名次（0开始）
+            fused = 1.0 / (k + rank + 1)        # RRF公式：名次越靠前，分数越高
+            scores[hit.id] = scores.get(hit.id, 0.0) + fused  # 两路分数累加
+            if hit.id not in merged:
+                merged[hit.id] = hit
+    # 按总分从高到低排序
+    ordered = sorted(merged.values(), key=lambda h: scores[h.id], reverse=True)
+    return [Hit(id=h.id, content=h.content, score=scores[h.id], metadata=h.metadata)
+            for h in ordered]
+</code></pre>
+<p>调用链路：<code>向量检索 Top-20</code> + <code>BM25 Top-20</code> → <code>_rrf_merge</code> 并集（20~40 条）→ <code>BGE-Reranker</code> 精排到 Top-5`。</p>
+<p>⚠️ <strong>重要澄清：</strong> RRF 是<strong>并集</strong>不是截断——两路完全不重叠时最多 40 条，完全重叠时最少 20 条。缩减到 5 条是 Reranker 精排阶段的工作，不是在 RRF 阶段发生的。</p>
+<p><strong>关键技术决策 + 权衡：</strong>
+- <strong>为什么用 RRF 而不是"分数直接加权平均"？</strong>
+  向量分数（0~1 的余弦）和 BM25 分数（可能是 0~20 的词频）量纲不同，直接加权会被某一路"数值大"的带偏。RRF 只看名次，天然免疫量纲问题。
+- <strong>k=60 怎么来的？</strong> 原论文建议 k∈[10,100]。k 越小，越看重"绝对名次"（第1名碾压第20名）；k 越大，名次差异被抹平。我们在验证集上测过，k=60 时 MRR（排序质量指标）最高。</p>
+<p><strong>面试追问（刁钻版）：</strong>
+- <strong>Q：如果向量榜和 BM25 榜完全不重叠（一路全中、一路全空），RRF 还有效吗？</strong>
+  A：有效。RRF 是"并集"逻辑，不重叠时两路结果都保留，总结果 = 向量 Top20 ∪ BM25 Top20。但这暴露一个问题：说明查询是"极端偏向型"（要么纯语义、要么纯关键词）。优化方向是加一个 query classifier，判断查询类型，对纯关键词查询可加权 BM25。
+- <strong>Q：RRF 会不会把"两路都排第 10"的文档，排到"一路第 1 一路第 20"前面？</strong>
+  A：会，这正是 RRF 的设计哲学——"两路都觉得还行"比"一路狂推一路嫌弃"更可信。因为单路排名第 1 可能是该路检索器的偏差（比如 BM25 对长文档有偏好）。RRF 用"共识"降低单路风险。
+- <strong>Q：为什么不训练一个模型直接做融合（Learning-to-Rank）？</strong>
+  A：LTR 需要大量"查询-文档-相关性标注"训练数据，标注成本高、容易过拟合我们的特定语料。RRF 零训练、冷启动友好、可解释。等数据量够大、且融合成为瓶颈时，再考虑 LTR。</p>
+<hr />
+<h3 id="2semantic-cache">亮点 2：语义缓存（Semantic Cache，降本提速）</h3>
+<p><strong>一句话是什么：</strong> 把用户问题和答案，连同问题的向量，一起存起来。下次有"意思差不多"的新问题，直接复用老答案，不调 LLM。</p>
+<p><strong>为什么需要它（痛点）：</strong>
+- LLM 调用按 token 收费。100 个用户问"退款政策"，如果每次都调 LLM，是纯浪费。
+- 普通缓存（MD5 比对）要求问题"一字不差"才命中。"退款政策"和"怎么退钱"被认为不同，白白浪费。</p>
+<p><strong>生活类比：</strong> 客服团队有个"常见问答本"。用户问"怎么退钱"，新员工翻本子发现"退款流程"那条意思一样，直接照念，不用每次现想。</p>
+<p><strong>代码级实现（这段代码做了什么）：</strong></p>
+<pre><code class="language-python"># services/kb/cache.py
+class SemanticCache:
+    def __init__(self):
+        self.threshold = settings.SEMANTIC_CACHE_SIMILARITY  # 0.95，相似度门槛
+        self._local_index: list[tuple[list[float], str, str]] = []  # 内存里存 (向量, 答案, key)
+
+    async def get(self, query: str, collection: str) -&gt; str | None:
+        emb = await self._embedder.embed_query(query)   # 把新问题变成向量
+        for cached_emb, answer, _ in self._local_index:
+            if _cosine(emb, cached_emb) &gt;= self.threshold:  # 和新问题够像（≥0.95）就命中
+                return answer
+        return None
+
+    async def set(self, query: str, collection: str, answer: str):
+        emb = await self._embedder.embed_query(query)
+        self._local_index.append((emb, answer, key))
+        if len(self._local_index) &gt; 500:        # 内存只留最近 500 条，多了丢最旧的（FIFO）
+            self._local_index.pop(0)
+        await self._redis_client().set(key, answer, ex=self.ttl)  # 同时存 Redis，跨实例共享
+</code></pre>
+<p><strong>关键技术决策 + 权衡：</strong>
+- <strong>阈值 0.95 是精度和召回的权衡：</strong> 太高（0.99）几乎只命中完全一样的，缓存形同虚设；太低（0.85）可能把"不相关但字面像"的问题也命中，给出错误答案。我们做过 A/B，0.95 在"命中率 15-20%"和"准确率"间平衡最好。
+- <strong>本地内存 + Redis 双层：</strong> 本地内存避免每次都走网络（毫秒级加速），Redis 保证多个 API 实例之间缓存互通。</p>
+<p><strong>面试追问（刁钻版）：</strong>
+- <strong>Q：缓存命中了，但答案是错的（比如知识库更新了，旧答案过时），怎么办？</strong>
+  A：三层兜底——① 用户反馈闭环：前端有"答案不准"按钮，点了就让这条缓存失效；② TTL 过期自动清（我们设 1 小时）；③ 可加黑名单，运营手动把错误答案移出缓存。本质是"缓存最终一致性"，不追求实时准确。
+- <strong>Q：为什么不只用一个纯 Redis 缓存，要加本地内存？</strong>
+  A：Redis 每次查询要走网络（哪怕内网也有 1-3ms 延迟）。语义缓存的查询是"拿新向量和本地 500 条逐一算余弦"，如果 500 条都在本地内存，是纯 CPU 计算，微秒级。本地命中就根本不碰 Redis。代价是多占一点内存（500 条向量约 2MB），完全可接受。
+- <strong>Q：命中率只有 15-20%，值得做吗？</strong>
+  A：值得。这 15-20% 是高频 FAQ（退款、登录、价格），占总查询量可能 40%+。省下的 LLM 调用成本可观。而且缓存是"免费的午餐"——对长尾问题没命中也不亏，只是 fallback 到正常流程。</p>
+<hr />
+<h3 id="3bge-reranker-v2-m3-cross-encoder">亮点 3：BGE-Reranker-v2-m3 精排（Cross-Encoder 实战）</h3>
+<p><strong>一句话是什么：</strong> RRF 融合后得到 20~40 条，用 Cross-Encoder 模型把"问题+每条"拼一起算相关分，取最相关的 5 条喂给 LLM。</p>
+<p><strong>为什么需要它（痛点）：</strong>
+- 召回阶段用的 Bi-Encoder（向量检索）是"分别编码"，精度有限。它可能把"字面像但意思无关"的段落排前面。
+- LLM 的上下文窗口有限（且越长越贵、越容易跑题），必须只喂最相关的几段。精排就是"优中选优"。</p>
+<p><strong>生活类比：</strong> 见上文"简历筛选"——HR 初筛 40 份，主管精挑 5 份给老板。</p>
+<p><strong>代码级实现（这段代码做了什么）：</strong></p>
+<pre><code class="language-python"># services/retrieval/reranker.py
+class Reranker:
+    def __init__(self):
+        self._model = FlagReranker(
+            &quot;BAAI/bge-reranker-v2-m3&quot;,
+            use_fp16=self.use_gpu,                  # GPU 用半精度加速
+            devices=[&quot;cuda&quot;] if self.use_gpu else [&quot;cpu&quot;]
+        )
+
+    async def rerank(self, query: str, hits: list[Hit], top_k: int) -&gt; list[Hit]:
+        # 把&quot;问题+段落&quot;拼成 pair，一次算一批
+        pairs = [[query, h.content] for h in hits]
+        scores = self._model.compute_score(pairs, batch_size=16)  # Cross-Encoder 输出相关分
+        for hit, score in zip(hits, scores):
+            hit.score = float(score)
+        hits.sort(key=lambda h: h.score, reverse=True)   # 按精排分重新排序
+        return hits[:top_k]                             # 只取前 top_k（5）段
+</code></pre>
+<p><strong>关键技术决策 + 权衡：</strong>
+- <strong>为什么先粗筛再精排，而不是直接精排全部？</strong> Cross-Encoder 要把每对"问题+段落"过一遍模型，复杂度 O(N)。如果 N=全库（几万段），太慢。先 Bi-Encoder + BM25 粗筛到 20~40 条，再 Cross-Encoder 精排 Top-5，把 O(N) 的贵操作限制在小数目上。
+- <strong>为什么选 BGE-Reranker 开源模型，而不是 Cohere 的付费 Rerank API？</strong> 开源可本地部署、数据不出域（金融/医疗客户要求）、免费。我们测过，BGE-Reranker-v2-m3 在中英文混合场景接近 Cohere 效果，且支持多语言（v2-m3 是多语言版）。</p>
+<p><strong>面试追问（刁钻版）：</strong>
+- <strong>Q：精排会增加多少延迟？用户感知明显吗？</strong>
+  A：CPU 模式精排 20~40 条约 100-200ms，GPU 约 20-50ms。我们测过精排后 Top-5 的 NDCG@5（排序质量指标）提升 15-20%。用户虽不直接感知"精排"这步，但能感知"答案更准了"，尤其长尾问题提升明显。值得。
+- <strong>Q：如果召回的 20~40 条本身全不相关，精排还有用吗？</strong>
+  A：没用——"垃圾进垃圾出"。所以召回层的质量是底线，我们才用"向量+BM25"混合召回保证覆盖面。此外可加前置判断：如果召回段落的平均相关分低于阈值，直接返回"未找到相关内容"，不浪费 LLM 调用。
+- <strong>Q：Reranker 模型很大，加载慢怎么办？会不会阻塞请求？</strong>
+  A：模型是延迟加载（首次调用时加载到内存），且常驻不卸载。我们用单例模式保证全局只有一个模型实例，所有请求共享。若用 GPU，需注意显存占用；CPU 模式则吃内存（约 1-2GB），多 worker 时每个 worker 各加载一份，需算好机器资源。</p>
+<hr />
+<h3 id="4hyde">亮点 4：HyDE（假设性文档嵌入，提升召回）</h3>
+<p><strong>一句话是什么：</strong> 用户提问后，先让 LLM 写一段"假设的知识库答案"，用这段假答案去向量检索（而不是用原问题检索）。</p>
+<p><strong>为什么需要它（痛点）：</strong>
+- 用户问题常口语、简短（"咋退钱？"），知识库文档很正式（"自购买之日起 7 日内可申请退款……"）。
+- 两者向量距离远，导致"用原问题检索"搜不到真正相关的文档。</p>
+<p><strong>生活类比：</strong> 见上文"找人"——你用方言描述，保安听不懂；先让翻译写成标准简历再去比对，更好找。</p>
+<p><strong>HyDE vs 向量化一句话：</strong> HyDE 是向量化"前的预处理提纲"，让检索的坐标更精准。</p>
+<p><strong>代码级实现（这段代码做了什么）：</strong></p>
+<pre><code class="language-python"># services/retrieval/query_rewrite.py
+HYDE_PROMPT = &quot;&quot;&quot;请基于以下问题，撰写一段可能出现在知识库文档中的标准答案段落。
+问题: {query}
+假设性文档段落:&quot;&quot;&quot;
+
+async def hyde(self, query: str) -&gt; str:
+    # 让 LLM 基于问题，生成一段&quot;像知识库里的&quot;假答案
+    doc = await self.llm.generate(HYDE_PROMPT.format(query=query), max_tokens=256)
+    return doc.strip() or query   # 如果生成失败，fallback 用原问题
+</code></pre>
+<pre><code class="language-python"># services/retrieval/hybrid.py 中的调用
+if use_hyde and settings.HYDE_ENABLED:
+    hyde_doc = await self.query_rewriter.hyde(query)        # 生成假答案
+    hyde_vec = await self.embedder.embed_query(hyde_doc)    # 假答案向量化
+query_vec = hyde_vec or await self.embedder.embed_query(query)  # 用假答案向量去检索
+</code></pre>
+<p><strong>HyDE 与向量化是什么关系？</strong></p>
+<p>这是最常被误解的一点：<code>embed_query()</code> 这个向量化动作<strong>始终不变</strong>，HyDE 改变的是"把什么文本喂给它"。</p>
+<ul>
+<li>不开 HyDE：<code>embed_query("怎么退钱")</code> → 得到问题坐标 → 去 Milvus 检索</li>
+<li>开 HyDE：<code>embed_query("退款流程：登录账户→进入订单页→点击申请退款，3-7个工作日到账...")</code> → 得到文档风格坐标 → 去 Milvus 检索</li>
+</ul>
+<p>HyDE 解决的是"问题和文档的语义空间不一致"，而不是"向量检索技术本身"。</p>
+<p><strong>关键技术决策 + 权衡：</strong>
+- <strong>代价：</strong> 每次查询多一次 LLM 调用（多 200-500ms、多花钱）。所以不能无脑开，我们做成可配置开关，只在召回质量差的场景启用。
+- <strong>风险：</strong> LLM 生成的假答案可能"答错"。但注意——假答案<strong>只用于检索，不用于最终回答</strong>。即使假答案内容错，只要它的"语义风格"像知识库文档，就能帮我们找回正确的真实文档。</p>
+<p><strong>面试追问（刁钻版）：</strong>
+- <strong>Q：假答案要是生成错了，不会把检索带偏吗？</strong>
+  A：可能带偏，但概率低。因为 HyDE 的"假答案"是基于原问题生成的，语义上和原问题强相关，只是"文档化"了。它带偏的方向，大概率仍是问题相关领域。而且我们有开关和降级：如果检测到假答案和原问题相似度过低（说明 LLM 胡写），直接 fallback 用原问题检索。
+- <strong>Q：HyDE 和 Query Rewrite（查询改写）有什么区别？为什么两个都要？</strong>
+  A：Query Rewrite 是在"问题层面"改写（比如多轮对话里"它"→"退款政策"，补全指代）；HyDE 是在"文档层面"生成假设答案。两者解决不同问题：Rewrite 解决"问题不清"，HyDE 解决"问题和文档风格鸿沟"。我们多轮对话用 Rewrite，召回增强用 HyDE。
+- <strong>Q：HyDE 每次多调一次 LLM，成本怎么控？</strong>
+  A：① 配置开关，只在高价值场景开；② 可缓存假答案——相同问题不重复生成；③ 用便宜的小模型（如 GPT-4o-mini）做 HyDE 生成，不用贵的大模型。</p>
+<hr />
+<h3 id="5">亮点 5：多租户隔离架构（数据安全底线）</h3>
+<p><strong>一句话是什么：</strong> 多家公司共用一套系统，但 A 公司的文档绝不可能出现在 B 公司的搜索结果里。三层隔离：数据库打 <code>tenant_id</code> 标签、向量库每个租户独立 collection、JWT 里带 <code>tenant_id</code> 强制校验。</p>
+<p><strong>为什么需要它（痛点）：</strong> SaaS 产品，数据泄露是灭顶之灾。一旦 A 公司搜到了 B 公司的合同，不仅是 bug，是事故。</p>
+<p><strong>生活类比：</strong> 见上文"写字楼"——整栋楼一家物业，但 3 楼 A 公司、5 楼 B 公司，快递必须送对应楼层。</p>
+<p><strong>代码级实现（这段代码做了什么）：</strong></p>
+<pre><code class="language-python"># services/retrieval/vector_store.py
+class VectorStore:
+    def __init__(self, collection_name: str, dim: int):
+        self.collection_name = collection_name  # 格式: {prefix}_{tenant_id}，每个租户独立集合
+
+# services/kb/engine.py
+class RAGEngine:
+    def __init__(self, db, tenant_id, collection):
+        # 关键：collection 名直接拼了 tenant_id，物理上隔开了
+        self.vector_store = VectorStore(
+            collection_name=f&quot;{settings.MILVUS_COLLECTION_PREFIX}_{tenant_id}&quot;
+        )
+</code></pre>
+<pre><code class="language-python"># models/document.py
+class Document(Base):
+    tenant_id = mapped_column(ForeignKey(&quot;tenants.id&quot;), index=True)  # 数据库层也打标签+索引
+    collection = mapped_column(String(128), index=True)
+</code></pre>
+<p><strong>关键技术决策 + 权衡：</strong></p>
+<h4 id="postgresql-mysql">🗄️ 为什么用 PostgreSQL 不用 MySQL？</h4>
+<p>KnowBase 的文档元数据表有 <code>meta JSONB</code> 字段，存标签、页数、语言等信息：</p>
+<pre><code class="language-sql">ALTER TABLE documents ADD COLUMN meta JSONB;
+UPDATE documents SET meta = '{&quot;pages&quot;: 12, &quot;lang&quot;: &quot;zh&quot;, &quot;tags&quot;: [&quot;退款&quot;, &quot;政策&quot;]}';
+SELECT filename FROM documents WHERE meta-&gt;'tags' ? '退款';  -- 数组包含查询
+</code></pre>
+<p><strong>核心原因：PostgreSQL 的 JSONB + GIN 索引</strong>
+- JSONB 是二进制存储（不是文本），查询时不用每次解析
+- GIN 索引可以加速 JSONB 里的数组/键值查询
+- MySQL 的 JSON 类型是文本解析，查询性能差，且不支持 GIN 这种倒排索引</p>
+<p><strong>面试一句话回答：</strong></p>
+<blockquote>
+<p>KnowBase 选 PostgreSQL 主要因为文档元数据用 JSONB 存标签、语言等半结构化字段，需要 GIN 索引加速查询。此外 PG 的索引类型更丰富（GIN 对 JSONB 场景很关键），SQL 标准遵循更严格，未来扩展（全文搜索、复杂分析）空间更大。MySQL 也能用，但在 JSONB + GIN 这个组合上 PG 是更自然的选择。</p>
+</blockquote>
+<p><strong>对比表（加分点）：</strong></p>
+<table>
+<thead>
+<tr>
+<th>维度</th>
+<th>PostgreSQL</th>
+<th>MySQL</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>JSON 支持</strong></td>
+<td>JSONB + GIN 索引 ✅</td>
+<td>JSON（文本解析，查询慢）</td>
+</tr>
+<tr>
+<td><strong>索引类型</strong></td>
+<td>B-tree/GIN/GiST/Hash 多达 6 种</td>
+<td>主要 B-tree + Hash</td>
+</tr>
+<tr>
+<td><strong>SQL 标准</strong></td>
+<td>更严格遵循 ANSI SQL</td>
+<td>较多 MySQL 特有语法</td>
+</tr>
+<tr>
+<td><strong>全文搜索</strong></td>
+<td>内置 FTS + pg_trgm 插件</td>
+<td>依赖外部方案</td>
+</tr>
+<tr>
+<td><strong>复杂查询</strong></td>
+<td>窗口函数、CTE、并行查询</td>
+<td>部分受限</td>
+</tr>
+<tr>
+<td><strong>生态口碑</strong></td>
+<td>"学术/企业级"定位</td>
+<td>"互联网/轻量"定位</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<ul>
+<li><strong>为什么向量库用"每租户一个 collection"而不是"一个 collection 里用 tenant_id 字段过滤"？</strong> 后者（逻辑隔离）查询时要加 <code>where tenant_id=X</code> 过滤，数据量大时影响性能，且一旦过滤条件写漏就跨租户泄露。前者（物理隔离）从根上不可能串，且租户间性能互不影响。代价是 collection 数量多（Milvus 能支撑）。</li>
+<li><strong>大租户怎么办？</strong> 中小租户逻辑/集合隔离足够；超大租户可独立部署实例（物理隔离），代价是运维成本。</li>
+</ul>
+<p><strong>面试追问（刁钻版）：</strong>
+- <strong>Q：如果某天代码 bug，JWT 里的 tenant_id 没校验，会发生什么？</strong>
+  A：那任何租户都能带别人的 tenant_id 查询，直接越权。所以我们的防御是"多层"：① JWT 中间件强制解析并注入 tenant_id，路由层拿不到就拒绝；② 数据库查询 ORM 层自动拼接 <code>tenant_id=</code> 条件，即使路由层忘写也漏不出去；③ 向量库靠独立 collection 物理隔离。任一层漏了，其他层兜底。
+- <strong>Q：租户 A 文档暴涨到几百万段，会影响租户 B 的查询速度吗？</strong>
+  A：不会。因为向量库是独立 collection，B 的查询只扫 B 的集合。数据库层 B 的查询也带 <code>tenant_id=B</code> 索引过滤，不走全表。但如果是共享数据库实例且没做分区，磁盘 IO 可能间接影响；所以大租户建议独立实例或表分区。
+- <strong>Q：租户注销了，数据怎么清？</strong>
+  A：四步走——数据库外键级联删（CASCADE）、向量库删整个 collection、Redis 按 tenant_id 前缀批量删、对象存储按 tenant_id 目录删。</p>
+<hr />
+<h3 id="6celery">亮点 6：异步摄入管线（Celery，不卡用户）</h3>
+<p><strong>一句话是什么：</strong> 用户上传 PDF 后，后端不立即处理，而是记个"待处理"状态立刻返回，真正的解析+切片+向量化丢给后台 Celery worker 慢慢做。</p>
+<p><strong>为什么需要它（痛点）：</strong> 一个 200 页 PDF 的解析+向量化可能要几分钟。如果同步处理，用户页面卡死、HTTP 请求超时、API 线程被占满，其他用户也用不了。</p>
+<p><strong>生活类比：</strong> 你寄快递，快递员收件后给你一个单号说"后面会处理"，你不用原地等他把包裹分拣完。他回站点后由分拣中心（Celery worker）慢慢处理。</p>
+<p><strong>代码级实现（这段代码做了什么）：</strong></p>
+<pre><code class="language-python"># tasks/ingest_task.py
+ts_app = Celery(&quot;rag&quot;, broker=settings.REDIS_URL, backend=settings.REDIS_URL)
+
+@celery_app.task(name=&quot;ingest_document&quot;, bind=True, max_retries=2)
+def ingest_document_task(self, document_id, file_path, ...):
+    async def _run():
+        async with SessionLocal() as db:
+            pipeline = IngestionPipeline(db, tenant_id, collection)
+            return await pipeline.run(doc, file_path, chunking_strategy)
+    try:
+        return asyncio.run(_run())
+    except Exception as exc:
+        raise self.retry(exc=exc, countdown=10)  # 失败重试，隔 10 秒再来
+</code></pre>
+<pre><code class="language-python"># services/ingestion/pipeline.py
+class IngestionPipeline:
+    async def run(self, document, file_path, ...):
+        parsed = parse_document(file_path, document.file_type)  # 1.解析
+        chunks = chunk_text(cleaned, chunking_strategy)         # 2.切片
+        vectors = await self.embedder.embed_texts(chunks)       # 3.向量化（批量）
+        await self.vector_store.add(ids, chunks, vectors, ...)   # 4.入库
+</code></pre>
+<p><strong>关键技术决策 + 权衡：</strong>
+- <strong>为什么用 Celery 而不是 FastAPI 的 BackgroundTasks？</strong> BackgroundTasks 和 API 进程同生共死，进程重启任务就没了，且没法多机分布。Celery 任务存 Redis（broker），worker 挂了重启能恢复，还能开多个 worker 并行处理不同文档，横向扩展。
+- <strong>大文件优化：</strong> 摄入管线做了"流式读文件 + 批量 embed（200 条/批）+ 批量 Milvus add"，避免一次性把几万段全load进内存导致 OOM。Celery 任务还设了 <code>time_limit=3600s</code> 硬超时，超时强制终止并标记 failed。</p>
+<p><strong>面试追问（刁钻版）：</strong>
+- <strong>Q：Celery worker 处理到一半挂了，任务会丢吗？</strong>
+  A：不会。任务状态在 Redis broker 里，worker 重启后 broker 会把未确认的任务重新分发给空闲 worker。<code>max_retries=2</code> 还会自动重试。但注意：如果任务执行到"已写入一半向量"时挂，可能产生脏数据——所以 pipeline 设计上，要么全成功要么靠状态机回滚（failed 状态，前端可重新上传触发重跑）。
+- <strong>Q：多个用户同时上传大文件，worker 不够用怎么办？</strong>
+  A：Celery 支持多 worker 并发，可水平加机器。任务在 broker 里排队，不会丢。另外 API 层有文件大小上限（MAX_FILE_SIZE_MB）和限流，防止恶意刷爆队列。
+- <strong>Q：用户怎么知道处理好了？</strong>
+  A：Document 表有 status 字段（pending→processing→indexed/failed）。前端轮询 <code>GET /documents/{id}</code> 查状态；也可升级成 WebSocket 推送实时进度。</p>
+<hr />
+<h3 id="7llm">亮点 7：LLM 路由器 + 降级链（高可用）</h3>
+<p><strong>一句话是什么：</strong> 主 LLM（如 GPT-4o-mini）调不通时，自动切换到备用的国产模型（智谱、通义），保证"总能答出来"。</p>
+<p><strong>为什么需要它（痛点）：</strong> LLM 服务会限流、会宕机、会被墙。如果只依赖一家，它一挂整个问答就瘫了。</p>
+<p><strong>生活类比：</strong> 主银行卡刷不了，自动用备用的那张。你不在乎用哪张，能付钱就行。</p>
+<p><strong>代码级实现（这段代码做了什么）：</strong></p>
+<pre><code class="language-python"># services/llm/router.py
+class LLMRouter:
+    def __init__(self):
+        self.primary = self._build(settings.LLM_PROVIDER, settings.LLM_MODEL)  # 主：GPT-4o-mini
+        self.fallbacks = [self._build(fb) for fb in settings.LLM_FALLBACK_PROVIDERS]  # 备：智谱、通义
+
+    async def generate(self, messages, ...):
+        candidates = [self.primary, *self.fallbacks]
+        for llm in candidates:           # 依次尝试
+            try:
+                return await llm.generate(messages, max_tokens)
+            except Exception as e:
+                logger.warning(&quot;llm_failed&quot;, provider=llm.provider, error=str(e))  # 失败记日志，试下一个
+        raise RuntimeError(&quot;所有 LLM 均不可用&quot;)  # 全挂了才抛错
+</code></pre>
+<p><strong>关键技术决策 + 权衡：</strong>
+- <strong>降级链按"成本-性能"排序：</strong> 主模型性能最好但可能最贵；备用按性价比排。智谱/通义比 OpenAI 便宜，作为兜底不心疼。
+- <strong>成本追踪：</strong> 每次调用记录 provider + token 数，按租户/用户汇总，异常（某用户突然刷爆）可告警。</p>
+<p><strong>面试追问（刁钻版）：</strong>
+- <strong>Q：降级到国产模型，答案质量不一致，用户投诉怎么办？</strong>
+  A：首先我们选的备用模型和主模型能力接近（都是 4 级小模型），差异可控。其次有降级事件日志，能分析"降级频率"——如果某租户频繁降级，说明主模型对该租户限流严重，可单独调配额。关键场景（如付费客户的核心问答）可配置"只允许主模型，不降级"。
+- <strong>Q：如果主模型和备用模型同时挂，怎么兜底？</strong>
+  A：① 返回 503，前端提示"AI 服务暂不可用"；② 尝试命中语义缓存（如果有相似老问题）；③ 告警通知运维。本质是"优雅降级"，不追求 100% 可用，但保证可观测、可恢复。
+- <strong>Q：降级链会不会被恶意利用（疯狂触发降级刷备用模型）？</strong>
+  A：限流中间件（slowapi，60 次/分钟/IP）兜第一层；成本追踪兜第二层（异常消耗告警）。降级本身是"容错机制"不是"免费通道"，调用仍计费。</p>
+<hr />
+<h3 id="8jwt-bcrypt">亮点 8：JWT + bcrypt 认证体系（安全底线）</h3>
+<p><strong>一句话是什么：</strong> 用户密码用 bcrypt 捣成不可逆的渣存储；登录后发一张带过期时间的 JWT 门禁卡，之后每次请求带卡验身。</p>
+<p><strong>为什么需要它（痛点）：</strong> 明文存密码 = 数据库被拖库就全完蛋；无认证 = 谁都能调 API 薅 LLM。</p>
+<p><strong>生活类比：</strong> bcrypt = 把密码捣成渣，原密码永远恢复不出（见上文）。JWT = 临时门禁卡，过期失效。</p>
+<p><strong>代码级实现（这段代码做了什么）：</strong></p>
+<pre><code class="language-python"># app/security.py
+pwd_context = CryptContext(schemes=[&quot;bcrypt&quot;], deprecated=&quot;auto&quot;)
+
+def hash_password(password: str) -&gt; str:
+    return pwd_context.hash(password)        # 捣碎成渣（自动加盐）
+
+def verify_password(password: str, hashed: str) -&gt; bool:
+    return pwd_context.verify(password, hashed)  # 拿输入的密码再捣一遍，比对渣
+
+def create_access_token(subject, tenant_id, role) -&gt; str:
+    payload = {
+        &quot;sub&quot;: subject,          # 用户ID
+        &quot;type&quot;: &quot;access&quot;,
+        &quot;tenant_id&quot;: tenant_id,  # 关键信息：租户隔离就靠它
+        &quot;role&quot;: role,            # 权限角色
+        &quot;exp&quot;: now + timedelta(minutes=30),  # 30分钟过期
+        &quot;jti&quot;: str(uuid.uuid4()),  # 唯一ID，用于黑名单
+    }
+    return jwt.encode(payload, settings.SECRET_KEY, algorithm=&quot;HS256&quot;)
+</code></pre>
+<p><strong>关键技术决策 + 权衡：</strong>
+- <strong>bcrypt 的 work factor（轮数）默认 12：</strong> 故意让"捣碎"慢一点（约 250ms），增加暴力破解成本。调太高登录卡，调太低不安全，12 是平衡点。
+- <strong>JWT 无状态：</strong> 服务端不存 session，易水平扩展。但代价是"无法主动让一张已发的卡失效"（除非用 Redis 黑名单）。我们用短过期（30 分钟）+ Refresh Token（7 天）平衡：access token 短命降低泄露风险，refresh token 长命减少登录频率。</p>
+<p><strong>面试追问（刁钻版）：</strong>
+- <strong>Q：JWT 怎么实现"用户登出后立即失效"？</strong>
+  A：JWT 本身无法主动失效。标准做法：① 把该 token 的 jti 加进 Redis 黑名单，TTL 设为其剩余有效期；② 每次校验时查黑名单，命中就拒。代价是要碰 Redis，失去部分"无状态"优势。我们权衡后接受，因为安全 &gt; 纯无状态。
+- <strong>Q：Secret Key 泄露了怎么办？</strong>
+  A：立即轮换 secret key（旧 key 签的 token 全失效，用户需重登）；用 KMS 等密钥管理服务存 key，不硬编码；定期轮换（90 天）。
+- <strong>Q：为什么不用更简单的新加密算法（如 Argon2）？</strong>
+  A：bcrypt 生态成熟、passlib 原生支持、踩坑经验多。Argon2 更安全但当时依赖链兼容性我们验证过 bcrypt 更稳。技术选型要权衡"安全够用 + 稳定可控"，不是越新越好。</p>
+<hr />
+<h2 id="_8">四、架构设计亮点</h2>
+<h3 id="1-fastapi">1. FastAPI 工厂模式</h3>
+<p><strong>是什么：</strong> 用一个 <code>create_app()</code> 函数集中组装整个应用（中间件、路由、异常处理、生命周期），而不是在模块顶层直接 <code>app = FastAPI()</code>。</p>
+<p><strong>为什么好：</strong>
+- <strong>测试友好：</strong> 测试时能造一个"干净配置"的 app 实例，不影响生产。
+- <strong>延迟初始化：</strong> 配置加载完再建 app，避免循环 import。
+- <strong>生命周期管理：</strong> 用 <code>lifespan</code> 管理 DB 连接池等资源的"启动建、关闭拆"。</p>
+<p><strong>面试追问：为什么不直接 <code>app = FastAPI()</code>？</strong>
+A：直接建在模块顶层，测试时改配置难、循环依赖难解、多环境（dev/test/prod）切换不灵活。工厂模式把"怎么造 app"和"app 本身"解耦。</p>
+<hr />
+<h3 id="2">2. 请求上下文中间件（可观测性）</h3>
+<p><strong>是什么：</strong> 每个 HTTP 请求进来，自动生成一个 <code>request_id</code>，绑定到日志上下文；请求结束时记录耗时。</p>
+<p><strong>为什么好：</strong>
+- 一个用户请求会穿过很多函数，如果每段日志都带同一个 request_id，就能"顺着 id 把这次请求的所有日志串起来"排查问题。
+- 记录每个请求的耗时，是性能监控的第一手数据。</p>
+<p><strong>面试追问：为什么用 structlog 而不是 print/logging？</strong>
+A：structlog 输出结构化 JSON 日志，方便 ES/Grafana 检索聚合；且支持"上下文变量绑定"（request_id 自动注入每条日志），不用手动传参。</p>
+<hr />
+<h3 id="3-prometheus">3. Prometheus 指标监控</h3>
+<p><strong>是什么：</strong> 暴露 <code>/metrics</code> 端点，记录四类指标：请求量、请求延迟、检索延迟、生成延迟，按 endpoint/collection/model 维度分组。</p>
+<p><strong>为什么好：</strong> 没有监控的系统是"瞎子"。知道"哪个接口慢""哪个租户调用多"才能优化。</p>
+<p><strong>面试追问：为什么用 Histogram 而不是 Summary 算分位数？</strong>
+A：Histogram 的桶（bucket）数据可跨实例聚合——10 台机器各自的 P95 能合并算全局 P95。Summary 的分位数是单实例本地算的，没法跨机器汇总。分布式系统必须用 Histogram。</p>
+<hr />
+<h3 id="4-depends">4. 依赖注入（Depends）</h3>
+<p><strong>是什么：</strong> FastAPI 的 <code>Depends</code> 把"获取 DB 连接""校验当前用户""校验租户"封装成可复用依赖，路由函数直接声明要什么，框架自动注入。</p>
+<p><strong>为什么好：</strong>
+- <strong>解耦：</strong> 路由不关心 DB 怎么连，只管"我要一个 session"。
+- <strong>测试友好：</strong> 测试时可以把 DB 依赖换成 mock。
+- <strong>复用：</strong> 认证逻辑写一次，所有路由共享。</p>
+<p><strong>面试追问：依赖注入最核心的价值？</strong>
+A：控制反转（IoC）——对象不自己 new 依赖，而是外部塞进来。好处是"可替换"（测试换 mock、生产换真实现）和"单一职责"（路由只管业务）。</p>
+<hr />
+<h2 id="_9">五、性能优化实践</h2>
+<h3 id="1-sse">1. 流式响应（SSE）—— 打字机效果</h3>
+<p>用户提问后，LLM 逐字生成。SSE 让后端"生成一个字推一个字"，前端实时渲染，避免用户盯转圈圈。</p>
+<p><strong>面试追问：流式怎么防止"一直不结束"？</strong>
+A：检索阶段有超时、LLM 调用有超时；网关层（Nginx）配 <code>proxy_read_timeout</code>；客户端也可设最大等待。长时间无新 token 就主动断连返回部分结果。</p>
+<hr />
+<h3 id="2-hnsw">2. HNSW 向量索引 —— 毫秒级检索几百万向量</h3>
+<p>Milvus 用 HNSW（分层可导航小世界图）做近似最近邻检索。类比：像地铁线网，从起点站多层跳转，很快到目标站，不用遍历所有站。</p>
+<p><strong>参数取舍：</strong> <code>M=8</code>（每节点连接数，越大越准越占内存）、<code>efConstruction=200</code>（建索引时的搜索广度，越大索引质量越高越慢）、查询 <code>ef=64</code>（越大越准越慢）。</p>
+<p><strong>面试追问：为什么不用 IVF（倒排）？</strong>
+A：IVF 要先聚类训练，增量插入新向量时要重新平衡，成本高；HNSW 支持动态插入、查询是对数级快。我们数据量 &lt;1000 万，HNSW 内存可接受。</p>
+<hr />
+<h3 id="3-api">3. 批量向量化 —— 减少 API 调用</h3>
+<p>调 Embedding API 时，把多段文字打包成一批（batch_size=32）一次发送，而不是一段一次。</p>
+<p><strong>为什么：</strong> 每次 API 调用都有网络往返固定开销。32 段打包，网络开销摊薄 32 倍，且避免触发限流。</p>
+<p><strong>面试追问：batch 越大越好吗？</strong>
+A：不是。OpenAI 限制每批 token 上限（如 2048）；太大单次请求慢、易超时。32-64 是我们的平衡点。</p>
+<hr />
+<h3 id="4">4. 数据库连接池 —— 别每次都建连接</h3>
+<p><code>create_async_engine(pool_size=10, max_overflow=20, pool_pre_ping=True)</code>。常驻 10 个连接，不够时临时加最多 20 个；<code>pool_pre_ping</code> 每次取连接前先探活，避免拿到"死连接"报错。</p>
+<p><strong>面试追问：连接池设多大？</strong>
+A：经验公式 <code>pool_size = CPU核数*2 + 磁盘数</code>。我们 4 核机器设 10+20=30。监控"连接等待时间"，过长就扩容。</p>
+<hr />
+<h2 id="_10">六、测试覆盖策略</h2>
+<p>KnowBase 三层测试，共 58 个用例全过：</p>
+<table>
+<thead>
+<tr>
+<th>层级</th>
+<th>测什么</th>
+<th>例子</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>单元测试</strong></td>
+<td>纯函数逻辑，不碰外部服务</td>
+<td>RRF 融合的分数计算、BM25 分词、Reranker 排序（mock 模型）</td>
+</tr>
+<tr>
+<td><strong>集成测试</strong></td>
+<td>API 端到端，用测试库</td>
+<td>上传→查询全流程、JWT 校验、限流</td>
+</tr>
+<tr>
+<td><strong>E2E 测试</strong></td>
+<td>真实环境跑完整链路</td>
+<td>真实 Milvus + PostgreSQL，上传文档等摄入完再问</td>
+</tr>
+</tbody>
+</table>
+<p><strong>面试追问：为什么不全写 E2E？</strong>
+A：E2E 慢（要起真数据库）、脆（环境一变就挂）、难定位（失败了不知哪层错）。单元测试快且精准，覆盖核心算法；E2E 只覆盖最关键链路做"冒烟"。这是"测试金字塔"——底层多、顶层少。</p>
+<hr />
+<h2 id="10">七、面试常见题（10 道，含陷阱）</h2>
+<p><strong>Q1：RAG 怎么解决"幻觉"？</strong>
+A：① 系统 prompt 强制"只基于上下文答，没有就说不知道"；② 答案标注引用来源（哪段文档），用户可核对；③ 召回相似度过低时直接返回"未找到"，不硬答；④ 用户反馈闭环（点"不准"触发复查）。</p>
+<p><strong>Q2：怎么评估 RAG 效果？</strong>
+A：检索侧用 Recall@K、MRR、NDCG（需标注）；生成侧用人工评估（准不准、通不通顺）+ 端到端指标（用户满意度、解决率）；上线后 A/B 测试对比"开/关 Reranker"等配置；持续监控延迟、缓存命中率。</p>
+<p><strong>Q3：几亿条向量怎么检索？</strong>
+A：① 索引选 HNSW（实时）或 IVF（批量）；② 按租户/时间分区缩小范围；③ 量化（PQ/SQ）压缩降内存；④ 热点查询结果缓存；⑤ Milvus 集群分片多机。</p>
+<p><strong>Q4：多轮对话怎么保持上下文？</strong>
+A：① Query Rewrite 补全指代（"它"→"退款政策"）；② 最近 4 轮对话注入 LLM 输入；③ Conversation ID 持久化历史；④ 历史过长时裁剪/摘要，防超 token 上限。</p>
+<p><strong>Q5：怎么保证高可用？</strong>
+A：① API 无状态可多实例；② LLM 多供应商降级链 + 缓存兜底；③ 摄入用 Celery 多 worker；④ Prometheus 监控 + 告警；⑤ 数据库主从、Redis 哨兵。</p>
+<p><strong>Q6：怎么防恶意刷接口？</strong>
+A：① 限流（60 次/分/IP）；② JWT 强制认证；③ 按用户追踪 token 消耗，异常告警；④ 敏感词/合规过滤。</p>
+<p><strong>Q7（陷阱）：文档改了怎么更新？</strong>
+A：用 <code>POST /documents/{id}/replace</code>——document_id 不变，先删旧向量、重置状态为 pending、重新摄入。历史会话引用自动生效。已 superseded 的文档拒绝再替换（409）。大文件流式读 + 分批 embed + 分批入库，防 OOM。</p>
+<p><strong>Q8（陷阱）：召回了很多相关段落，但 LLM 答非所问，为什么？</strong>
+A：可能原因：① 段落太多冲淡重点（该用 Reranker 精排到 5 段）；② prompt 没约束"只基于上下文"；③ 段落虽相关但没直接答案（需更好的切分策略）。定位靠监控各阶段延迟 + 抽样人工评测。</p>
+<p><strong>Q9：embedding 模型怎么选？</strong>
+A：看语种（中英混用选 BGE/bge-large-zh 等）、维度（高维准但占存储）、部署（云端 API vs 本地）。我们重排序用 BGE-Reranker-v2-m3 因多语言 + 开源可本地化。</p>
+<p><strong>Q10：成本和效果怎么平衡？</strong>
+A：① 语义缓存省 LLM 调用；② 小模型（GPT-4o-mini）替代大模型；③ 降级链用便宜国产模型兜底；④ 批量 embed 省 API 次数；⑤ 按租户/用户追踪 token，异常即告警。</p>
+<hr />
+<h2 id="_11">八、每个亮点的"面试金句"（背下来）</h2>
+<table>
+<thead>
+<tr>
+<th>亮点</th>
+<th>一句话金句</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>混合检索+RRF</td>
+<td>"向量懂语义、BM25 懂关键词，RRF 只看名次融合两路，免疫量纲差异。"</td>
+</tr>
+<tr>
+<td>语义缓存</td>
+<td>"语义缓存命中意思相近的问题，复用答案，降本提速，命中率 15-20%。"</td>
+</tr>
+<tr>
+<td>BGE-Reranker</td>
+<td>"向量+BM25 各召 20 条（RRF 并集后 20~40 条），BGE-Reranker 精排 Top-5，先粗后精。"</td>
+</tr>
+<tr>
+<td>HyDE</td>
+<td>"先让 LLM 写假答案，用假答案去检索，弥合口语问题和正式文档的语义鸿沟。"</td>
+</tr>
+<tr>
+<td>多租户</td>
+<td>"数据库打 tenant_id 标签 + 向量库独立 collection + JWT 强制校验，三层防越权。"</td>
+</tr>
+<tr>
+<td>异步摄入</td>
+<td>"上传即返回，重活在 Celery worker 后台跑，流式读 + 分批处理防 OOM。"</td>
+</tr>
+<tr>
+<td>LLM 路由</td>
+<td>"主模型挂了自动降级国产模型，保证总能答，成本可追踪。"</td>
+</tr>
+<tr>
+<td>JWT+bcrypt</td>
+<td>"密码捣成渣（bcrypt），门禁卡带过期（JWT），登出进黑名单。"</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<p><strong>祝面试顺利！记住：面试官不在乎你背了多少术语，在乎你能把一个技术"为什么这么设计"讲清楚。</strong></p>
+</div>
+<script>
+document.querySelectorAll("pre>code").forEach(function(c){
+    var p=c.parentNode;p.style.position="relative";
+    var b=document.createElement("button");b.className="copy-btn";b.textContent="复制";p.appendChild(b);
+    b.addEventListener("click",function(){
+        var t=c.textContent;
+        navigator.clipboard.writeText(t).then(function(){
+            b.textContent="已复制";b.classList.add("copied");
+            setTimeout(function(){b.textContent="复制";b.classList.remove("copied")},2000);
+        }).catch(function(){
+            var a=document.createElement("textarea");a.value=t;
+            document.body.appendChild(a);a.select();
+            document.execCommand("copy");document.body.removeChild(a);
+            b.textContent="已复制";b.classList.add("copied");
+            setTimeout(function(){b.textContent="复制";b.classList.remove("copied")},2000);
+        });
+    });
+});
+</script>
+</body>

@@ -1,0 +1,671 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 5.4.2">
+  <link rel="apple-touch-icon" sizes="180x180" href="/blog/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/blog/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/blog/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/blog/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/blog/css/main.css">
+
+
+<link rel="stylesheet" href="/blog/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"ruoxixiruo.github.io","root":"/blog/","scheme":"Gemini","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":true,"show_result":true,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":true},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}};
+  </script>
+
+  <meta name="description" content="Harness Engineering（驾驭工程）：2026 年 AI 时代最重要的工程方法论之一。核心思想是——不优化模型本身，而是优化模型运行的环境。本指南从概念到落地，详解如何构建生产级的 LLM 应用驾驭框架。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Harness Engineering 企业级开发完全指南">
+<meta property="og:url" content="https://ruoxixiruo.github.io/blog/2026/07/08/ai/Harness-Engineering%E4%BC%81%E4%B8%9A%E7%BA%A7%E5%BC%80%E5%8F%91%E5%AE%8C%E5%85%A8%E6%8C%87%E5%8D%97/index.html">
+<meta property="og:site_name" content="RUOXI-BLOG">
+<meta property="og:description" content="Harness Engineering（驾驭工程）：2026 年 AI 时代最重要的工程方法论之一。核心思想是——不优化模型本身，而是优化模型运行的环境。本指南从概念到落地，详解如何构建生产级的 LLM 应用驾驭框架。">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2026-07-08T11:50:00.000Z">
+<meta property="article:modified_time" content="2026-07-08T11:50:00.000Z">
+<meta property="article:author" content="ruoxi">
+<meta property="article:tag" content="AI Engineering">
+<meta property="article:tag" content="LLM">
+<meta property="article:tag" content="Harness">
+<meta property="article:tag" content="企业级架构">
+<meta property="article:tag" content="FastAPI">
+<meta property="article:tag" content="OpenAI">
+<meta property="article:tag" content="DevOps">
+<meta name="twitter:card" content="summary">
+
+<link rel="canonical" href="https://ruoxixiruo.github.io/blog/2026/07/08/ai/Harness-Engineering%E4%BC%81%E4%B8%9A%E7%BA%A7%E5%BC%80%E5%8F%91%E5%AE%8C%E5%85%A8%E6%8C%87%E5%8D%97/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+
+  <title>Harness Engineering 企业级开发完全指南 | RUOXI-BLOG</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/blog/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">RUOXI-BLOG</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/blog/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/blog/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/blog/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/blog/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a>
+
+  </li>
+        <li class="menu-item menu-item-posts">
+
+    <a href="/blog/posts/" rel="section"><i class="fa fa-rss fa-fw"></i>posts</a>
+
+  </li>
+  </ul>
+</nav>
+
+
+
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+  <div class="reading-progress-bar"></div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://ruoxixiruo.github.io/blog/2026/07/08/ai/Harness-Engineering%E4%BC%81%E4%B8%9A%E7%BA%A7%E5%BC%80%E5%8F%91%E5%AE%8C%E5%85%A8%E6%8C%87%E5%8D%97/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/blog/images/avatar.gif">
+      <meta itemprop="name" content="ruoxi">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="RUOXI-BLOG">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          Harness Engineering 企业级开发完全指南
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2026-07-08 11:50:00" itemprop="dateCreated datePublished" datetime="2026-07-08T11:50:00+00:00">2026-07-08</time>
+            </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/blog/categories/ai/" itemprop="url" rel="index"><span itemprop="name">ai</span></a>
+                </span>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <blockquote>
+<p><strong>Harness Engineering</strong>（驾驭工程）：2026 年 AI 时代最重要的工程方法论之一。核心思想是——不优化模型本身，而是优化模型运行的环境。本指南从概念到落地，详解如何构建生产级的 LLM 应用驾驭框架。</p>
+</blockquote>
+<span id="more"></span>
+
+<h2 id="一、什么是-Harness-Engineering"><a href="#一、什么是-Harness-Engineering" class="headerlink" title="一、什么是 Harness Engineering"></a>一、什么是 Harness Engineering</h2><p>2026 年初，OpenAI 在官方文章《Harness Engineering: Leveraging Codex in an Agent-First World》中正式提出这一概念。一个 <strong>3 人工程师团队</strong>，在 5 个月内，用 AI Agent 零手写代码构建了约 <strong>100 万行生产级代码</strong>，合并了约 1500 个 Pull Request，平均每天每位工程师产出 3.5 个 PR。</p>
+<p>这个实验揭示了一个核心洞察——<strong>不优化模型本身，而是优化模型运行的环境。</strong></p>
+<h3 id="一句话理解"><a href="#一句话理解" class="headerlink" title="一句话理解"></a>一句话理解</h3><blockquote>
+<p><strong>Harness = 连接 LLM 和真实世界的那层代码。</strong> 它决定了 AI 能做什么、怎么做、出了错怎么办——就像发动机需要整套传动系统才能驱动汽车一样。</p>
+</blockquote>
+<h3 id="企业级-Harness-vs-普通-Harness"><a href="#企业级-Harness-vs-普通-Harness" class="headerlink" title="企业级 Harness vs 普通 Harness"></a>企业级 Harness vs 普通 Harness</h3><table>
+<thead>
+<tr>
+<th>维度</th>
+<th>普通 Harness</th>
+<th>企业级 Harness</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>日志</td>
+<td>print / console.log</td>
+<td>结构化日志 → 日志平台（ELK / Loki）</td>
+</tr>
+<tr>
+<td>监控</td>
+<td>无</td>
+<td>指标埋点 → Prometheus + Grafana</td>
+</tr>
+<tr>
+<td>错误处理</td>
+<td>try-catch 简单处理</td>
+<td>分级异常、熔断、重试策略</td>
+</tr>
+<tr>
+<td>权限控制</td>
+<td>无</td>
+<td>RBAC、API Key 管理、审计日志</td>
+</tr>
+<tr>
+<td>配置管理</td>
+<td>硬编码 / .env</td>
+<td>配置中心（Apollo / etcd）</td>
+</tr>
+<tr>
+<td>测试</td>
+<td>手动测试</td>
+<td>单元 + 集成 + E2E 全覆盖</td>
+</tr>
+<tr>
+<td>部署</td>
+<td>手动部署</td>
+<td>CI/CD 全自动化</td>
+</tr>
+<tr>
+<td>扩展</td>
+<td>单模型</td>
+<td>多模型、负载均衡、版本灰度</td>
+</tr>
+<tr>
+<td>合规</td>
+<td>无</td>
+<td>数据脱敏、操作审计、留存归档</td>
+</tr>
+</tbody></table>
+<h3 id="为什么很多团队自己写-Harness-而不用-LangChain"><a href="#为什么很多团队自己写-Harness-而不用-LangChain" class="headerlink" title="为什么很多团队自己写 Harness 而不用 LangChain"></a>为什么很多团队自己写 Harness 而不用 LangChain</h3><ul>
+<li><strong>过度封装</strong>：屏蔽太多细节，出问题难排查</li>
+<li><strong>版本不稳定</strong>：API 改版频繁，升级容易挂</li>
+<li><strong>灵活性差</strong>：复杂业务逻辑塞进去很难受</li>
+<li><strong>性能开销</strong>：多一层抽象，多一份 overhead</li>
+<li><strong>调试困难</strong>：链路长，错误难定位</li>
+</ul>
+<hr>
+<h2 id="二、企业级项目架构"><a href="#二、企业级项目架构" class="headerlink" title="二、企业级项目架构"></a>二、企业级项目架构</h2><h3 id="2-1-架构分层"><a href="#2-1-架构分层" class="headerlink" title="2.1 架构分层"></a>2.1 架构分层</h3><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">API Gateway（认证、限流、日志、路由）</span><br><span class="line">        ↓</span><br><span class="line">FastAPI / gRPC（路由、Schema 校验、依赖注入）</span><br><span class="line">        ↓</span><br><span class="line">Service Layer（Agent Service、Session Service）</span><br><span class="line">        ↓</span><br><span class="line">Harness Core（Prompt Manager · Tool Registry · Memory · Feedback Loop）</span><br><span class="line">        ↓</span><br><span class="line">LLM Client（多模型适配、重试、熔断、降级）</span><br><span class="line">        ↓</span><br><span class="line">OpenAI / Azure / Claude / 本地模型</span><br></pre></td></tr></table></figure>
+
+<h3 id="2-2-完整项目结构"><a href="#2-2-完整项目结构" class="headerlink" title="2.2 完整项目结构"></a>2.2 完整项目结构</h3><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><span class="line">enterprise-harness/</span><br><span class="line">├── docs/                         # 文档</span><br><span class="line">│   ├── ARCHITECTURE.md          # 架构文档</span><br><span class="line">│   ├── API_SPEC.md              # API 规范</span><br><span class="line">│   └── SECURITY.md              # 安全规范</span><br><span class="line">├── src/enterprise_harness/</span><br><span class="line">│   ├── config/                  # 配置管理（Pydantic Settings）</span><br><span class="line">│   ├── core/                    # 核心模块</span><br><span class="line">│   │   ├── harness.py           # Harness 主类</span><br><span class="line">│   │   ├── llm_client.py        # LLM 客户端封装</span><br><span class="line">│   │   ├── tool_registry.py     # 🔴 工具注册表</span><br><span class="line">│   │   ├── memory.py            # 🔴 记忆管理</span><br><span class="line">│   │   └── feedback.py          # 🔴 反馈循环</span><br><span class="line">│   ├── tools/                   # 工具实现</span><br><span class="line">│   ├── middleware/              # 中间件</span><br><span class="line">│   │   ├── logging.py           # 🔴 结构化日志</span><br><span class="line">│   │   ├── auth.py              # 🔴 认证鉴权</span><br><span class="line">│   │   ├── rate_limit.py        # 🔴 限流</span><br><span class="line">│   │   └── tracing.py           # 🔴 链路追踪</span><br><span class="line">│   ├── models/                  # 数据模型（Pydantic）</span><br><span class="line">│   ├── api/                     # API 层（FastAPI）</span><br><span class="line">│   └── exceptions/              # 🔴 异常体系</span><br><span class="line">├── tests/                        # 🔴 测试（单元+集成+E2E）</span><br><span class="line">├── configs/                     # 配置文件</span><br><span class="line">├── pyproject.toml</span><br><span class="line">└── Dockerfile</span><br></pre></td></tr></table></figure>
+
+<hr>
+<h2 id="三、核心模块设计与实现"><a href="#三、核心模块设计与实现" class="headerlink" title="三、核心模块设计与实现"></a>三、核心模块设计与实现</h2><h3 id="3-1-配置管理模块"><a href="#3-1-配置管理模块" class="headerlink" title="3.1 配置管理模块"></a>3.1 配置管理模块</h3><p>使用 Pydantic Settings，支持多环境配置、环境变量覆盖和敏感信息加密分离：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">class</span> <span class="title class_">HarnessConfig</span>(<span class="title class_ inherited__">BaseSettings</span>):</span><br><span class="line">    model_config = SettingsConfigDict(</span><br><span class="line">        env_prefix=<span class="string">&quot;HARNESS_&quot;</span>,</span><br><span class="line">        env_file=<span class="string">&quot;.env&quot;</span>,</span><br><span class="line">        extra=<span class="string">&quot;ignore&quot;</span></span><br><span class="line">    )</span><br><span class="line"></span><br><span class="line">    <span class="comment"># 应用</span></span><br><span class="line">    app_name: <span class="built_in">str</span> = <span class="string">&quot;EnterpriseHarness&quot;</span></span><br><span class="line">    app_version: <span class="built_in">str</span> = <span class="string">&quot;1.0.0&quot;</span></span><br><span class="line">    debug: <span class="built_in">bool</span> = Field(default=<span class="literal">False</span>)</span><br><span class="line">    environment: <span class="type">Literal</span>[<span class="string">&quot;dev&quot;</span>, <span class="string">&quot;staging&quot;</span>, <span class="string">&quot;prod&quot;</span>] = <span class="string">&quot;prod&quot;</span></span><br><span class="line"></span><br><span class="line">    <span class="comment"># 工具调用</span></span><br><span class="line">    max_tool_turns: <span class="built_in">int</span> = Field(default=<span class="number">10</span>, ge=<span class="number">1</span>, le=<span class="number">50</span>)</span><br><span class="line">    tool_timeout: <span class="built_in">int</span> = Field(default=<span class="number">30</span>)</span><br><span class="line"></span><br><span class="line">    <span class="comment"># 记忆管理</span></span><br><span class="line">    memory_strategy: <span class="type">Literal</span>[<span class="string">&quot;naive&quot;</span>, <span class="string">&quot;summarize&quot;</span>, <span class="string">&quot;window&quot;</span>] = <span class="string">&quot;window&quot;</span></span><br><span class="line">    max_history_messages: <span class="built_in">int</span> = Field(default=<span class="number">100</span>)</span><br><span class="line"></span><br><span class="line">    <span class="comment"># 限流</span></span><br><span class="line">    rate_limit_requests: <span class="built_in">int</span> = Field(default=<span class="number">100</span>)    <span class="comment"># 每分钟</span></span><br><span class="line">    rate_limit_tokens: <span class="built_in">int</span> = Field(default=<span class="number">100000</span>)   <span class="comment"># 每分钟</span></span><br><span class="line"></span><br><span class="line">    <span class="comment"># 安全</span></span><br><span class="line">    enable_audit_log: <span class="built_in">bool</span> = <span class="literal">True</span></span><br><span class="line">    enable_input_filter: <span class="built_in">bool</span> = <span class="literal">True</span></span><br></pre></td></tr></table></figure>
+
+<h3 id="3-2-工具注册表（插件化-熔断降级）"><a href="#3-2-工具注册表（插件化-熔断降级）" class="headerlink" title="3.2 工具注册表（插件化 + 熔断降级）"></a>3.2 工具注册表（插件化 + 熔断降级）</h3><p>工具注册表是企业级 Harness 最核心的模块之一：</p>
+<table>
+<thead>
+<tr>
+<th>特性</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>🔌 插件化加载</td>
+<td>工具按需注册，无需修改核心代码</td>
+</tr>
+<tr>
+<td>⚡ 熔断降级</td>
+<td>工具连续失败 N 次后自动熔断，防止级联故障</td>
+</tr>
+<tr>
+<td>🔒 权限控制</td>
+<td>细粒度控制每个用户/角色能调用哪些工具</td>
+</tr>
+<tr>
+<td>⏱️ 超时管理</td>
+<td>每个工具独立超时控制，防止单个工具卡死全局</td>
+</tr>
+</tbody></table>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">class</span> <span class="title class_">ToolRegistry</span>:</span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">__init__</span>(<span class="params">self</span>):</span><br><span class="line">        <span class="variable language_">self</span>._tools: <span class="built_in">dict</span>[<span class="built_in">str</span>, BaseTool] = &#123;&#125;</span><br><span class="line">        <span class="variable language_">self</span>._permission_map: <span class="built_in">dict</span>[<span class="built_in">str</span>, <span class="built_in">set</span>[<span class="built_in">str</span>]] = &#123;&#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">register</span>(<span class="params">self, tool: BaseTool, allowed_users: <span class="type">Optional</span>[<span class="built_in">list</span>[<span class="built_in">str</span>]] = <span class="literal">None</span></span>):</span><br><span class="line">        name = tool.metadata.name</span><br><span class="line">        <span class="variable language_">self</span>._tools[name] = tool</span><br><span class="line">        <span class="variable language_">self</span>._tool_schemas[name] = <span class="variable language_">self</span>._build_schema(tool.metadata)</span><br><span class="line"></span><br><span class="line">    <span class="keyword">async</span> <span class="keyword">def</span> <span class="title function_">execute</span>(<span class="params">self, name: <span class="built_in">str</span>, context: ToolExecutionContext, arguments: <span class="built_in">dict</span></span>) -&gt; ToolResult:</span><br><span class="line">        <span class="keyword">if</span> name <span class="keyword">not</span> <span class="keyword">in</span> <span class="variable language_">self</span>._tools:</span><br><span class="line">            <span class="keyword">raise</span> ToolNotFoundError(<span class="string">f&quot;Tool &#x27;<span class="subst">&#123;name&#125;</span>&#x27; not found&quot;</span>)</span><br><span class="line"></span><br><span class="line">        tool = <span class="variable language_">self</span>._tools[name]</span><br><span class="line"></span><br><span class="line">        <span class="comment"># 权限检查</span></span><br><span class="line">        <span class="keyword">if</span> context.user_id:</span><br><span class="line">            allowed = <span class="variable language_">self</span>._permission_map.get(context.user_id, <span class="built_in">set</span>())</span><br><span class="line">            <span class="keyword">if</span> allowed <span class="keyword">and</span> name <span class="keyword">not</span> <span class="keyword">in</span> allowed:</span><br><span class="line">                <span class="keyword">raise</span> ToolPermissionDeniedError(<span class="string">f&quot;User not permitted to use tool &#x27;<span class="subst">&#123;name&#125;</span>&#x27;&quot;</span>)</span><br><span class="line"></span><br><span class="line">        <span class="comment"># 熔断检查</span></span><br><span class="line">        <span class="keyword">if</span> tool._circuit_breaker <span class="keyword">and</span> <span class="keyword">not</span> tool._circuit_breaker.can_execute():</span><br><span class="line">            <span class="keyword">return</span> tool._create_result(success=<span class="literal">False</span>, error=<span class="string">f&quot;Tool &#x27;<span class="subst">&#123;name&#125;</span>&#x27; circuit breaker is open&quot;</span>)</span><br><span class="line"></span><br><span class="line">        <span class="keyword">try</span>:</span><br><span class="line">            result = <span class="keyword">await</span> asyncio.wait_for(</span><br><span class="line">                tool.execute(context, **arguments),</span><br><span class="line">                timeout=tool.metadata.timeout</span><br><span class="line">            )</span><br><span class="line">            tool._circuit_breaker.record_success()  <span class="comment"># 成功 → 重置熔断</span></span><br><span class="line">            <span class="keyword">return</span> result</span><br><span class="line">        <span class="keyword">except</span> asyncio.TimeoutError:</span><br><span class="line">            tool._circuit_breaker.record_failure()  <span class="comment"># 失败 → 记录</span></span><br><span class="line">            <span class="keyword">return</span> tool._create_result(success=<span class="literal">False</span>, error=<span class="string">f&quot;Tool &#x27;<span class="subst">&#123;name&#125;</span>&#x27; timeout&quot;</span>)</span><br></pre></td></tr></table></figure>
+
+<h3 id="3-3-记忆管理模块（三种策略）"><a href="#3-3-记忆管理模块（三种策略）" class="headerlink" title="3.3 记忆管理模块（三种策略）"></a>3.3 记忆管理模块（三种策略）</h3><p>LLM 的上下文窗口有限，需要策略来管理对话历史。生产环境推荐 <strong>Window 策略</strong>：</p>
+<table>
+<thead>
+<tr>
+<th>策略</th>
+<th>原理</th>
+<th>优点</th>
+<th>缺点</th>
+<th>适用场景</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>Naive</strong></td>
+<td>直接保留最近 N 条消息</td>
+<td>实现最简单</td>
+<td>可能丢失重要早期上下文</td>
+<td>简单聊天</td>
+</tr>
+<tr>
+<td><strong>Window</strong> ✅</td>
+<td>按 Token 预算保留最近消息</td>
+<td>充分利用 Token 预算</td>
+<td>早期上下文完全丢失</td>
+<td><strong>生产推荐</strong></td>
+</tr>
+<tr>
+<td><strong>Summarize</strong></td>
+<td>定期对旧消息生成摘要</td>
+<td>保留长期上下文</td>
+<td>实现复杂，摘要丢失细节</td>
+<td>长程任务</td>
+</tr>
+</tbody></table>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">class</span> <span class="title class_">WindowStrategy</span>(<span class="title class_ inherited__">MemoryStrategy</span>):</span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">__init__</span>(<span class="params">self, budget_ratio: <span class="built_in">float</span> = <span class="number">0.85</span></span>):</span><br><span class="line">        <span class="variable language_">self</span>.budget_ratio = budget_ratio</span><br><span class="line"></span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">manage</span>(<span class="params">self, messages: <span class="built_in">list</span>[MemoryMessage], max_tokens: <span class="built_in">int</span>, encoder</span>) -&gt; <span class="built_in">list</span>[MemoryMessage]:</span><br><span class="line">        <span class="comment"># 计算每条消息的 token 数</span></span><br><span class="line">        <span class="keyword">for</span> msg <span class="keyword">in</span> messages:</span><br><span class="line">            msg.token_count = <span class="built_in">len</span>(encoder.encode(msg.content <span class="keyword">or</span> <span class="string">&quot;&quot;</span>))</span><br><span class="line"></span><br><span class="line">        system_msgs = [m <span class="keyword">for</span> m <span class="keyword">in</span> messages <span class="keyword">if</span> m.role == <span class="string">&quot;system&quot;</span>]</span><br><span class="line">        other_msgs = [m <span class="keyword">for</span> m <span class="keyword">in</span> messages <span class="keyword">if</span> m.role != <span class="string">&quot;system&quot;</span>]</span><br><span class="line"></span><br><span class="line">        <span class="comment"># 计算可用 Token 预算（保留 15% 余量）</span></span><br><span class="line">        system_tokens = <span class="built_in">sum</span>(m.token_count <span class="keyword">for</span> m <span class="keyword">in</span> system_msgs)</span><br><span class="line">        available = <span class="built_in">int</span>(max_tokens * <span class="variable language_">self</span>.budget_ratio) - system_tokens</span><br><span class="line"></span><br><span class="line">        <span class="comment"># 从最新消息开始保留</span></span><br><span class="line">        kept = []</span><br><span class="line">        total = <span class="number">0</span></span><br><span class="line">        <span class="keyword">for</span> msg <span class="keyword">in</span> <span class="built_in">reversed</span>(other_msgs):</span><br><span class="line">            <span class="keyword">if</span> total + msg.token_count &lt;= available:</span><br><span class="line">                kept.insert(<span class="number">0</span>, msg)</span><br><span class="line">                total += msg.token_count</span><br><span class="line">            <span class="keyword">else</span>:</span><br><span class="line">                <span class="keyword">break</span></span><br><span class="line"></span><br><span class="line">        <span class="keyword">return</span> system_msgs + kept</span><br></pre></td></tr></table></figure>
+
+<hr>
+<h2 id="四、企业级特性设计"><a href="#四、企业级特性设计" class="headerlink" title="四、企业级特性设计"></a>四、企业级特性设计</h2><h3 id="4-1-异常体系"><a href="#4-1-异常体系" class="headerlink" title="4.1 异常体系"></a>4.1 异常体系</h3><p>所有异常必须继承自 <code>HarnessException</code>，形成清晰的分类体系：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line">HarnessException（基类）</span><br><span class="line">├── ConfigurationError</span><br><span class="line">├── LLMError</span><br><span class="line">│   ├── LLMTimeoutError</span><br><span class="line">│   └── LLMRateLimitError</span><br><span class="line">├── ToolError</span><br><span class="line">│   ├── ToolNotFoundError</span><br><span class="line">│   └── ToolTimeoutError</span><br><span class="line">├── SessionError</span><br><span class="line">│   ├── SessionNotFoundError</span><br><span class="line">│   └── SessionExpiredError</span><br><span class="line">└── SecurityError</span><br><span class="line">    ├── PromptInjectionError</span><br><span class="line">    └── RateLimitExceededError</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">class</span> <span class="title class_">HarnessException</span>(<span class="title class_ inherited__">Exception</span>):</span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">__init__</span>(<span class="params">self, message: <span class="built_in">str</span>, code: <span class="built_in">str</span> = <span class="string">&quot;HARNESS_ERROR&quot;</span>,</span></span><br><span class="line"><span class="params">                 details: <span class="type">Optional</span>[<span class="built_in">dict</span>] = <span class="literal">None</span>, cause: <span class="type">Optional</span>[Exception] = <span class="literal">None</span></span>):</span><br><span class="line">        <span class="built_in">super</span>().__init__(message)</span><br><span class="line">        <span class="variable language_">self</span>.message = message</span><br><span class="line">        <span class="variable language_">self</span>.code = code</span><br><span class="line">        <span class="variable language_">self</span>.details = details <span class="keyword">or</span> &#123;&#125;</span><br><span class="line">        <span class="variable language_">self</span>.cause = cause</span><br><span class="line"></span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">to_dict</span>(<span class="params">self</span>) -&gt; <span class="built_in">dict</span>:</span><br><span class="line">        <span class="keyword">return</span> &#123;<span class="string">&quot;error&quot;</span>: &#123;<span class="string">&quot;code&quot;</span>: <span class="variable language_">self</span>.code, <span class="string">&quot;message&quot;</span>: <span class="variable language_">self</span>.message, <span class="string">&quot;details&quot;</span>: <span class="variable language_">self</span>.details&#125;&#125;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">LLMTimeoutError</span>(<span class="title class_ inherited__">LLMError</span>):</span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">__init__</span>(<span class="params">self, message: <span class="built_in">str</span>, timeout: <span class="built_in">int</span> = <span class="number">0</span></span>):</span><br><span class="line">        <span class="built_in">super</span>().__init__(message, details=&#123;<span class="string">&quot;timeout_seconds&quot;</span>: timeout&#125;)</span><br><span class="line">        <span class="variable language_">self</span>.code = <span class="string">&quot;LLM_TIMEOUT&quot;</span></span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">PromptInjectionError</span>(<span class="title class_ inherited__">SecurityError</span>):</span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">__init__</span>(<span class="params">self, message: <span class="built_in">str</span>, pattern: <span class="built_in">str</span> = <span class="string">&quot;&quot;</span></span>):</span><br><span class="line">        <span class="built_in">super</span>().__init__(message, details=&#123;<span class="string">&quot;detected_pattern&quot;</span>: pattern&#125;)</span><br><span class="line">        <span class="variable language_">self</span>.code = <span class="string">&quot;PROMPT_INJECTION&quot;</span></span><br></pre></td></tr></table></figure>
+
+<h3 id="4-2-安全性设计"><a href="#4-2-安全性设计" class="headerlink" title="4.2 安全性设计"></a>4.2 安全性设计</h3><p>四层安全防护：</p>
+<ul>
+<li>🛡️ <strong>Prompt 注入防护</strong>：正则检测 <code>&quot;Ignore previous...&quot;</code>、<code>&quot;new instructions:&quot;</code> 等注入模式，自动过滤</li>
+<li>🔐 <strong>敏感数据脱敏</strong>：自动检测身份证、银行卡、API Key 等，输出时自动脱敏</li>
+<li>🚦 <strong>限流控制</strong>：请求数和 Token 数双重限制，支持滑动窗口算法</li>
+<li>📋 <strong>审计日志</strong>：记录所有关键操作，支持合规审计追溯</li>
+</ul>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">class</span> <span class="title class_">PromptSanitizer</span>:</span><br><span class="line">    <span class="string">&quot;&quot;&quot;Prompt 注入防护&quot;&quot;&quot;</span></span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">__init__</span>(<span class="params">self</span>):</span><br><span class="line">        <span class="variable language_">self</span>._patterns = [</span><br><span class="line">            re.<span class="built_in">compile</span>(<span class="string">r&quot;ignore\s+(previous|above|all)\s+instructions?&quot;</span>, re.IGNORECASE),</span><br><span class="line">            re.<span class="built_in">compile</span>(<span class="string">r&quot;(forget|disregard)\s+(everything|all|previous)&quot;</span>, re.IGNORECASE),</span><br><span class="line">            re.<span class="built_in">compile</span>(<span class="string">r&quot;you\s+are\s+no\s+longer\s+&quot;</span>, re.IGNORECASE),</span><br><span class="line">            re.<span class="built_in">compile</span>(<span class="string">r&quot;new\s+instructions?:&quot;</span>, re.IGNORECASE),</span><br><span class="line">            re.<span class="built_in">compile</span>(<span class="string">r&quot;```system&quot;</span>, re.IGNORECASE),</span><br><span class="line">        ]</span><br><span class="line"></span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">check</span>(<span class="params">self, content: <span class="built_in">str</span></span>) -&gt; SecurityCheckResult:</span><br><span class="line">        <span class="keyword">for</span> i, pattern <span class="keyword">in</span> <span class="built_in">enumerate</span>(<span class="variable language_">self</span>._patterns):</span><br><span class="line">            <span class="keyword">if</span> <span class="keyword">match</span> := pattern.search(content):</span><br><span class="line">                <span class="keyword">return</span> SecurityCheckResult(</span><br><span class="line">                    passed=<span class="literal">False</span>,</span><br><span class="line">                    threat_type=<span class="string">&quot;prompt_injection&quot;</span>,</span><br><span class="line">                    details=<span class="string">f&quot;匹配到注入模式&quot;</span>,</span><br><span class="line">                    sanitized_content=pattern.sub(<span class="string">&quot;[内容已过滤]&quot;</span>, content)</span><br><span class="line">                )</span><br><span class="line">        <span class="keyword">return</span> SecurityCheckResult(passed=<span class="literal">True</span>, sanitized_content=content)</span><br></pre></td></tr></table></figure>
+
+<h3 id="4-3-可观测性体系"><a href="#4-3-可观测性体系" class="headerlink" title="4.3 可观测性体系"></a>4.3 可观测性体系</h3><p>使用 <strong>OpenTelemetry</strong> 作为可观测性标准，统一管理 Trace、Metric、Log 三大支柱，配合 Prometheus + Grafana 实现指标可视化。</p>
+<h3 id="4-4-测试体系"><a href="#4-4-测试体系" class="headerlink" title="4.4 测试体系"></a>4.4 测试体系</h3><p>企业级 Harness 需要三层测试保障：</p>
+<table>
+<thead>
+<tr>
+<th>层次</th>
+<th>说明</th>
+<th>覆盖率目标</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>🔬 单元测试</td>
+<td>每个模块独立测试，Mock 外部依赖</td>
+<td>80%+</td>
+</tr>
+<tr>
+<td>🔗 集成测试</td>
+<td>API 端到端测试，验证完整链路</td>
+<td>关键路径</td>
+</tr>
+<tr>
+<td>🚀 E2E 测试</td>
+<td>模拟真实用户场景，完整对话流程测试</td>
+<td>核心场景</td>
+</tr>
+</tbody></table>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@pytest.fixture</span></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">tool_registry</span>() -&gt; ToolRegistry:</span><br><span class="line">    <span class="keyword">return</span> ToolRegistry()</span><br><span class="line"></span><br><span class="line"><span class="meta">@pytest.fixture</span></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">execution_context</span>() -&gt; ToolExecutionContext:</span><br><span class="line">    <span class="keyword">return</span> ToolExecutionContext(</span><br><span class="line">        session_id=<span class="string">&quot;test-session-001&quot;</span>,</span><br><span class="line">        user_id=<span class="string">&quot;test-user-001&quot;</span>,</span><br><span class="line">        request_id=<span class="string">&quot;test-request-001&quot;</span></span><br><span class="line">    )</span><br><span class="line"></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">TestToolRegistry</span>:</span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">test_tool_registration</span>(<span class="params">self, tool_registry</span>):</span><br><span class="line">        tool = MockTool()</span><br><span class="line">        tool_registry.register(tool)</span><br><span class="line">        <span class="keyword">assert</span> <span class="string">&quot;mock_tool&quot;</span> <span class="keyword">in</span> tool_registry._tools</span><br><span class="line"></span><br><span class="line"><span class="meta">    @pytest.mark.asyncio</span></span><br><span class="line">    <span class="keyword">async</span> <span class="keyword">def</span> <span class="title function_">test_circuit_breaker_opens</span>(<span class="params">self, tool_registry, execution_context</span>):</span><br><span class="line">        <span class="string">&quot;&quot;&quot;熔断器在连续失败后打开&quot;&quot;&quot;</span></span><br><span class="line">        tool_registry.register(BrokenTool())</span><br><span class="line">        <span class="keyword">for</span> _ <span class="keyword">in</span> <span class="built_in">range</span>(<span class="number">5</span>):</span><br><span class="line">            <span class="keyword">await</span> tool_registry.execute(<span class="string">&quot;broken&quot;</span>, execution_context, &#123;&#125;)</span><br><span class="line">        result = <span class="keyword">await</span> tool_registry.execute(<span class="string">&quot;broken&quot;</span>, execution_context, &#123;&#125;)</span><br><span class="line">        <span class="keyword">assert</span> <span class="keyword">not</span> result.success</span><br><span class="line">        <span class="keyword">assert</span> <span class="string">&quot;circuit breaker&quot;</span> <span class="keyword">in</span> result.error</span><br></pre></td></tr></table></figure>
+
+<hr>
+<h2 id="五、部署架构与运维"><a href="#五、部署架构与运维" class="headerlink" title="五、部署架构与运维"></a>五、部署架构与运维</h2><h3 id="5-1-Docker-Compose-本地开发"><a href="#5-1-Docker-Compose-本地开发" class="headerlink" title="5.1 Docker Compose 本地开发"></a>5.1 Docker Compose 本地开发</h3><figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">version:</span> <span class="string">&#x27;3.8&#x27;</span></span><br><span class="line"><span class="attr">services:</span></span><br><span class="line">  <span class="attr">harness-api:</span></span><br><span class="line">    <span class="attr">build:</span> <span class="string">.</span></span><br><span class="line">    <span class="attr">ports:</span></span><br><span class="line">      <span class="bullet">-</span> <span class="string">&quot;8000:8000&quot;</span></span><br><span class="line">    <span class="attr">environment:</span></span><br><span class="line">      <span class="bullet">-</span> <span class="string">HARNESS_ENVIRONMENT=production</span></span><br><span class="line">      <span class="bullet">-</span> <span class="string">OPENAI_API_KEY=$&#123;OPENAI_API_KEY&#125;</span></span><br><span class="line">    <span class="attr">healthcheck:</span></span><br><span class="line">      <span class="attr">test:</span> [<span class="string">&quot;CMD&quot;</span>, <span class="string">&quot;curl&quot;</span>, <span class="string">&quot;-f&quot;</span>, <span class="string">&quot;http://localhost:8000/health&quot;</span>]</span><br><span class="line">      <span class="attr">interval:</span> <span class="string">30s</span></span><br><span class="line">      <span class="attr">timeout:</span> <span class="string">10s</span></span><br><span class="line">      <span class="attr">retries:</span> <span class="number">3</span></span><br><span class="line">    <span class="attr">deploy:</span></span><br><span class="line">      <span class="attr">resources:</span></span><br><span class="line">        <span class="attr">limits:</span> &#123; <span class="attr">cpus:</span> <span class="string">&#x27;2&#x27;</span>, <span class="attr">memory:</span> <span class="string">4G</span> &#125;</span><br><span class="line"></span><br><span class="line">  <span class="attr">redis:</span></span><br><span class="line">    <span class="attr">image:</span> <span class="string">redis:7-alpine</span></span><br><span class="line">    <span class="attr">command:</span> <span class="string">redis-server</span> <span class="string">--maxmemory</span> <span class="string">1gb</span> <span class="string">--maxmemory-policy</span> <span class="string">allkeys-lru</span></span><br><span class="line"></span><br><span class="line">  <span class="attr">prometheus:</span></span><br><span class="line">    <span class="attr">image:</span> <span class="string">prom/prometheus:latest</span></span><br><span class="line">    <span class="attr">ports:</span></span><br><span class="line">      <span class="bullet">-</span> <span class="string">&quot;9090:9090&quot;</span></span><br><span class="line"></span><br><span class="line">  <span class="attr">grafana:</span></span><br><span class="line">    <span class="attr">image:</span> <span class="string">grafana/grafana:latest</span></span><br><span class="line">    <span class="attr">ports:</span></span><br><span class="line">      <span class="bullet">-</span> <span class="string">&quot;3000:3000&quot;</span></span><br></pre></td></tr></table></figure>
+
+<h3 id="5-2-CI-CD-全流程"><a href="#5-2-CI-CD-全流程" class="headerlink" title="5.2 CI/CD 全流程"></a>5.2 CI/CD 全流程</h3><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">Commit → lint + typecheck → unit + integration tests → security scan</span><br><span class="line">       → docker build + smoke test → push to registry → deploy</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li><code>make lint</code>：ruff 代码风格检查 + pyright 类型检查</li>
+<li><code>make test</code>：pytest 全量测试，覆盖率不低于 80%</li>
+<li><code>bandit</code>：安全扫描 + Safety 依赖检查</li>
+<li>K8s 滚动更新 + HPA 自动扩缩容</li>
+</ul>
+<h3 id="5-3-性能优化策略"><a href="#5-3-性能优化策略" class="headerlink" title="5.3 性能优化策略"></a>5.3 性能优化策略</h3><table>
+<thead>
+<tr>
+<th>优化策略</th>
+<th>说明</th>
+<th>效果</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>流式输出（Streaming）</td>
+<td>逐 token 返回，减少等待时间</td>
+<td>TTFT ↓ 50%+</td>
+</tr>
+<tr>
+<td>Token 预算管理</td>
+<td>精确计算上下文，避免浪费</td>
+<td>Token ↓ 30%</td>
+</tr>
+<tr>
+<td>工具并行执行</td>
+<td>无依赖工具同时执行</td>
+<td>延迟 ↓ 40%</td>
+</tr>
+<tr>
+<td>模型降级</td>
+<td>简单任务用小模型（GPT-4o-mini）</td>
+<td>成本 ↓ 80%</td>
+</tr>
+<tr>
+<td>请求缓存</td>
+<td>相同请求返回缓存结果</td>
+<td>成本 ↓ 60%</td>
+</tr>
+</tbody></table>
+<hr>
+<h2 id="六、总结"><a href="#六、总结" class="headerlink" title="六、总结"></a>六、总结</h2><blockquote>
+<p><strong>Human Steer, Agent Execute.</strong></p>
+<p>人类负责掌舵（设计环境、编写规则、建立反馈），Agent 负责执行（写代码、review、迭代）。工程师的角色从「写代码」转变为「设计让 AI 能可靠工作的环境」。</p>
+</blockquote>
+<p>掌握以下核心要素，你就能构建出真正能支撑生产业务的 LLM 应用 Harness：</p>
+<ul>
+<li>🏗️ <strong>架构分层清晰</strong>：配置层 / 核心层 / API 层 / 外部服务，职责分明</li>
+<li>🔌 <strong>工具注册表插件化</strong>：工具可按需加载、熔断降级、权限控制</li>
+<li>🧠 <strong>记忆管理策略</strong>：根据场景选择 Naive / Window / Summarize</li>
+<li>🔒 <strong>安全合规</strong>：Prompt 注入防护 + 敏感数据脱敏 + 审计日志</li>
+<li>📊 <strong>可观测性</strong>：OpenTelemetry + Prometheus + Grafana 全链路</li>
+<li>🧪 <strong>测试覆盖</strong>：单元 + 集成 + E2E，覆盖率 80%+</li>
+<li>🚀 <strong>CI/CD 全自动</strong>：从代码提交到生产部署全流程自动化</li>
+<li>👥 <strong>团队协作规范</strong>：AGENTS.md + Git 规范 + Code Review</li>
+</ul>
+<hr>
+<blockquote>
+<p>参考资料：<a target="_blank" rel="noopener" href="https://openai.com/index/harness-engineering/">OpenAI Harness Engineering</a> · Anthropic Best Practices · 企业级架构设计规范</p>
+</blockquote>
+
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/blog/tags/AI-Engineering/" rel="tag"># AI Engineering</a>
+              <a href="/blog/tags/LLM/" rel="tag"># LLM</a>
+              <a href="/blog/tags/Harness/" rel="tag"># Harness</a>
+              <a href="/blog/tags/%E4%BC%81%E4%B8%9A%E7%BA%A7%E6%9E%B6%E6%9E%84/" rel="tag"># 企业级架构</a>
+              <a href="/blog/tags/FastAPI/" rel="tag"># FastAPI</a>
+              <a href="/blog/tags/OpenAI/" rel="tag"># OpenAI</a>
+              <a href="/blog/tags/DevOps/" rel="tag"># DevOps</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/blog/2026/07/03/milvus/Milvus%20%E5%90%91%E9%87%8F%E6%95%B0%E6%8D%AE%E5%BA%93%20Linux%20%E5%8D%95%E6%9C%BA%E9%83%A8%E7%BD%B2%E6%8C%87%E5%8D%97/" rel="prev" title="Milvus 向量数据库 Linux 单机部署指南">
+      <i class="fa fa-chevron-left"></i> Milvus 向量数据库 Linux 单机部署指南
+    </a></div>
+      <div class="post-nav-item"></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%B8%80%E3%80%81%E4%BB%80%E4%B9%88%E6%98%AF-Harness-Engineering"><span class="nav-number">1.</span> <span class="nav-text">一、什么是 Harness Engineering</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%B8%80%E5%8F%A5%E8%AF%9D%E7%90%86%E8%A7%A3"><span class="nav-number">1.1.</span> <span class="nav-text">一句话理解</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%BC%81%E4%B8%9A%E7%BA%A7-Harness-vs-%E6%99%AE%E9%80%9A-Harness"><span class="nav-number">1.2.</span> <span class="nav-text">企业级 Harness vs 普通 Harness</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%B8%BA%E4%BB%80%E4%B9%88%E5%BE%88%E5%A4%9A%E5%9B%A2%E9%98%9F%E8%87%AA%E5%B7%B1%E5%86%99-Harness-%E8%80%8C%E4%B8%8D%E7%94%A8-LangChain"><span class="nav-number">1.3.</span> <span class="nav-text">为什么很多团队自己写 Harness 而不用 LangChain</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%BA%8C%E3%80%81%E4%BC%81%E4%B8%9A%E7%BA%A7%E9%A1%B9%E7%9B%AE%E6%9E%B6%E6%9E%84"><span class="nav-number">2.</span> <span class="nav-text">二、企业级项目架构</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#2-1-%E6%9E%B6%E6%9E%84%E5%88%86%E5%B1%82"><span class="nav-number">2.1.</span> <span class="nav-text">2.1 架构分层</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-2-%E5%AE%8C%E6%95%B4%E9%A1%B9%E7%9B%AE%E7%BB%93%E6%9E%84"><span class="nav-number">2.2.</span> <span class="nav-text">2.2 完整项目结构</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%B8%89%E3%80%81%E6%A0%B8%E5%BF%83%E6%A8%A1%E5%9D%97%E8%AE%BE%E8%AE%A1%E4%B8%8E%E5%AE%9E%E7%8E%B0"><span class="nav-number">3.</span> <span class="nav-text">三、核心模块设计与实现</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#3-1-%E9%85%8D%E7%BD%AE%E7%AE%A1%E7%90%86%E6%A8%A1%E5%9D%97"><span class="nav-number">3.1.</span> <span class="nav-text">3.1 配置管理模块</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#3-2-%E5%B7%A5%E5%85%B7%E6%B3%A8%E5%86%8C%E8%A1%A8%EF%BC%88%E6%8F%92%E4%BB%B6%E5%8C%96-%E7%86%94%E6%96%AD%E9%99%8D%E7%BA%A7%EF%BC%89"><span class="nav-number">3.2.</span> <span class="nav-text">3.2 工具注册表（插件化 + 熔断降级）</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#3-3-%E8%AE%B0%E5%BF%86%E7%AE%A1%E7%90%86%E6%A8%A1%E5%9D%97%EF%BC%88%E4%B8%89%E7%A7%8D%E7%AD%96%E7%95%A5%EF%BC%89"><span class="nav-number">3.3.</span> <span class="nav-text">3.3 记忆管理模块（三种策略）</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%9B%9B%E3%80%81%E4%BC%81%E4%B8%9A%E7%BA%A7%E7%89%B9%E6%80%A7%E8%AE%BE%E8%AE%A1"><span class="nav-number">4.</span> <span class="nav-text">四、企业级特性设计</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#4-1-%E5%BC%82%E5%B8%B8%E4%BD%93%E7%B3%BB"><span class="nav-number">4.1.</span> <span class="nav-text">4.1 异常体系</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#4-2-%E5%AE%89%E5%85%A8%E6%80%A7%E8%AE%BE%E8%AE%A1"><span class="nav-number">4.2.</span> <span class="nav-text">4.2 安全性设计</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#4-3-%E5%8F%AF%E8%A7%82%E6%B5%8B%E6%80%A7%E4%BD%93%E7%B3%BB"><span class="nav-number">4.3.</span> <span class="nav-text">4.3 可观测性体系</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#4-4-%E6%B5%8B%E8%AF%95%E4%BD%93%E7%B3%BB"><span class="nav-number">4.4.</span> <span class="nav-text">4.4 测试体系</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%BA%94%E3%80%81%E9%83%A8%E7%BD%B2%E6%9E%B6%E6%9E%84%E4%B8%8E%E8%BF%90%E7%BB%B4"><span class="nav-number">5.</span> <span class="nav-text">五、部署架构与运维</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#5-1-Docker-Compose-%E6%9C%AC%E5%9C%B0%E5%BC%80%E5%8F%91"><span class="nav-number">5.1.</span> <span class="nav-text">5.1 Docker Compose 本地开发</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#5-2-CI-CD-%E5%85%A8%E6%B5%81%E7%A8%8B"><span class="nav-number">5.2.</span> <span class="nav-text">5.2 CI&#x2F;CD 全流程</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#5-3-%E6%80%A7%E8%83%BD%E4%BC%98%E5%8C%96%E7%AD%96%E7%95%A5"><span class="nav-number">5.3.</span> <span class="nav-text">5.3 性能优化策略</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%85%AD%E3%80%81%E6%80%BB%E7%BB%93"><span class="nav-number">6.</span> <span class="nav-text">六、总结</span></a></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">ruoxi</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/blog/archives/">
+        
+          <span class="site-state-item-count">80</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/blog/categories/">
+          
+        <span class="site-state-item-count">17</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/blog/tags/">
+          
+        <span class="site-state-item-count">47</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2026</span>
+  <span class="with-love">
+    <i class="fa fa-code"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">ruoxi</span>
+</div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/blog/lib/anime.min.js"></script>
+  <script src="/blog/lib/velocity/velocity.min.js"></script>
+  <script src="/blog/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/blog/js/utils.js"></script>
+
+<script src="/blog/js/motion.js"></script>
+
+
+<script src="/blog/js/schemes/pisces.js"></script>
+
+
+<script src="/blog/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+</body>
+</html>

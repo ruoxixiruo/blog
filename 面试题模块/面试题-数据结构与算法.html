@@ -1,0 +1,786 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>面试题 - 数据结构与算法</title>
+<style>
+body {
+    transition: margin-left .25s ease;
+    font-family: -apple-system, "Noto Sans SC", "Microsoft YaHei", sans-serif;
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 20px 24px 60px;
+    line-height: 1.8;
+    color: #333;
+    background: #fff;
+}
+h1 { border-bottom: 2px solid #eee; padding-bottom: 10px; color: #222; }
+h2 { color: #333; margin-top: 32px; }
+h3 { color: #555; }
+a { color: #0366d6; text-decoration: none; }
+a:hover { text-decoration: underline; }
+pre {
+    background: #f6f8fa;
+    border-radius: 6px;
+    padding: 16px;
+    overflow-x: auto;
+    font-size: 14px;
+    line-height: 1.45;
+}
+code {
+    background: #f0f2f4;
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-size: 14px;
+}
+pre code { background: none; padding: 0; }
+blockquote {
+    border-left: 4px solid #ddd;
+    margin: 0;
+    padding: 0 16px;
+    color: #666;
+}
+table {
+    border-collapse: collapse;
+    width: 100%;
+    margin: 16px 0;
+}
+th, td {
+    border: 1px solid #ddd;
+    padding: 8px 12px;
+    text-align: left;
+}
+th { background: #f6f8fa; }
+img { max-width: 100%; }
+.back-link {
+    margin-bottom: 20px;
+    display: block;
+    color: #666;
+}
+.back-link:hover { color: #0366d6; }
+
+.sidebar-toc {
+    transition: left .25s ease;
+    position: fixed;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    width: 220px;
+    background: #f8f9fa;
+    border-right: 1px solid #e9ecef;
+    padding: 20px 0;
+    overflow-y: auto;
+    font-size: 13px;
+    z-index: 100;
+}
+.sidebar-toc a {
+    display: block;
+    padding: 6px 16px;
+    color: #555;
+    text-decoration: none;
+    border-left: 3px solid transparent;
+    line-height: 1.5;
+}
+.sidebar-toc a:hover {
+    background: #e9ecef;
+    color: #0366d6;
+    border-left-color: #0366d6;
+}
+.sidebar-toc .toc-h3 { padding-left: 20px; font-size: 12px; }
+body { margin-left: 240px; }
+
+
+.copy-btn {
+    position: absolute; top: 6px; right: 6px;
+    background: #e9ecef; border: none;
+    border-radius: 4px; padding: 3px 10px;
+    font-size: 12px; color: #555; cursor: pointer;
+    opacity: 0; transition: opacity 0.2s;
+    z-index: 1;
+}
+pre:hover .copy-btn { opacity: 1; }
+.copy-btn:hover { background: #d0d7de; }
+.copy-btn.copied { opacity: 1; background: #2da44e; color: #fff; }
+.copy-btn{position:absolute;top:6px;right:6px;background:#e9ecef;border:none;border-radius:4px;padding:3px 10px;font-size:12px;color:#555;cursor:pointer;opacity:0;transition:opacity .2s;z-index:1}pre:hover .copy-btn{opacity:1}.copy-btn:hover{background:#d0d7de}.copy-btn.copied{opacity:1;background:#2da44e;color:#fff}
+.copy-btn{position:absolute;top:6px;right:6px;background:#e9ecef;border:none;border-radius:4px;padding:3px 10px;font-size:12px;color:#555;cursor:pointer;opacity:0;transition:opacity .2s;z-index:1}pre:hover .copy-btn{opacity:1}.copy-btn:hover{background:#d0d7de}.copy-btn.copied{opacity:1;background:#2da44e;color:#fff}
+.sidebar-toggle-btn {
+  position: fixed;
+  left: 220px;
+  top: 0;
+  width: 28px;
+  height: 40px;
+  background: #f8f9fa;
+  border: 1px solid #e9ecef;
+  border-left: none;
+  border-radius: 0 4px 4px 0;
+  cursor: pointer;
+  font-size: 16px;
+  color: #555;
+  z-index: 101;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: left .25s, background .2s;
+  padding: 0;
+  line-height: 1;
+}
+.sidebar-toggle-btn:hover { background: #e9ecef; color: #0366d6; }
+.sidebar-collapsed .sidebar-toc { left: -220px; }
+.sidebar-collapsed .sidebar-toggle-btn { left: 0; }
+.sidebar-collapsed body, body.sidebar-collapsed { margin-left: 28px; }
+.sidebar-overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,.3);
+  z-index: 99;
+}
+@media (max-width: 768px) {
+  .sidebar-collapsed .sidebar-overlay { display: none; }
+  .sidebar-toc { left: -220px; }
+  .sidebar-toggle-btn { left: 0; }
+  body { margin-left: 28px; }
+}
+
+</style>
+</head>
+</head>
+<body>
+<nav class="sidebar-toc"><a class="toc-h3" href="#1">1. 数组和链表的区别?</a><a class="toc-h3" href="#2">2. 栈和队列的区别?</a><a class="toc-h3" href="#3-hashmap">3. 哈希表(HashMap)的原理?</a><a class="toc-h3" href="#4-b-mysql">4. 什么是 B+ 树?为什么 MySQL 用它?</a><a class="toc-h3" href="#5">5. 快排的原理和复杂度?</a><a class="toc-h3" href="#6-lru">6. LRU 缓存怎么实现?</a><a class="toc-h3" href="#7">7. 常见的算法思想?</a><a class="toc-h3" href="#8">8. 高频算法题速查</a><a class="toc-h3" href="#9">9. 二叉树的三种遍历(前序、中序、后序)</a><a class="toc-h3" href="#10-heap-top-k">10. 堆(Heap)的原理和 Top K 问题</a><a class="toc-h3" href="#11-skiplist">11. 跳表(SkipList)的原理</a><a class="toc-h3" href="#12-bloom-filter">12. 布隆过滤器(Bloom Filter)原理和应用</a><a class="toc-h3" href="#13">13. 动态规划的解题步骤?背包问题核心思路?</a><a class="toc-h3" href="#14">14. 什么是红黑树?</a><a class="toc-h3" href="#15">15. 动态规划经典题:背包问题详解</a><a class="toc-h3" href="#16-consistent-hashing">16. 一致性哈希算法（Consistent Hashing）原理与改进？</a></nav>
+<button class="sidebar-toggle-btn" onclick="toggleSidebar()" title="切换侧栏">☰</button>
+
+<div class="sidebar-overlay" onclick="toggleSidebar()"></div>
+
+<script>
+function toggleSidebar() {
+  document.body.classList.toggle('sidebar-collapsed');
+  try { localStorage.setItem('sidebarCollapsed', document.body.classList.contains('sidebar-collapsed')); } catch(e) {}
+}
+(function() {
+  try {
+    if (localStorage.getItem('sidebarCollapsed') === 'true') {
+      document.body.classList.add('sidebar-collapsed');
+    }
+  } catch(e) {}
+})();
+</script>
+<a class="back-link" href="/blog/2026/05/16/面试题/面试题/">← 返回面试题目录</a>
+<h1 id=page-title>数据结构与算法</h1>
+<h3 id="1">1. 数组和链表的区别?</h3>
+<table>
+<thead>
+<tr>
+<th>维度</th>
+<th>数组</th>
+<th>链表</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>内存</td>
+<td>连续分配</td>
+<td>分散存储,指针连接</td>
+</tr>
+<tr>
+<td>随机访问</td>
+<td>O(1)</td>
+<td>O(n) 从头找</td>
+</tr>
+<tr>
+<td>插入/删除</td>
+<td>O(n) 移动元素</td>
+<td>O(1) 改指针(找到位置后)</td>
+</tr>
+<tr>
+<td>CPU 缓存</td>
+<td>友好(连续内存预读)</td>
+<td>不友好(指针跳转 cache miss)</td>
+</tr>
+<tr>
+<td>扩容</td>
+<td>需要整体搬迁</td>
+<td>动态添加</td>
+</tr>
+</tbody>
+</table>
+<pre><code>数组:[A|B|C|D|_]  ← 内存连续,知道首地址 + 偏移直接跳
+链表:A → B → C → D  ← 每个元素存下一个的地址
+</code></pre>
+<p><strong>实际选择</strong>:90% 场景用数组(ArrayList),CPU 缓存友好是最大的隐性优势。链表只在频繁头尾增删时才考虑,但此时 ArrayDeque 往往更好。</p>
+<blockquote>
+<p><strong>扩展</strong>:跳表(SkipList)是链表 + 多层索引的升级版,平均 O(log n) 查找,Redis 的 ZSet 和 Java 的 ConcurrentSkipListMap 都用它。跳表比红黑树实现简单且支持范围查询。</p>
+</blockquote>
+<h3 id="2">2. 栈和队列的区别?</h3>
+<pre><code>栈(Stack)LIFO:    队列(Queue)FIFO:
+push ↓    ↑ pop     enqueue → [ ][ ][ ][ ] → dequeue
+┌───┐               ┌─────────────────────┐
+│ 3 │ ← 最后进,最先出  ← 出队  A  B  C  ← 入队
+│ 2 │
+│ 1 │ ← 最先进,最后出
+└───┘
+</code></pre>
+<p><strong>栈的应用</strong>:函数调用栈(递归就是压栈)、浏览器的前进后退、括号匹配、表达式求值、撤销操作(Ctrl+Z)</p>
+<p><strong>队列的应用</strong>:BFS 层序遍历、消息队列(FIFO)、打印任务队列、线程池的任务队列</p>
+<blockquote>
+<p><strong>扩展</strong>:双端队列(Deque)两端都可以进出--<code>ArrayDeque</code> 既可以当栈用(push/pop)也可以当队列用(offer/poll),且比 <code>Stack</code>(线程安全的老类,用 Vector,不推荐)和 <code>LinkedList</code>(做队列时内存不连续)都更高效。Java 的 <code>BlockingQueue</code>(阻塞队列)是生产者消费者模式的核心实现。</p>
+</blockquote>
+<h3 id="3-hashmap">3. 哈希表(HashMap)的原理?</h3>
+<pre><code>HashMap 三要素:
+
+1 哈希函数:hash(key) → 索引
+   理想:不同的 key → 不同的桶(均匀分布)
+   实现:(n-1) &amp; hash  位运算代替取模
+
+2 数组(桶):O(1) 访问
+
+3 冲突解决(两个 key 落到同一个桶):
+   拉链法(Java):桶 → 链表 → 太长(≥8)转红黑树
+   开放地址法(ThreadLocal):冲突了往下找空位
+</code></pre>
+<table>
+<thead>
+<tr>
+<th>操作</th>
+<th>平均</th>
+<th>最差(全冲突)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>查找</td>
+<td>O(1)</td>
+<td>O(log n) 或 O(n)</td>
+</tr>
+<tr>
+<td>插入</td>
+<td>O(1)</td>
+<td>O(log n) 或 O(n)</td>
+</tr>
+<tr>
+<td>删除</td>
+<td>O(1)</td>
+<td>O(log n) 或 O(n)</td>
+</tr>
+</tbody>
+</table>
+<blockquote>
+<p><strong>扩展</strong>:好的哈希函数要"分散"--让 key 尽可能均匀分布到各桶。Java 的 <code>hashCode()</code> 用了扰动函数(高 16 位异或低 16 位),避免低位相同高位不同的 key 全挤在一起。负载因子 0.75 是空间和时间的平衡--太高冲突多,太低浪费空间。</p>
+</blockquote>
+<h3 id="4-b-mysql">4. 什么是 B+ 树?为什么 MySQL 用它?</h3>
+<pre><code>B+ 树结构特点:
+
+         [索引导航]
+        /    |    \
+    [索引]  [索引]  [索引]     ← 非叶子:只存 key,不存数据
+     /  \    /  \    /  \
+    ○→○→○  ○→○→○  ○→○→○     ← 叶子:存数据 + 双向链表
+</code></pre>
+<p><strong>MySQL 选 B+ 树的三个理由</strong>:
+1. <strong>树矮</strong>:非叶子节点只存 key(不存数据),一个 16KB 页能装上千个 key → 3-4 层搞定千万级数据 → 磁盘 IO 极少
+2. <strong>范围查询快</strong>:叶子节点是双向链表,找到起点后顺着扫就行,不用回上层
+3. <strong>自平衡</strong>:插入删除自动分裂/合并,数据分布均匀,查询性能稳定</p>
+<blockquote>
+<p><strong>扩展</strong>:B 树(非 B+)在非叶子节点也存数据,导致非叶子节点能装的 key 更少、树更高。Hash 索引 O(1) 等值查询快,但不支持范围查询和排序。LSM 树(Log-Structured Merge Tree)是另一种为写优化的磁盘索引结构(LSM 写快读慢),LevelDB/RocksDB/Cassandra 用。</p>
+</blockquote>
+<h3 id="5">5. 快排的原理和复杂度?</h3>
+<pre><code>快排三步:
+1 选基准(pivot)
+2 分区:左边 ≤ pivot,右边 &gt; pivot
+3 递归排左右
+
+原始数组:[5, 2, 8, 1, 9, 3]
+选 5 → 左边[2,1,3] 右边[8,9] → [2,1,3,5,8,9]
+递归 → [1,2,3] + [5] + [8,9] → [1,2,3,5,8,9]
+</code></pre>
+<table>
+<thead>
+<tr>
+<th>复杂度</th>
+<th>最好/平均</th>
+<th>最差</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>时间</td>
+<td>O(n log n)</td>
+<td>O(n2)</td>
+</tr>
+<tr>
+<td>空间</td>
+<td>O(log n)</td>
+<td>O(n)</td>
+</tr>
+<tr>
+<td>稳定性</td>
+<td>不稳定</td>
+<td>-</td>
+</tr>
+</tbody>
+</table>
+<p><strong>最差情况</strong>:每次 pivot 选到最小/最大值(已排序的数组直接快排最差!)。<strong>优化</strong>:随机选 pivot、三数取中法(首/尾/中取中间值)。</p>
+<blockquote>
+<p><strong>扩展</strong>:Arrays.sort() 对基本类型用双轴快排(Dual-Pivot QuickSort,选两个 pivot 三分区),对对象类型用 TimSort(归并+插入的混合,稳定)。快排和归并的区别:快排是"先分区再递归"(自上而下),归并是"先递归到底再合并"(自下而上)。</p>
+</blockquote>
+<h3 id="6-lru">6. LRU 缓存怎么实现?</h3>
+<pre><code>LRU = 哈希表 + 双向链表
+
+哈希表:key → Node 的映射,O(1) 找到节点
+双向链表:记录访问顺序
+  - 最近访问的 → 移到链表头
+  - 最久未用的 → 在链表尾
+  - 满了就删尾部
+
+访问 key=3 时:
+  map.get(3) → Node(3) → 把 Node(3) 移到链表头
+                            ↑ O(1),因为双向链表可以直接断链+续接
+
+插入新 key 时(容量满了):
+  删链表尾部节点 → 从 map 删除 → 新节点插入头部
+</code></pre>
+<pre><code class="language-java">// Java 最简单实现:
+LinkedHashMap&lt;Integer, String&gt; lru = new LinkedHashMap&lt;&gt;(capacity, 0.75f, true) {
+    protected boolean removeEldestEntry(Map.Entry eldest) {
+        return size() &gt; capacity;
+    }
+};
+</code></pre>
+<blockquote>
+<p><strong>扩展</strong>:LRU 的问题--偶发的大量冷数据访问会冲走热数据("缓存污染")。LFU(Least Frequently Used)按访问频率淘汰,更抗缓存污染但实现更复杂。Redis 的 LFU 用了对数计数器(访问频率的对数值),避免老数据频率太高永远踢不掉。W-TinyLFU(Caffeine 缓存库的算法)是目前公认的最佳淘汰策略。</p>
+</blockquote>
+<h3 id="7">7. 常见的算法思想?</h3>
+<table>
+<thead>
+<tr>
+<th>思想</th>
+<th>核心思路</th>
+<th>经典场景</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>双指针</strong></td>
+<td>两个指针同向/反向遍历</td>
+<td>反转链表、链表环检测、两数之和</td>
+</tr>
+<tr>
+<td><strong>滑动窗口</strong></td>
+<td>维护一个动态窗口</td>
+<td>最长无重复子串、最小覆盖子串</td>
+</tr>
+<tr>
+<td><strong>二分查找</strong></td>
+<td>每步排除一半</td>
+<td>有序数组查找、旋转数组找最小</td>
+</tr>
+<tr>
+<td><strong>动态规划</strong></td>
+<td>子问题最优解推导全局最优</td>
+<td>背包、最长公共子序列、编辑距离</td>
+</tr>
+<tr>
+<td><strong>回溯</strong></td>
+<td>穷举 + 剪枝</td>
+<td>全排列、N 皇后、组合总和</td>
+</tr>
+<tr>
+<td><strong>贪心</strong></td>
+<td>每步选局部最优</td>
+<td>零钱兑换(某些面额)、区间调度</td>
+</tr>
+<tr>
+<td><strong>分治</strong></td>
+<td>拆分 → 子问题 → 合并</td>
+<td>归并排序、快排、大整数乘法</td>
+</tr>
+</tbody>
+</table>
+<p><strong>动态规划关键</strong>:找到"状态转移方程"--当前状态如何由之前的状态推导出来。比如 <code>dp[i] = max(dp[i-1], dp[i-2] + nums[i])</code>(打家劫舍)。</p>
+<blockquote>
+<p><strong>扩展</strong>:BFS(广度优先)找最短路径,DFS(深度优先)找所有路径。LeetCode 刷题建议按标签分类刷--先掌握每种思想的经典题型,再刷综合题。面试时间有限,能说清思路比写出完整代码更重要。</p>
+</blockquote>
+<h3 id="8">8. 高频算法题速查</h3>
+<table>
+<thead>
+<tr>
+<th>题目</th>
+<th>核心思路</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>反转链表</td>
+<td>prev/curr/next 三指针,curr.next = prev</td>
+</tr>
+<tr>
+<td>判断链表有环</td>
+<td>快慢指针,快 2 步慢 1 步,相遇 = 有环</td>
+</tr>
+<tr>
+<td>两数之和</td>
+<td>HashMap,key=target-num,一遍遍历</td>
+</tr>
+<tr>
+<td>Top K</td>
+<td>小顶堆(找最大 K 个),O(n log K)</td>
+</tr>
+<tr>
+<td>层序遍历</td>
+<td>队列 BFS,每层用 <code>queue.size()</code> 控制</td>
+</tr>
+<tr>
+<td>最长无重复子串</td>
+<td>滑动窗口 + HashSet/数组标记</td>
+</tr>
+<tr>
+<td>二分查找</td>
+<td>while(l&lt;=r),mid=l+(r-l)/2,防溢出</td>
+</tr>
+<tr>
+<td>归并排序</td>
+<td>先分后合,递归到底再两两合并</td>
+</tr>
+<tr>
+<td>接雨水</td>
+<td>双指针,<code>min(lmax, rmax) - height[i]</code></td>
+</tr>
+<tr>
+<td>生产者消费者</td>
+<td>BlockingQueue 或 wait/notify + 队列</td>
+</tr>
+</tbody>
+</table>
+<h3 id="9">9. 二叉树的三种遍历(前序、中序、后序)</h3>
+<pre><code>        1
+      /   \
+     2     3
+    / \   / \
+   4   5 6   7
+
+前序(根→左→右):1, 2, 4, 5, 3, 6, 7
+中序(左→根→右):4, 2, 5, 1, 6, 3, 7
+后序(左→右→根):4, 5, 2, 6, 7, 3, 1
+</code></pre>
+<pre><code class="language-java">// 递归版--简单直接
+void preOrder(TreeNode root) {
+    if (root == null) return;
+    System.out.print(root.val);  // 前序:先处理根
+    preOrder(root.left);
+    preOrder(root.right);
+    // 中序:println 放中间;后序:println 放最后
+}
+
+// 非递归--用栈模拟
+void preOrderIter(TreeNode root) {
+    Stack&lt;TreeNode&gt; stack = new Stack&lt;&gt;();
+    stack.push(root);
+    while (!stack.isEmpty()) {
+        TreeNode node = stack.pop();
+        System.out.print(node.val);     // 先处理根
+        if (node.right != null) stack.push(node.right);  // 先右后左(栈的 LIFO)
+        if (node.left != null) stack.push(node.left);
+    }
+}
+</code></pre>
+<blockquote>
+<p><strong>扩展</strong>:三种遍历的应用场景--前序:序列化/打印目录结构;中序:BST 的中序结果有序(升序);后序:删除目录(先删子节点再删父节点)、计算文件大小。非递归后序遍历是最难的(可用双栈法或 prev 指针法)。</p>
+</blockquote>
+<h3 id="10-heap-top-k">10. 堆(Heap)的原理和 Top K 问题</h3>
+<p>堆是一棵<strong>完全二叉树</strong>,满足:父节点 ≤ 子节点(小顶堆)或 父节点 ≥ 子节点(大顶堆)。</p>
+<p><strong>Top K 问题(找第 K 大)</strong>:用<strong>小顶堆</strong>维护 K 个最大元素</p>
+<pre><code>数组 [3,1,5,7,2,9,8],找第 3 大
+
+维护一个小顶堆(size=3):
+依次插入:         堆内容(堆顶最小)
+  3             [3]
+  1             [1, 3]
+  5             [1, 3, 5]        堆满了
+  7 &gt; 堆顶1 →   [3, 5, 7]        1被淘汰
+  2 &lt; 堆顶3 → 不变
+  9 &gt; 堆顶3 →   [5, 7, 9]        3被淘汰
+  8 &gt; 堆顶5 →   [7, 8, 9]        5被淘汰
+
+最终堆顶7就是第 3 大元素
+</code></pre>
+<pre><code class="language-java">// Top K 实现
+public int findKthLargest(int[] nums, int k) {
+    PriorityQueue&lt;Integer&gt; heap = new PriorityQueue&lt;&gt;();  // 默认小顶堆
+    for (int num : nums) {
+        heap.offer(num);
+        if (heap.size() &gt; k) heap.poll();  // 超过 K 就踢最小的
+    }
+    return heap.peek();  // 堆顶 = 第 K 大
+}
+</code></pre>
+<blockquote>
+<p><strong>扩展</strong>:找最大 K 个用小顶堆,找最小 K 个用大顶堆。堆排序:把所有元素建堆再依次弹出,O(n log n)。Java 的 PriorityQueue 默认小顶堆,大顶堆用 <code>new PriorityQueue&lt;&gt;(Collections.reverseOrder())</code>。</p>
+</blockquote>
+<h3 id="11-skiplist">11. 跳表(SkipList)的原理</h3>
+<p>跳表 = <strong>多层索引的链表</strong>,通过在上层建立"快速通道"来加速查找。每层节点随机决定是否"升层"。</p>
+<pre><code>Level 2:  1 ───────────▶ 5 ───────────▶ 9
+           │              │              │
+Level 1:  1 ──▶ 3 ──▶ 5 ──▶ 7 ──▶ 9 ──▶ 11
+           │    │    │    │    │    │    │
+Level 0:  1 → 2 → 3 → 4 → 5 → 6 → 7 → 8 → 9 → 10 → 11
+
+查找 7:
+  Level 2: 1→5→9(超过7) 回到5
+  Level 1: 5→7(找到!)
+  只走了 3 步,比从头走到尾快得多
+</code></pre>
+<table>
+<thead>
+<tr>
+<th>对比</th>
+<th>跳表</th>
+<th>红黑树</th>
+<th>哈希表</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>查找</td>
+<td>O(log n)</td>
+<td>O(log n)</td>
+<td>O(1)</td>
+</tr>
+<tr>
+<td>插入</td>
+<td>O(log n)</td>
+<td>O(log n)</td>
+<td>O(1)</td>
+</tr>
+<tr>
+<td>范围查询</td>
+<td>✅ 天然支持</td>
+<td>✅ 支持</td>
+<td>❌ 不支持</td>
+</tr>
+<tr>
+<td>实现难度</td>
+<td>简单</td>
+<td>复杂</td>
+<td>简单</td>
+</tr>
+</tbody>
+</table>
+<blockquote>
+<p><strong>扩展</strong>:Redis 为什么用跳表而不是红黑树实现 ZSet?因为<strong>跳表实现简单</strong>(几百行代码)、<strong>支持范围查询</strong>(ZRANGE 直接走链表)、<strong>更适合并发</strong>(红黑树 rebalance 需要全局锁)。ZSet 底层实际上是<strong>跳表 + 哈希表</strong>的组合--哈希表负责 O(1) 按 member 查 score,跳表负责按 score 排序和范围查询。</p>
+</blockquote>
+<h3 id="12-bloom-filter">12. 布隆过滤器(Bloom Filter)原理和应用</h3>
+<p>布隆过滤器是一个<strong>位数组 + 多个哈希函数</strong>,可以判断"<strong>一定不存在</strong>"或"<strong>可能存在</strong>"。</p>
+<pre><code>插入元素 &quot;hello&quot;:
+  hash1(&quot;hello&quot;) → 位索引 2
+  hash2(&quot;hello&quot;) → 位索引 7
+  hash3(&quot;hello&quot;) → 位索引 13
+  把这 3 个位置设为 1
+
+位数组:[0,0,1,0,0,0,0,1,0,0,0,0,0,1,0,0,...]
+
+查询元素 &quot;world&quot;:
+  hash1(&quot;world&quot;) → 2  ✓ (为1)
+  hash2(&quot;world&quot;) → 5  ✗ (为0) → 一定不存在!
+
+查询元素 &quot;hello1&quot;:
+  hash1(&quot;hello1&quot;) → 7  ✓
+  hash2(&quot;hello1&quot;) → 13 ✓
+  hash3(&quot;hello1&quot;) → 2  ✓ → 可能存在(但其实是误判)
+</code></pre>
+<p><strong>核心特性</strong>:
+- 判断"不存在":<strong>100% 准确</strong>(有一个位是 0 就肯定不存在)
+- 判断"存在":<strong>可能误判</strong>(3 个位都被其他元素设为 1 了)
+- 不可删除(因为一个位可能被多个元素共用)</p>
+<blockquote>
+<p><strong>扩展</strong>:布隆过滤器最经典的应用--<strong>缓存穿透防护</strong>。把数据库中所有 ID 预先存到布隆过滤器(几亿 ID 只需几百 MB),查询时先过布隆过滤器--"不存在"直接返回,只有"可能存在"才查缓存/数据库。Redis 从 4.0 开始提供了 <code>BF.ADD</code> / <code>BF.EXISTS</code> 命令直接使用布隆过滤器。</p>
+</blockquote>
+<h3 id="13">13. 动态规划的解题步骤?背包问题核心思路?</h3>
+<p><strong>解题四步法</strong>:
+1. <strong>定义状态</strong>:<code>dp[i]</code> 或 <code>dp[i][j]</code> 代表什么含义
+2. <strong>找到转移方程</strong>:状态之间怎么推导(选/不选、取 max/min)
+3. <strong>初始化边界</strong>:<code>dp[0]</code> 或 <code>dp[0][j]</code> 等基础值
+4. <strong>确定计算顺序与答案位置</strong></p>
+<p><strong>0-1 背包</strong>(最经典 DP):</p>
+<pre><code>问题:容量 W=10,物品:A(重量2,价值6) B(重量2,价值3) C(重量6,价值5) D(重量5,价值4) E(重量4,价值6)
+求能装的最大价值?
+
+dp[i][w] = 前 i 个物品,容量 w 时的最大价值
+
+转移方程:dp[i][w] = max(
+    dp[i-1][w],                    // 不选第 i 个
+    dp[i-1][w-wt[i]] + val[i]      // 选第 i 个(容量够才行)
+)
+</code></pre>
+<pre><code class="language-java">// 0-1 背包(一维优化版,逆序遍历)
+int[] dp = new int[W + 1];
+for (int i = 0; i &lt; n; i++) {
+    for (int w = W; w &gt;= wt[i]; w--) {   // 逆序!防止物品被重复选
+        dp[w] = Math.max(dp[w], dp[w - wt[i]] + val[i]);
+    }
+}
+// dp[W] 就是最大价值
+</code></pre>
+<blockquote>
+<p><strong>扩展</strong>:DP 和贪心的区别--贪心是每一步选局部最优(不保证全局最优),DP 是考虑所有子问题取最优(保证全局最优)。判断技巧:连续子串 → 滑动窗口;能排序+贪心 → 贪心;需要枚举子问题组合 → DP。逆向遍历(w 从大到小)是为了防止同一物品被多次选择--正向遍历就变成完全背包了。</p>
+</blockquote>
+<hr />
+<h3 id="14">14. 什么是红黑树?</h3>
+<p>自平衡二叉查找树,最深不超最短路径 2 倍。约束:红黑交替、根黑、叶黑、红子黑、黑色数相同。应用:HashMap 红黑树(Java8+)、TreeMap、CFS 调度器。</p>
+<hr />
+<h3 id="15">15. 动态规划经典题:背包问题详解</h3>
+<p>动态规划的核心思想:<strong>把大问题拆成小问题,记录小问题的答案,避免重复计算</strong>。就像爬楼梯--想知道到第 100 级有多少种走法,只需要知道到第 98 级和第 99 级的走法就行,不用全部重新算。</p>
+<p><strong>0-1 背包问题</strong>(每个物品只能选或不选):</p>
+<pre><code>问题:N 个物品,第 i 个重量 wt[i]、价值 val[i],背包容量 W。问最多装多少价值?
+
+dp[i][w] = &quot;前 i 个物品,背包容量 w,能装的最大价值&quot;
+
+状态转移:
+  不选第 i 个:dp[i][w] = dp[i-1][w]
+  选第 i 个:dp[i][w] = dp[i-1][w-wt[i]] + val[i]
+  最终:dp[i][w] = max(不选, 选)
+</code></pre>
+<p><strong>空间优化(一维 DP,面试一般写这个)</strong>:</p>
+<pre><code class="language-java">// 0-1 背包:一维 DP(逆序遍历!)
+int[] dp = new int[W + 1];
+for (int i = 0; i &lt; N; i++) {
+    for (int w = W; w &gt;= wt[i]; w--) {   // 逆序!防止同一物品被重复选
+        dp[w] = Math.max(dp[w], dp[w - wt[i]] + val[i]);
+    }
+}
+return dp[W];
+
+// 完全背包(每个物品可以选无限次):正向遍历
+for (int w = wt[i]; w &lt;= W; w++) {
+    dp[w] = Math.max(dp[w], dp[w - wt[i]] + val[i]);
+}
+</code></pre>
+<p><strong>DP 解题三步法</strong>:</p>
+<pre><code>1 定义状态:dp[i] 或 dp[i][j] 表示什么?
+2 找转移方程:当前状态怎么由之前的状态推导?
+3 初始化 + 遍历顺序:边界条件 + 正确遍历保证不重复/不漏
+</code></pre>
+<p><strong>经典 DP 题型速记</strong>:</p>
+<table>
+<thead>
+<tr>
+<th>题目</th>
+<th>状态定义</th>
+<th>转移方程</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>爬楼梯</strong></td>
+<td>dp[i] = 到第 i 级的走法</td>
+<td><code>dp[i] = dp[i-1] + dp[i-2]</code></td>
+</tr>
+<tr>
+<td><strong>最大子数组和</strong></td>
+<td>dp[i] = 以 i 结尾的最大和</td>
+<td><code>dp[i] = max(nums[i], dp[i-1] + nums[i])</code></td>
+</tr>
+<tr>
+<td><strong>最长递增子序列</strong></td>
+<td>dp[i] = 以 i 结尾的 LIS 长度</td>
+<td><code>dp[i] = max(dp[j] + 1)</code> (j&lt;i, nums[j]&lt;nums[i])</td>
+</tr>
+<tr>
+<td><strong>编辑距离</strong></td>
+<td>dp[i][j] = word1 前 i ↔ word2 前 j</td>
+<td><code>dp[i][j] = min(...)</code></td>
+</tr>
+<tr>
+<td><strong>最长公共子序列</strong></td>
+<td>dp[i][j] = text1 前 i ↔ text2 前 j</td>
+<td>相等: <code>dp[i-1][j-1]+1</code>,不等: <code>max(dp[i-1][j], dp[i][j-1])</code></td>
+</tr>
+</tbody>
+</table>
+<p><strong>DP vs 贪心 vs 回溯</strong>:</p>
+<pre><code>DP:保证全局最优,需要子问题重叠。慢但可靠
+贪心:每步选局部最优,不一定全局最优。快但不保证最优
+回溯:暴力枚举所有可能。最慢但最通用
+</code></pre>
+<blockquote>
+<p><strong>扩展</strong>:面试中 DP 的难点不是写代码,而是<strong>识别出这题可以用 DP</strong>。识别信号:1 求最值(最大/最小/最多/最少);2 有递推关系(当前状态依赖之前状态);3 子问题有重叠(不重叠就是分治了)。遇到这种题先在纸上写出状态定义和转移方程,代码反而是最后一步。</p>
+</blockquote>
+<h3 id="16-consistent-hashing">16. 一致性哈希算法（Consistent Hashing）原理与改进？</h3>
+<p><strong>一致性哈希解决传统哈希的问题</strong>：</p>
+<pre><code>传统哈希（取模 N）：
+  hash(key) % N
+  → 当 N 变化时，所有数据几乎全部迁移
+
+一致性哈希：
+  将所有节点和数据映射到 [0, 2^32) 环形空间
+  节点沿环顺时针最近的下一个节点负责存储该数据
+  → 增加/删除节点只需迁移局部数据
+</code></pre>
+<p><strong>虚拟节点改进</strong>（解决数据倾斜）：</p>
+<pre><code>问题：节点较少时，数据分布极不均匀（某些节点责任区太大）
+解决：为每个物理节点创建多个虚拟节点
+
+node1 → node1#1, node1#2, node1#3, ... → 分布在环上多个位置
+node2 → node2#1, node2#2, node2#3, ...
+→ 虚拟节点越多，数据分布越均匀
+→ 标准做法：每个物理节点 150-200 个虚拟节点
+</code></pre>
+<p><strong>应用场景</strong>：
+- 分布式缓存（Redis Cluster slot 机制就是一致性哈希的变体）
+- 负载均衡器（Nginx 的 <code>ip_hash</code> 指令）
+- 分布式数据库（分片路由）</p>
+<blockquote>
+<p><strong>扩展</strong>：K8s 中 Service 的负载均衡用 Round-Robin+DNS 轮询；Go 的 <code>hashicorp/consistenthash</code> 是工业级实现；Google Maglev 改进了虚拟节点分配算法（更均匀）。</p>
+</blockquote>
+
+<script>
+// Scroll spy — highlight active sidebar item
+window.addEventListener('scroll', function() {
+    var links = document.querySelectorAll('.sidebar-toc a');
+    var scrollY = window.scrollY + 120;
+    var current = '';
+    for (var i = links.length - 1; i >= 0; i--) {
+        var target = document.getElementById(links[i].getAttribute('href').slice(1));
+        if (target && target.offsetTop <= scrollY) {
+            current = links[i];
+            break;
+        }
+    }
+    links.forEach(function(a) { a.style.fontWeight = 'normal'; a.style.color = '#555'; });
+    if (current) { current.style.fontWeight = 'bold'; current.style.color = '#0366d6'; }
+});
+</script>
+
+
+<script>
+document.querySelectorAll('pre > code').forEach(function(codeBlock, i) {
+    var pre = codeBlock.parentNode;
+    pre.style.position = 'relative';
+    var btn = document.createElement('button');
+    btn.className = 'copy-btn';
+    btn.textContent = '复制';
+    pre.appendChild(btn);
+    btn.addEventListener('click', function() {
+        var text = codeBlock.textContent;
+        navigator.clipboard.writeText(text).then(function() {
+            btn.textContent = '已复制';
+            btn.classList.add('copied');
+            setTimeout(function() {
+                btn.textContent = '复制';
+                btn.classList.remove('copied');
+            }, 2000);
+        }).catch(function() {
+            // Fallback
+            var ta = document.createElement('textarea');
+            ta.value = text; ta.style.position = 'fixed'; ta.style.opacity = '0';
+            document.body.appendChild(ta); ta.select();
+            document.execCommand('copy'); document.body.removeChild(ta);
+            btn.textContent = '已复制'; btn.classList.add('copied');
+            setTimeout(function() { btn.textContent = '复制'; btn.classList.remove('copied'); }, 2000);
+        });
+    });
+});
+</script>
+
+<script>document.querySelectorAll("pre>code").forEach(function(c){var p=c.parentNode;p.style.position="relative";var b=document.createElement("button");b.className="copy-btn";b.textContent="复制";p.appendChild(b);b.addEventListener("click",function(){var t=c.textContent;navigator.clipboard.writeText(t).then(function(){b.textContent="已复制";b.classList.add("copied");setTimeout(function(){b.textContent="复制";b.classList.remove("copied")},2000)}).catch(function(){var a=document.createElement("textarea");a.value=t;a.style.position="fixed";a.style.opacity="0";document.body.appendChild(a);a.select();document.execCommand("copy");document.body.removeChild(a);b.textContent="已复制";b.classList.add("copied");setTimeout(function(){b.textContent="复制";b.classList.remove("copied")},2000)})})})</script>
+</body>
+</html>

@@ -1,0 +1,960 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>面试题 - 系统设计场景题</title>
+<style>
+body {
+    transition: margin-left .25s ease;
+    font-family: -apple-system, "Noto Sans SC", "Microsoft YaHei", sans-serif;
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 20px 24px 60px;
+    line-height: 1.8;
+    color: #333;
+    background: #fff;
+}
+h1 { border-bottom: 2px solid #eee; padding-bottom: 10px; color: #222; }
+h2 { color: #333; margin-top: 32px; }
+h3 { color: #555; }
+a { color: #0366d6; text-decoration: none; }
+a:hover { text-decoration: underline; }
+pre {
+    background: #f6f8fa;
+    border-radius: 6px;
+    padding: 16px;
+    overflow-x: auto;
+    font-size: 14px;
+    line-height: 1.45;
+}
+code {
+    background: #f0f2f4;
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-size: 14px;
+}
+pre code { background: none; padding: 0; }
+blockquote {
+    border-left: 4px solid #ddd;
+    margin: 0;
+    padding: 0 16px;
+    color: #666;
+}
+table {
+    border-collapse: collapse;
+    width: 100%;
+    margin: 16px 0;
+}
+th, td {
+    border: 1px solid #ddd;
+    padding: 8px 12px;
+    text-align: left;
+}
+th { background: #f6f8fa; }
+img { max-width: 100%; }
+.back-link {
+    margin-bottom: 20px;
+    display: block;
+    color: #666;
+}
+.back-link:hover { color: #0366d6; }
+
+.sidebar-toc {
+    transition: left .25s ease;
+    position: fixed;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    width: 220px;
+    background: #f8f9fa;
+    border-right: 1px solid #e9ecef;
+    padding: 20px 0;
+    overflow-y: auto;
+    font-size: 13px;
+    z-index: 100;
+}
+.sidebar-toc a {
+    display: block;
+    padding: 6px 16px;
+    color: #555;
+    text-decoration: none;
+    border-left: 3px solid transparent;
+    line-height: 1.5;
+}
+.sidebar-toc a:hover {
+    background: #e9ecef;
+    color: #0366d6;
+    border-left-color: #0366d6;
+}
+.sidebar-toc .toc-h3 { padding-left: 20px; font-size: 12px; }
+body { margin-left: 240px; }
+
+
+.copy-btn {
+    position: absolute; top: 6px; right: 6px;
+    background: #e9ecef; border: none;
+    border-radius: 4px; padding: 3px 10px;
+    font-size: 12px; color: #555; cursor: pointer;
+    opacity: 0; transition: opacity 0.2s;
+    z-index: 1;
+}
+pre:hover .copy-btn { opacity: 1; }
+.copy-btn:hover { background: #d0d7de; }
+.copy-btn.copied { opacity: 1; background: #2da44e; color: #fff; }
+.copy-btn{position:absolute;top:6px;right:6px;background:#e9ecef;border:none;border-radius:4px;padding:3px 10px;font-size:12px;color:#555;cursor:pointer;opacity:0;transition:opacity .2s;z-index:1}pre:hover .copy-btn{opacity:1}.copy-btn:hover{background:#d0d7de}.copy-btn.copied{opacity:1;background:#2da44e;color:#fff}
+.copy-btn{position:absolute;top:6px;right:6px;background:#e9ecef;border:none;border-radius:4px;padding:3px 10px;font-size:12px;color:#555;cursor:pointer;opacity:0;transition:opacity .2s;z-index:1}pre:hover .copy-btn{opacity:1}.copy-btn:hover{background:#d0d7de}.copy-btn.copied{opacity:1;background:#2da44e;color:#fff}
+.sidebar-toggle-btn {
+  position: fixed;
+  left: 220px;
+  top: 0;
+  width: 28px;
+  height: 40px;
+  background: #f8f9fa;
+  border: 1px solid #e9ecef;
+  border-left: none;
+  border-radius: 0 4px 4px 0;
+  cursor: pointer;
+  font-size: 16px;
+  color: #555;
+  z-index: 101;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: left .25s, background .2s;
+  padding: 0;
+  line-height: 1;
+}
+.sidebar-toggle-btn:hover { background: #e9ecef; color: #0366d6; }
+.sidebar-collapsed .sidebar-toc { left: -220px; }
+.sidebar-collapsed .sidebar-toggle-btn { left: 0; }
+.sidebar-collapsed body, body.sidebar-collapsed { margin-left: 28px; }
+.sidebar-overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,.3);
+  z-index: 99;
+}
+@media (max-width: 768px) {
+  .sidebar-collapsed .sidebar-overlay { display: none; }
+  .sidebar-toc { left: -220px; }
+  .sidebar-toggle-btn { left: 0; }
+  body { margin-left: 28px; }
+}
+
+</style>
+</head>
+</head>
+<body>
+<nav class="sidebar-toc"><a class="toc-h3" href="#1">1. 秒杀系统怎么设计?</a><a class="toc-h3" href="#2">2. 短链系统怎么设计?</a><a class="toc-h3" href="#3">3. 排行榜怎么设计?</a><a class="toc-h3" href="#4-id">4. 分布式 ID 怎么生成?</a><a class="toc-h3" href="#5">5. 如何设计一个接口限流方案?</a><a class="toc-h3" href="#6">6. 大文件上传怎么设计?</a><a class="toc-h3" href="#7">7. 一个接口需要调用三个下游服务,如何提高响应速度?</a><a class="toc-h3" href="#8">8. 如何设计一个幂等接口(防止重复提交)?</a><a class="toc-h3" href="#9-excel">9. 数据量很大时,如何高效导出 Excel 报表?</a><a class="toc-h3" href="#10">10. 线上发布新版本,如何做到平滑上线、不中断服务?</a><a class="toc-h3" href="#11">11. 定时任务多实例部署时,如何保证只执行一次?</a><a class="toc-h3" href="#12">12. 如何设计热搜排行榜?</a><a class="toc-h3" href="#13-feed">13. Feed 流系统怎么设计?</a><a class="toc-h3" href="#14-cap">14. CAP 定理在架构设计中如何取舍?</a><a class="toc-h3" href="#15">15. 高并发系统如何实现限流?三种算法对比?</a><a class="toc-h3" href="#16-id">16. 分布式 ID 生成方案有哪些?</a><a class="toc-h3" href="#17">17. 消息队列如何保证消息不丢失?</a><a class="toc-h3" href="#18">18. 如何设计一个短链服务？</a></nav>
+<button class="sidebar-toggle-btn" onclick="toggleSidebar()" title="切换侧栏">☰</button>
+
+<div class="sidebar-overlay" onclick="toggleSidebar()"></div>
+
+<script>
+function toggleSidebar() {
+  document.body.classList.toggle('sidebar-collapsed');
+  try { localStorage.setItem('sidebarCollapsed', document.body.classList.contains('sidebar-collapsed')); } catch(e) {}
+}
+(function() {
+  try {
+    if (localStorage.getItem('sidebarCollapsed') === 'true') {
+      document.body.classList.add('sidebar-collapsed');
+    }
+  } catch(e) {}
+})();
+</script>
+<a class="back-link" href="/blog/2026/05/16/面试题/面试题/">← 返回面试题目录</a>
+<h1 id=page-title>系统设计场景题</h1>
+<h3 id="1">1. 秒杀系统怎么设计?</h3>
+<p>核心矛盾:<strong>瞬间超高并发 vs 有限库存</strong>。就像春运抢票--几百万人同时抢几千张票。用"多层漏斗"逐层过滤:</p>
+<ol>
+<li>
+<p><strong>前端层</strong>:按钮防重复点击、验证码、答题等拦截大部分流量。就像给抢票加个验证码--光这一步就能过滤掉 90% 的脚本流量。</p>
+</li>
+<li>
+<p><strong>CDN + 静态化</strong>:秒杀页面和商品详情静态化,CDN 缓存,减少到源站的请求。就像把菜单贴在门口,不用每个人都进店问有什么菜。</p>
+</li>
+<li>
+<p><strong>Redis 预减库存</strong>:库存预热到 Redis,下单时用 Lua 脚本原子递减:
+   <code>lua
+   -- Redis Lua 保证"查库存 + 扣库存"原子执行
+   if redis.call('get', KEYS[1]) &gt; 0 then
+       redis.call('decr', KEYS[1])
+       return 1
+   else
+       return 0
+   end</code></p>
+</li>
+<li>
+<p><strong>队列削峰</strong>:成功扣库存的请求进入消息队列(RocketMQ/Kafka),异步创建订单。就像景区限流--先放部分人进等候区(MQ),再分批进景区(DB)。</p>
+</li>
+<li>
+<p><strong>MySQL 乐观锁兜底</strong>:<code>UPDATE ... WHERE stock &gt;= buy_count</code>,双重保障不超卖。</p>
+</li>
+<li>
+<p><strong>限流熔断</strong>:网关层对用户频率限制 + Sentinel 断路器,防止黄牛刷单。</p>
+</li>
+</ol>
+<pre><code>        用户请求(1000 万 QPS)
+              │
+    ┌─────────▼─────────┐
+    │  1 前端防重 / 验证码  │ → 过滤 90%
+    └─────────┬─────────┘
+              │ 100 万 QPS
+    ┌─────────▼─────────┐
+    │  2 CDN 静态化       │ → 静态页面不走源站
+    └─────────┬─────────┘
+              │ 10 万 QPS
+    ┌─────────▼─────────┐
+    │  3 Redis 预减库存   │ → Lua 原子扣减
+    └─────────┬─────────┘
+              │ 1 万 QPS(只有扣成功的人进来)
+    ┌─────────▼─────────┐
+    │  4 MQ 削峰          │ → 异步排队
+    └─────────┬─────────┘
+              │
+    ┌─────────▼─────────┐
+    │  5 MySQL 乐观锁     │ → 最终兜底
+    └────────────────────┘
+</code></pre>
+<blockquote>
+<p><strong>扩展</strong>:真正的秒杀系统还有一个关键细节--<strong>隔离</strong>。把秒杀商品的页面和普通商品页面分开部署,甚至用独立的域名和服务集群,这样即使秒杀崩了也不影响正常购物。另外,<strong>库存预热</strong>不是说一秒把库存写进 Redis 就行,而是要在秒杀开始前几分钟完成,并且要注意预热时的并发安全问题。</p>
+</blockquote>
+<h3 id="2">2. 短链系统怎么设计?</h3>
+<p>核心流程:<code>长 URL → 生成短码 → 存映射关系 → 访问短链时 302 重定向回长 URL</code>。</p>
+<p><strong>短码生成算法</strong>:
+- 长链接通过 MurmurHash 或发号器(自增 ID)→ Base62 编码得到短码(如 <code>t.cn/A3x9F</code>)
+- Base62 = 0-9 + a-z + A-Z,62 个字符,6 位就能表示 568 亿个链接
+- 发号器可用 Snowflake 分布式 ID 或 Redis 自增,保证全局唯一</p>
+<pre><code>长 URL: https://example.com/very/long/url?param=xxx
+                      │
+                      ▼
+            发号器生成唯一 ID → 123456789
+                      │
+                      ▼
+           Base62 编码 → &quot;A3x9F&quot;
+                      │
+                      ▼
+短链: https://t.cn/A3x9F
+</code></pre>
+<p><strong>存储</strong>:MySQL 存映射关系(短码 + 长链接 + 过期时间),短码建唯一索引。按时间分库分表 + 冷热分离。</p>
+<p><strong>访问流程</strong>:用户请求短链 → Nginx 查本地缓存 → Redis 查热点映射 → MySQL 兜底 → 301/302 重定向。</p>
+<pre><code>用户访问短链
+    │
+    ▼
+Nginx 本地缓存(Lua 脚本查共享内存)
+    │ 未命中
+    ▼
+Redis(LRU 淘汰冷数据,热点永驻)
+    │ 未命中
+    ▼
+MySQL(唯一索引精确查)
+    │ 找到
+    ▼
+302 重定向 → 长 URL
+</code></pre>
+<blockquote>
+<p><strong>扩展</strong>:301 vs 302 怎么选?301 是永久重定向,浏览器会缓存,下次直接跳--省了服务器资源但无法统计点击量。302 是临时重定向,浏览器每次都会请求短链服务--方便做访问统计和动态切换目标。大多数短链服务用 302,因为要统计数据。</p>
+</blockquote>
+<h3 id="3">3. 排行榜怎么设计?</h3>
+<ul>
+<li><strong>小规模</strong>:Redis Sorted Set,<code>ZADD</code> 更新分数,<code>ZREVRANK</code> 查排名,<code>ZREVRANGE</code> 拉 Top N。</li>
+<li><strong>大规模</strong>:分段榜单(全服榜 + 好友榜分开存),定时归档历史榜到 MySQL。</li>
+<li><strong>亿级用户</strong>:分桶 + 跳表 + 近似排名。</li>
+</ul>
+<p>Sorted Set 底层是<strong>跳表 + 哈希表</strong>,O(logN) 更新和查询。跳表的思想就像高速公路--多层索引,上层跳过大量节点快速定位。</p>
+<pre><code>普通链表查找:O(n)
+A → B → C → D → E → F → G → H → I
+
+跳表查找:O(log n)
+Level 2: A ───────▶ D ───────▶ G
+         │           │           │
+Level 1: A ──▶ B ──▶ D ──▶ E ──▶ G ──▶ H
+         │    │     │    │     │    │
+Level 0: A → B → C → D → E → F → G → H → I
+</code></pre>
+<blockquote>
+<p><strong>扩展</strong>:实时排行榜的一个经典问题--<strong>榜尾竞争</strong>。大量用户分数相同(比如都是 0 分),增删操作在跳表同一区域争抢,性能骤降。解决方法是给分数加随机扰动,或用近似排名("你的排名在 5000~5500 之间")。另外大厂常用<strong>分段榜单</strong>--前 100 名精确,100 名之后分段统计,因为没人在乎自己是不是第 10001 名。</p>
+</blockquote>
+<h3 id="4-id">4. 分布式 ID 怎么生成?</h3>
+<p><strong>方案一--Snowflake(雪花算法):</strong></p>
+<pre><code>| 1bit |    41bit 时间戳    | 10bit 机器ID | 12bit 序列号 |
+| 未用 | 毫秒级(69 年可用) | 最多 1024 台 | 每毫秒 4096 个 |
+</code></pre>
+<ul>
+<li>优点:纯本地生成,性能极高(约 26 万/秒),趋势递增</li>
+<li>缺点:依赖机器时钟,时钟回拨需要处理</li>
+</ul>
+<p><strong>方案二--数据库号段模式:</strong>
+- 批量从 DB 取一个号段(如 step=10000),应用内存中分配,用完再取
+- 美团 Leaf 方案,双 buffer 预加载,无时钟依赖</p>
+<p><strong>方案三--Redis 自增:</strong>
+- <code>INCR</code> 单机 10w+ QPS,简单但不趋势递增</p>
+<table>
+<thead>
+<tr>
+<th>方案</th>
+<th>优点</th>
+<th>缺点</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>UUID</td>
+<td>简单</td>
+<td>无序,索引性能差</td>
+</tr>
+<tr>
+<td>雪花算法</td>
+<td>趋势递增,高性能</td>
+<td>依赖机器时钟</td>
+</tr>
+<tr>
+<td>数据库号段</td>
+<td>强递增,无时钟依赖</td>
+<td>需维护 DB</td>
+</tr>
+<tr>
+<td>Redis 自增</td>
+<td>快</td>
+<td>不持久会重复</td>
+</tr>
+</tbody>
+</table>
+<blockquote>
+<p><strong>扩展</strong>:Snowflake 时钟回拨的经典解法--1 等(短时间回拨,睡几毫秒等时钟恢复);2 抛异常拒绝服务(回拨太多);3 借用未来时间(记下偏移量,后续生成 ID 时逐步追赶);4 美团 Leaf 的做法更彻底--用号段模式替代 Snowflake,从根本上消除对机器时钟的依赖。</p>
+</blockquote>
+<h3 id="5">5. 如何设计一个接口限流方案?</h3>
+<ul>
+<li>单机:Sentinel / Guava RateLimiter(令牌桶/漏桶算法)</li>
+<li>分布式:Redis + Lua(滑动窗口计数)</li>
+</ul>
+<p><strong>令牌桶原理</strong>:固定速度往桶里放令牌(如每秒 100 个),请求来先拿令牌,有则通过无则拒绝。能容忍<strong>突发流量</strong>(桶里攒的有令牌)。</p>
+<pre><code>令牌桶(可突发):              漏桶(匀速):
+
+  以固定速率放令牌             请求 → ↓↓↓↓
+      │  │  │                     │ ╭──────╮  │
+      ▼  ▼  ▼                     │ │ 漏桶  │  │
+    ┌──────────┐                  │ ╰──┬───╯  │
+    │ 桶(容量N) │                  │    │      │
+    └────┬─────┘                  │    ▼      │
+         │                        │ 固定速率   │
+    请求拿令牌                    →  流出     →
+   有→通过 无→拒绝
+</code></pre>
+<table>
+<thead>
+<tr>
+<th>算法</th>
+<th>突发容忍</th>
+<th>适用场景</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>令牌桶</td>
+<td>✅</td>
+<td>需要容忍瞬时尖峰的接口</td>
+</tr>
+<tr>
+<td>漏桶</td>
+<td>❌</td>
+<td>需要严格平滑流量的场景</td>
+</tr>
+<tr>
+<td>滑动窗口</td>
+<td>部分</td>
+<td>精确计数限流(如 1 分钟最多 100 次)</td>
+</tr>
+</tbody>
+</table>
+<blockquote>
+<p><strong>扩展</strong>:生产环境推荐用 Sentinel,它除了限流还有<strong>熔断降级</strong>和<strong>系统自适应保护</strong>--当系统负载过高时自动限流,防止雪崩。另外,分布式限流的一个坑:如果你用 Redis 做计数,Redis 超时了怎么办?通常做法是 Redis 不可用时<strong>降级为本地限流</strong>--宁可少放也不能全放。</p>
+</blockquote>
+<h3 id="6">6. 大文件上传怎么设计?</h3>
+<ol>
+<li><strong>前端分片</strong>(如每片 5MB)+ 并发上传</li>
+<li><strong>服务端接收分片</strong>,记录每片状态</li>
+<li><strong>全部分片上传完,合并</strong>成一个文件</li>
+<li><strong>断点续传</strong>:前端先问服务端已传了哪些分片,跳过已传的</li>
+<li><strong>秒传功能</strong>:上传前先算文件 hash,如果服务端已有,直接返回</li>
+</ol>
+<pre><code>上传流程:
+                    ┌─── 前端算文件 SHA256
+                    │
+                    ▼
+          服务端:&quot;这个 hash 我存过了吗?&quot;
+                    │
+        ┌───────────┼───────────┐
+        │           │           │
+      有 →      部分有 →    完全没有
+        │           │           │
+        ▼           ▼           ▼
+    秒传完成    续传(跳过已传)   全新上传
+                    │           │
+                    ▼           ▼
+              ┌──────────────────┐
+              │ 分片 1 ──▶ 服务端 │
+              │ 分片 2 ──▶ 服务端 │ (可并发)
+              │ ...              │
+              │ 分片 N ──▶ 服务端 │
+              └────────┬─────────┘
+                       │
+                       ▼
+              所有分片到齐 → 合并文件
+</code></pre>
+<blockquote>
+<p><strong>扩展</strong>:分片大小怎么定?太小--HTTP 请求头开销大、合并慢;太大--重传成本高、并发度低。5MB 是个经验值,可以根据实际网络调整。另外合并文件时不要全读进内存,用 <strong>零拷贝</strong>(<code>FileChannel.transferTo</code>)直接在内核态完成文件拼接。</p>
+</blockquote>
+<h3 id="7">7. 一个接口需要调用三个下游服务,如何提高响应速度?</h3>
+<p><strong>场景</strong>:接口需调用用户服务(50ms)、订单服务(80ms)、积分服务(60ms),串行总耗时 ~190ms。</p>
+<p><strong>优化方案</strong>:</p>
+<ol>
+<li>
+<p><strong>并行调用</strong>:用 <code>CompletableFuture</code> 或线程池并发调用,总耗时 = max(50, 80, 60) = 80ms:
+   <code>java
+   CompletableFuture&lt;User&gt; userFuture = CompletableFuture
+       .supplyAsync(() -&gt; userService.get(id));
+   CompletableFuture&lt;Order&gt; orderFuture = CompletableFuture
+       .supplyAsync(() -&gt; orderService.get(id));
+   CompletableFuture&lt;Score&gt; scoreFuture = CompletableFuture
+       .supplyAsync(() -&gt; scoreService.get(id));
+   CompletableFuture.allOf(userFuture, orderFuture, scoreFuture).join();</code></p>
+</li>
+<li>
+<p><strong>超时控制</strong>:每个调用设置合理超时(如 200ms),<code>future.get(200, TimeUnit.MILLISECONDS)</code>,避免某个服务拖垮整体。</p>
+</li>
+<li>
+<p><strong>兜底降级</strong>:对非核心服务做 fallback(如积分超时返回默认值 0),保证核心字段正常返回。</p>
+</li>
+</ol>
+<pre><code>串行调用:190ms                    并行调用:80ms
+
+用户 50ms  订单 80ms  积分 60ms     用户 50ms
+   │          │          │          订单 80ms  ← 等最慢的
+   └──────────┴──────────┘          积分 60ms
+              │                        │
+            190ms                    80ms
+</code></pre>
+<blockquote>
+<p><strong>扩展</strong>:如果三个调用有依赖关系怎么办?比如先查用户拿到 userId,再用 userId 查订单和积分。这时用 <code>thenCompose</code> 链式编排--先串行跑依赖的那步,其余独立的并行跑。另外,监控线程池的<strong>拒绝策略</strong>很重要--<code>CallerRunsPolicy</code> 让调用者线程自己执行任务是一个天然的背压策略。</p>
+</blockquote>
+<h3 id="8">8. 如何设计一个幂等接口(防止重复提交)?</h3>
+<p><strong>前端层面</strong>:提交后按钮置灰 / Loading 遮罩,页面切离时取消未完成的请求。</p>
+<p><strong>后端 Token 机制</strong>:
+1. 进入页面时,后端生成唯一 token(UUID)存入 Redis,返回前端
+2. 提交时携带 token,后端用 Lua 脚本校验并删除:
+   <code>lua
+   -- 删除成功 = 第一次提交;删除失败 = 重复提交
+   if redis.call('del', KEYS[1]) == 1 then return 1
+   else return 0 end</code>
+3. 删除成功则执行业务,失败则返回"请勿重复提交"</p>
+<pre><code>        1 进入页面 → GET /token → Redis SET token → 返回给前端
+        2 提交表单 → POST /submit (body + token)
+                              │
+                              ▼
+                    Redis DEL token
+                    ├─ 删除成功(=1)→ 第一次,执行
+                    └─ 删除失败(=0)→ 重复提交,拦截
+</code></pre>
+<p><strong>DB 唯一约束兜底</strong>:对业务请求生成唯一键(业务类型 + 订单号 + 用户ID),写入 DB 唯一约束。Token 机制拦截多数重复(轻量快),DB 唯一键作为最终兜底。</p>
+<blockquote>
+<p><strong>扩展</strong>:Token 过期了怎么办?一般给 token 设 5~10 分钟过期,如果用户长时间不提交导致 token 过期,再点提交时给个提示刷新页面就好。另外前端防重只能防"正常人",不能防脚本--所以后端防护才是核心。</p>
+</blockquote>
+<h3 id="9-excel">9. 数据量很大时,如何高效导出 Excel 报表?</h3>
+<p><strong>问题</strong>:百万级行数导出接口超时、OOM。</p>
+<p><strong>方案--异步导出 + 分批查询</strong>:</p>
+<ol>
+<li><strong>异步任务</strong>:用户提交导出请求,返回任务 ID + "请稍后在下载中心下载"</li>
+<li><strong>分批查询</strong>:每批 5000 行,逐批写入文件流,不要全量加载到内存。MyBatis 游标查询逐条遍历</li>
+<li><strong>流式写入</strong>:EasyExcel / POI SXSSFWorkbook,基于滑动窗口写入,内存只保留 100 行</li>
+<li><strong>上传 OSS</strong>:导出完成后上传到 OSS,生成下载链接通知用户</li>
+<li><strong>限制与限流</strong>:同一用户同时最多一个导出任务,防止资源耗尽</li>
+</ol>
+<pre><code>用户点击&quot;导出&quot;
+     │
+     ▼
+服务端创建异步任务 → 返回 &quot;任务ID: abc123,请稍候&quot;
+     │
+     ▼  ┌─────────────────────────┐
+        │ 分批读 DB(每批 5000 行)  │
+        │     ↓                    │
+        │ 流式写 Excel(内存只 100 行)│
+        │     ↓                    │
+        │ 上传 OSS                 │
+        │     ↓                    │
+        │ 通知用户(消息/邮件)      │
+        └─────────────────────────┘
+</code></pre>
+<blockquote>
+<p><strong>扩展</strong>:为什么不用 POI 的 <code>XSSFWorkbook</code>(全量加载)?因为它是把所有数据都装进内存再写 Excel,百万行分分钟 OOM。<code>SXSSFWorkbook</code> 的滑动窗口机制只保留最近 100 行在内存,其余刷到磁盘临时文件,内存安全。同时搭配 EasyExcel 更省事--它是阿里的开源库,一行代码搞定流式读写。</p>
+</blockquote>
+<h3 id="10">10. 线上发布新版本,如何做到平滑上线、不中断服务?</h3>
+<p><strong>滚动更新(最常用)</strong>:逐个替换 Pod,新 Pod 健康检查通过后再替换下一个。配合 <code>preStop hook</code>:收到 SIGTERM 后先摘除流量,再处理完进行中的请求。</p>
+<p><strong>蓝绿发布</strong>:两套环境(蓝=旧,绿=新),新版本部署完后直接切全部流量到绿环境。回滚快但资源翻倍。</p>
+<p><strong>灰度发布(金丝雀)</strong>:新版本先放 10% 流量,观察错误率/响应时间,稳定后逐步放大 30% → 50% → 100%。</p>
+<pre><code>滚动更新:                 蓝绿发布:              灰度发布:
+旧 旧 旧                  蓝(旧) 绿(新)           90%▲
+                                                       │
+新 旧 旧                  流量切绿                  30%▲│
+                                                       ││
+新 新 旧                                            10%▲││
+                                                       │││
+新 新 新                  ┌──────┐                   └─┴─┴─► 时间
+                          └──────┘
+</code></pre>
+<p><strong>数据库兼容</strong>:先上线兼容新旧字段的 DB 变更,代码层兼容新旧协议。回滚时保证旧代码能在新 DB schema 上运行。</p>
+<blockquote>
+<p><strong>扩展</strong>:发布时最容易被忽略的是<strong>数据库变更的顺序</strong>。正确的顺序是:1 先加新字段(允许 NULL 或有默认值)→ 2 部署新代码(双写新旧字段)→ 3 数据迁移补齐旧数据 → 4 下掉旧字段。绝对不能第一步就删字段,否则旧代码立即报错。另配合 Istio 做流量染色可以精确控制灰度粒度,比如按 userId hash 让特定用户总走新版本。</p>
+</blockquote>
+<h3 id="11">11. 定时任务多实例部署时,如何保证只执行一次?</h3>
+<table>
+<thead>
+<tr>
+<th>方案</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Redis 分布式锁</strong></td>
+<td><code>SETNX task:lock:2026-01-01</code>,成功则执行,失败则跳过。注意锁 key 粒度需精确到执行周期</td>
+</tr>
+<tr>
+<td><strong>XXL-JOB</strong></td>
+<td>调度中心独立部署,定时触发远程调用执行器,天然单点调度。推荐中小项目使用</td>
+</tr>
+<tr>
+<td><strong>Elastic-Job</strong></td>
+<td>分片 + 选主,只有 Leader 节点执行定时调度</td>
+</tr>
+<tr>
+<td><strong>K8s CronJob</strong></td>
+<td>提交一个 Job,K8s 保证只创建一个 Pod 执行,适合无状态任务</td>
+</tr>
+</tbody>
+</table>
+<pre><code>多实例部署时的问题:
+┌──────────┐ ┌──────────┐ ┌──────────┐
+│ 实例 A    │ │ 实例 B    │ │ 实例 C    │
+│ 10:00 到  │ │ 10:00 到  │ │ 10:00 到  │
+│ 执行任务  │ │ 执行任务  │ │ 执行任务  │  ← 三个人同时做同一件事!
+└──────────┘ └──────────┘ └──────────┘
+
+加分布式锁后:
+实例 A:SETNX lock → 成功 → 执行任务
+实例 B:SETNX lock → 失败 → 跳过
+实例 C:SETNX lock → 失败 → 跳过
+</code></pre>
+<blockquote>
+<p><strong>扩展</strong>:Redis 锁方案有一个坑--如果任务要跑 5 分钟,但锁的过期时间只设了 3 分钟,锁提前过期会导致另一个实例拿到锁重复执行。解决方案是用 <strong>Redisson 的看门狗机制</strong>--它会自动给锁续期,只要任务没执行完,锁就一直有效。XXL-JOB 则从根本上避免了这个问题(调度中心天然单点),所以复杂定时任务倾向用调度框架。</p>
+</blockquote>
+<h3 id="12">12. 如何设计热搜排行榜?</h3>
+<p>分层计算 + 定期归并。实时:Flink 滑动窗口统计存 Redis ZSet。降级:离线批处理。轻量版:Redis ZINCRBY + 定时 Job Top N 写缓存。需考虑分词归一化和刷量防御。</p>
+<hr />
+<h3 id="13-feed">13. Feed 流系统怎么设计?</h3>
+<p>Feed 流的核心问题是:<strong>一个用户关注了 500 个博主,打开 App 时,怎么快速聚合这 500 人的最新动态?</strong></p>
+<p>三种方案:</p>
+<p><strong>1 纯拉模式(读扩散)</strong>:</p>
+<pre><code>用户打开 Feed → 查关注列表(500 人)→ 依次拉每个人的最新动态
+                → 聚合排序 → 返回
+</code></pre>
+<p>就像你订了 500 份报纸--每次想看新闻得挨个去报摊取。<strong>写很省</strong>(博主发动态只写到自己那里),<strong>读很慢</strong>(要看 500 个人的要拉 500 次)。</p>
+<p>适用场景:关注数少、粉丝多的场景(如名人)。微信朋友圈用拉模式。</p>
+<p><strong>2 纯推模式(写扩散)</strong>:</p>
+<pre><code>博主发动态 → 查出所有粉丝(100 万)→ 推送到每个粉丝的 Feed 收件箱
+用户打开 Feed → 直接从自己的收件箱读 → 返回
+</code></pre>
+<p>就像报纸主动送上门--<strong>读很快</strong>(打开收件箱就行),<strong>写很重</strong>(发一条要写 100 万次)。一个千万粉丝的明星发条动态,要往一千万人的收件箱写--写扩散爆炸。</p>
+<p>适用场景:粉丝少、关注多的场景。Twitter 早期用推模式,后来因为大 V 问题改了。</p>
+<p><strong>3 混合模式(Push + Pull,大厂标准方案)</strong>:</p>
+<pre><code>普通用户发动态 → 推模式(粉丝不多,写扩散可接受)
+大 V 发动态 → 拉模式(粉丝太多,推不动)
+
+用户打开 Feed:
+  1 从自己的收件箱读&quot;普通用户&quot;的推送内容
+  2 拉取关注的大 V 的最新内容
+  3 合并 → 排序 → 返回
+</code></pre>
+<p>就像一个聪明的送报员--普通报纸主动送,大 V 的报纸你去他那儿拿。</p>
+<p><strong>关键设计细节</strong>:</p>
+<table>
+<thead>
+<tr>
+<th>设计点</th>
+<th>方案</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>收件箱存储</strong></td>
+<td>Redis List(每个用户一个 Timeline),限制长度(如 1000 条)</td>
+</tr>
+<tr>
+<td><strong>大 V 判定</strong></td>
+<td>粉丝数超过阈值(如 100 万),动态切换推→拉</td>
+</tr>
+<tr>
+<td><strong>一致性</strong></td>
+<td>最终一致性,允许短暂延迟(1-5 秒内可接受)</td>
+</tr>
+<tr>
+<td><strong>热点缓存</strong></td>
+<td>大 V 的动态缓存到 Redis(TTL 短,因为 Feed 更新快)</td>
+</tr>
+<tr>
+<td><strong>分页</strong></td>
+<td>用时间戳做游标(cursor),避免翻页时数据变化导致重复/遗漏</td>
+</tr>
+</tbody>
+</table>
+<pre><code>推拉混合架构:
+
+用户发动态 ──▶ 判断粉丝数
+                │
+        ┌───────┴───────┐
+        ▼               ▼
+    普通用户          大 V
+   (写扩散)        (读扩散)
+        │               │
+        ▼               ▼
+  粉丝收件箱      存到大 V 动态池
+  (Redis List)    (Redis + MySQL)
+        │               │
+        └───────┬───────┘
+                ▼
+        用户打开 Feed
+        聚合两人群的内容
+        排序返回
+</code></pre>
+<blockquote>
+<p><strong>扩展</strong>:字节跳动(抖音/头条)的 Feed 更进一步--除了推拉模型,还加了<strong>推荐算法层</strong>。你打开抖音看到的不是关注列表的 Feed,而是算法筛选后的推荐流。这需要离线训练模型 + 实时特征 + 召回 → 粗排 → 精排的完整推荐链路。面试时如果能说出"我们项目用的是推拉混合",加分 50%;如果说"大 V 走拉、小 V 走推",再加分 50%。</p>
+</blockquote>
+<hr />
+<h3 id="14-cap">14. CAP 定理在架构设计中如何取舍?</h3>
+<p>CAP 定理 = <strong>一致性 (Consistency)、可用性 (Availability)、分区容错 (Partition Tolerance) 三者只能同时满足两个</strong>。但实际架构中不是"三选二"这么简单--分区容错是必须接受的(网络一定会出问题),所以实际上是在 CP 和 AP 之间选。</p>
+<pre><code>CAP 不是&quot;三选二&quot;,而是:
+
+P(分区容错)是必须接受的 → 网络一定会出问题
+所以实际选择是:发生网络分区时,选择 C(一致性)还是 A(可用性)?
+
+CP 系统:网络分区时 → 宁可不可用也不能不一致
+  例:ZooKeeper(Leader 挂了要重新选举,选举期间不可用)
+  例:etcd(Raft 协议,过半数节点存活才能工作)
+  适合:分布式锁、配置中心、元数据管理
+
+AP 系统:网络分区时 → 宁可短暂不一致也不能不可用
+  例:Eureka(对等架构,每个节点都能独立服务)
+  例:Nacos AP 模式(DNS-Flow 一致性协议)
+  适合:服务注册与发现、对一致性要求不高的场景
+</code></pre>
+<p><strong>CAP 在业务中的真实取舍</strong>:</p>
+<pre><code>场景:电商下单
+
+订单服务(CP):
+  库存扣减必须一致 → 超卖零容忍
+  宁可下单失败也不能超卖
+
+商品展示(AP):
+  库存显示可以用缓存,差几个没事
+  用户宁愿看到&quot;还有货但下单时没了&quot;也不愿白屏等待
+
+→ 同一个系统,不同模块的 CAP 要求不同!
+</code></pre>
+<p><strong>Paxos/Raft 为什么是 CP</strong>:这些共识算法要求"过半数节点同意才提交"--网络分区后,少半边无法形成多数派,拒绝服务从而保证一致性。</p>
+<p><strong>Gossip 为什么是 AP</strong>:节点间随机传播信息("我跟你说、你跟他说"),最终大家都知道了。分区期间各干各的,恢复后自动修复不一致数据。Cassandra 和 Consul 的状态传播都用它。</p>
+<pre><code>大厂典型取舍:
+
+注册中心:
+  ZK(CP)→ Dubbo 最初用,Leader 选举期间服务发现不可用 → 改 Nacos
+  Nacos(AP)→ 注册中心要高可用,挂了也要能发现服务
+
+配置中心:
+  Nacos(CP 模式)→ 配置数据要一致,不能每台机器读到不同的配置
+
+支付/交易:CP → 一致性 &gt; 可用性
+社交/资讯:AP → 可用性 &gt; 一致性
+</code></pre>
+<blockquote>
+<p><strong>扩展</strong>:PACELC 定理扩展了 CAP:发生分区 (P) 时在 A 和 C 之间选 (PAC);没有分区 (E) 时在延迟 (L) 和一致性 (C) 之间选 (ELC)。大多数 NoSQL 系统(Cassandra、DynamoDB)其实是在 PAC 中选 PA/EL--发生分区时保证可用性,没有分区时追求低延迟而非强一致。</p>
+</blockquote>
+<h3 id="15">15. 高并发系统如何实现限流?三种算法对比?</h3>
+<p><strong>核心结论</strong>:令牌桶最通用(允许突发),漏桶最平滑(固定速率),滑动窗口最精确(实时统计)。</p>
+<pre><code>三种算法对比:
+
+1. 固定窗口计数器
+   规则:每分钟请求数 ≤ 1000
+   问题:00:59-01:01 两分钟内可能 2000 请求(边界突刺)
+
+2. 滑动窗口日志
+   规则:记录最近 1 分钟内每个请求的时间戳
+   精确但内存消耗大(O(N) 存储)
+
+3. 令牌桶(Token Bucket) ← 最推荐
+   以固定速率向桶放令牌,请求拿令牌才能过
+   桶满则丢弃,允许一定程度的突发流量
+   算法:Rate = 1000/s, Burst = 2000
+   → 平时每秒 1000 请求通过,突发可达 2000
+
+4. 漏桶(Leaky Bucket)
+   请求先进队列,以固定速率流出处理
+   队列满则拒绝,输出绝对平滑
+   缺点:无法应对突发,削峰填谷
+</code></pre>
+<p><strong>Guava RateLimiter 示例</strong>:</p>
+<pre><code class="language-java">// 令牌桶实现,每秒产生 100 个令牌
+RateLimiter limiter = RateLimiter.create(100);
+
+// 非阻塞尝试
+if (limiter.tryAcquire()) {
+    processRequest();
+} else {
+    rejectRequest();
+}
+
+// 阻塞等待(令牌不足会 sleep)
+limiter.acquire();
+processRequest();
+</code></pre>
+<p><strong>分布式限流方案</strong>:Redis + Lua 脚本实现令牌桶,Redisson 已封装好 <code>RRateLimiter</code>。</p>
+<blockquote>
+<p><strong>扩展</strong>:限流要配合降级和熔断一起用--限流是"不让太多进来",熔断是"坏了就别调了",降级是"不行了就给默认值"。Sentinel 支持这三种能力,且比 Hystrix 更强大(实时监控、热点参数限流)。网关层限流用 Nginx <code>limit_req</code> 模块,应用层限流用框架,数据库层限流用连接池大小控制。</p>
+</blockquote>
+<h3 id="16-id">16. 分布式 ID 生成方案有哪些?</h3>
+<p><strong>核心结论</strong>:Snowflake 最通用(性能高、趋势递增),号段模式最省 DB 压力(批量取号),UUID 最简单但不适合做索引。</p>
+<table>
+<thead>
+<tr>
+<th>方案</th>
+<th>性能</th>
+<th>趋势递增</th>
+<th>依赖</th>
+<th>适用场景</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>UUID</td>
+<td>最高</td>
+<td>否</td>
+<td>无</td>
+<td>非主键 ID</td>
+</tr>
+<tr>
+<td>DB 自增</td>
+<td>低</td>
+<td>是</td>
+<td>DB 强依赖</td>
+<td>小规模系统</td>
+</tr>
+<tr>
+<td>号段模式</td>
+<td>高</td>
+<td>是</td>
+<td>DB 弱依赖</td>
+<td>高并发主键</td>
+</tr>
+<tr>
+<td>Snowflake</td>
+<td>高</td>
+<td>是</td>
+<td>时钟同步</td>
+<td>分布式系统</td>
+</tr>
+<tr>
+<td>Leaf 号段</td>
+<td>高</td>
+<td>是</td>
+<td>DB 弱依赖</td>
+<td>美团方案</td>
+</tr>
+</tbody>
+</table>
+<pre><code>Snowflake 结构(64 bit):
+
+  0 - 41 位时间戳 - 10 位机器 ID - 12 位序列号
+  |          |              |            |
+  1 bit    41 bit        10 bit       12 bit
+  符号位   毫秒级时间    机器标识     每毫秒 4096 个 ID
+
+  → 每台机器每毫秒最多生成 4096 个 ID
+  → 41 位时间戳可使用 69 年
+</code></pre>
+<p><strong>Snowflake Java 实现</strong>:</p>
+<pre><code class="language-java">public synchronized long nextId() {
+    long timestamp = System.currentTimeMillis();
+
+    // 时钟回拨检测
+    if (timestamp &lt; lastTimestamp) {
+        throw new RuntimeException(&quot;时钟回拨!&quot;);
+    }
+
+    // 同一毫秒内序列号递增
+    if (timestamp == lastTimestamp) {
+        sequence = (sequence + 1) &amp; 4095;  // 12 位最大值
+        if (sequence == 0) {
+            timestamp = waitNextMillis(lastTimestamp);
+        }
+    } else {
+        sequence = 0;
+    }
+
+    lastTimestamp = timestamp;
+    return (timestamp - epoch) &lt;&lt; 22 | workerId &lt;&lt; 12 | sequence;
+}
+</code></pre>
+<blockquote>
+<p><strong>扩展</strong>:Snowflake 最大的坑是时钟回拨--如果机器时钟被调慢,可能生成重复 ID。解决方案:1) 使用 NTP 时钟同步;2) 回拨时拒绝服务或等待;3) 百度 UidGenerator 用 RingBuffer 预分配 ID,彻底解决时钟依赖问题。号段模式适合不想引入新组件的场景--批量从 DB 取一段 ID(如一次取 1000 个),用完再取,DB 压力大幅降低。</p>
+</blockquote>
+<h3 id="17">17. 消息队列如何保证消息不丢失?</h3>
+<p><strong>核心结论</strong>:生产者确认 + Broker 刷盘 + 消费者手动 ack = 全链路不丢消息。</p>
+<pre><code>三个阶段都可能丢消息:
+
+1. 生产者 → Broker  :网络超时,生产者以为失败其实成功了
+2. Broker 存储     :写入 OS Cache 但未刷盘就宕机
+3. Broker → 消费者 :消费者处理一半挂了,消息被自动确认
+
+解决方案:
+
+阶段 1:生产者确认
+  RocketMQ:发送同步确认,失败重试
+  Kafka  :acks=all(所有副本确认)
+
+阶段 2:Broker 刷盘
+  RocketMQ:同步刷盘(性能换可靠性)
+  Kafka  :replication.factor≥3,min.insync.replicas≥2
+
+阶段 3:消费者手动 ack
+  业务处理成功后才确认,异常则不 ack→ 重试
+</code></pre>
+<p><strong>RocketMQ 配置示例</strong>:</p>
+<pre><code class="language-java">// 生产者:同步发送,失败重试 3 次
+DefaultMQProducer producer = new DefaultMQProducer(&quot;group&quot;);
+producer.setRetryTimesWhenSendFailed(3);
+SendResult result = producer.send(msg);
+if (result.getSendStatus() != SendStatus.SEND_OK) {
+    log.error(&quot;发送失败: {}&quot;, result);
+}
+
+// 消费者:手动确认
+consumer.registerMessageListener((List&lt;MessageExt&gt; msgs, ConsumeConcurrentlyContext context) -&gt; {
+    try {
+        processMessage(msgs);
+        return ConsumeConcurrentlyStatus.CONSUME_SUCCESS;  // 业务成功才确认
+    } catch (Exception e) {
+        return ConsumeConcurrentlyStatus.RECONSUME_LATER;  // 失败则稍后重试
+    }
+});
+</code></pre>
+<blockquote>
+<p><strong>扩展</strong>:如果要实现"恰好一次"语义(Exactly-Once),光靠 MQ 不够,还需要业务层幂等。比如消费者处理消息时先查唯一键是否已处理过,已处理则直接确认跳过。RocketMQ 提供事务消息可以保证本地事务和消息发送的一致性--先发半消息,本地事务成功则提交,失败则回滚。</p>
+</blockquote>
+<h3 id="18">18. 如何设计一个短链服务？</h3>
+<p>短链服务核心是<strong>映射算法 + 存储</strong>：</p>
+<pre><code>原始URL: https://example.com/products/12345?utm_source=wechat
+短链:    https://t.cn/abc123
+
+用户访问短链 →302重定向到原始URL
+</code></pre>
+<p><strong>映射算法</strong>（三种主流方案）：</p>
+<pre><code class="language-python"># 方案1: Hash + 碰撞处理
+import hashlib
+def short_url(url):
+    h = hashlib.md5(url.encode()).hexdigest()[:6]  # 6位hash
+    return f&quot;https://t.cn/{h}&quot;
+
+# 方案2: 分布式ID → 62进制（推荐）
+def id_to_short(n):
+    chars = &quot;0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz&quot;
+    result = []
+    while n &gt; 0:
+        result.append(chars[n % 62])
+        n //= 62
+    return &quot;https://t.cn/&quot; + &quot;&quot;.join(reversed(result))
+
+# 方案3: 预生成短码池（数据库发号器）
+def next_code(db):
+    row = db.execute(&quot;UPDATE short_code SET used=1 WHERE id=LAST_INSERT_ID(id)&quot;)
+    return chars[row['id']]
+</code></pre>
+<p><strong>存储设计</strong>：</p>
+<table>
+<thead>
+<tr>
+<th>数据量</th>
+<th>存储方案</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>&lt; 10亿</td>
+<td>MySQL（id + short_code + url + expire_at + click_count）</td>
+</tr>
+<tr>
+<td>&gt; 10亿</td>
+<td>TiDB / CockroachDB（分布式 SQL）</td>
+</tr>
+<tr>
+<td>缓存热点</td>
+<td>Redis（热数据缓存，TTL=7天）</td>
+</tr>
+</tbody>
+</table>
+<blockquote>
+<p><strong>扩展</strong>：短链服务 302（临时重定向）优于 301（永久重定向，SEO 权重问题）；Redis 布隆过滤器防恶意短码轰炸；访问统计用 ClickHouse 实时分析。</p>
+</blockquote>
+
+<script>
+// Scroll spy — highlight active sidebar item
+window.addEventListener('scroll', function() {
+    var links = document.querySelectorAll('.sidebar-toc a');
+    var scrollY = window.scrollY + 120;
+    var current = '';
+    for (var i = links.length - 1; i >= 0; i--) {
+        var target = document.getElementById(links[i].getAttribute('href').slice(1));
+        if (target && target.offsetTop <= scrollY) {
+            current = links[i];
+            break;
+        }
+    }
+    links.forEach(function(a) { a.style.fontWeight = 'normal'; a.style.color = '#555'; });
+    if (current) { current.style.fontWeight = 'bold'; current.style.color = '#0366d6'; }
+});
+</script>
+
+
+<script>
+document.querySelectorAll('pre > code').forEach(function(codeBlock, i) {
+    var pre = codeBlock.parentNode;
+    pre.style.position = 'relative';
+    var btn = document.createElement('button');
+    btn.className = 'copy-btn';
+    btn.textContent = '复制';
+    pre.appendChild(btn);
+    btn.addEventListener('click', function() {
+        var text = codeBlock.textContent;
+        navigator.clipboard.writeText(text).then(function() {
+            btn.textContent = '已复制';
+            btn.classList.add('copied');
+            setTimeout(function() {
+                btn.textContent = '复制';
+                btn.classList.remove('copied');
+            }, 2000);
+        }).catch(function() {
+            // Fallback
+            var ta = document.createElement('textarea');
+            ta.value = text; ta.style.position = 'fixed'; ta.style.opacity = '0';
+            document.body.appendChild(ta); ta.select();
+            document.execCommand('copy'); document.body.removeChild(ta);
+            btn.textContent = '已复制'; btn.classList.add('copied');
+            setTimeout(function() { btn.textContent = '复制'; btn.classList.remove('copied'); }, 2000);
+        });
+    });
+});
+</script>
+
+<script>document.querySelectorAll("pre>code").forEach(function(c){var p=c.parentNode;p.style.position="relative";var b=document.createElement("button");b.className="copy-btn";b.textContent="复制";p.appendChild(b);b.addEventListener("click",function(){var t=c.textContent;navigator.clipboard.writeText(t).then(function(){b.textContent="已复制";b.classList.add("copied");setTimeout(function(){b.textContent="复制";b.classList.remove("copied")},2000)}).catch(function(){var a=document.createElement("textarea");a.value=t;a.style.position="fixed";a.style.opacity="0";document.body.appendChild(a);a.select();document.execCommand("copy");document.body.removeChild(a);b.textContent="已复制";b.classList.add("copied");setTimeout(function(){b.textContent="复制";b.classList.remove("copied")},2000)})})})</script>
+</body>
+</html>

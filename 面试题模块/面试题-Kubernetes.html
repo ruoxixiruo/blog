@@ -1,0 +1,790 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>面试题 - Kubernetes</title>
+<style>
+body {
+    transition: margin-left .25s ease;
+    font-family: -apple-system, "Noto Sans SC", "Microsoft YaHei", sans-serif;
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 20px 24px 60px;
+    line-height: 1.8;
+    color: #333;
+    background: #fff;
+}
+h1 { border-bottom: 2px solid #eee; padding-bottom: 10px; color: #222; }
+h2 { color: #333; margin-top: 32px; }
+h3 { color: #555; }
+a { color: #0366d6; text-decoration: none; }
+a:hover { text-decoration: underline; }
+pre {
+    background: #f6f8fa;
+    border-radius: 6px;
+    padding: 16px;
+    overflow-x: auto;
+    font-size: 14px;
+    line-height: 1.45;
+}
+code {
+    background: #f0f2f4;
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-size: 14px;
+}
+pre code { background: none; padding: 0; }
+blockquote {
+    border-left: 4px solid #ddd;
+    margin: 0;
+    padding: 0 16px;
+    color: #666;
+}
+table {
+    border-collapse: collapse;
+    width: 100%;
+    margin: 16px 0;
+}
+th, td {
+    border: 1px solid #ddd;
+    padding: 8px 12px;
+    text-align: left;
+}
+th { background: #f6f8fa; }
+img { max-width: 100%; }
+.back-link {
+    margin-bottom: 20px;
+    display: block;
+    color: #666;
+}
+.back-link:hover { color: #0366d6; }
+
+.sidebar-toc {
+    transition: left .25s ease;
+    position: fixed;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    width: 220px;
+    background: #f8f9fa;
+    border-right: 1px solid #e9ecef;
+    padding: 20px 0;
+    overflow-y: auto;
+    font-size: 13px;
+    z-index: 100;
+}
+.sidebar-toc a {
+    display: block;
+    padding: 6px 16px;
+    color: #555;
+    text-decoration: none;
+    border-left: 3px solid transparent;
+    line-height: 1.5;
+}
+.sidebar-toc a:hover {
+    background: #e9ecef;
+    color: #0366d6;
+    border-left-color: #0366d6;
+}
+.sidebar-toc .toc-h3 { padding-left: 20px; font-size: 12px; }
+body { margin-left: 240px; }
+
+
+.copy-btn {
+    position: absolute; top: 6px; right: 6px;
+    background: #e9ecef; border: none;
+    border-radius: 4px; padding: 3px 10px;
+    font-size: 12px; color: #555; cursor: pointer;
+    opacity: 0; transition: opacity 0.2s;
+    z-index: 1;
+}
+pre:hover .copy-btn { opacity: 1; }
+.copy-btn:hover { background: #d0d7de; }
+.copy-btn.copied { opacity: 1; background: #2da44e; color: #fff; }
+.copy-btn{position:absolute;top:6px;right:6px;background:#e9ecef;border:none;border-radius:4px;padding:3px 10px;font-size:12px;color:#555;cursor:pointer;opacity:0;transition:opacity .2s;z-index:1}pre:hover .copy-btn{opacity:1}.copy-btn:hover{background:#d0d7de}.copy-btn.copied{opacity:1;background:#2da44e;color:#fff}
+.copy-btn{position:absolute;top:6px;right:6px;background:#e9ecef;border:none;border-radius:4px;padding:3px 10px;font-size:12px;color:#555;cursor:pointer;opacity:0;transition:opacity .2s;z-index:1}pre:hover .copy-btn{opacity:1}.copy-btn:hover{background:#d0d7de}.copy-btn.copied{opacity:1;background:#2da44e;color:#fff}
+.copy-btn{position:absolute;top:6px;right:6px;background:#e9ecef;border:none;border-radius:4px;padding:3px 10px;font-size:12px;color:#555;cursor:pointer;opacity:0;transition:opacity .2s;z-index:1}pre:hover .copy-btn{opacity:1}.copy-btn:hover{background:#d0d7de}.copy-btn.copied{opacity:1;background:#2da44e;color:#fff}
+.sidebar-toggle-btn {
+  position: fixed;
+  left: 220px;
+  top: 0;
+  width: 28px;
+  height: 40px;
+  background: #f8f9fa;
+  border: 1px solid #e9ecef;
+  border-left: none;
+  border-radius: 0 4px 4px 0;
+  cursor: pointer;
+  font-size: 16px;
+  color: #555;
+  z-index: 101;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: left .25s, background .2s;
+  padding: 0;
+  line-height: 1;
+}
+.sidebar-toggle-btn:hover { background: #e9ecef; color: #0366d6; }
+.sidebar-collapsed .sidebar-toc { left: -220px; }
+.sidebar-collapsed .sidebar-toggle-btn { left: 0; }
+.sidebar-collapsed body, body.sidebar-collapsed { margin-left: 28px; }
+.sidebar-overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,.3);
+  z-index: 99;
+}
+@media (max-width: 768px) {
+  .sidebar-collapsed .sidebar-overlay { display: none; }
+  .sidebar-toc { left: -220px; }
+  .sidebar-toggle-btn { left: 0; }
+  body { margin-left: 28px; }
+}
+
+</style>
+</head>
+</head>
+<body>
+<nav class="sidebar-toc"><a class="toc-h3" href="#1-docker">1. Docker 和虚拟机的区别?</a><a class="toc-h3" href="#2-k8s">2. K8s 是什么?解决什么问题?</a><a class="toc-h3" href="#3-k8s">3. K8s 核心组件有哪些?</a><a class="toc-h3" href="#4-pod">4. Pod 是什么?</a><a class="toc-h3" href="#5-deploymentserviceingress">5. Deployment、Service、Ingress 各做什么?</a><a class="toc-h3" href="#6">6. 三种健康检查探针?</a><a class="toc-h3" href="#7">7. 滚动更新怎么工作?</a><a class="toc-h3" href="#8-pv-pvc">8. PV 和 PVC 是什么关系?</a><a class="toc-h3" href="#9-configmap-secret">9. ConfigMap 和 Secret 区别?</a><a class="toc-h3" href="#10">10. 镜像分层是什么?为什么快?</a><a class="toc-h3" href="#11-k8s-pod">11. K8s Pod 的调度过程是怎样的?</a><a class="toc-h3" href="#12-k8s-istio">12. K8s 如何实现服务网格(Istio)?</a><a class="toc-h3" href="#13-k8s">13. K8s 集群故障排查思路?</a><a class="toc-h3" href="#14-k8s">14. K8s 多集群管理方案?</a><a class="toc-h3" href="#15-k8s-pod">15. K8s 中 Pod 启动失败怎么排查？</a></nav>
+<button class="sidebar-toggle-btn" onclick="toggleSidebar()" title="切换侧栏">☰</button>
+
+<div class="sidebar-overlay" onclick="toggleSidebar()"></div>
+
+<script>
+function toggleSidebar() {
+  document.body.classList.toggle('sidebar-collapsed');
+  try { localStorage.setItem('sidebarCollapsed', document.body.classList.contains('sidebar-collapsed')); } catch(e) {}
+}
+(function() {
+  try {
+    if (localStorage.getItem('sidebarCollapsed') === 'true') {
+      document.body.classList.add('sidebar-collapsed');
+    }
+  } catch(e) {}
+})();
+</script>
+<a class="back-link" href="/blog/2026/05/16/面试题/面试题/">← 返回面试题目录</a>
+<h1 id=page-title>Kubernetes</h1>
+<h3 id="1-docker">1. Docker 和虚拟机的区别?</h3>
+<table>
+<thead>
+<tr>
+<th>维度</th>
+<th>Docker 容器</th>
+<th>虚拟机</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>启动速度</td>
+<td>秒级</td>
+<td>分钟级</td>
+</tr>
+<tr>
+<td>资源占用</td>
+<td>MB 级</td>
+<td>GB 级</td>
+</tr>
+<tr>
+<td>隔离性</td>
+<td>宿主机内核共享,弱隔离</td>
+<td>完整 OS,强隔离</td>
+</tr>
+<tr>
+<td>原理</td>
+<td>Namespace(隔开视野)+ Cgroups(限制资源)</td>
+<td>硬件虚拟化(Hypervisor)</td>
+</tr>
+</tbody>
+</table>
+<p>容器本质上只是宿主机上的一个"特殊进程",不是真的装一个系统。</p>
+<pre><code>虚拟机架构:                    Docker 架构:
+
+  App A    App B                App A    App B
+  ┌────┐  ┌────┐               ┌────┐  ┌────┐
+  │Guest│  │Guest│               │容器 │  │容器 │
+  │ OS  │  │ OS  │               └──┬─┘  └──┬─┘
+  └──┬─┘  └──┬─┘                  │       │
+     │       │                    └───┬───┘
+  ┌──┴───────┴──┐                    │
+  │ Hypervisor  │              Docker Engine
+  └──────┬──────┘                    │
+         │                    ┌──────┴──────┐
+    Host OS                   │   Host OS   │
+         │                    └──────┬──────┘
+    Hardware                        │
+                                Hardware
+</code></pre>
+<blockquote>
+<p><strong>扩展</strong>:容器的"弱隔离"意味着什么?如果你在容器里用 root 权限跑进程,它实际上在宿主机上就是 root--共享内核意味着<strong>内核漏洞会打到所有容器</strong>。所以生产环境通常用非 root 用户运行容器、启用 seccomp/AppArmor 加固。真正强隔离场景(多租户)还是得用虚拟机。</p>
+</blockquote>
+<h3 id="2-k8s">2. K8s 是什么?解决什么问题?</h3>
+<p>K8s 是容器界的<strong>总指挥</strong>--几百个容器怎么管理?</p>
+<ul>
+<li>容器挂了 → 自动重启(<strong>自愈</strong>)</li>
+<li>流量暴涨 → 一条命令扩容(<strong>弹性伸缩</strong>)</li>
+<li>发新版本 → 滚动更新,不停机(<strong>零停机部署</strong>)</li>
+<li>容器之间怎么通信 → 内置服务发现(<strong>网络管理</strong>)</li>
+<li>容器该放哪个机器 → 自动调度(<strong>资源调度</strong>)</li>
+</ul>
+<pre><code>你声明期望状态:&quot;我要 3 个 nginx Pod 一直跑着&quot;
+
+         ┌──────────────┐
+         │   K8s 控制面   │  ← 不断对比
+         │  期望 vs 实际   │
+         └──────┬───────┘
+                │ 实际只有 2 个 → 调度 1 个
+                │ 挂了 1 个     → 自动重启
+                │ 流量涨了      → 自动扩容
+                ▼
+         ┌──────────────┐
+         │   工作节点集群   │
+         └──────────────┘
+</code></pre>
+<blockquote>
+<p><strong>扩展</strong>:K8s 的核心思想是<strong>声明式 API</strong>--你只管说"我要什么",不用一步步教它怎么做。就像打车--你说"去机场"(声明),不用自己挂挡踩油门(命令)。这种范式让系统更简单、更自愈。</p>
+</blockquote>
+<h3 id="3-k8s">3. K8s 核心组件有哪些?</h3>
+<p><strong>Master(大脑):</strong></p>
+<table>
+<thead>
+<tr>
+<th>组件</th>
+<th>作用</th>
+<th>类比</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>API Server</td>
+<td>唯一入口,所有操作都通过它</td>
+<td>公司<strong>前台</strong>--所有请求先到这儿</td>
+</tr>
+<tr>
+<td>etcd</td>
+<td>记忆库,存储所有集群状态</td>
+<td>公司的<strong>数据库</strong>--记录一切</td>
+</tr>
+<tr>
+<td>Scheduler</td>
+<td>调度员,决定 Pod 放哪个节点</td>
+<td><strong>排班表</strong>--新任务分给谁</td>
+</tr>
+<tr>
+<td>Controller Manager</td>
+<td>监工,对比期望状态和实际状态</td>
+<td><strong>主管</strong>--发现偏差就纠正</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Node(手脚):</strong></p>
+<table>
+<thead>
+<tr>
+<th>组件</th>
+<th>作用</th>
+<th>类比</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>kubelet</td>
+<td>节点总管,管理 Pod 生命周期</td>
+<td>每个分公司的<strong>负责人</strong></td>
+</tr>
+<tr>
+<td>kube-proxy</td>
+<td>网络代理,实现 Service 负载均衡</td>
+<td>公司的<strong>内线总机</strong></td>
+</tr>
+</tbody>
+</table>
+<pre><code>         ┌──────────────────────────┐
+         │  Master (控制面)           │
+         │  ┌──────────┐ ┌─────────┐ │
+         │  │API Server│ │  etcd   │ │
+         │  └────┬─────┘ └─────────┘ │
+         │  ┌────┴─────┐ ┌─────────┐ │
+         │  │Scheduler │ │Control Mgr│ │
+         │  └──────────┘ └─────────┘ │
+         └────────────┬─────────────┘
+                      │
+         ┌────────────┼─────────────┐
+         │  Node 1    │    Node 2   │
+         │  ┌──────┐  │   ┌──────┐  │
+         │  │kubelet│ │   │kubelet│ │
+         │  │kube-  │ │   │kube-  │ │
+         │  │proxy  │ │   │proxy  │ │
+         │  └──────┘  │   └──────┘  │
+         └────────────┴─────────────┘
+</code></pre>
+<blockquote>
+<p><strong>扩展</strong>:etcd 是 K8s 的"唯一真相来源"(single source of truth)。如果 etcd 崩了,集群就"失忆"了--虽然已有 Pod 还能跑,但不能做任何新操作。所以生产环境 etcd 必须高可用部署(3/5 节点),定期备份。</p>
+</blockquote>
+<h3 id="4-pod">4. Pod 是什么?</h3>
+<p>Pod 是 K8s 最小调度单元。一个 Pod 可以放多个容器,共享网络(用 localhost 互访)和存储。</p>
+<p>典型用法:<strong>主应用容器 + Sidecar 容器</strong>(日志采集/代理)。</p>
+<pre><code>Pod: &quot;一个共享命运的小团队&quot;
+
+┌─────────────────────────────┐
+│           Pod                │
+│  ┌──────────┐ ┌──────────┐  │
+│  │  App     │ │ Sidecar  │  │
+│  │ 容器     │←─→ 容器    │  │  ← localhost 互访
+│  └──────────┘ └──────────┘  │
+│       共享网络 (同一个 IP)     │
+│       共享存储 (同一个 Volume)  │
+└─────────────────────────────┘
+</code></pre>
+<blockquote>
+<p><strong>扩展</strong>:K8s 从不直接操作容器,最小单位是 Pod。为什么?因为很多场景需要"绑死在一起"的容器组--比如日志收集 Agent 和业务容器必须生活在一台机器上、用同一个网络。但大多数场景一个 Pod 就一个容器,简单够用。</p>
+</blockquote>
+<h3 id="5-deploymentserviceingress">5. Deployment、Service、Ingress 各做什么?</h3>
+<table>
+<thead>
+<tr>
+<th>资源</th>
+<th>作用</th>
+<th>一句话</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Deployment</td>
+<td>管理 Pod 副本数、滚动更新、回滚</td>
+<td>"我要 3 份 v2 版本"</td>
+</tr>
+<tr>
+<td>Service</td>
+<td>给 Pod 提供稳定 IP(Pod IP 会变)</td>
+<td>内部负载均衡 + 服务发现</td>
+</tr>
+<tr>
+<td>Ingress</td>
+<td>HTTP/HTTPS 七层路由</td>
+<td>外部流量守门人</td>
+</tr>
+</tbody>
+</table>
+<p><strong>访问链路</strong>:<code>外部请求 → Ingress → Service → Deployment → Pod</code></p>
+<pre><code>用户 → Ingress → Service → Pod1 (10.0.1.1)
+  │        │         │      Pod2 (10.0.2.3)
+  │        │         │      Pod3 (10.0.3.5)
+  │        │         │
+  │        │         └── Service IP 10.96.0.1 (固定不变)
+  │        │             即使 Pod IP 变了也不影响
+  │        └── Ingress: &quot;根据域名/路径路由&quot;
+  │            api.example.com/user → user-service
+  │            api.example.com/order → order-service
+  └── 外部用户
+</code></pre>
+<blockquote>
+<p><strong>扩展</strong>:为什么需要 Service?因为 Pod IP 是临时的--Pod 重启、扩缩容,IP 都变。Service 给一个固定 IP + DNS 名,不管你 Pod 怎么变,消费者只管找 Service。Service 底层是基于 <strong>kube-proxy + iptables/ipvs</strong> 实现的四层负载均衡。</p>
+</blockquote>
+<h3 id="6">6. 三种健康检查探针?</h3>
+<table>
+<thead>
+<tr>
+<th>探针</th>
+<th>失败后果</th>
+<th>作用</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Liveness</td>
+<td>重启容器</td>
+<td>"你还活着吗?"(死锁/僵死检测)</td>
+</tr>
+<tr>
+<td>Readiness</td>
+<td>从 Service 摘流</td>
+<td>"你能干活了吗?"(启动中不接流量)</td>
+</tr>
+<tr>
+<td>Startup</td>
+<td>重启容器</td>
+<td>慢启动保护,先让你慢慢初始化</td>
+</tr>
+</tbody>
+</table>
+<pre><code>容器启动时间线:
+
+启动 ──▶ Startup 探针检测中 ──▶ Liveness + Readiness 开始生效
+         (最长等待时间)          (正常运作阶段)
+
+如果 Startup 探针一直失败 → 重启容器
+如果 Startup 成功 → 切换到常规探针
+</code></pre>
+<blockquote>
+<p><strong>扩展</strong>:Liveness 和 Readiness 最容易搞混--Liveness 决定<strong>杀不杀容器</strong>(死了就重启),Readiness 决定<strong>摘不摘流量</strong>(病了就休息,但不用杀)。Liveness 不要太敏感(比如连续 3 次失败才判定),否则一个短暂 GC 停顿就重启了整个容器。<strong>Readiness 失败比 Liveness 失败更常见也更温和</strong>--只是暂时不接客。</p>
+</blockquote>
+<h3 id="7">7. 滚动更新怎么工作?</h3>
+<p>一个一个来,不让服务中断:</p>
+<pre><code>旧 Pod: [v1] [v1] [v1]
+          ↓ 新建 v2
+       [v1] [v1] [v1] [v2]
+          ↓ 删一个 v1
+       [v1] [v1] [v2]
+          ↓ 循环...
+          ↓ 最终
+       [v2] [v2] [v2]
+</code></pre>
+<p>关键参数:<code>maxSurge</code>(最多超几个)和 <code>maxUnavailable</code>(最多少几个)。比如 <code>maxSurge=1, maxUnavailable=0</code> 意味着:升级过程中永远至少 3 个 Pod 在线。</p>
+<blockquote>
+<p><strong>扩展</strong>:滚动更新不是你发了新版本就自动开始的--是 Deployment 检测到 Pod 模板变了(镜像版本、配置等),然后触发 ReplicaSet 更新。如果新 Pod Readiness 探针一直失败,K8s 会<strong>暂停滚动</strong>(不会全量换新),旧 Pod 继续服役--这就是自动回滚前的缓冲。</p>
+</blockquote>
+<h3 id="8-pv-pvc">8. PV 和 PVC 是什么关系?</h3>
+<ul>
+<li><strong>PV(PersistentVolume)</strong> = 管理员预先建好的停车位</li>
+<li><strong>PVC(PersistentVolumeClaim)</strong> = 用户的申请表("我要 10GB 存储")</li>
+<li>K8s 自动匹配 PVC 和可用的 PV,Pod 挂载 PVC 就能用</li>
+</ul>
+<pre><code>管理员:建 PV                           用户:建 PVC
+┌──────────────┐                    ┌──────────────┐
+│ PV-A: 100GB  │                    │ &quot;我要 50GB    │
+│ PV-B: 50GB   │  ←── 匹配 ──→     │  读写模式&quot;    │
+│ PV-C: 200GB  │                    └──────────────┘
+└──────────────┘
+</code></pre>
+<blockquote>
+<p><strong>扩展</strong>:PV/PVC 的绑定是一对一的--一个 PVC 绑定一个 PV 后,PV 就被独占,释放之前不能再被绑定。动态供给(StorageClass)可以省去管理员手动建 PV--用户建 PVC 时自动按模板创建 PV。</p>
+</blockquote>
+<h3 id="9-configmap-secret">9. ConfigMap 和 Secret 区别?</h3>
+<table>
+<thead>
+<tr>
+<th></th>
+<th>ConfigMap</th>
+<th>Secret</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>用途</td>
+<td>非敏感配置(端口号、日志级别)</td>
+<td>敏感数据(密码、Token)</td>
+</tr>
+<tr>
+<td>存储</td>
+<td>明文</td>
+<td>Base64(注意:不是加密!)</td>
+</tr>
+</tbody>
+</table>
+<pre><code>运行中的 Pod
+     │
+     ├── 挂载 ConfigMap → /etc/config/app.properties (明文)
+     │
+     └── 挂载 Secret    → /etc/secrets/db-password   (Base64)
+</code></pre>
+<blockquote>
+<p><strong>扩展</strong>:Base64 编码不是加密!任何人拿到 Base64 字符串都能解码。生产环境 Secret 应配合 <strong>Vault(HashiCorp)/ KMS(云厂商密钥管理)/ Sealed Secrets</strong> 加密使用。另外 Secret 数据有 <strong>1MB 大小限制</strong>。</p>
+</blockquote>
+<h3 id="10">10. 镜像分层是什么?为什么快?</h3>
+<p>Docker 镜像像千层蛋糕--每个 Dockerfile 指令(FROM/RUN/COPY)产生一层只读层:</p>
+<pre><code>容器运行时的层:
+
+┌─────────────────────┐
+│  容器可写层(薄薄一层)  │ ← 只在运行时存在
+├─────────────────────┤
+│  COPY app.jar        │ ← 应用层
+├─────────────────────┤
+│  RUN apt install ... │ ← 依赖层
+├─────────────────────┤
+│  FROM openjdk:11     │ ← 基础层
+└─────────────────────┘
+     只读层(多个容器可共享)
+</code></pre>
+<p>多个容器共用底层镜像,省存储、拉镜像快。如果 100 个容器全用同一个基础镜像,那基础层只在磁盘存一份。</p>
+<blockquote>
+<p><strong>扩展</strong>:分层带来的一个坑--<strong>层太大拉镜像慢</strong>。优化技巧:1 不常变的放上面(依赖安装),常变的放下面(COPY 代码);2 合并 RUN 指令减少层数(<code>apt update &amp;&amp; apt install -y</code>);3 用 <code>.dockerignore</code> 排除不需要的文件。</p>
+</blockquote>
+<hr />
+<h3 id="11-k8s-pod">11. K8s Pod 的调度过程是怎样的?</h3>
+<p>过滤(Predicates)筛除不合格节点 &gt; 打分(Priorities)最高分 &gt; 绑定(Bind)。自定义:nodeSelector、nodeAffinity、taints+tolerations。</p>
+<h3 id="12-k8s-istio">12. K8s 如何实现服务网格(Istio)?</h3>
+<p><strong>核心结论</strong>:Sidecar 注入 + Envoy 代理 + 控制面配置下发 = 无侵入式服务治理。</p>
+<pre><code>传统 K8s 服务通信:
+
+Pod A ──直接调用──▶ Pod B
+
+Istio 架构(每个 Pod 多个容器):
+
+Pod A                      Pod B
+┌──────────────┐          ┌──────────────┐
+│ App 容器     │          │ App 容器     │
+│ Envoy Sidecar│◀──代理──▶│ Envoy Sidecar│
+└──────────────┘          └──────────────┘
+       ▲                        ▲
+       │      控制面(Istiod)      │
+       └─────────────────────────┘
+            配置下发、证书管理
+</code></pre>
+<p><strong>Envoy 职责</strong>:
+- 拦截所有进出流量
+- 负载均衡、熔断、限流
+- mTLS 加密
+- 链路追踪、指标收集</p>
+<p><strong>Istiod 核心组件</strong>:</p>
+<table>
+<thead>
+<tr>
+<th>组件</th>
+<th>作用</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Pilot</td>
+<td>服务发现 + 流量管理规则下发</td>
+</tr>
+<tr>
+<td>Citadel</td>
+<td>证书签发 + mTLS 管理</td>
+</tr>
+<tr>
+<td>Galley</td>
+<td>配置验证</td>
+</tr>
+</tbody>
+</table>
+<pre><code class="language-yaml"># VirtualService 示例:按比例分流
+apiVersion: networking.istio.io/v1beta1
+kind: VirtualService
+metadata:
+  name: reviews
+spec:
+  hosts:
+  - reviews
+  http:
+  - route:
+    - destination:
+        host: reviews
+        subset: v1
+      weight: 90
+    - destination:
+        host: reviews
+        subset: v2
+      weight: 10  # 灰度发布:10% 流量走新版本
+</code></pre>
+<blockquote>
+<p><strong>扩展</strong>:Istio 的性能开销约 10-20%(Envoy 代理),高并发场景要权衡是否真的需要。轻量级替代方案:Linkerd(更省资源)、Kuma。如果你只是需要灰度发布和监控,用 K8s 原生的 Service + Deployment 就够了,不必上 Istio。</p>
+</blockquote>
+<h3 id="13-k8s">13. K8s 集群故障排查思路?</h3>
+<p><strong>核心结论</strong>:从下往上排查(Node→Pod→Service→Ingress),用好 kubectl describe/logs/events。</p>
+<pre><code>排查层次:
+
+1. Node 层
+   kubectl get nodes
+   kubectl describe node &lt;node-name&gt;  ← 看 Conditions、Events
+
+   常见问题:NotReady、磁盘满、内存不足
+
+2. Pod 层
+   kubectl get pods -o wide
+   kubectl describe pod &lt;pod-name&gt;   ← 看 Events,知道为什么 Pending/CrashLoopBackOff
+   kubectl logs &lt;pod-name&gt; -c &lt;container&gt; --previous  ← 看上个容器的日志
+
+   状态解读:
+   - Pending: 资源不足或调度失败
+   - CrashLoopBackOff: 容器启动失败(反复重启)
+   - ImagePullBackOff: 镜像拉取失败
+   - Completed: Job 执行成功
+
+3. Service 层
+   kubectl get endpoints &lt;svc-name&gt;  ← 看 Pod 是否被关联
+   kubectl get svc                   ← 看 ClusterIP、Port
+
+   常见问题:selector 不匹配、targetPort 错误
+
+4. Ingress 层
+   kubectl get ingress
+   kubectl describe ingress &lt;name&gt;
+   kubectl logs -n ingress-nginx &lt;ingress-controller-pod&gt;
+</code></pre>
+<p><strong>CrashLoopBackOff 排查模板</strong>:</p>
+<pre><code class="language-bash"># 1. 看事件
+cubectl describe pod &lt;pod-name&gt;
+
+# 2. 看日志
+cubectl logs &lt;pod-name&gt; --previous
+
+# 3. 进入容器调试
+cubectl exec -it &lt;pod-name&gt; -- /bin/sh
+
+# 4. 临时起一个调试 Pod
+cubectl run debug --rm -it --image=busybox -- sh
+</code></pre>
+<blockquote>
+<p><strong>扩展</strong>:生产环境必备监控:Prometheus(Grafana 看大盘) + EFK 日志收集。排查时优先看 Events 字段,K8s 会记录 Pod 生命周期中的所有事件。常用命令组合:<code>kubectl get all -A</code> 一眼看全集群资源。</p>
+</blockquote>
+<h3 id="14-k8s">14. K8s 多集群管理方案?</h3>
+<p><strong>核心结论</strong>:Rancher 最成熟(一站式平台),Karmada 最标准(CNCF 项目),OCM 最轻量(IBM 开源)。</p>
+<table>
+<thead>
+<tr>
+<th>方案</th>
+<th>特点</th>
+<th>适用场景</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Rancher</td>
+<td>多集群统一 UI + RBAC + CI/CD</td>
+<td>企业级平台</td>
+</tr>
+<tr>
+<td>Karmada</td>
+<td>资源模板 + 策略分发,多集群调度</td>
+<td>多活/灾备</td>
+</tr>
+<tr>
+<td>OCM</td>
+<td>IBM 开源,轻量级多集群注册</td>
+<td>混合云</td>
+</tr>
+<tr>
+<td>GitOps</td>
+<td>ArgoCD + 多集群 Application</td>
+<td>Git 驱动</td>
+</tr>
+</tbody>
+</table>
+<pre><code>多集群架构:
+
+┌─────────────────────────────────────────────┐
+│              管理集群(Control Plane)          │
+│  ┌─────────┐  ┌─────────┐  ┌─────────────┐  │
+│  │ Rancher │  │ Karmada │  │   ArgoCD    │  │
+│  └────┬────┘  └────┬────┘  └──────┬──────┘  │
+└───────┼────────────┼──────────────┼─────────┘
+        │            │              │
+   ┌────┴────┐  ┌────┴────┐    ┌────┴────┐
+   │ Cluster1 │  │ Cluster2│    │ Cluster3│
+   │ (北京)   │  │ (上海)   │    │ (广州)   │
+   └──────────┘  └──────────┘    └──────────┘
+</code></pre>
+<p><strong>多集群场景</strong>:</p>
+<ol>
+<li><strong>多活架构</strong>:同一应用部署到多个集群,流量按地域就近访问</li>
+<li><strong>灾备切换</strong>:主集群挂了,流量切换到备用集群</li>
+<li><strong>多租户隔离</strong>:不同团队用不同集群,资源隔离</li>
+</ol>
+<blockquote>
+<p><strong>扩展</strong>:多集群的核心挑战是<strong>网络互通</strong>和<strong>数据同步</strong>。网络方案:Submariner(跨集群 L3 通信)、Istio 多集群网格。数据同步:Velero 备份恢复、etcd 跨集群同步。如果你的集群数 &lt; 3,用 Rancher 管理就够了;超过 10 个集群建议 Karmada,它支持跨集群资源分发和调度策略。</p>
+</blockquote>
+<h3 id="15-k8s-pod">15. K8s 中 Pod 启动失败怎么排查？</h3>
+<p><strong>排查四步法</strong>：</p>
+<pre><code class="language-bash"># Step1: 查看 Pod 状态
+kubectl get pod &lt;name&gt; -n &lt;namespace&gt;
+# 关注: Pending / CrashLoopBackOff / ImagePullBackOff / Error
+
+# Step2: 查看详细事件
+kubectl describe pod &lt;name&gt; -n &lt;namespace&gt;
+# 关键字段: Events → Last State / Reason / Message
+
+# Step3: 查看日志
+kubectl logs &lt;name&gt; -n &lt;namespace&gt; --previous  # 上一次运行的日志
+
+# Step4: 进入 Pod 调试（临时）
+kubectl debug &lt;name&gt; -it --image=busybox -- sh
+</code></pre>
+<p><strong>常见失败原因</strong>：</p>
+<table>
+<thead>
+<tr>
+<th>状态</th>
+<th>原因</th>
+<th>解决</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Pending</td>
+<td>无可用节点 / PVC 未绑定</td>
+<td><code>kubectl describe node</code>，检查资源</td>
+</tr>
+<tr>
+<td>CrashLoopBackOff</td>
+<td>应用启动后崩溃</td>
+<td>看日志，检查配置</td>
+</tr>
+<tr>
+<td>ImagePullBackOff</td>
+<td>镜像拉取失败</td>
+<td>检查镜像地址、私有仓库认证</td>
+</tr>
+<tr>
+<td>Init:OOMKilled</td>
+<td>Init 容器内存超限</td>
+<td>调高 resources.limits.memory</td>
+</tr>
+<tr>
+<td>Evicted</td>
+<td>节点资源紧张被驱逐</td>
+<td>扩容或清理节点</td>
+</tr>
+</tbody>
+</table>
+<blockquote>
+<p><strong>扩展</strong>：<code>kubectl get events --sort-by=.lastTimestamp</code> 查看集群所有事件；<code>kubectl top pod</code> 看资源消耗；生产环境用 OpenTelemetry 做分布式追踪。</p>
+</blockquote>
+
+<script>
+// Scroll spy — highlight active sidebar item
+window.addEventListener('scroll', function() {
+    var links = document.querySelectorAll('.sidebar-toc a');
+    var scrollY = window.scrollY + 120;
+    var current = '';
+    for (var i = links.length - 1; i >= 0; i--) {
+        var target = document.getElementById(links[i].getAttribute('href').slice(1));
+        if (target && target.offsetTop <= scrollY) {
+            current = links[i];
+            break;
+        }
+    }
+    links.forEach(function(a) { a.style.fontWeight = 'normal'; a.style.color = '#555'; });
+    if (current) { current.style.fontWeight = 'bold'; current.style.color = '#0366d6'; }
+});
+</script>
+
+
+<script>
+document.querySelectorAll('pre > code').forEach(function(codeBlock, i) {
+    var pre = codeBlock.parentNode;
+    pre.style.position = 'relative';
+    var btn = document.createElement('button');
+    btn.className = 'copy-btn';
+    btn.textContent = '复制';
+    pre.appendChild(btn);
+    btn.addEventListener('click', function() {
+        var text = codeBlock.textContent;
+        navigator.clipboard.writeText(text).then(function() {
+            btn.textContent = '已复制';
+            btn.classList.add('copied');
+            setTimeout(function() {
+                btn.textContent = '复制';
+                btn.classList.remove('copied');
+            }, 2000);
+        }).catch(function() {
+            // Fallback
+            var ta = document.createElement('textarea');
+            ta.value = text; ta.style.position = 'fixed'; ta.style.opacity = '0';
+            document.body.appendChild(ta); ta.select();
+            document.execCommand('copy'); document.body.removeChild(ta);
+            btn.textContent = '已复制'; btn.classList.add('copied');
+            setTimeout(function() { btn.textContent = '复制'; btn.classList.remove('copied'); }, 2000);
+        });
+    });
+});
+</script>
+
+
+<script>document.querySelectorAll("pre>code").forEach(function(c){var p=c.parentNode;p.style.position="relative";var b=document.createElement("button");b.className="copy-btn";b.textContent="复制";p.appendChild(b);b.addEventListener("click",function(){var t=c.textContent;navigator.clipboard.writeText(t).then(function(){b.textContent="已复制";b.classList.add("copied");setTimeout(function(){b.textContent="复制";b.classList.remove("copied")},2000)}).catch(function(){var a=document.createElement("textarea");a.value=t;a.style.position="fixed";a.style.opacity="0";document.body.appendChild(a);a.select();document.execCommand("copy");document.body.removeChild(a);b.textContent="已复制";b.classList.add("copied");setTimeout(function(){b.textContent="复制";b.classList.remove("copied")},2000)})})})</script>
+</body>
+</html>

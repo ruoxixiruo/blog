@@ -1,0 +1,639 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>面试题 - MyBatis</title>
+<style>
+body {
+    transition: margin-left .25s ease;
+    font-family: -apple-system, "Noto Sans SC", "Microsoft YaHei", sans-serif;
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 20px 24px 60px;
+    line-height: 1.8;
+    color: #333;
+    background: #fff;
+}
+h1 { border-bottom: 2px solid #eee; padding-bottom: 10px; color: #222; }
+h2 { color: #333; margin-top: 32px; }
+h3 { color: #555; }
+a { color: #0366d6; text-decoration: none; }
+a:hover { text-decoration: underline; }
+pre {
+    background: #f6f8fa;
+    border-radius: 6px;
+    padding: 16px;
+    overflow-x: auto;
+    font-size: 14px;
+    line-height: 1.45;
+}
+code {
+    background: #f0f2f4;
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-size: 14px;
+}
+pre code { background: none; padding: 0; }
+blockquote {
+    border-left: 4px solid #ddd;
+    margin: 0;
+    padding: 0 16px;
+    color: #666;
+}
+table {
+    border-collapse: collapse;
+    width: 100%;
+    margin: 16px 0;
+}
+th, td {
+    border: 1px solid #ddd;
+    padding: 8px 12px;
+    text-align: left;
+}
+th { background: #f6f8fa; }
+img { max-width: 100%; }
+.back-link {
+    margin-bottom: 20px;
+    display: block;
+    color: #666;
+}
+.back-link:hover { color: #0366d6; }
+
+.sidebar-toc {
+    transition: left .25s ease;
+    position: fixed;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    width: 220px;
+    background: #f8f9fa;
+    border-right: 1px solid #e9ecef;
+    padding: 20px 0;
+    overflow-y: auto;
+    font-size: 13px;
+    z-index: 100;
+}
+.sidebar-toc a {
+    display: block;
+    padding: 6px 16px;
+    color: #555;
+    text-decoration: none;
+    border-left: 3px solid transparent;
+    line-height: 1.5;
+}
+.sidebar-toc a:hover {
+    background: #e9ecef;
+    color: #0366d6;
+    border-left-color: #0366d6;
+}
+.sidebar-toc .toc-h3 { padding-left: 20px; font-size: 12px; }
+body { margin-left: 240px; }
+
+
+.copy-btn {
+    position: absolute; top: 6px; right: 6px;
+    background: #e9ecef; border: none;
+    border-radius: 4px; padding: 3px 10px;
+    font-size: 12px; color: #555; cursor: pointer;
+    opacity: 0; transition: opacity 0.2s;
+    z-index: 1;
+}
+pre:hover .copy-btn { opacity: 1; }
+.copy-btn:hover { background: #d0d7de; }
+.copy-btn.copied { opacity: 1; background: #2da44e; color: #fff; }
+.copy-btn{position:absolute;top:6px;right:6px;background:#e9ecef;border:none;border-radius:4px;padding:3px 10px;font-size:12px;color:#555;cursor:pointer;opacity:0;transition:opacity .2s;z-index:1}pre:hover .copy-btn{opacity:1}.copy-btn:hover{background:#d0d7de}.copy-btn.copied{opacity:1;background:#2da44e;color:#fff}
+.copy-btn{position:absolute;top:6px;right:6px;background:#e9ecef;border:none;border-radius:4px;padding:3px 10px;font-size:12px;color:#555;cursor:pointer;opacity:0;transition:opacity .2s;z-index:1}pre:hover .copy-btn{opacity:1}.copy-btn:hover{background:#d0d7de}.copy-btn.copied{opacity:1;background:#2da44e;color:#fff}
+.copy-btn{position:absolute;top:6px;right:6px;background:#e9ecef;border:none;border-radius:4px;padding:3px 10px;font-size:12px;color:#555;cursor:pointer;opacity:0;transition:opacity .2s;z-index:1}pre:hover .copy-btn{opacity:1}.copy-btn:hover{background:#d0d7de}.copy-btn.copied{opacity:1;background:#2da44e;color:#fff}
+.sidebar-toggle-btn {
+  position: fixed;
+  left: 220px;
+  top: 0;
+  width: 28px;
+  height: 40px;
+  background: #f8f9fa;
+  border: 1px solid #e9ecef;
+  border-left: none;
+  border-radius: 0 4px 4px 0;
+  cursor: pointer;
+  font-size: 16px;
+  color: #555;
+  z-index: 101;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: left .25s, background .2s;
+  padding: 0;
+  line-height: 1;
+}
+.sidebar-toggle-btn:hover { background: #e9ecef; color: #0366d6; }
+.sidebar-collapsed .sidebar-toc { left: -220px; }
+.sidebar-collapsed .sidebar-toggle-btn { left: 0; }
+.sidebar-collapsed body, body.sidebar-collapsed { margin-left: 28px; }
+.sidebar-overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,.3);
+  z-index: 99;
+}
+@media (max-width: 768px) {
+  .sidebar-collapsed .sidebar-overlay { display: none; }
+  .sidebar-toc { left: -220px; }
+  .sidebar-toggle-btn { left: 0; }
+  body { margin-left: 28px; }
+}
+
+</style>
+</head>
+</head>
+<body>
+<nav class="sidebar-toc"><a class="toc-h3" href="#1-mybatis">1. MyBatis 的执行流程?</a><a class="toc-h3" href="#2">2. #{} 和 ${} 的区别?</a><a class="toc-h3" href="#3">3. 一级缓存和二级缓存?</a><a class="toc-h3" href="#4-mybatis">4. MyBatis 的分页实现?</a><a class="toc-h3" href="#5-resulttype-resultmap">5. resultType 和 resultMap 的区别?</a><a class="toc-h3" href="#6-mybatis-plus">6. MyBatis-Plus 的核心功能?</a><a class="toc-h3" href="#7-mapper">7. Mapper 接口的工作原理?为什么接口方法不能重载?</a><a class="toc-h3" href="#8-mybatis-sql">8. MyBatis 动态 SQL 有哪些标签?各自作用?</a><a class="toc-h3" href="#9-mybatis">9. MyBatis 插件(拦截器)机制?可以拦截哪些对象?</a><a class="toc-h3" href="#10">10. 实体类属性名和表字段名不一致怎么办?</a><a class="toc-h3" href="#11-mybatis">11. MyBatis 的懒加载怎么实现?</a><a class="toc-h3" href="#12-mybatis">12. MyBatis 插件机制与原理？</a></nav>
+<button class="sidebar-toggle-btn" onclick="toggleSidebar()" title="切换侧栏">☰</button>
+
+<div class="sidebar-overlay" onclick="toggleSidebar()"></div>
+
+<script>
+function toggleSidebar() {
+  document.body.classList.toggle('sidebar-collapsed');
+  try { localStorage.setItem('sidebarCollapsed', document.body.classList.contains('sidebar-collapsed')); } catch(e) {}
+}
+(function() {
+  try {
+    if (localStorage.getItem('sidebarCollapsed') === 'true') {
+      document.body.classList.add('sidebar-collapsed');
+    }
+  } catch(e) {}
+})();
+</script>
+<a class="back-link" href="/blog/2026/05/16/面试题/面试题/">← 返回面试题目录</a>
+<h1 id=page-title>MyBatis</h1>
+<h3 id="1-mybatis">1. MyBatis 的执行流程?</h3>
+<pre><code>MyBatis 查询全流程:
+
+SqlSessionFactory
+  └─ openSession() → SqlSession(一次数据库会话)
+       └─ getMapper() → 动态代理的 Mapper 接口
+            └─ Executor(执行器,缓存/事务管理)
+                 └─ StatementHandler(创建 JDBC Statement)
+                      ├─ ParameterHandler → 把参数设到 SQL 的 ? 上
+                      └─ JDBC 执行 SQL
+                           └─ ResultSetHandler → 把 ResultSet 映射为 Java 对象
+</code></pre>
+<p>每个组件的职责:
+- <strong>SqlSession</strong>:和数据库的一次会话,用完要关。相当于 JDBC 的 Connection
+- <strong>Executor</strong>:执行器,管理缓存(一二级缓存)和事务
+- <strong>StatementHandler</strong>:创建 PreparedStatement,调用 ParameterHandler 设参数
+- <strong>ResultSetHandler</strong>:把 JDBC 的 ResultSet 转成 Java 对象(List/Map/单个对象)</p>
+<blockquote>
+<p><strong>扩展</strong>:MyBatis 用 JDK 动态代理实现"只写接口不写实现"。<code>openSession(ExecutorType.BATCH)</code> 可开启批量模式。</p>
+</blockquote>
+<h3 id="2">2. <code>#{}</code> 和 <code>${}</code> 的区别?</h3>
+<pre><code>#{}:
+  SELECT * FROM user WHERE id = #{id}
+  → SELECT * FROM user WHERE id = ?   (占位符,预编译)
+  → 传入 id=5 → 安全!
+  攻击者传入 id=&quot;1 OR 1=1&quot; → 数据库把&quot;1 OR 1=1&quot;当作一个值来比较 → 无效攻击
+
+${}:
+  SELECT * FROM user WHERE id = ${id}
+  → SELECT * FROM user WHERE id = 1 OR 1=1   (直接拼进去!)
+  → SQL 注入成功!全表数据暴露
+</code></pre>
+<table>
+<thead>
+<tr>
+<th>对比</th>
+<th><code>#{}</code></th>
+<th><code>${}</code></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>处理方式</td>
+<td>预编译,<code>?</code> 占位符</td>
+<td>直接字符串替换</td>
+</tr>
+<tr>
+<td>SQL 注入</td>
+<td>安全</td>
+<td>危险</td>
+</tr>
+<tr>
+<td>使用场景</td>
+<td>绝大多数情况</td>
+<td>动态表名/字段名/ORDER BY</td>
+</tr>
+<tr>
+<td>特性</td>
+<td>防注入</td>
+<td>危险--直接拼</td>
+</tr>
+</tbody>
+</table>
+<p><strong>为什么 <code>${}</code> 还存在</strong>:因为 <code>#{}</code> 会把参数当作"值",表名和列名不能用 <code>?</code> 占位符。<code>ORDER BY #{column}</code> 变成 <code>ORDER BY 'name'</code>(加了引号!),排序失效。这种场景只能 <code>${}</code>,但必须<strong>白名单校验</strong>。</p>
+<blockquote>
+<p><strong>扩展</strong>:动态 SQL 必须用 <code>${}</code> 时要加白名单过滤(如 ORDER BY 只允许特定字段名)。</p>
+</blockquote>
+<h3 id="3">3. 一级缓存和二级缓存?</h3>
+<pre><code>一级缓存(SqlSession 级别,默认开启):
+  SqlSession A: SELECT * FROM user WHERE id=1 → 查数据库
+  同一会话中: SELECT * FROM user WHERE id=1 → 直接返回缓存(不查数据库)
+  commit/close/update → 清空缓存
+
+二级缓存(Mapper 级别,需手动开启):
+  SqlSession A: SELECT * FROM user WHERE id=1 → 查数据库 → 缓存到 Mapper
+  SqlSession B: SELECT * FROM user WHERE id=1 → 直接返回二级缓存(不查数据库)
+  A 提交了 update → 清空这个 Mapper 的二级缓存
+</code></pre>
+<table>
+<thead>
+<tr>
+<th>对比</th>
+<th>一级缓存</th>
+<th>二级缓存</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>作用域</td>
+<td>SqlSession</td>
+<td>Mapper/namespace</td>
+</tr>
+<tr>
+<td>默认</td>
+<td>开启</td>
+<td>关闭</td>
+</tr>
+<tr>
+<td>适用</td>
+<td>同一会话内去重</td>
+<td>跨会话共享</td>
+</tr>
+</tbody>
+</table>
+<p><strong>为什么生产少用二级缓存</strong>:
+- 多个 Mapper 之间的交叉更新它不知道(A 表更新了,B 表的缓存不会失效)
+- Redis 更灵活(跨服务共享、精确过期控制、独立管理)
+- 分布式环境下一致性难以保证</p>
+<blockquote>
+<p><strong>扩展</strong>:MyBatis + Spring 整合后每次查询都是新的 SqlSession,一级缓存几乎无实际作用。Redis 是更优的跨进程缓存方案。</p>
+</blockquote>
+<h3 id="4-mybatis">4. MyBatis 的分页实现?</h3>
+<pre><code>逻辑分页(RowBounds)--不推荐:
+  SELECT * FROM user  → 查出 100 万条数据
+  → Java 内存里截取第 10-20 条
+  → 100 万条传输到应用服务器 → 内存爆炸!
+
+物理分页(PageHelper)--生产用:
+  SELECT * FROM user LIMIT 10, 20  → 只查 10 条
+  → PageHelper 拦截原始 SQL → 自动拼 LIMIT → 只查需要的数据
+</code></pre>
+<p><strong>PageHelper 原理</strong>:MyBatis 插件机制--拦截 Executor 的 query 方法,在 SQL 执行前判断是否有分页参数,有则自动拼接数据库方言的 LIMIT(MySQL: <code>LIMIT offset, size</code>,Oracle: <code>ROWNUM</code>)。</p>
+<blockquote>
+<p><strong>扩展</strong>:PageHelper 查询后紧跟 <code>SELECT COUNT(*)</code>。大数据量关联查询时 <code>COUNT(*)</code> 可能很慢,可考虑 ES 分页。</p>
+</blockquote>
+<h3 id="5-resulttype-resultmap">5. <code>resultType</code> 和 <code>resultMap</code> 的区别?</h3>
+<table>
+<thead>
+<tr>
+<th>对比</th>
+<th>resultType</th>
+<th>resultMap</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>适用</td>
+<td>列名 = 属性名(或驼峰转换后一致)</td>
+<td>列名 ≠ 属性名、嵌套对象</td>
+</tr>
+<tr>
+<td>简便性</td>
+<td>简单</td>
+<td>复杂但强大</td>
+</tr>
+<tr>
+<td>关联映射</td>
+<td>不支持</td>
+<td><code>association</code>(一对一)、<code>collection</code>(一对多)</td>
+</tr>
+<tr>
+<td>继承</td>
+<td>不支持</td>
+<td>支持 <code>extends</code> 复用</td>
+</tr>
+</tbody>
+</table>
+<pre><code class="language-xml">&lt;!-- 简单场景用 resultType --&gt;
+&lt;select id=&quot;findById&quot; resultType=&quot;User&quot;&gt;
+    SELECT id, user_name AS userName FROM user WHERE id = #{id}
+&lt;/select&gt;
+
+&lt;!-- 复杂场景用 resultMap --&gt;
+&lt;resultMap id=&quot;orderMap&quot; type=&quot;Order&quot;&gt;
+    &lt;id property=&quot;id&quot; column=&quot;id&quot;/&gt;
+    &lt;association property=&quot;user&quot; javaType=&quot;User&quot;&gt;  &lt;!-- 一对一 --&gt;
+        &lt;id property=&quot;id&quot; column=&quot;user_id&quot;/&gt;
+    &lt;/association&gt;
+    &lt;collection property=&quot;items&quot; ofType=&quot;OrderItem&quot;&gt; &lt;!-- 一对多 --&gt;
+        &lt;id property=&quot;id&quot; column=&quot;item_id&quot;/&gt;
+    &lt;/collection&gt;
+&lt;/resultMap&gt;
+</code></pre>
+<blockquote>
+<p><strong>扩展</strong>:MyBatis 3.5+ 支持 <code>@One</code>/<code>@Many</code> 注解做关联映射。N+1 查询可用 <code>fetchType</code> 延迟加载优化。</p>
+</blockquote>
+<h3 id="6-mybatis-plus">6. MyBatis-Plus 的核心功能?</h3>
+<pre><code>MyBatis-Plus 核心能力:
+
+1 自动 CRUD
+   继承 BaseMapper&lt;User&gt; → 自带 insert/update/deleteById/selectList
+   常用单表操作零 SQL!
+
+2 条件构造器(QueryWrapper)
+   new QueryWrapper&lt;User&gt;().eq(&quot;status&quot;, 1).like(&quot;name&quot;, &quot;张&quot;).orderByDesc(&quot;age&quot;)
+   → 链式拼条件,不用在 XML 里写 if 判断
+
+3 分页插件
+   Page&lt;User&gt; page = new Page&lt;&gt;(1, 10);
+   userMapper.selectPage(page, null);
+   → 物理分页 + 自动 COUNT
+
+4 乐观锁
+   @Version 注解修饰字段 → update 时自动拼 version = version+1
+
+5 逻辑删除
+   @TableLogic → delete 变成 update deleted=1,查询自动加 deleted=0
+
+6 代码生成器
+   根据数据库表反向生成 Entity/Mapper/Service/Controller
+</code></pre>
+<blockquote>
+<p><strong>扩展</strong>:<code>LambdaQueryWrapper</code> 用 Lambda 写条件避免字符串写错。复杂 join/子查询仍需 XML。</p>
+</blockquote>
+<h3 id="7-mapper">7. Mapper 接口的工作原理?为什么接口方法不能重载?</h3>
+<p>MyBatis 在启动时通过 <strong>JDK 动态代理</strong>为每个 Mapper 接口生成代理对象。调用接口方法时:</p>
+<ol>
+<li>代理对象拦截方法调用</li>
+<li>通过 <code>namespace = 接口全类名 + id = 方法名</code> 找到对应的 XML 中 SQL</li>
+<li>执行 SQL 并返回结果</li>
+</ol>
+<pre><code>UserMapper 接口(没有实现类)
+      │
+      ▼ JDK 动态代理
+MapperProxy 拦截所有方法调用
+      │
+      ▼ 方法名 = findById
+查找 namespace=&quot;com.xxx.UserMapper&quot; + id=&quot;findById&quot;
+      │
+      ▼
+执行 SQL → 映射结果 → 返回
+</code></pre>
+<p><strong>为什么不能重载?</strong> MyBatis 通过 <code>namespace + id</code>(即全类名 + 方法名)唯一确定一条 SQL,没有参数类型信息。如果两个方法同名(重载),MyBatis 不知道该执行哪个 SQL。</p>
+<blockquote>
+<p><strong>扩展</strong>:注解和 XML 方式可混合使用,但建议统一用一种。</p>
+</blockquote>
+<h3 id="8-mybatis-sql">8. MyBatis 动态 SQL 有哪些标签?各自作用?</h3>
+<table>
+<thead>
+<tr>
+<th>标签</th>
+<th>作用</th>
+<th>示例场景</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>&lt;if&gt;</code></td>
+<td>条件判断</td>
+<td>可选查询条件</td>
+</tr>
+<tr>
+<td><code>&lt;where&gt;</code></td>
+<td>自动去掉第一个 AND/OR,无子元素时不生成 WHERE</td>
+<td>包裹所有条件</td>
+</tr>
+<tr>
+<td><code>&lt;set&gt;</code></td>
+<td>自动去掉末尾逗号</td>
+<td>动态更新</td>
+</tr>
+<tr>
+<td><code>&lt;foreach&gt;</code></td>
+<td>遍历集合</td>
+<td>IN 查询、批量插入</td>
+</tr>
+<tr>
+<td><code>&lt;choose&gt;/&lt;when&gt;/&lt;otherwise&gt;</code></td>
+<td>多选一(类似 switch)</td>
+<td>优先级条件</td>
+</tr>
+<tr>
+<td><code>&lt;trim&gt;</code></td>
+<td>前缀/后缀处理(最通用)</td>
+<td>自定义替换逻辑</td>
+</tr>
+<tr>
+<td><code>&lt;bind&gt;</code></td>
+<td>创建变量(OGNL 表达式)</td>
+<td>模糊查询自动加 <code>%</code></td>
+</tr>
+</tbody>
+</table>
+<pre><code class="language-xml">&lt;select id=&quot;findUsers&quot; resultType=&quot;User&quot;&gt;
+    SELECT * FROM user
+    &lt;where&gt;
+        &lt;if test=&quot;name != null&quot;&gt;AND name LIKE #{name}&lt;/if&gt;
+        &lt;if test=&quot;age != null&quot;&gt;AND age = #{age}&lt;/if&gt;
+        &lt;foreach collection=&quot;ids&quot; item=&quot;id&quot; open=&quot;AND id IN (&quot; close=&quot;)&quot; separator=&quot;,&quot;&gt;
+            #{id}
+        &lt;/foreach&gt;
+    &lt;/where&gt;
+&lt;/select&gt;
+</code></pre>
+<blockquote>
+<p><strong>扩展</strong>:<code>&lt;where&gt;</code> 和 <code>&lt;set&gt;</code> 底层都是 <code>&lt;trim&gt;</code> 实现。<code>&lt;bind&gt;</code> 可统一不同数据库的语法差异。</p>
+</blockquote>
+<h3 id="9-mybatis">9. MyBatis 插件(拦截器)机制?可以拦截哪些对象?</h3>
+<p>MyBatis 插件基于<strong>责任链模式 + JDK 动态代理</strong>,可以拦截 4 个核心对象:</p>
+<table>
+<thead>
+<tr>
+<th>拦截对象</th>
+<th>可拦截的方法</th>
+<th>典型应用</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Executor</strong></td>
+<td>update/query/commit/rollback</td>
+<td>分页插件(PageHelper)、读写分离</td>
+</tr>
+<tr>
+<td><strong>StatementHandler</strong></td>
+<td>prepare/parameterize/batch</td>
+<td>SQL 改写、加 limit</td>
+</tr>
+<tr>
+<td><strong>ParameterHandler</strong></td>
+<td>setParameters</td>
+<td>参数加密/脱敏</td>
+</tr>
+<tr>
+<td><strong>ResultSetHandler</strong></td>
+<td>handleResultSets</td>
+<td>结果加密/解密、字段脱敏</td>
+</tr>
+</tbody>
+</table>
+<pre><code class="language-java">@Intercepts({
+    @Signature(type = Executor.class, method = &quot;query&quot;, args = {MappedStatement.class, Object.class, RowBounds.class, ResultHandler.class})
+})
+public class MyPlugin implements Interceptor {
+    public Object intercept(Invocation invocation) throws Throwable {
+        System.out.println(&quot;SQL 执行前&quot;);
+        Object result = invocation.proceed();  // 放行
+        System.out.println(&quot;SQL 执行后&quot;);
+        return result;
+    }
+}
+</code></pre>
+<blockquote>
+<p><strong>扩展</strong>:多个插件的执行顺序由配置顺序决定(第一个包装最外层)。插件链不要太长,每个查询都过一遍有性能开销。</p>
+</blockquote>
+<h3 id="10">10. 实体类属性名和表字段名不一致怎么办?</h3>
+<table>
+<thead>
+<tr>
+<th>方案</th>
+<th>做法</th>
+<th>优点</th>
+<th>缺点</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>SQL 别名</td>
+<td><code>SELECT user_name AS userName</code></td>
+<td>简单直接</td>
+<td>每个 SQL 都要写,繁琐</td>
+</tr>
+<tr>
+<td>ResultMap</td>
+<td><code>&lt;result column="user_name" property="userName"/&gt;</code></td>
+<td>精确控制,一次定义</td>
+<td>每个字段都要映射</td>
+</tr>
+<tr>
+<td>驼峰自动转换</td>
+<td><code>mapUnderscoreToCamelCase=true</code></td>
+<td><strong>一口配置,全项目生效</strong></td>
+<td>只处理 <code>user_name → userName</code> 这种映射</td>
+</tr>
+</tbody>
+</table>
+<pre><code class="language-xml">&lt;!-- 最推荐:配置文件开启驼峰转换 --&gt;
+&lt;setting name=&quot;mapUnderscoreToCamelCase&quot; value=&quot;true&quot;/&gt;
+&lt;!-- user_name 自动映射到 userName,搞定 90% 的场景 --&gt;
+</code></pre>
+<blockquote>
+<p><strong>扩展</strong>:Spring Boot:<code>mybatis.configuration.map-underscore-to-camel-case=true</code> 一行配置搞定驼峰映射。</p>
+</blockquote>
+<hr />
+<h3 id="11-mybatis">11. MyBatis 的懒加载怎么实现?</h3>
+<p>MyBatis 懒加载 = 代理对象 + 延迟触发。关联查询不会立刻执行,而是返回一个 CGLIB/Javassist 代理对象,只有当你真正调用这个对象的 getter 方法时,才去数据库查。</p>
+<p>lazyLoadingEnabled=true 启用,MyBatis 为关联对象生成代理对象,首次 getter 触发 SQL。适合不确定是否需要关联数据的场景,避免不必要 JOIN。注意循环触发懒加载退化为 N+1。</p>
+<h3 id="12-mybatis">12. MyBatis 插件机制与原理？</h3>
+<p>MyBatis 通过 <strong>拦截器链</strong> 实现插件扩展，四大对象可被拦截：</p>
+<pre><code>Executor (CRUD)
+  ↓
+StatementHandler (SQL预编译+参数设置)
+  ↓
+ParameterHandler (参数填充)
+  ↓
+ResultSetHandler (结果集映射)
+</code></pre>
+<p><strong>插件编写</strong>（以分页插件为例）：</p>
+<pre><code class="language-java">@Intercepts({
+    @Signature(type = StatementHandler.class,
+               method = &quot;prepare&quot;,
+               args = {Connection.class}),
+    @Signature(type = ResultSetHandler.class,
+               method = &quot;handleResultSets&quot;,
+               args = {Statement.class})
+})
+public class PageInterceptor implements Interceptor {
+    @Override
+    public Object intercept(Invocation invocation) throws Throwable {
+        // 拦截 SQL，改写为带 LIMIT
+        Object target = invocation.getTarget();
+        if (target instanceof StatementHandler rs) {
+            String sql = rs.getBoundSql().getSql();
+            sql = sql + &quot; LIMIT &quot; + page.getOffset() + &quot;,&quot; + page.getLimit();
+            Field sqlField = BoundSql.class.getDeclaredField(&quot;sql&quot;);
+            sqlField.setAccessible(true);
+            sqlField.set(rs.getBoundSql(), sql);
+        }
+        return invocation.proceed();  // 继续执行
+    }
+}
+</code></pre>
+<blockquote>
+<p><strong>扩展</strong>：<code>@Intercepts</code> 注解注册到 Spring 容器后自动生效；多插件时按 order 顺序执行；插件不要拦截太多方法（性能损耗）；PageHelper 是最常用的第三方分页插件。</p>
+</blockquote>
+
+<script>
+// Scroll spy — highlight active sidebar item
+window.addEventListener('scroll', function() {
+    var links = document.querySelectorAll('.sidebar-toc a');
+    var scrollY = window.scrollY + 120;
+    var current = '';
+    for (var i = links.length - 1; i >= 0; i--) {
+        var target = document.getElementById(links[i].getAttribute('href').slice(1));
+        if (target && target.offsetTop <= scrollY) {
+            current = links[i];
+            break;
+        }
+    }
+    links.forEach(function(a) { a.style.fontWeight = 'normal'; a.style.color = '#555'; });
+    if (current) { current.style.fontWeight = 'bold'; current.style.color = '#0366d6'; }
+});
+</script>
+
+
+<script>
+document.querySelectorAll('pre > code').forEach(function(codeBlock, i) {
+    var pre = codeBlock.parentNode;
+    pre.style.position = 'relative';
+    var btn = document.createElement('button');
+    btn.className = 'copy-btn';
+    btn.textContent = '复制';
+    pre.appendChild(btn);
+    btn.addEventListener('click', function() {
+        var text = codeBlock.textContent;
+        navigator.clipboard.writeText(text).then(function() {
+            btn.textContent = '已复制';
+            btn.classList.add('copied');
+            setTimeout(function() {
+                btn.textContent = '复制';
+                btn.classList.remove('copied');
+            }, 2000);
+        }).catch(function() {
+            // Fallback
+            var ta = document.createElement('textarea');
+            ta.value = text; ta.style.position = 'fixed'; ta.style.opacity = '0';
+            document.body.appendChild(ta); ta.select();
+            document.execCommand('copy'); document.body.removeChild(ta);
+            btn.textContent = '已复制'; btn.classList.add('copied');
+            setTimeout(function() { btn.textContent = '复制'; btn.classList.remove('copied'); }, 2000);
+        });
+    });
+});
+</script>
+
+
+<script>document.querySelectorAll("pre>code").forEach(function(c){var p=c.parentNode;p.style.position="relative";var b=document.createElement("button");b.className="copy-btn";b.textContent="复制";p.appendChild(b);b.addEventListener("click",function(){var t=c.textContent;navigator.clipboard.writeText(t).then(function(){b.textContent="已复制";b.classList.add("copied");setTimeout(function(){b.textContent="复制";b.classList.remove("copied")},2000)}).catch(function(){var a=document.createElement("textarea");a.value=t;a.style.position="fixed";a.style.opacity="0";document.body.appendChild(a);a.select();document.execCommand("copy");document.body.removeChild(a);b.textContent="已复制";b.classList.add("copied");setTimeout(function(){b.textContent="复制";b.classList.remove("copied")},2000)})})})</script>
+</body>
+</html>

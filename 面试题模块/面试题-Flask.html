@@ -1,0 +1,494 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>面试题 - Flask</title>
+<style>
+body {
+    transition: margin-left .25s ease;
+    font-family: -apple-system, "Noto Sans SC", "Microsoft YaHei", sans-serif;
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 20px 24px 60px;
+    line-height: 1.8;
+    color: #333;
+    background: #fff;
+}
+h1 { border-bottom: 2px solid #eee; padding-bottom: 10px; color: #222; }
+h2 { color: #333; margin-top: 32px; }
+h3 { color: #555; }
+a { color: #0366d6; text-decoration: none; }
+a:hover { text-decoration: underline; }
+pre {
+    background: #f6f8fa;
+    border-radius: 6px;
+    padding: 16px;
+    overflow-x: auto;
+    font-size: 14px;
+    line-height: 1.45;
+}
+code {
+    background: #f0f2f4;
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-size: 14px;
+}
+pre code { background: none; padding: 0; }
+blockquote {
+    border-left: 4px solid #ddd;
+    margin: 0;
+    padding: 0 16px;
+    color: #666;
+}
+table {
+    border-collapse: collapse;
+    width: 100%;
+    margin: 16px 0;
+}
+th, td {
+    border: 1px solid #ddd;
+    padding: 8px 12px;
+    text-align: left;
+}
+th { background: #f6f8fa; }
+img { max-width: 100%; }
+.back-link {
+    margin-bottom: 20px;
+    display: block;
+    color: #666;
+}
+.back-link:hover { color: #0366d6; }
+
+.sidebar-toc {
+    transition: left .25s ease;
+    position: fixed;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    width: 220px;
+    background: #f8f9fa;
+    border-right: 1px solid #e9ecef;
+    padding: 20px 0;
+    overflow-y: auto;
+    font-size: 13px;
+    z-index: 100;
+}
+.sidebar-toc a {
+    display: block;
+    padding: 6px 16px;
+    color: #555;
+    text-decoration: none;
+    border-left: 3px solid transparent;
+    line-height: 1.5;
+}
+.sidebar-toc a:hover {
+    background: #e9ecef;
+    color: #0366d6;
+    border-left-color: #0366d6;
+}
+.sidebar-toc .toc-h3 { padding-left: 20px; font-size: 12px; }
+body { margin-left: 240px; }
+
+
+.copy-btn {
+    position: absolute; top: 6px; right: 6px;
+    background: #e9ecef; border: none;
+    border-radius: 4px; padding: 3px 10px;
+    font-size: 12px; color: #555; cursor: pointer;
+    opacity: 0; transition: opacity 0.2s;
+    z-index: 1;
+}
+pre:hover .copy-btn { opacity: 1; }
+.copy-btn:hover { background: #d0d7de; }
+.copy-btn.copied { opacity: 1; background: #2da44e; color: #fff; }
+.copy-btn{position:absolute;top:6px;right:6px;background:#e9ecef;border:none;border-radius:4px;padding:3px 10px;font-size:12px;color:#555;cursor:pointer;opacity:0;transition:opacity .2s;z-index:1}pre:hover .copy-btn{opacity:1}.copy-btn:hover{background:#d0d7de}.copy-btn.copied{opacity:1;background:#2da44e;color:#fff}
+.copy-btn{position:absolute;top:6px;right:6px;background:#e9ecef;border:none;border-radius:4px;padding:3px 10px;font-size:12px;color:#555;cursor:pointer;opacity:0;transition:opacity .2s;z-index:1}pre:hover .copy-btn{opacity:1}.copy-btn:hover{background:#d0d7de}.copy-btn.copied{opacity:1;background:#2da44e;color:#fff}
+.copy-btn{position:absolute;top:6px;right:6px;background:#e9ecef;border:none;border-radius:4px;padding:3px 10px;font-size:12px;color:#555;cursor:pointer;opacity:0;transition:opacity .2s;z-index:1}pre:hover .copy-btn{opacity:1}.copy-btn:hover{background:#d0d7de}.copy-btn.copied{opacity:1;background:#2da44e;color:#fff}
+.sidebar-toggle-btn {
+  position: fixed;
+  left: 220px;
+  top: 0;
+  width: 28px;
+  height: 40px;
+  background: #f8f9fa;
+  border: 1px solid #e9ecef;
+  border-left: none;
+  border-radius: 0 4px 4px 0;
+  cursor: pointer;
+  font-size: 16px;
+  color: #555;
+  z-index: 101;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: left .25s, background .2s;
+  padding: 0;
+  line-height: 1;
+}
+.sidebar-toggle-btn:hover { background: #e9ecef; color: #0366d6; }
+.sidebar-collapsed .sidebar-toc { left: -220px; }
+.sidebar-collapsed .sidebar-toggle-btn { left: 0; }
+.sidebar-collapsed body, body.sidebar-collapsed { margin-left: 28px; }
+.sidebar-overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,.3);
+  z-index: 99;
+}
+@media (max-width: 768px) {
+  .sidebar-collapsed .sidebar-overlay { display: none; }
+  .sidebar-toc { left: -220px; }
+  .sidebar-toggle-btn { left: 0; }
+  body { margin-left: 28px; }
+}
+
+</style>
+</head>
+</head>
+<body>
+<nav class="sidebar-toc"><a class="toc-h3" href="#1-flask">1. Flask 的请求上下文和应用上下文?</a><a class="toc-h3" href="#2-flask">2. Flask 的请求钩子有哪些?</a><a class="toc-h3" href="#3-flask-django">3. Flask 和 Django 的区别?</a><a class="toc-h3" href="#4-flask-blueprint">4. Flask 的 Blueprint 是什么?</a><a class="toc-h3" href="#5-url_for">5. url_for() 的作用?</a><a class="toc-h3" href="#6-g">6. g 对象的生命周期?</a><a class="toc-h3" href="#7-session-flask">7. session 在 Flask 中如何工作?</a><a class="toc-h3" href="#8-flask">8. Flask 的大型项目如何组织?</a><a class="toc-h3" href="#9-flask-sqlalchemy-session">9. Flask-SQLAlchemy 的 session 和事务怎么处理?</a><a class="toc-h3" href="#10-flask">10. Flask 的异常处理和日志怎么设计?</a><a class="toc-h3" href="#11-flask-cors">11. Flask 中如何处理跨域请求(CORS)?</a><a class="toc-h3" href="#12-flask">12. Flask 如何实现请求级缓存?</a><a class="toc-h3" href="#13-flask">13. Flask 应用如何做健康检查?</a><a class="toc-h3" href="#14-flask">14. Flask 如何实现请求限流？</a></nav>
+<button class="sidebar-toggle-btn" onclick="toggleSidebar()" title="切换侧栏">☰</button>
+
+<div class="sidebar-overlay" onclick="toggleSidebar()"></div>
+
+<script>
+function toggleSidebar() {
+  document.body.classList.toggle('sidebar-collapsed');
+  try { localStorage.setItem('sidebarCollapsed', document.body.classList.contains('sidebar-collapsed')); } catch(e) {}
+}
+(function() {
+  try {
+    if (localStorage.getItem('sidebarCollapsed') === 'true') {
+      document.body.classList.add('sidebar-collapsed');
+    }
+  } catch(e) {}
+})();
+</script>
+<a class="back-link" href="/blog/2026/05/16/面试题/面试题/">← 返回面试题目录</a>
+<h1 id=page-title>Flask</h1>
+<h3 id="1-flask">1. Flask 的请求上下文和应用上下文?</h3>
+<p>Flask用上下文管理请求局部变量，不同请求互不干扰。请求上下文(<code>request</code>/<code>session</code>)每请求独立，应用上下文(<code>current_app</code>/<code>g</code>)跟应用绑定，<code>g</code>存请求级临时数据。底层用<code>LocalProxy</code>+<code>LocalStack</code>实现线程/协程隔离。</p>
+<blockquote>
+<p><strong>扩展</strong>:基于Werkzeug的<code>Local</code>/<code>LocalStack</code>,本质是线程/协程局部存储;<code>with app.app_context():</code>可在非请求环境中激活。</p>
+</blockquote>
+<h3 id="2-flask">2. Flask 的请求钩子有哪些?</h3>
+<p>请求钩子让你在请求的不同阶段"插手":</p>
+<pre><code>请求到达 → before_request → 路由分发 → 视图函数
+                                  ↓
+                          after_request → 响应返回
+                                  ↓
+                          teardown_request(出错也执行)
+</code></pre>
+<ul>
+<li><code>before_request</code>:请求到达未进视图，适合权限检查</li>
+<li><code>after_request</code>:视图处理完返回前，适合添加响应头</li>
+<li><code>teardown_request</code>:响应后清理，出错也执行</li>
+<li><code>errorhandler</code>:捕获指定异常，返回自定义错误页</li>
+</ul>
+<blockquote>
+<p><strong>扩展</strong>:<code>before_first_request</code> 2.3+已废弃;蓝图有自己的<code>before_request</code>;2.0+支持异步视图。</p>
+</blockquote>
+<h3 id="3-flask-django">3. Flask 和 Django 的区别?</h3>
+<table>
+<thead>
+<tr>
+<th>特性</th>
+<th>Flask</th>
+<th>Django</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>定位</td>
+<td>微框架</td>
+<td>全栈框架</td>
+</tr>
+<tr>
+<td>ORM</td>
+<td>自选SQLAlchemy等</td>
+<td>自带</td>
+</tr>
+<tr>
+<td>项目结构</td>
+<td>完全自由</td>
+<td>固定结构</td>
+</tr>
+<tr>
+<td>用户系统</td>
+<td>需Flask-Login</td>
+<td>自带</td>
+</tr>
+<tr>
+<td>后台管理</td>
+<td>需Flask-Admin</td>
+<td>自带Admin</td>
+</tr>
+<tr>
+<td>适用场景</td>
+<td>小型/API/微服务</td>
+<td>大型/快速开发</td>
+</tr>
+</tbody>
+</table>
+<blockquote>
+<p><strong>扩展</strong>:FastAPI 在 API 场景上是 Flask 的现代替代--自带异步、自动生成文档、类型校验。如果新建纯 API 项目,FastAPI 比 Flask 更合适。Flask + SQLAlchemy 在中小型项目中仍然经典。</p>
+</blockquote>
+<h3 id="4-flask-blueprint">4. Flask 的 Blueprint 是什么?</h3>
+<p>蓝图 = <strong>模块化路由</strong>。把相关路由打包成一个模块,然后在主应用里"挂载"。</p>
+<pre><code>app = Flask(__name__)
+
+# 各模块独立定义
+user_bp = Blueprint('user', __name__, url_prefix='/user')
+order_bp = Blueprint('order', __name__, url_prefix='/order')
+
+# 统一注册
+app.register_blueprint(user_bp)
+app.register_blueprint(order_bp)
+</code></pre>
+<p>Blueprint将应用拆分为独立模块，每个模块定义路由后通过<code>app.register_blueprint()</code>注册，支持URL前缀和子域名。</p>
+<blockquote>
+<p><strong>扩展</strong>:<code>url_prefix</code>统一加前缀;大型项目每个Blueprint对应一个Python package。</p>
+</blockquote>
+<h3 id="5-url_for">5. <code>url_for()</code> 的作用?</h3>
+<p>根据视图函数名反向生成URL，避免硬编码路径。改路由规则后<code>url_for('profile', username='zhangsan')</code>自动更新。</p>
+<blockquote>
+<p><strong>扩展</strong>:Blueprint中用<code>url_for('user.login')</code>;配合<code>url_for('static', filename='app.js')</code>生成带版本静态URL。</p>
+</blockquote>
+<h3 id="6-g">6. <code>g</code> 对象的生命周期?</h3>
+<p><code>g</code>是一次请求内的全局临时存储，请求到达创建，请求结束销毁，跨请求不共享。</p>
+<blockquote>
+<p><strong>扩展</strong>:<code>g</code>的安全来自Flask上下文机制确保每请求独立实例;不要存大对象或应持久化的数据。</p>
+</blockquote>
+<h3 id="7-session-flask">7. <code>session</code> 在 Flask 中如何工作?</h3>
+<p>Flask session数据存在客户端Cookie中，通过<code>itsdangerous</code>签名防篡改（未加密，敏感数据别存）。Cookie有4KB限制。需服务端存储用<code>Flask-Session</code>扩展存Redis/数据库。</p>
+<blockquote>
+<p><strong>扩展</strong>:<code>SECRET_KEY</code>泄露可伪造session;JWT更适合跨域API场景。</p>
+</blockquote>
+<h3 id="8-flask">8. Flask 的大型项目如何组织?</h3>
+<p>大型项目用工厂模式+Blueprint组织：Blueprint拆路由，工厂函数创建App，配置拆到config.py。</p>
+<pre><code>推荐结构(工厂模式 + Blueprint):
+
+myapp/
+├── app/                    # 应用包
+│   ├── __init__.py         # 工厂函数 create_app()
+│   ├── models/             # 数据模型(按业务拆)
+│   │   ├── user.py
+│   │   └── order.py
+│   ├── views/              # 视图(Blueprint)
+│   │   ├── auth.py         # /auth 下的路由
+│   │   ├── order.py        # /order 下的路由
+│   │   └── admin.py
+│   ├── services/           # 业务逻辑层
+│   ├── utils/              # 工具函数
+│   └── config.py           # 配置类
+├── migrations/             # Flask-Migrate 迁移文件
+├── tests/
+└── run.py                  # 入口
+</code></pre>
+<p><strong>工厂模式(create_app)</strong>:</p>
+<pre><code class="language-python"># app/__init__.py
+def create_app(config_name='default'):
+    app = Flask(__name__)
+    app.config.from_object(config[config_name])
+
+    # 注册扩展
+    db.init_app(app)
+    migrate.init_app(app, db)
+
+    # 注册 Blueprint
+    from app.views.auth import auth_bp
+    app.register_blueprint(auth_bp, url_prefix='/auth')
+
+    return app
+</code></pre>
+<p>核心思想:<strong>Blueprint 拆路由,工厂函数创建 App,配置拆到 config.py</strong>。</p>
+<h3 id="9-flask-sqlalchemy-session">9. Flask-SQLAlchemy 的 session 和事务怎么处理?</h3>
+<p>Flask-SQLAlchemy的<code>db.session</code>每请求独立：请求创建，结束销毁。成功commit，异常rollback。</p>
+<p><strong>提交与回滚</strong>:</p>
+<pre><code class="language-python">@app.route('/order', methods=['POST'])
+def create_order():
+    try:
+        order = Order(user_id=1, amount=99)
+        db.session.add(order)
+        db.session.commit()   # 手动提交
+        return jsonify({'msg': 'ok'})
+    except Exception:
+        db.session.rollback() # 异常回滚
+        return jsonify({'msg': 'error'}), 500
+</code></pre>
+<p>常见坑：忘记commit数据不落库；过早commit后续出错无法回滚；跨请求共享session线程不安全。</p>
+<blockquote>
+<p><strong>扩展</strong>:可写装饰器统一处理事务;<code>db.session.flush()</code>可在提交前获取自增ID。</p>
+</blockquote>
+<h3 id="10-flask">10. Flask 的异常处理和日志怎么设计?</h3>
+<p>自定义异常类+全局<code>errorhandler</code>，别都扔给500。日志用<code>logging</code>+<code>RotatingFileHandler</code>，别用print。</p>
+<pre><code class="language-python"># 自定义异常类
+class AppError(Exception):
+    def __init__(self, message, code=400, http_status=400):
+        self.message = message
+        self.code = code
+        self.http_status = http_status
+
+# 全局异常处理器
+@app.errorhandler(AppError)
+def handle_app_error(error):
+    return jsonify({'code': error.code, 'msg': error.message}), error.http_status
+
+@app.errorhandler(404)
+def handle_404(error):
+    return jsonify({'code': 404, 'msg': '资源不存在'}), 404
+
+@app.errorhandler(500)
+def handle_500(error):
+    app.logger.exception('服务器内部错误')  # 记录完整堆栈
+    return jsonify({'code': 500, 'msg': '服务器内部错误'}), 500
+</code></pre>
+<p><strong>日志设计</strong>:</p>
+<pre><code class="language-python">import logging
+from logging.handlers import RotatingFileHandler
+
+# 生产环境配置
+handler = RotatingFileHandler('app.log', maxBytes=10*1024*1024, backupCount=5)
+handler.setFormatter(logging.Formatter(
+    '%(asctime)s [%(levelname)s] %(module)s:%(lineno)d - %(message)s'
+))
+app.logger.addHandler(handler)
+
+# 请求日志中间件
+@app.before_request
+def log_request():
+    app.logger.info(f'{request.method} {request.path} ip={request.remote_addr}')
+</code></pre>
+<p>日志原则:用logging不用print;生产环境写文件带轮转;关键操作记录request_id方便追踪。</p>
+<blockquote>
+<p><strong>扩展</strong>:生产环境用结构化日志(JSON)对接ELK;<code>before_request</code>中生成<code>g.request_id</code>追踪链路。</p>
+</blockquote>
+<hr />
+<h3 id="11-flask-cors">11. Flask 中如何处理跨域请求(CORS)?</h3>
+<p>Flask 推荐用 flask-cors 扩展:CORS(app) 允许所有来源。
+原理:服务器加 Access-Control-Allow-Origin 响应头。
+复杂请求先触发 OPTIONS 预检请求。</p>
+<h3 id="12-flask">12. Flask 如何实现请求级缓存?</h3>
+<p>请求级缓存在单次请求内复用数据,避免重复查询。Flask 用 <code>g</code> 对象 + 装饰器实现。</p>
+<pre><code class="language-python">from flask import g, request
+
+def request_cache(func):
+    @functools.wraps(func)
+    def wrapper(*args, **kwargs):
+        cache_key = (func.__name__, args, tuple(kwargs.items()))
+        if not hasattr(g, '_cache'):
+            g._cache = {}
+        if cache_key not in g._cache:
+            g._cache[cache_key] = func(*args, **kwargs)
+        return g._cache[cache_key]
+    return wrapper
+
+@app.route('/user/&lt;int:user_id&gt;')
+@request_cache
+def get_user(user_id):
+    return User.query.get(user_id)  # 同一请求多次调用只查一次
+</code></pre>
+<p><code>g</code> 对象生命周期:请求开始创建,请求结束销毁,天然适合请求级缓存。</p>
+<blockquote>
+<p><strong>扩展</strong>:与 Redis 缓存不同,请求级缓存无需序列化、无网络开销;适合同一请求内多次调用相同函数的场景。</p>
+</blockquote>
+<h3 id="13-flask">13. Flask 应用如何做健康检查?</h3>
+<p>生产环境 K8s/负载均衡需要健康检查端点。Flask 提供简单 <code>/health</code> 接口即可。</p>
+<pre><code class="language-python">@app.route('/health')
+def health():
+    # 检查数据库连接
+    try:
+        db.session.execute('SELECT 1')
+        return {'status': 'healthy', 'db': 'ok'}, 200
+    except Exception as e:
+        return {'status': 'unhealthy', 'error': str(e)}, 503
+
+@app.route('/ready')
+def ready():
+    # 就绪检查:应用已启动且能处理请求
+    return {'ready': True}, 200
+</code></pre>
+<p>健康检查(liveness)与就绪检查(readiness)分开:liveness 判断进程存活,readiness 判断能否处理请求。K8s 配置 <code>livenessProbe</code> 和 <code>readinessProbe</code> 分别调用。</p>
+<blockquote>
+<p><strong>扩展</strong>:健康检查不要做复杂操作(如查大表),响应必须快;可加入 Redis/MQ 连接检查;返回 JSON 格式便于监控解析。</p>
+</blockquote>
+<h3 id="14-flask">14. Flask 如何实现请求限流？</h3>
+<p>Flask 本身无内置限流，靠扩展或中间件实现：</p>
+<pre><code class="language-python"># 方式1: flask-limiter（最常用）
+from flask import Flask
+from flask_limiter import Limiter
+from flask_limiter.util import get_remote_address
+
+app = Flask(__name__)
+limiter = Limiter(get_remote_address, app=app)
+
+# 全局限流
+@app.route(&quot;/api&quot;)
+@limiter.limit(&quot;100/minute&quot;)  # 每分钟100次
+def api():
+    return {&quot;ok&quot;: True}
+
+# 分布式限流(Redis后端)
+limiter = Limiter(get_remote_address, app=app,
+                  storage_uri=&quot;redis://localhost:6379&quot;)
+</code></pre>
+<p><strong>原理</strong>：Redis 存计数器，<code>INCR + EXPIRE</code> 实现滑动窗口限流。</p>
+<blockquote>
+<p><strong>扩展</strong>：Nginx 层也可用 <code>limit_req_zone</code> 做限流；429 Too Many Requests 是标准响应码；限流粒度可到用户维度（配合 JWT token）。</p>
+</blockquote>
+
+<script>
+// Scroll spy — highlight active sidebar item
+window.addEventListener('scroll', function() {
+    var links = document.querySelectorAll('.sidebar-toc a');
+    var scrollY = window.scrollY + 120;
+    var current = '';
+    for (var i = links.length - 1; i >= 0; i--) {
+        var target = document.getElementById(links[i].getAttribute('href').slice(1));
+        if (target && target.offsetTop <= scrollY) {
+            current = links[i];
+            break;
+        }
+    }
+    links.forEach(function(a) { a.style.fontWeight = 'normal'; a.style.color = '#555'; });
+    if (current) { current.style.fontWeight = 'bold'; current.style.color = '#0366d6'; }
+});
+</script>
+
+
+<script>
+document.querySelectorAll('pre > code').forEach(function(codeBlock, i) {
+    var pre = codeBlock.parentNode;
+    pre.style.position = 'relative';
+    var btn = document.createElement('button');
+    btn.className = 'copy-btn';
+    btn.textContent = '复制';
+    pre.appendChild(btn);
+    btn.addEventListener('click', function() {
+        var text = codeBlock.textContent;
+        navigator.clipboard.writeText(text).then(function() {
+            btn.textContent = '已复制';
+            btn.classList.add('copied');
+            setTimeout(function() {
+                btn.textContent = '复制';
+                btn.classList.remove('copied');
+            }, 2000);
+        }).catch(function() {
+            // Fallback
+            var ta = document.createElement('textarea');
+            ta.value = text; ta.style.position = 'fixed'; ta.style.opacity = '0';
+            document.body.appendChild(ta); ta.select();
+            document.execCommand('copy'); document.body.removeChild(ta);
+            btn.textContent = '已复制'; btn.classList.add('copied');
+            setTimeout(function() { btn.textContent = '复制'; btn.classList.remove('copied'); }, 2000);
+        });
+    });
+});
+</script>
+
+
+<script>document.querySelectorAll("pre>code").forEach(function(c){var p=c.parentNode;p.style.position="relative";var b=document.createElement("button");b.className="copy-btn";b.textContent="复制";p.appendChild(b);b.addEventListener("click",function(){var t=c.textContent;navigator.clipboard.writeText(t).then(function(){b.textContent="已复制";b.classList.add("copied");setTimeout(function(){b.textContent="复制";b.classList.remove("copied")},2000)}).catch(function(){var a=document.createElement("textarea");a.value=t;a.style.position="fixed";a.style.opacity="0";document.body.appendChild(a);a.select();document.execCommand("copy");document.body.removeChild(a);b.textContent="已复制";b.classList.add("copied");setTimeout(function(){b.textContent="复制";b.classList.remove("copied")},2000)})})})</script>
+</body>
+</html>

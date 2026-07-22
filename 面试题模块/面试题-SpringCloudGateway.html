@@ -1,0 +1,824 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>面试题 - SpringCloudGateway</title>
+<style>
+body {
+    transition: margin-left .25s ease;
+    font-family: -apple-system, "Noto Sans SC", "Microsoft YaHei", sans-serif;
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 20px 24px 60px;
+    line-height: 1.8;
+    color: #333;
+    background: #fff;
+}
+h1 { border-bottom: 2px solid #eee; padding-bottom: 10px; color: #222; }
+h2 { color: #333; margin-top: 32px; }
+h3 { color: #555; }
+a { color: #0366d6; text-decoration: none; }
+a:hover { text-decoration: underline; }
+pre {
+    background: #f6f8fa;
+    border-radius: 6px;
+    padding: 16px;
+    overflow-x: auto;
+    font-size: 14px;
+    line-height: 1.45;
+}
+code {
+    background: #f0f2f4;
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-size: 14px;
+}
+pre code { background: none; padding: 0; }
+blockquote {
+    border-left: 4px solid #ddd;
+    margin: 0;
+    padding: 0 16px;
+    color: #666;
+}
+table {
+    border-collapse: collapse;
+    width: 100%;
+    margin: 16px 0;
+}
+th, td {
+    border: 1px solid #ddd;
+    padding: 8px 12px;
+    text-align: left;
+}
+th { background: #f6f8fa; }
+img { max-width: 100%; }
+.back-link {
+    margin-bottom: 20px;
+    display: block;
+    color: #666;
+}
+.back-link:hover { color: #0366d6; }
+
+.sidebar-toc {
+    transition: left .25s ease;
+    position: fixed;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    width: 220px;
+    background: #f8f9fa;
+    border-right: 1px solid #e9ecef;
+    padding: 20px 0;
+    overflow-y: auto;
+    font-size: 13px;
+    z-index: 100;
+}
+.sidebar-toc a {
+    display: block;
+    padding: 6px 16px;
+    color: #555;
+    text-decoration: none;
+    border-left: 3px solid transparent;
+    line-height: 1.5;
+}
+.sidebar-toc a:hover {
+    background: #e9ecef;
+    color: #0366d6;
+    border-left-color: #0366d6;
+}
+.sidebar-toc .toc-h3 { padding-left: 20px; font-size: 12px; }
+body { margin-left: 240px; }
+
+
+.copy-btn {
+    position: absolute; top: 6px; right: 6px;
+    background: #e9ecef; border: none;
+    border-radius: 4px; padding: 3px 10px;
+    font-size: 12px; color: #555; cursor: pointer;
+    opacity: 0; transition: opacity 0.2s;
+    z-index: 1;
+}
+pre:hover .copy-btn { opacity: 1; }
+.copy-btn:hover { background: #d0d7de; }
+.copy-btn.copied { opacity: 1; background: #2da44e; color: #fff; }
+.copy-btn{position:absolute;top:6px;right:6px;background:#e9ecef;border:none;border-radius:4px;padding:3px 10px;font-size:12px;color:#555;cursor:pointer;opacity:0;transition:opacity .2s;z-index:1}pre:hover .copy-btn{opacity:1}.copy-btn:hover{background:#d0d7de}.copy-btn.copied{opacity:1;background:#2da44e;color:#fff}
+.copy-btn{position:absolute;top:6px;right:6px;background:#e9ecef;border:none;border-radius:4px;padding:3px 10px;font-size:12px;color:#555;cursor:pointer;opacity:0;transition:opacity .2s;z-index:1}pre:hover .copy-btn{opacity:1}.copy-btn:hover{background:#d0d7de}.copy-btn.copied{opacity:1;background:#2da44e;color:#fff}
+.copy-btn{position:absolute;top:6px;right:6px;background:#e9ecef;border:none;border-radius:4px;padding:3px 10px;font-size:12px;color:#555;cursor:pointer;opacity:0;transition:opacity .2s;z-index:1}pre:hover .copy-btn{opacity:1}.copy-btn:hover{background:#d0d7de}.copy-btn.copied{opacity:1;background:#2da44e;color:#fff}
+.sidebar-toggle-btn {
+  position: fixed;
+  left: 220px;
+  top: 0;
+  width: 28px;
+  height: 40px;
+  background: #f8f9fa;
+  border: 1px solid #e9ecef;
+  border-left: none;
+  border-radius: 0 4px 4px 0;
+  cursor: pointer;
+  font-size: 16px;
+  color: #555;
+  z-index: 101;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: left .25s, background .2s;
+  padding: 0;
+  line-height: 1;
+}
+.sidebar-toggle-btn:hover { background: #e9ecef; color: #0366d6; }
+.sidebar-collapsed .sidebar-toc { left: -220px; }
+.sidebar-collapsed .sidebar-toggle-btn { left: 0; }
+.sidebar-collapsed body, body.sidebar-collapsed { margin-left: 28px; }
+.sidebar-overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,.3);
+  z-index: 99;
+}
+@media (max-width: 768px) {
+  .sidebar-collapsed .sidebar-overlay { display: none; }
+  .sidebar-toc { left: -220px; }
+  .sidebar-toggle-btn { left: 0; }
+  body { margin-left: 28px; }
+}
+
+</style>
+</head>
+</head>
+<body>
+<nav class="sidebar-toc"><a class="toc-h3" href="#1-spring-cloud-gateway">1. Spring Cloud Gateway 的核心组件和工作原理?</a><a class="toc-h3" href="#2-spring-cloud-gateway-zuul">2. Spring Cloud Gateway 和 Zuul 的区别?</a><a class="toc-h3" href="#3-gatewayfilter-globalfilter">3. GatewayFilter 和 GlobalFilter 的区别?</a><a class="toc-h3" href="#4-gateway">4. Gateway 的过滤器执行顺序?</a><a class="toc-h3" href="#5-gateway">5. Gateway 如何实现限流?</a><a class="toc-h3" href="#6-gateway-nacos">6. Gateway 如何与 Nacos 集成实现动态路由?</a><a class="toc-h3" href="#7-gateway-sentinel">7. Gateway 如何与 Sentinel 集成实现流控和熔断?</a><a class="toc-h3" href="#8-gateway">8. Gateway 如何处理超时和熔断?</a><a class="toc-h3" href="#9-gateway-websocket">9. Gateway 如何支持 WebSocket?</a><a class="toc-h3" href="#10-gateway">10. Gateway 如何自定义全局过滤器实现认证?</a><a class="toc-h3" href="#11-gateway">11. Gateway 如何实现灰度发布/金丝雀发布?</a><a class="toc-h3" href="#12-gateway-cors">12. Gateway 的跨域(CORS)怎么配置?有哪些坑?</a><a class="toc-h3" href="#13-gateway-traceid">13. Gateway 如何实现请求日志追踪(TraceId 透传)?</a><a class="toc-h3" href="#21-spring-cloud-gateway">21. Spring Cloud Gateway 如何实现全链路灰度？</a></nav>
+<button class="sidebar-toggle-btn" onclick="toggleSidebar()" title="切换侧栏">☰</button>
+
+<div class="sidebar-overlay" onclick="toggleSidebar()"></div>
+
+<script>
+function toggleSidebar() {
+  document.body.classList.toggle('sidebar-collapsed');
+  try { localStorage.setItem('sidebarCollapsed', document.body.classList.contains('sidebar-collapsed')); } catch(e) {}
+}
+(function() {
+  try {
+    if (localStorage.getItem('sidebarCollapsed') === 'true') {
+      document.body.classList.add('sidebar-collapsed');
+    }
+  } catch(e) {}
+})();
+</script>
+<a class="back-link" href="/blog/2026/05/16/面试题/面试题/">← 返回面试题目录</a>
+<h1 id=page-title>Spring Cloud Gateway</h1>
+<blockquote>
+<p>Gateway 就像微服务体系的"前台小姐"--所有访客(请求)先过她,她负责查身份(认证)、指路(路由)、限流(排队)、看谁关门了换别家(熔断降级)。基于 WebFlux + Netty,异步非阻塞,性能远超 Zuul。</p>
+</blockquote>
+<h3 id="1-spring-cloud-gateway">1. Spring Cloud Gateway 的核心组件和工作原理?</h3>
+<p>Gateway 就像一个<strong>智能快递分拣中心</strong>--来了包裹(请求),看标签(匹配路由),在传送带上处理(Filter 链),最后送达到目的地(下游服务)。</p>
+<pre><code>Spring Cloud Gateway 请求处理全流程:
+
+┌─────────────────────────────────────────────────────────────┐
+│                    客户端请求                                │
+│              GET /api/users/123                              │
+└──────────────────────────┬──────────────────────────────────┘
+                           │
+                           ▼
+┌─────────────────────────────────────────────────────────────┐
+│  1 Gateway Handler Mapping                                   │
+│     遍历所有 Route,用 Predicate 匹配请求                      │
+│     ┌─────────────────────────────────────────────────┐    │
+│     │ Route 1: Path=/order/**    → 不匹配              │    │
+│     │ Route 2: Path=/api/users/** → ✅ 匹配!找到第一个 │    │
+│     │ Route 3: Path=/api/**      → 跳过(已找到)        │    │
+│     └─────────────────────────────────────────────────┘    │
+└──────────────────────────┬──────────────────────────────────┘
+                           │
+                           ▼
+┌─────────────────────────────────────────────────────────────┐
+│  2 组装该 Route 的 Filter 链                                  │
+│     GlobalFilter 集合 + Route 专属的 GatewayFilter 集合       │
+│     按 order 值统一排序                                       │
+└──────────────────────────┬──────────────────────────────────┘
+                           │
+                           ▼
+┌─────────────────────────────────────────────────────────────┐
+│  3 执行 Pre Filter 链(order 小的先执行)                     │
+│     · RateLimiter: 检查限流(order=1)                        │
+│     · AuthFilter: 验证 JWT Token(order=2)                   │
+│     · StripPrefix=1: 去掉 /api → /users/123(order=3)       │
+│     · AddRequestHeader: 加 X-User-Id(order=4)              │
+└──────────────────────────┬──────────────────────────────────┘
+                           │
+                           ▼
+┌─────────────────────────────────────────────────────────────┐
+│  4 代理请求到下游服务                                         │
+│     lb://user-service → Nacos 获取实例 → 转发 /users/123      │
+└──────────────────────────┬──────────────────────────────────┘
+                           │
+                           ▼
+┌─────────────────────────────────────────────────────────────┐
+│  5 执行 Post Filter 链(order 大的先执行,Pre 的逆序)        │
+│     · LogFilter: 记录耗时 45ms(order=100)                   │
+│     · AddResponseHeader: 加 X-Response-Time(order=99)      │
+└──────────────────────────┬──────────────────────────────────┘
+                           │
+                           ▼
+┌─────────────────────────────────────────────────────────────┐
+│                    返回响应给客户端                            │
+└─────────────────────────────────────────────────────────────┘
+</code></pre>
+<p><strong>核心三兄弟</strong>:
+- <strong>Route(路由)</strong>:<code>id + uri + predicates + filters</code>,定义了一条请求转发规则
+- <strong>Predicate(断言)</strong>:Java 8 函数式接口,匹配请求的路径/方法/Header/参数等
+- <strong>Filter(过滤器)</strong>:分 GatewayFilter(路由级)和 GlobalFilter(全局),修改请求和响应</p>
+<h3 id="2-spring-cloud-gateway-zuul">2. Spring Cloud Gateway 和 Zuul 的区别?</h3>
+<pre><code>Gateway vs Zuul 并发模型对比:
+
+  Zuul 1.x(同步阻塞 Servlet 模型):
+┌────────────────────────────────────┐
+│  请求 1 → 线程 1 → 阻塞等下游响应    │
+│  请求 2 → 线程 2 → 阻塞等下游响应    │
+│  请求 3 → 线程 3 → 阻塞等下游响应    │
+│  ...                               │
+│  请求 100 → 线程 100(线程池耗尽!)  │
+│                                    │
+│  问题: 1请求=1线程,线程大部分时间    │
+│        在&quot;等&quot;,浪费资源              │
+│  性能: ~5K RPS                      │
+└────────────────────────────────────┘
+
+  Gateway(异步非阻塞 Netty 模型):
+┌────────────────────────────────────┐
+│  请求 1 ─┐                          │
+│  请求 2 ─┤                          │
+│  请求 3 ─┼→ 少量 EventLoop 线程     │
+│  请求 4 ─┤   接收 → 异步发下游       │
+│  请求 5 ─┤   下游响应 → 异步回写     │
+│    ...  ─┘   线程永不阻塞           │
+│                                    │
+│  优势: 1个线程处理成千上万连接       │
+│  性能: ~30K RPS(6倍于 Zuul 1.x)   │
+└────────────────────────────────────┘
+</code></pre>
+<table>
+<thead>
+<tr>
+<th>对比项</th>
+<th>Gateway</th>
+<th>Zuul 1.x</th>
+<th>Zuul 2.x</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>I/O 模型</td>
+<td>Netty 异步非阻塞</td>
+<td>Servlet 同步阻塞</td>
+<td>Netty 异步非阻塞</td>
+</tr>
+<tr>
+<td>RPS</td>
+<td>~30K</td>
+<td>~5K</td>
+<td>~15K</td>
+</tr>
+<tr>
+<td>背压支持</td>
+<td>✅ Reactor</td>
+<td>❌</td>
+<td>✅</td>
+</tr>
+<tr>
+<td>维护状态</td>
+<td>✅ Spring 官方</td>
+<td>❌ 2018 停更</td>
+<td>⚠️ 社区维护</td>
+</tr>
+<tr>
+<td>Spring 集成</td>
+<td>✅ 原生</td>
+<td>⚠️ 适配</td>
+<td>⚠️ 适配</td>
+</tr>
+</tbody>
+</table>
+<blockquote>
+<p><strong>面试话术</strong>:"Gateway 替代 Zuul 的核心原因是 I/O 模型升级--从 Servlet 同步阻塞变成 Netty 异步非阻塞。就像餐厅从'一桌配一个服务员'变成'一个服务员处理十桌',吞吐量提升 6 倍。再加上 Spring 生态原生集成和背压支持,新项目毫无疑问选 Gateway。"</p>
+</blockquote>
+<h3 id="3-gatewayfilter-globalfilter">3. GatewayFilter 和 GlobalFilter 的区别?</h3>
+<pre><code>Filter 作用范围示意:
+
+  GlobalFilter(全局,所有路由生效):
+  ┌──────────────────────────────────────────────────┐
+  │  Route /api/users/**  ─┐                         │
+  │  Route /api/orders/** ─┼─ 全部经过 AuthFilter    │
+  │  Route /api/pay/**    ─┘  全部经过 LogFilter     │
+  │  Route /web/**        ─┘                         │
+  └──────────────────────────────────────────────────┘
+
+  GatewayFilter(路由级,仅指定路由生效):
+  ┌──────────────────────────────────────────────────┐
+  │  Route /api/users/** → StripPrefix=1 + AddHeader │
+  │  Route /api/orders/** → RateLimiter 限流          │
+  │  Route /api/pay/** → RateLimiter 更严格的限流     │
+  │  Route /web/** → 无额外 Filter                    │
+  └──────────────────────────────────────────────────┘
+</code></pre>
+<table>
+<thead>
+<tr>
+<th>维度</th>
+<th>GatewayFilter</th>
+<th>GlobalFilter</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>作用范围</td>
+<td>单个路由(需在 YAML 中引用)</td>
+<td>所有路由(全局生效)</td>
+</tr>
+<tr>
+<td>注册方式</td>
+<td>YAML <code>filters</code> 节点</td>
+<td><code>@Component</code> 自动注册</td>
+</tr>
+<tr>
+<td>排序</td>
+<td>和 GlobalFilter 混合按 <code>order</code> 排序</td>
+<td>同左</td>
+</tr>
+<tr>
+<td>典型场景</td>
+<td>路径改写、添加请求头、路由级限流</td>
+<td>认证、全局限流、日志、CORS</td>
+</tr>
+</tbody>
+</table>
+<h3 id="4-gateway">4. Gateway 的过滤器执行顺序?</h3>
+<pre><code>Filter 执行顺序(关键!面试高频):
+
+  Pre 阶段(请求方向):order 越小越先执行
+  ┌──────────────────────────────────────────────────────────┐
+  │  GlobalFilter-A (order=-1)                               │
+  │    → GlobalFilter-B (order=0)                            │
+  │      → GatewayFilter-C (order=1)                         │
+  │        → GatewayFilter-D (order=5)                       │
+  │          → 转发到下游服务 ...                              │
+  └──────────────────────────────────────────────────────────┘
+
+  Post 阶段(响应方向):order 越大越先执行(Pre 的逆序!)
+  ┌──────────────────────────────────────────────────────────┐
+  │  下游服务响应返回                                          │
+  │    → GatewayFilter-D (order=5, Post 最先执行)             │
+  │      → GatewayFilter-C (order=1)                         │
+  │        → GlobalFilter-B (order=0)                        │
+  │          → GlobalFilter-A (order=-1, Post 最后执行)       │
+  └──────────────────────────────────────────────────────────┘
+
+  记忆技巧: Pre 越小越靠前,Post 越大越靠前 -- 完美的对称结构
+</code></pre>
+<h3 id="5-gateway">5. Gateway 如何实现限流?</h3>
+<pre><code>三种方案选择:
+
+  方案 1: Redis 令牌桶(内置,推荐起步使用)
+  ┌──────────────────────────────────────────┐
+  │  请求 → Redis Lua 脚本检查令牌            │
+  │  有令牌 → 减 1,放行                     │
+  │  无令牌 → 429 Too Many Requests         │
+  │  适用: 单实例或分布式环境                  │
+  │  配置: 5 行 YAML 搞定                    │
+  └──────────────────────────────────────────┘
+
+  方案 2: 自定义限流(灵活,适合特殊需求)
+  ┌──────────────────────────────────────────┐
+  │  @Component GlobalFilter                 │
+  │  使用 Guava RateLimiter 或自己写算法      │
+  │  适用: 单实例简单场景                     │
+  │  注意: 分布式环境需配合外部存储            │
+  └──────────────────────────────────────────┘
+
+  方案 3: Sentinel 集成(最强,生产推荐)
+  ┌──────────────────────────────────────────┐
+  │  spring-cloud-alibaba-sentinel-gateway   │
+  │  支持: QPS/并发/热点/系统自适应 全维度限流  │
+  │  Dashboard 可视化管理                    │
+  │  + 熔断降级一站式                        │
+  │  适用: 中大型项目、需要 Dashboard 的团队   │
+  └──────────────────────────────────────────┘
+</code></pre>
+<pre><code class="language-yaml"># 方案 1 配置示例
+spring:
+  cloud:
+    gateway:
+      routes:
+        - id: rate-limited-route
+          uri: lb://user-service
+          predicates: [Path=/api/users/**]
+          filters:
+            - name: RequestRateLimiter
+              args:
+                redis-rate-limiter.replenishRate: 10   # 每秒 10 个令牌
+                redis-rate-limiter.burstCapacity: 20    # 突发容量 20
+  redis:
+    host: localhost
+</code></pre>
+<h3 id="6-gateway-nacos">6. Gateway 如何与 Nacos 集成实现动态路由?</h3>
+<pre><code>动态路由更新流程:
+
+  ┌──────────────────────────┐
+  │  Nacos 配置中心            │
+  │  存储路由配置 YAML          │
+  └──────────┬───────────────┘
+             │ 1 监听配置变更
+             ▼
+  ┌──────────────────────────┐
+  │  Gateway 配置监听器        │
+  │  NacosConfigListener      │
+  └──────────┬───────────────┘
+             │ 2 收到变更通知
+             ▼
+  ┌──────────────────────────┐
+  │  RouteDefinitionWriter    │
+  │  更新内存中的路由定义       │
+  └──────────┬───────────────┘
+             │ 3 发布事件
+             ▼
+  ┌──────────────────────────┐
+  │  ApplicationEventPublisher│
+  │  RefreshRoutesEvent       │
+  └──────────┬───────────────┘
+             │ 4 刷新缓存
+             ▼
+  ┌──────────────────────────┐
+  │  RouteLocator 重新加载     │
+  │  新路由生效!无需重启      │
+  └──────────────────────────┘
+</code></pre>
+<pre><code class="language-yaml"># 核心配置
+spring:
+  cloud:
+    nacos:
+      discovery:
+        server-addr: nacos:8848   # 服务发现
+      config:
+        server-addr: nacos:8848   # 配置中心
+        file-extension: yaml
+    gateway:
+      discovery:
+        locator:
+          enabled: true            # 自动为每个注册服务创建路由
+          lower-case-service-id: true
+</code></pre>
+<blockquote>
+<p><strong>面试话术</strong>:"Gateway + Nacos 的组合拳--Nacos 存路由配置,Gateway 监听配置变更,通过 RouteDefinitionWriter 更新路由定义,再发布 RefreshRoutesEvent 刷新缓存。整个流程无需重启,毫秒级生效。这是生产环境动态路由的标准方案。"</p>
+</blockquote>
+<h3 id="7-gateway-sentinel">7. Gateway 如何与 Sentinel 集成实现流控和熔断?</h3>
+<pre><code>Gateway + Sentinel 集成架构:
+
+  ┌─────────────────────────────────────┐
+  │         Sentinel Dashboard           │
+  │  可视化配置限流/熔断/热点规则          │
+  │  实时监控 QPS/RT/异常数              │
+  └──────────────┬──────────────────────┘
+                 │ 规则推送
+                 ▼
+  ┌─────────────────────────────────────┐
+  │           Gateway 层                 │
+  │  ┌─────────────────────────────────┐│
+  │  │ SentinelGatewayFilter           ││
+  │  │ → 检查流控规则(QPS 超了?)     ││
+  │  │ → 检查熔断规则(下游挂了?)     ││
+  │  │ → 热点参数限流(单用户刷?)     ││
+  │  │ → 触发则返回 fallback 响应      ││
+  │  └─────────────────────────────────┘│
+  └─────────────────────────────────────┘
+                 │
+        ┌────────┴────────┐
+        ▼                 ▼
+    正常转发           fallback 响应
+  ┌────────┐        ┌──────────────┐
+  │ 下游服务│        │ { code: 429, │
+  │        │        │   message:   │
+  └────────┘        │   &quot;请求过多&quot; }│
+                    └──────────────┘
+</code></pre>
+<pre><code class="language-xml">&lt;!-- 依赖 --&gt;
+&lt;dependency&gt;
+    &lt;groupId&gt;com.alibaba.cloud&lt;/groupId&gt;
+    &lt;artifactId&gt;spring-cloud-alibaba-sentinel-gateway&lt;/artifactId&gt;
+&lt;/dependency&gt;
+</code></pre>
+<pre><code class="language-yaml"># 配置
+spring:
+  cloud:
+    sentinel:
+      transport:
+        dashboard: sentinel:8080
+      filter:
+        enabled: false          # Gateway 场景禁用原生 Filter
+      scg:
+        fallback:
+          mode: response
+          response-body: '{&quot;code&quot;:429,&quot;message&quot;:&quot;请求过于频繁&quot;}'
+</code></pre>
+<h3 id="8-gateway">8. Gateway 如何处理超时和熔断?</h3>
+<pre><code class="language-yaml"># 完整的超时 + 熔断配置
+spring:
+  cloud:
+    gateway:
+      httpclient:
+        connect-timeout: 1000        # 连接超时 1 秒
+        response-timeout: 5s         # 响应超时 5 秒
+        pool:
+          max-connections: 500       # 最大连接池
+      routes:
+        - id: protected-route
+          uri: lb://user-service
+          predicates: [Path=/api/users/**]
+          filters:
+            # 熔断配置
+            - name: CircuitBreaker
+              args:
+                name: userServiceCB
+                fallbackUri: forward:/fallback/user
+            # 限流配置
+            - name: RequestRateLimiter
+              args:
+                redis-rate-limiter.replenishRate: 10
+                redis-rate-limiter.burstCapacity: 20
+</code></pre>
+<blockquote>
+<p>超时 + 熔断 + 限流 三者配合:超时防止线程阻塞 → 熔断防止雪崩 → 限流防止过载。网关层的"三层防护"。</p>
+</blockquote>
+<h3 id="9-gateway-websocket">9. Gateway 如何支持 WebSocket?</h3>
+<p>Gateway 通过内置的 <code>WebSocketRoutingFilter</code> 自动处理 WebSocket 升级。URI 使用 <code>ws://</code> 或 <code>wss://</code>,支持 STOMP、SockJS 等子协议。配置几乎和普通路由一样,只是 URI 协议不同。</p>
+<pre><code class="language-yaml">spring:
+  cloud:
+    gateway:
+      routes:
+        - id: websocket-route
+          uri: ws://websocket-service:8080
+          predicates:
+            - Path=/ws/**
+</code></pre>
+<h3 id="10-gateway">10. Gateway 如何自定义全局过滤器实现认证?</h3>
+<pre><code>认证过滤器执行流程:
+
+  请求到达
+    │
+    ▼
+  ┌────────────────────────────┐
+  │ 1 提取 Authorization Header │
+  │   String token = exchange   │
+  │   .getRequest()             │
+  │   .getHeaders()             │
+  │   .getFirst(&quot;Authorization&quot;)│
+  └──────────┬─────────────────┘
+             │
+        token 为空?
+        ┌────┴────┐
+        ▼         ▼
+       是         否
+        │         │
+        ▼         ▼
+  ┌──────────┐  ┌──────────────────┐
+  │ 返回 401  │  │ 2 验证 JWT Token │
+  │ 中断链路  │  │ 解析用户信息      │
+  └──────────┘  └────────┬─────────┘
+                         │
+                   验证成功?
+                 ┌───────┴───────┐
+                 ▼               ▼
+                是               否
+                 │               │
+                 ▼               ▼
+         ┌──────────────┐  ┌──────────┐
+         │ 3 添加用户信息│  │ 返回 401  │
+         │   到请求头    │  │ 中断链路  │
+         │   继续转发    │  └──────────┘
+         └──────────────┘
+</code></pre>
+<p>核心接口:实现 <code>GlobalFilter</code> + <code>Ordered</code>,<code>filter()</code> 返回 <code>Mono&lt;Void&gt;</code>。认证失败用 <code>exchange.getResponse().setComplete()</code> 中断链路。</p>
+<h3 id="11-gateway">11. Gateway 如何实现灰度发布/金丝雀发布?</h3>
+<p><strong>核心结论</strong>:利用 Gateway 的权重路由 + 自定义 Header/XFF,实现按比例/按用户/按标签的流量灰度。</p>
+<pre><code class="language-yaml"># 按权重灰度:90% 流量走 v1,10% 走 v2
+spring:
+  cloud:
+    gateway:
+      routes:
+        - id: user-service-gray
+          uri: lb://user-service
+          predicates:
+            - Path=/api/users/**
+          filters:
+            - name: RewritePath
+              args:
+                regexp: /api/users/(?&lt;segment&gt;.*)
+                replacement: /$\{segment}
+
+# 更常见的方式:配合 Nacos 元数据路由
+# v1 实例 metadata: version=v1
+# v2 实例 metadata: version=v2
+# Gateway 根据 header 或 cookie 决定路由到哪个版本
+</code></pre>
+<p><strong>灰度策略</strong>:</p>
+<pre><code>灰度维度:
+1. 按 Header(Claude-Gray: v2) → 适合测试人员
+2. 按 Cookie(userId 在白名单) → 适合内部用户
+3. 按权重(10%) → 适合渐进式发布
+4. 按 IP 段 → 适合特定地区灰度
+</code></pre>
+<blockquote>
+<p><strong>面试话术</strong>:"Gateway 做灰度发布是最合适的入口,因为所有流量都过它。配合 Nacos 的元数据和负载均衡,可以实现非常灵活的灰度策略。关键是灰度期间要能对比新旧版本的核心指标(错误率、延迟P99),确认 v2 没问题再全量。"</p>
+</blockquote>
+<h3 id="12-gateway-cors">12. Gateway 的跨域(CORS)怎么配置?有哪些坑?</h3>
+<p><strong>核心结论</strong>:Gateway 统一配置 CORS,微服务本身不再重复配置。</p>
+<pre><code class="language-yaml">spring:
+  cloud:
+    gateway:
+      globalcors:
+        cors-configurations:
+          '[/**]':
+            allowed-origins: &quot;https://www.example.com&quot;
+            allowed-methods: GET,POST,PUT,DELETE,OPTIONS
+            allowed-headers: &quot;*&quot;
+            allow-credentials: true
+            max-age: 3600
+</code></pre>
+<p><strong>踩坑点</strong>:</p>
+<ol>
+<li><strong><code>allowed-origins</code> 不能写 <code>*</code> 同时 <code>allow-credentials: true</code></strong>--这是 CORS 协议硬性规定,写 <code>*</code> 浏览器会直接拒绝带 Cookie 的请求</li>
+<li><strong>OPTIONS 预检请求不要带认证 Header</strong>--否则 OPTIONS 也走认证过滤器,预检失败 CORS 直接不通过</li>
+<li><strong><code>max-age</code> 合理设置</strong>--避免每次复杂请求都发 OPTIONS 预检</li>
+<li><strong>和 Nginx 不要重复配置 CORS</strong>--会导致 <code>Access-Control-Allow-Origin</code> 重复,浏览器报错</li>
+</ol>
+<pre><code class="language-java">// 认证过滤器中跳过 OPTIONS 预检请求
+@Override
+public Mono&lt;Void&gt; filter(ServerWebExchange exchange, GatewayFilterChain chain) {
+    if (exchange.getRequest().getMethod() == HttpMethod.OPTIONS) {
+        return chain.filter(exchange);  // OPTIONS 直接放行
+    }
+    // 正常认证逻辑...
+}
+</code></pre>
+<h3 id="13-gateway-traceid">13. Gateway 如何实现请求日志追踪(TraceId 透传)?</h3>
+<p><strong>核心结论</strong>:Gateway 生成 TraceId,通过 Header 透传给下游所有服务,实现全链路日志关联。</p>
+<pre><code class="language-java">@Component
+public class TraceFilter implements GlobalFilter, Ordered {
+    private static final String TRACE_ID = &quot;X-Trace-Id&quot;;
+
+    @Override
+    public Mono&lt;Void&gt; filter(ServerWebExchange exchange, GatewayFilterChain chain) {
+        String traceId = exchange.getRequest().getHeaders().getFirst(TRACE_ID);
+        if (traceId == null) {
+            traceId = UUID.randomUUID().toString().replace(&quot;-&quot;, &quot;&quot;);
+        }
+        // 往下游透传 TraceId
+        ServerHttpRequest request = exchange.getRequest().mutate()
+            .header(TRACE_ID, traceId)
+            .build();
+        // 用 MDC 让日志框架自动带上 TraceId
+        MDC.put(&quot;traceId&quot;, traceId);
+        return chain.filter(exchange.mutate().request(request).build())
+            .doFinally(s -&gt; MDC.remove(&quot;traceId&quot;));
+    }
+
+    @Override
+    public int getOrder() { return Ordered.HIGHEST_PRECEDENCE; }
+}
+</code></pre>
+<p><strong>logback 配置自动输出 TraceId</strong>:</p>
+<pre><code class="language-xml">&lt;pattern&gt;%d{HH:mm:ss} [%X{traceId}] [%thread] %-5level %logger{36} - %msg%n&lt;/pattern&gt;
+</code></pre>
+<blockquote>
+<p><strong>面试话术</strong>:"全链路追踪的第一步是每个请求有唯一 ID。Gateway 作为流量入口,最适合生成和透传 TraceId。配合 MDC + logback,所有服务的日志都能自动带上 TraceId,排查问题时 grep 一下就能串起整个调用链。再接入 SkyWalking/ZipKin 就是完整的分布式追踪方案。"</p>
+</blockquote>
+<h3 id="21-spring-cloud-gateway">21. Spring Cloud Gateway 如何实现全链路灰度？</h3>
+<p>Spring Cloud Gateway 通过 <strong>流量染色 + 标签路由</strong> 实现灰度发布：</p>
+<pre><code class="language-yaml"># application.yml
+spring:
+  cloud:
+    gateway:
+      routes:
+        - id: service-a
+          uri: lb://service-a
+          predicates:
+            - Header=X-Target-Version=2.0    # Header 染色
+            - Weight=service-a, 10           # 10% 流量走新版本
+      default-filters:
+        - AddRequestHeader=X-Gray-Tag, v1   # 默认 v1
+
+# Nacos 配置动态路由
+spring:
+  cloud:
+    nacos:
+      discovery:
+        server-addr: nacos:8848
+        group: GRAY_GROUP  # 灰度服务单独分组
+</code></pre>
+<p><strong>灰度路由策略</strong>：</p>
+<table>
+<thead>
+<tr>
+<th>策略</th>
+<th>实现</th>
+<th>适用场景</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Header 染色</td>
+<td>网关打标，下游按标路由</td>
+<td>用户维度灰度</td>
+</tr>
+<tr>
+<td>流量权重</td>
+<td>按百分比分配</td>
+<td>版本 A/B 测试</td>
+</tr>
+<tr>
+<td>用户 ID 分组</td>
+<td>Hash 固定用户走同一版本</td>
+<td>用户体验一致性</td>
+</tr>
+<tr>
+<td>机器分组</td>
+<td>不同集群版本</td>
+<td>金丝雀发布</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Gateway 过滤器实现灰度</strong>：</p>
+<pre><code class="language-java">@Component
+public class GrayReleaseFilter implements GlobalFilter {
+    @Override
+    public Mono&lt;Void&gt; filter(ServerWebExchange exchange, GatewayFilterChain chain) {
+        String version = getTargetVersion(exchange);  // 从 Nacos 获取目标版本
+
+        // 根据版本选择下游服务实例
+        ServiceInstance instance = loadBalancer.choose(exchange, version);
+
+        // 修改目标 URL
+        String url = &quot;http://&quot; + instance.getHost() + &quot;:&quot; + instance.getPort();
+        exchange.getAttributes().put(&quot;requestUri&quot;, url);
+
+        return chain.filter(exchange);
+    }
+}
+</code></pre>
+<blockquote>
+<p><strong>扩展</strong>：Sentinel 的灰度发布能力支持基于调用者维度的流量控制；阿里云 MSE 云原生网关支持全链路灰度 + 金丝雀 + 流量录制回放；Istio 的 VirtualService 更精细（基于请求内容、权重、延迟注入）。</p>
+</blockquote>
+
+<script>
+// Scroll spy — highlight active sidebar item
+window.addEventListener('scroll', function() {
+    var links = document.querySelectorAll('.sidebar-toc a');
+    var scrollY = window.scrollY + 120;
+    var current = '';
+    for (var i = links.length - 1; i >= 0; i--) {
+        var target = document.getElementById(links[i].getAttribute('href').slice(1));
+        if (target && target.offsetTop <= scrollY) {
+            current = links[i];
+            break;
+        }
+    }
+    links.forEach(function(a) { a.style.fontWeight = 'normal'; a.style.color = '#555'; });
+    if (current) { current.style.fontWeight = 'bold'; current.style.color = '#0366d6'; }
+});
+</script>
+
+
+<script>
+document.querySelectorAll('pre > code').forEach(function(codeBlock, i) {
+    var pre = codeBlock.parentNode;
+    pre.style.position = 'relative';
+    var btn = document.createElement('button');
+    btn.className = 'copy-btn';
+    btn.textContent = '复制';
+    pre.appendChild(btn);
+    btn.addEventListener('click', function() {
+        var text = codeBlock.textContent;
+        navigator.clipboard.writeText(text).then(function() {
+            btn.textContent = '已复制';
+            btn.classList.add('copied');
+            setTimeout(function() {
+                btn.textContent = '复制';
+                btn.classList.remove('copied');
+            }, 2000);
+        }).catch(function() {
+            // Fallback
+            var ta = document.createElement('textarea');
+            ta.value = text; ta.style.position = 'fixed'; ta.style.opacity = '0';
+            document.body.appendChild(ta); ta.select();
+            document.execCommand('copy'); document.body.removeChild(ta);
+            btn.textContent = '已复制'; btn.classList.add('copied');
+            setTimeout(function() { btn.textContent = '复制'; btn.classList.remove('copied'); }, 2000);
+        });
+    });
+});
+</script>
+
+
+<script>document.querySelectorAll("pre>code").forEach(function(c){var p=c.parentNode;p.style.position="relative";var b=document.createElement("button");b.className="copy-btn";b.textContent="复制";p.appendChild(b);b.addEventListener("click",function(){var t=c.textContent;navigator.clipboard.writeText(t).then(function(){b.textContent="已复制";b.classList.add("copied");setTimeout(function(){b.textContent="复制";b.classList.remove("copied")},2000)}).catch(function(){var a=document.createElement("textarea");a.value=t;a.style.position="fixed";a.style.opacity="0";document.body.appendChild(a);a.select();document.execCommand("copy");document.body.removeChild(a);b.textContent="已复制";b.classList.add("copied");setTimeout(function(){b.textContent="复制";b.classList.remove("copied")},2000)})})})</script>
+</body>
+</html>

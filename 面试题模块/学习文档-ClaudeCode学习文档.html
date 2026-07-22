@@ -1,0 +1,1281 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ClaudeCode学习文档</title>
+<style>
+body {
+    transition: margin-left .25s ease;
+    font-family: -apple-system, "Noto Sans SC", "Microsoft YaHei", sans-serif;
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 20px 24px 60px;
+    line-height: 1.8;
+    color: #333;
+    background: #fff;
+}
+h1 { border-bottom: 2px solid #eee; padding-bottom: 10px; color: #222; }
+h2 { color: #333; margin-top: 32px; }
+h3 { color: #555; }
+a { color: #0366d6; text-decoration: none; }
+a:hover { text-decoration: underline; }
+pre {
+    background: #f6f8fa;
+    border-radius: 6px;
+    padding: 16px;
+    overflow-x: auto;
+    font-size: 14px;
+    line-height: 1.45;
+}
+code {
+    background: #f0f2f4;
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-size: 14px;
+}
+pre code { background: none; padding: 0; }
+blockquote {
+    border-left: 4px solid #ddd;
+    margin: 0;
+    padding: 0 16px;
+    color: #666;
+}
+table {
+    border-collapse: collapse;
+    width: 100%;
+    margin: 16px 0;
+}
+th, td {
+    border: 1px solid #ddd;
+    padding: 8px 12px;
+    text-align: left;
+}
+th { background: #f6f8fa; }
+img { max-width: 100%; }
+.back-link {
+    margin-bottom: 20px;
+    display: block;
+    color: #666;
+}
+.back-link:hover { color: #0366d6; }
+
+.sidebar-toc {
+    transition: left .25s ease;
+    position: fixed;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    width: 220px;
+    background: #f8f9fa;
+    border-right: 1px solid #e9ecef;
+    padding: 20px 0;
+    overflow-y: auto;
+    font-size: 13px;
+    z-index: 100;
+}
+.sidebar-toc a {
+    display: block;
+    padding: 6px 16px;
+    color: #555;
+    text-decoration: none;
+    border-left: 3px solid transparent;
+    line-height: 1.5;
+}
+.sidebar-toc a:hover {
+    background: #e9ecef;
+    color: #0366d6;
+    border-left-color: #0366d6;
+}
+.sidebar-toc .toc-h2 { padding-left: 16px; font-weight: 500; }
+.sidebar-toc .toc-h3 { padding-left: 32px; font-size: 12px; }
+body { margin-left: 240px; }
+
+
+.copy-btn {
+    position: absolute; top: 6px; right: 6px;
+    background: #e9ecef; border: none;
+    border-radius: 4px; padding: 3px 10px;
+    font-size: 12px; color: #555; cursor: pointer;
+    opacity: 0; transition: opacity 0.2s;
+    z-index: 1;
+}
+pre:hover .copy-btn { opacity: 1; }
+.copy-btn:hover { background: #d0d7de; }
+.copy-btn.copied { opacity: 1; background: #2da44e; color: #fff; }
+.copy-btn{position:absolute;top:6px;right:6px;background:#e9ecef;border:none;border-radius:4px;padding:3px 10px;font-size:12px;color:#555;cursor:pointer;opacity:0;transition:opacity .2s;z-index:1}pre:hover .copy-btn{opacity:1}.copy-btn:hover{background:#d0d7de}.copy-btn.copied{opacity:1;background:#2da44e;color:#fff}
+.copy-btn{position:absolute;top:6px;right:6px;background:#e9ecef;border:none;border-radius:4px;padding:3px 10px;font-size:12px;color:#555;cursor:pointer;opacity:0;transition:opacity .2s;z-index:1}pre:hover .copy-btn{opacity:1}.copy-btn:hover{background:#d0d7de}.copy-btn.copied{opacity:1;background:#2da44e;color:#fff}
+.copy-btn{position:absolute;top:6px;right:6px;background:#e9ecef;border:none;border-radius:4px;padding:3px 10px;font-size:12px;color:#555;cursor:pointer;opacity:0;transition:opacity .2s;z-index:1}pre:hover .copy-btn{opacity:1}.copy-btn:hover{background:#d0d7de}.copy-btn.copied{opacity:1;background:#2da44e;color:#fff}
+.sidebar-toggle-btn {
+  position: fixed;
+  left: 220px;
+  top: 0;
+  width: 28px;
+  height: 40px;
+  background: #f8f9fa;
+  border: 1px solid #e9ecef;
+  border-left: none;
+  border-radius: 0 4px 4px 0;
+  cursor: pointer;
+  font-size: 16px;
+  color: #555;
+  z-index: 101;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: left .25s, background .2s;
+  padding: 0;
+  line-height: 1;
+}
+.sidebar-toggle-btn:hover { background: #e9ecef; color: #0366d6; }
+.sidebar-collapsed .sidebar-toc { left: -220px; }
+.sidebar-collapsed .sidebar-toggle-btn { left: 0; }
+.sidebar-collapsed body, body.sidebar-collapsed { margin-left: 28px; }
+.sidebar-overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,.3);
+  z-index: 99;
+}
+@media (max-width: 768px) {
+  .sidebar-collapsed .sidebar-overlay { display: none; }
+  .sidebar-toc { left: -220px; }
+  .sidebar-toggle-btn { left: 0; }
+  body { margin-left: 28px; }
+}
+
+</style>
+</head>
+</head>
+<body>
+<nav class="sidebar-toc"><a class="toc-h2" href="#1-claude-code">1. Claude Code 是什么？</a><a class="toc-h3" href="#11">1.1 一句话定位</a><a class="toc-h3" href="#12-claude-code-ai">1.2 AI 编程工具分层</a><a class="toc-h3" href="#13-claude-code-vibe-coding">1.3 Claude Code 与 Vibe Coding</a><a class="toc-h2" href="#2">2. 核心能力与架构</a><a class="toc-h3" href="#21">2.1 架构总览</a><a class="toc-h3" href="#22">2.2 核心能力一览表</a><a class="toc-h2" href="#3">3. 安装与配置</a><a class="toc-h3" href="#31">3.1 安装</a><a class="toc-h3" href="#32">3.2 环境变量</a><a class="toc-h3" href="#33-claude_desktop_configjson">3.3 配置模板</a><a class="toc-h2" href="#4">4. 核心命令与交互模式</a><a class="toc-h3" href="#41">4.1 启动方式</a><a class="toc-h3" href="#42">4.2 核心命令速查</a><a class="toc-h3" href="#43">4.3 五种交互模式</a><a class="toc-h3" href="#44">4.4 会话管理</a><a class="toc-h2" href="#5-tool-use">5. Tool Use 工具集</a><a class="toc-h3" href="#51">5.1 文件操作</a><a class="toc-h3" href="#52-shell">5.2 Shell 执行</a><a class="toc-h3" href="#53-git">5.3 Git 操作</a><a class="toc-h3" href="#54-web">5.4 Web 工具</a><a class="toc-h3" href="#55-brain-body">5.5 Tool Use 协议：大脑-身体分离</a><a class="toc-h2" href="#6">6. 安全机制与权限管理</a><a class="toc-h3" href="#61">6.1 权限体系</a><a class="toc-h3" href="#62-ask">6.2 ask 模式详解</a><a class="toc-h3" href="#63-pattern">6.3 Pattern 语法</a><a class="toc-h3" href="#64">6.4 安全最佳实践</a><a class="toc-h3" href="#65-security-flow">6.5 安全机制全景流程图</a><a class="toc-h2" href="#7">7. 工作模式详解</a><a class="toc-h3" href="#71">7.1 功能开发</a><a class="toc-h3" href="#72">7.2 调试模式</a><a class="toc-h3" href="#73">7.3 重构模式</a><a class="toc-h2" href="#8-advanced">8. 进阶用法</a><a class="toc-h3" href="#81-agent">8.1 子 Agent 委托</a><a class="toc-h3" href="#82-claude-code-soulmd-agentsmd">8.2 SOUL.md / AGENTS.md</a><a class="toc-h3" href="#83">8.3 上下文管理</a><a class="toc-h3" href="#84">8.4 多会话协作</a><a class="toc-h2" href="#9-claude-code-vs">9. 与其他工具对比</a><a class="toc-h3" href="#91-github-copilot">9.1 vs Copilot</a><a class="toc-h3" href="#92-cursor">9.2 vs Cursor</a><a class="toc-h3" href="#93-openclaw">9.3 vs OpenClaw</a><a class="toc-h2" href="#10">10. 工程实践</a><a class="toc-h3" href="#101">10.1 项目启动流程</a><a class="toc-h3" href="#102">10.2 提示词工程</a><a class="toc-h3" href="#103">10.3 代码审查</a><a class="toc-h3" href="#104">10.4 错误处理</a><a class="toc-h2" href="#11_1">11. 高频面试题</a><a class="toc-h3" href="#q1claude-code-copilot">Q1：定位与区别</a><a class="toc-h3" href="#q2claude-code">Q2：安全机制</a><a class="toc-h3" href="#q3claude-code">Q3：上下文管理</a><a class="toc-h3" href="#q4claude-code">Q4：工具调用原理</a><a class="toc-h3" href="#q5claude-code">Q5：适用场景</a><a class="toc-h3" href="#q6-claude-code">Q6：代码审查</a><a class="toc-h3" href="#q7claude-code-openclaw">Q7：vs OpenClaw</a></nav>
+<button class="sidebar-toggle-btn" onclick="toggleSidebar()" title="切换侧栏">☰</button>
+
+<div class="sidebar-overlay" onclick="toggleSidebar()"></div>
+
+<script>
+function toggleSidebar() {
+  document.body.classList.toggle('sidebar-collapsed');
+  try { localStorage.setItem('sidebarCollapsed', document.body.classList.contains('sidebar-collapsed')); } catch(e) {}
+}
+(function() {
+  try {
+    if (localStorage.getItem('sidebarCollapsed') === 'true') {
+      document.body.classList.add('sidebar-collapsed');
+    }
+  } catch(e) {}
+})();
+</script>
+<a class="back-link" href="/blog/2026/05/16/面试题/面试题/">← 返回面试题目录</a>
+<h1 id=page-title>Claude Code 面试学习文档</h1>
+<blockquote>
+<p>AI 编程助手该当"副驾驶"还是"专职司机"？从零搞懂 Claude Code 的定位、架构与实战。</p>
+</blockquote>
+<hr />
+
+<h2 id="1-claude-code">1. Claude Code 是什么？</h2>
+<h3 id="11">1.1 一句话定位</h3>
+<p>Claude Code 是 Anthropic 官方推出的 <strong>AI 编程 Agent CLI 工具</strong>，将 Claude 模型能力直接嵌入终端。它能读文件、改文件、跑命令、提交 git、搜索网页——是一个<strong>真正能执行任务</strong>的 Agent，而非代码补全插件。</p>
+<p>类比：Copilot 是旁边提醒"这块木板裁短一点"的师傅；Claude Code 是你吼一句"帮我把客厅装好"，他搬材料、做木工、刷墙的全包工头。<strong>Copilot 帮你写一行，Claude Code 帮你干完整个活儿。</strong></p>
+<ul>
+<li><strong>官网</strong>：https://docs.anthropic.com/claude-code</li>
+<li><strong>定位</strong>：专业级 AI 编程 Agent</li>
+<li><strong>核心标签</strong>：真正的 Agent、能执行任务、持久上下文、安全可控</li>
+</ul>
+<h3 id="12-claude-code-ai">1.2 AI 编程工具分层</h3>
+<pre><code>┌────────────────────────────────────────────────────────────┐
+│                    工具能力分层                              │
+│                                                            │
+│  Level 1：代码补全（GitHub Copilot）                         │
+│    → 输入时自动补全代码片段，无持久上下文                     │
+│    → 本质：智能输入法                                        │
+│                                                            │
+│  Level 2：IDE 聊天（Cursor Chat / Copilot Chat）            │
+│    → 项目内对话，可修改文件但仍以建议为主                    │
+│    → 本质：结对编程伙伴                                      │
+│                                                            │
+│  Level 3：Agent CLI（Claude Code / Cursor Agent）           │
+│    → 真正执行任务：创建/编辑/运行/安装                       │
+│    → 持久化上下文 + 多步骤任务 + 人类监督                    │
+│    → 本质：能独立干活的初级工程师                            │
+│                                                            │
+│  Claude Code 位于 Level 3，当前最强专业级 AI 编程工具        │
+└────────────────────────────────────────────────────────────┘
+</code></pre>
+<h3 id="13-claude-code-vibe-coding">1.3 Claude Code 与 Vibe Coding</h3>
+<blockquote>
+<p><strong>Vibe Coding</strong>：你只管描述想要的"感觉"，AI 负责写代码。你更像产品经理而非程序员。</p>
+</blockquote>
+<pre><code>Claude Code 四大核心优势：
+
+1. Agent 能力 — 交代任务全程搞定，可创建文件/运行命令/安装依赖/提交 git
+2. 持久上下文 — 理解项目全貌（文件结构、代码关系），记住之前决策
+3. 安全可控 — /allow 权限体系 + ask 模式，危险操作需人工批准
+4. 工具集成 — 深度集成文件系统、Shell、Git，支持 TS/Python/Go/Rust
+</code></pre>
+<hr />
+<h2 id="2">2. 核心能力与架构</h2>
+<h3 id="21">2.1 架构总览</h3>
+<p>终端输入需求 -> CLI 接收 -> 操作文件/跑命令（手脚） -> 调用 Claude 模型（大脑） -> 返回结果。</p>
+<pre><code>┌─────────────────────────────────────────────────────────────┐
+│                   Claude Code 架构                          │
+│                                                             │
+│  用户终端（Terminal）                                         │
+│      │                                                      │
+│      ▼                                                      │
+│  Claude Code CLI                                             │
+│      │                                                      │
+│      ├── 📁 文件操作（read/write/edit）                     │
+│      ├── 🖥️ Shell 命令（exec）                              │
+│      ├── 📜 Git 操作（commit/branch/diff）                  │
+│      ├── 🌐 Web 获取（web_fetch/web_search）                │
+│      ├── 🔍 代码检索（grep/find）                           │
+│      └── 📊 任务编排（subagent/sessions）                    │
+│      │                                                      │
+│      ▼                                                      │
+│  Anthropic API（Claude Sonnet 4 / Opus 4）                   │
+│                                                             │
+│  ┌─────────────────────────────────────────────────────┐  │
+│  │              系统提示词（System Prompt）              │  │
+│  │  - 工作目录结构      - 已读取的文件内容               │  │
+│  │  - 项目上下文（package.json / tsconfig 等）           │  │
+│  │  - 用户偏好和配置    - AGENTS.md / SOUL.md / TOOLS.md│  │
+│  └─────────────────────────────────────────────────────┘  │
+└─────────────────────────────────────────────────────────────┘
+</code></pre>
+<h3 id="22">2.2 核心能力一览表</h3>
+<table>
+<thead>
+<tr>
+<th>能力</th>
+<th>说明</th>
+<th>支持程度</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>文件操作</strong></td>
+<td>读/写/改/删文件</td>
+<td>✅ 完整支持</td>
+</tr>
+<tr>
+<td><strong>Shell 命令</strong></td>
+<td>在终端跑任何命令</td>
+<td>✅ 完整支持</td>
+</tr>
+<tr>
+<td><strong>Git 操作</strong></td>
+<td>提交/分支/查看差异</td>
+<td>✅ 完整支持</td>
+</tr>
+<tr>
+<td><strong>依赖安装</strong></td>
+<td>npm/yarn/pnpm install</td>
+<td>✅ 完整支持</td>
+</tr>
+<tr>
+<td><strong>项目构建</strong></td>
+<td>npm run build / 编译运行</td>
+<td>✅ 完整支持</td>
+</tr>
+<tr>
+<td><strong>代码理解</strong></td>
+<td>分析项目结构和依赖</td>
+<td>✅ 完整支持</td>
+</tr>
+<tr>
+<td><strong>Web 搜索</strong></td>
+<td>搜索最新文档/技术方案</td>
+<td>✅ 支持</td>
+</tr>
+<tr>
+<td><strong>URL 获取</strong></td>
+<td>抓取网页内容</td>
+<td>✅ 支持</td>
+</tr>
+<tr>
+<td><strong>多会话</strong></td>
+<td>持久化会话、上下文记忆</td>
+<td>✅ 完整支持</td>
+</tr>
+<tr>
+<td><strong>子 Agent</strong></td>
+<td>委托子任务并行执行</td>
+<td>✅ 支持</td>
+</tr>
+<tr>
+<td><strong>权限管理</strong></td>
+<td>ask / allow / deny</td>
+<td>✅ 完整支持</td>
+</tr>
+<tr>
+<td><strong>代码调试</strong></td>
+<td>分析错误日志、定位问题</td>
+<td>✅ 完整支持</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="3">3. 安装与配置</h2>
+<h3 id="31">3.1 安装</h3>
+<pre><code class="language-bash"># macOS / Linux
+npm install -g @anthropic-ai/claude-code
+
+# 或通过 npx（无需安装）
+npx @anthropic-ai/claude-code
+
+# 验证安装
+claude --version
+</code></pre>
+<h3 id="32">3.2 环境变量配置</h3>
+<pre><code class="language-bash"># 必须配置：Anthropic API Key
+export ANTHROPIC_API_KEY=sk-ant-api03-xxxxx
+
+# 可选：模型选择
+export CLAUDE_MODEL=claude-sonnet-4-20250514
+# 可选值：claude-opus-4-20250514 / claude-sonnet-4-20250514
+
+# 可选：工作目录（默认当前目录）
+export CLAUDE_WORKING_DIR=/path/to/project
+
+# 可选：日志级别
+export CLAUDE_LOG_LEVEL=info  # debug / info / warn
+</code></pre>
+<h3 id="33-claude_desktop_configjson">3.3 claude_desktop_config.json（配置模板）</h3>
+<blockquote>
+<p><strong>面试话术</strong>：配置文件的精髓在于分层权限设计和模型路由——日常开发用 Sonnet（快且便宜），复杂任务自动切 Opus（强但贵）。</p>
+</blockquote>
+<pre><code class="language-json">{
+  "permissions": {
+    "allow": [
+      "Bash(lint)",
+      "Bash(eslint)",
+      "Bash(npm run test)",
+      "Bash(npm run build)",
+      "Read(project)",
+      "Edit(project)"
+    ],
+    "deny": [
+      "Bash(rm -rf /)",
+      "Bash(rm -rf node_modules)",
+      "Edit(system)"
+    ]
+  },
+  "features": {
+    "autoRunTests": true,
+    "confirmGitCommit": true,
+    "autoGitCommit": false
+  },
+  "model": {
+    "default": "claude-sonnet-4",
+    "override": {
+      "complex-task": "claude-opus-4"
+    }
+  }
+}
+</code></pre>
+<hr />
+<h2 id="4">4. 核心命令与交互模式</h2>
+<h3 id="41">4.1 启动方式</h3>
+<pre><code class="language-bash"># 在项目目录中启动（自动读取项目上下文）
+claude
+
+# 指定工作目录
+claude --dir /path/to/project
+
+# 指定任务（one-shot 模式）
+claude "帮我创建一个 React 登录页面"
+
+# 从会话恢复
+claude --resume session-abc123
+
+# 使用特定模型
+claude --model opus
+</code></pre>
+<h3 id="42">4.2 核心命令速查</h3>
+<pre><code>Claude Code 内置命令：
+
+/clear          → 清除当前会话上下文
+/exit           → 退出 Claude Code
+/compact        → 压缩上下文（减少 token 消耗）
+/allowed        → 查看当前权限列表
+/approve [code]  → 批准 ask 模式的操作
+/deny [code]    → 拒绝 ask 模式的操作
+/help           → 显示帮助信息
+/version        → 显示版本信息
+/config         → 配置 Claude Code
+
+# 项目内命令
+/read &lt;file&gt;    → 读取文件
+/edit &lt;file&gt;    → 编辑文件
+/commit         → 提交 git 变更
+/branch &lt;name&gt;  → 创建分支
+/diff           → 查看变更
+/status         → git 状态
+</code></pre>
+<h3 id="43">4.3 五种交互模式</h3>
+<pre><code>┌────────────────────────────────────────────────────────────┐
+│                 Claude Code 交互模式                         │
+│                                                            │
+│  模式1：对话模式（默认）                                     │
+│    用户 ←→ Claude 双向对话                                   │
+│    场景：需求讨论、代码审查、问题分析                         │
+│                                                            │
+│  模式2：任务模式                                            │
+│    用户描述任务 → Claude 执行 → 反馈结果                    │
+│    场景：功能开发、重构、问题修复                             │
+│                                                            │
+│  模式3：ask 模式（安全模式）                                 │
+│    Claude 请求操作 → 用户批准/拒绝 → 执行                   │
+│    场景：需要人类监督的危险操作                               │
+│                                                            │
+│  模式4：one-shot 模式                                       │
+│    claude "任务描述" → 执行 → 退出                           │
+│    场景：一次性任务、快速修复                                 │
+│                                                            │
+│  模式5：resume 模式                                         │
+│    claude --resume session-xxx → 恢复会话                  │
+│    场景：继续之前未完成的任务                                 │
+└────────────────────────────────────────────────────────────┘
+</code></pre>
+<h3 id="44">4.4 会话管理</h3>
+<pre><code class="language-bash"># 列出所有会话
+claude sessions list
+
+# 查看会话历史
+claude sessions history &lt;session-id&gt;
+
+# 恢复会话
+claude --resume &lt;session-id&gt;
+
+# 删除会话
+claude sessions delete &lt;session-id&gt;
+
+# 导出会话
+claude sessions export &lt;session-id&gt; --format markdown
+</code></pre>
+<hr />
+<h2 id="5-tool-use">5. Tool Use 工具集</h2>
+<h3 id="51">5.1 文件操作</h3>
+<pre><code class="language-bash"># 读取文件（支持大文件分片读取）
+read(path="src/App.tsx")
+read(path="src/main.ts", offset=1, limit=100)  # 分片读取
+
+# 写入文件（覆盖）
+write(path="src/newfile.ts", content="...")
+
+# 编辑文件（精确替换）
+edit(path="src/App.tsx",
+     oldText="const name = 'old';",
+     newText="const name = 'new';")
+
+# 删除文件 → 危险操作，需要 ask 模式批准
+
+# 创建目录
+mkdir(path="src/components", recursive=true)
+</code></pre>
+<h3 id="52-shell">5.2 Shell 执行</h3>
+<pre><code class="language-bash">exec(command="npm install", timeoutMs=60000)
+exec(command="npm run build", workdir="/path/to/project")
+exec(command="npm run test -- --coverage", timeoutMs=120000)
+
+# 交互式命令（需要 PTY）
+exec(command="python manage.py shell", pty=true)
+
+# 后台执行
+exec(command="python server.py", background=true, yieldMs=5000)
+</code></pre>
+<h3 id="53-git">5.3 Git 操作</h3>
+<pre><code class="language-bash"># 查看状态
+exec(command="git status")
+
+# 查看变更
+exec(command="git diff")
+
+# 提交变更
+exec(command="git add . && git commit -m 'feat: add login page'")
+
+# 创建分支
+exec(command="git checkout -b feature/login-page")
+
+# 查看日志
+exec(command="git log --oneline -10")
+</code></pre>
+<h3 id="54-web">5.4 Web 工具</h3>
+<pre><code class="language-bash"># 搜索网页
+web_search(keyword="React 19 new features", freshness="month")
+
+# 获取网页内容
+web_fetch(url="https://react.dev/blog", maxChars=10000)
+
+# 使用浏览器（复杂交互页面）
+browser(action="open", url="https://github.com")
+browser(action="snapshot")   # 获取页面快照
+browser(action="screenshot") # 截图
+</code></pre>
+<h3 id="55-brain-body">5.5 Tool Use 协议：大脑-身体分离</h3>
+<p>Claude 模型本身<strong>不能直接操作文件或执行命令</strong>——它只有"思考"能力。所有操作都通过 Tool Use 协议，由 CLI 层代为执行。这是理解 Claude Code 架构的关键。</p>
+<pre><code>
+┌─────────────────────────────────────────────────────────────────┐
+│              Tool Use 协议：Brain-Body 分离架构                    │
+│                                                                 │
+│                        ┌──────────────┐                         │
+│                        │  用户输入     │                         │
+│                        │ (自然语言)    │                         │
+│                        └──────┬───────┘                         │
+│                               │                                 │
+│                               ▼                                 │
+│  ┌─────────────────────────────────────────────────────────┐   │
+│  │               BRAIN（大脑）— Anthropic API                │   │
+│  │                                                         │   │
+│  │  Claude 模型 分析意图 → 决定调用哪些工具 → 生成 Tool Call │   │
+│  │                                                         │   │
+│  │  可用工具定义（Tool Schema）：                            │   │
+│  │    read(path, offset?, limit?)                          │   │
+│  │    write(path, content)                                 │   │
+│  │    edit(path, oldText, newText)                         │   │
+│  │    exec(command, timeoutMs?, workdir?)                  │   │
+│  │    web_fetch(url, maxChars?)                            │   │
+│  │    web_search(keyword, freshness?)                      │   │
+│  │    glob(pattern)     grep(pattern, path?)               │   │
+│  └───────────────────────┬─────────────────────────────────┘   │
+│                          │ Tool Use 协议 (JSON-RPC)             │
+│                          ▼                                      │
+│  ┌─────────────────────────────────────────────────────────┐   │
+│  │               BODY（身体）— Claude Code CLI               │   │
+│  │                                                         │   │
+│  │  执行具体操作：                                           │   │
+│  │    ├── 文件系统：实际读写文件、精确字符串替换              │   │
+│  │    ├── Shell：生成子进程执行命令、捕获 stdout/stderr       │   │
+│  │    ├── Web：发起 HTTPS 请求、解析 HTML                    │   │
+│  │    └── Git：执行 git 命令、管理分支和提交                 │   │
+│  │                                                         │   │
+│  │  安全层：权限检查（ask/allow/deny）在工作目录边界内执行     │   │
+│  └───────────────────────┬─────────────────────────────────┘   │
+│                          │                                      │
+│                          ▼                                      │
+│                  ┌──────────────┐                              │
+│                  │  执行结果返回 │                               │
+│                  │ (stdout/text) │                               │
+│                  └──────┬───────┘                              │
+│                         │                                       │
+│                         ▼                                       │
+│  ┌─────────────────────────────────────────────────────────┐   │
+│  │  Claude 模型 收到结果 → 判断下一步 → 继续或返回最终答案    │   │
+│  └─────────────────────────────────────────────────────────┘   │
+│                                                                 │
+│  关键设计原则：                                                  │
+│  - 模型只做推理和决策，永远不直接触碰文件系统                      │
+│  - CLI 层只做执行，不做"理解"，所有语义理解回传模型               │
+│  - 权限检查在 CLI 层完成，模型无法绕过                            │
+└─────────────────────────────────────────────────────────────────┘
+</code></pre>
+<p><strong>面试要点</strong>：这个"大脑-身体"分离设计是 Claude Code 安全模型的基础。模型无法绕过 CLI 层直接访问系统，所有操作都必须经过权限检查。</p>
+<hr />
+<h2 id="6">6. 安全机制与权限管理</h2>
+<h3 id="61">6.1 权限体系</h3>
+<pre><code>Claude Code 权限层级（从松到严）：
+
+┌────────────────────────────────────────────────────────────┐
+│                   权限层级                                  │
+│                                                            │
+│  /allow all          → 允许所有操作（信任模式）            │
+│                      ⚠️ 仅完全信任环境适用                 │
+│                                                            │
+│  ask 模式（默认）     → 每次操作前询问用户                  │
+│                      ✅ 推荐日常使用                       │
+│                                                            │
+│  /allow [pattern]    → 允许匹配 pattern 的操作            │
+│                      → 例：/allow Bash(npm install)       │
+│                      → 例：/allow Edit(project)           │
+│                                                            │
+│  /deny [pattern]     → 拒绝匹配 pattern 的操作            │
+│                      → 例：/deny Bash(rm -rf)             │
+│                                                            │
+│  /deny all           → 拒绝所有操作                        │
+└────────────────────────────────────────────────────────────┘
+</code></pre>
+<h3 id="62-ask">6.2 ask 模式详解</h3>
+<pre><code>ask 模式工作流程：
+
+Claude 需要执行操作 → 发送 ask 请求 → 等待用户批准
+
+ask 请求示例：
+  [ask] 操作：Bash(npm install)
+  [ask] 目标：安装项目依赖
+  [ask] 代码：A1B2C3
+  请输入 /approve A1B2C3 或 /deny A1B2C3
+
+用户批准：
+  /approve A1B2C3
+  → Claude 执行操作
+
+用户拒绝：
+  /deny A1B2C3
+  → Claude 停止操作，解释原因
+
+批量批准（approve all）：
+  /approve
+  → 批准所有待处理的 ask 请求
+</code></pre>
+<h3 id="63-pattern">6.3 权限 Pattern 语法</h3>
+<pre><code class="language-bash"># 文件操作权限
+/allow Read(all)            # 允许读取所有文件
+/allow Edit(project)        # 允许编辑项目文件
+/allow Write(safe)          # 允许写入安全路径（不含危险目录）
+/allow Write(project)       # 允许在项目目录写入
+
+# Shell 命令权限
+/allow Bash(npm *)          # 允许所有 npm 命令
+/allow Bash(npm install)    # 仅允许 npm install
+/allow Bash(npm run test)   # 仅允许测试
+/deny  Bash(rm *)           # 禁止所有 rm 命令
+
+# 组合权限
+/allow Read(project), Edit(project)
+/deny  Write(system), Bash(rm -rf *)
+
+# 查看当前权限
+/allowed
+</code></pre>
+<h3 id="64">6.4 安全最佳实践</h3>
+<blockquote>
+<p><strong>面试必背</strong>：安全机制核心——"默认最小权限，逐级放开"。</p>
+</blockquote>
+<pre><code>生产环境安全建议：
+
+1. 初始配置使用 ask 模式 — 不要一上来就 /allow all
+
+2. 分层权限配置
+   /allow Bash(npm *)        # 允许 npm 操作
+   /allow Read(all)          # 允许读取
+   /allow Edit(project)      # 允许编辑项目文件
+   /deny  Bash(rm -rf *)     # 禁止 rm -rf
+   /deny  Bash(curl *)       # 禁止网络请求（防止数据外泄）
+
+3. 敏感操作必须人工确认
+   → 删除文件
+   → 提交代码到 main/master
+   → 执行数据库操作
+   → 访问外部网络
+
+4. 定期检查权限配置
+   → /allowed 查看当前权限
+   → 移除不再需要的权限
+</code></pre>
+<h3 id="65-security-flow">6.5 安全机制全景流程图</h3>
+<pre><code>
+┌──────────────────────────────────────────────────────────────────┐
+│                   Claude Code 安全机制全景                         │
+│                                                                  │
+│                        ┌──────────┐                              │
+│                        │  用户输入  │                              │
+│                        └─────┬────┘                              │
+│                              │                                   │
+│          ╔═══════════════════╧═══════════════════╗               │
+│          ║    第一层：工作目录边界隔离 (Filesystem Sandbox)  ║     │
+│          ║                                                  ║     │
+│          ║  CLI 默认只能在当前项目目录内操作文件              ║     │
+│          ║  系统目录 (/etc, /usr, C:\Windows) 默认不可达      ║     │
+│          ║  → 防止误操作破坏系统文件                         ║     │
+│          ╚═══════════════════╤══════════════════╝               │
+│                              │                                   │
+│          ╔═══════════════════╧═══════════════════╗               │
+│          ║    第二层：权限系统 (Permission System)       ║        │
+│          ║                                                  ║     │
+│          ║  ┌─ ask 模式（默认）── 每次操作弹出确认           ║     │
+│          ║  ├─ /allow [pattern] ── 白名单：允许匹配的操作   ║     │
+│          ║  ├─ /deny [pattern] ── 黑名单：拒绝匹配的操作    ║     │
+│          ║  └─ 权限持久化到 settings.json                  ║     │
+│          ║                                                  ║     │
+│          ║  粒度：工具级 (Bash/Read/Edit/Write) × 路径级     ║     │
+│          ╚═══════════════════╤══════════════════╝               │
+│                              │                                   │
+│          ╔═══════════════════╧═══════════════════╗               │
+│          ║    第三层：用户确认 + 透明审计             ║            │
+│          ║                                                  ║     │
+│          ║  - 所有操作实时显示在终端，用户全程可见            ║     │
+│          ║  - 危险操作 (rm -rf, curl, git push -f) 二次确认  ║     │
+│          ║  - 会话历史可导出审计 (sessions export)          ║     │
+│          ╚═══════════════════╤══════════════════╝               │
+│                              │                                   │
+│              ┌───────────────┴───────────────┐                  │
+│              ▼                               ▼                  │
+│       ┌────────────┐                  ┌────────────┐            │
+│       │ 操作被允许   │                  │ 操作被拒绝  │            │
+│       │ → 执行操作  │                  │ → 返回原因  │            │
+│       └────────────┘                  └────────────┘            │
+│                                                                  │
+│  设计原则：Default Deny — 默认拒绝所有，逐级显式授权              │
+└──────────────────────────────────────────────────────────────────┘
+</code></pre>
+<hr />
+<h2 id="7">7. 工作模式详解</h2>
+<h3 id="71">7.1 功能开发</h3>
+<pre><code>典型功能开发会话：
+
+1. 描述需求
+   用户：帮我实现用户登录功能，包含注册和找回密码
+
+2. Claude 分析 + 提问
+   Claude：在开始之前确认：
+   - 技术栈？（React + Express？Next.js？）
+   - 数据存储？（MongoDB？PostgreSQL？）
+   - 第三方登录？（Google/GitHub OAuth？）
+   - 密码加密方案？（bcrypt？argon2？）
+
+3. 用户回答 → Claude 开始实现
+   Claude：[创建相关文件...]
+   - /src/pages/login/page.tsx
+   - /src/pages/register/page.tsx
+   - /src/pages/forgot-password/page.tsx
+   - /src/api/auth/login.ts
+   - /src/api/auth/register.ts
+   - 数据库迁移脚本
+
+4. 用户测试 + 反馈
+   用户：运行看看？
+   Claude：[npm run dev]
+   启动成功！访问 http://localhost:3000
+
+5. 迭代调整
+   用户：注册表单需要加确认密码字段
+   Claude：[修改 register/page.tsx]
+
+6. 提交代码
+   Claude：功能已完成，需要提交代码吗？
+   用户：好的
+   Claude：[git add . && git commit]
+</code></pre>
+<h3 id="72">7.2 调试模式</h3>
+<pre><code>调试会话流程：
+
+1. 描述问题
+   用户：npm run build 报错，这是错误日志：
+   [粘贴错误日志]
+
+2. Claude 分析
+   Claude：从错误日志看，问题出在：
+   - src/App.tsx:15 - 类型不匹配
+   - src/utils/format.ts:8 - 未定义的函数
+
+3. Claude 定位 + 修复
+   Claude：[读取文件，分析问题，修复代码]
+
+4. Claude 解释
+   Claude：问题原因和修复：
+   - 类型不匹配：User 类型缺少 email 字段，已补充
+   - 未定义函数：函数名写错，已修正
+
+5. 验证
+   Claude：[npm run build]
+   构建成功！✅
+</code></pre>
+<h3 id="73">7.3 重构模式</h3>
+<pre><code>重构会话流程：
+
+1. 描述重构目标
+   用户：UserService.ts 文件太长了（500行），帮我拆分成小模块
+
+2. Claude 分析
+   Claude：分析完成，当前文件结构：
+   - 用户 CRUD（150行）
+   - 认证逻辑（100行）
+   - 权限管理（120行）
+   - 头像处理（80行）
+   - 其他工具函数（50行）
+
+3. Claude 规划重构方案
+   Claude：建议拆分为：
+   - /src/services/user/crud.ts（用户 CRUD）
+   - /src/services/user/auth.ts（认证逻辑）
+   - /src/services/user/permission.ts（权限管理）
+   - /src/services/user/avatar.ts（头像处理）
+   - /src/services/user/index.ts（导出聚合）
+   - /src/services/user/types.ts（类型定义）
+
+4. 用户确认方案
+   用户：方案可以，开始执行
+
+5. Claude 执行重构
+   Claude：[创建新文件，移动代码，更新导入]
+
+6. 验证
+   Claude：[npm run build && npm run test]
+   重构成功！类型检查和测试全部通过
+</code></pre>
+<hr />
+<h2 id="8-advanced">8. 进阶用法</h2>
+<h3 id="81-agent">8.1 子 Agent 委托</h3>
+<p>类比：你作为项目经理盯住主项目，把"写100个单元测试"这种体力活丢给小弟，自己继续做架构决策。</p>
+<pre><code class="language-bash"># 将任务委托给子 Agent
+/subagent "为项目中的所有 API 路由编写单元测试"
+
+// 子 Agent 独立执行：
+# - 创建测试文件
+# - 使用 Jest/Vitest
+# - 覆盖正常和异常情况
+# - 运行测试验证
+
+# 主会话等待子 Agent 完成
+# → 子 Agent 完成后，主会话获得结果
+</code></pre>
+<h3 id="82-claude-code-soulmd-agentsmd">8.2 给 Claude Code "定规矩"（SOUL.md / AGENTS.md）</h3>
+<p>就像给新员工发《员工手册》，Claude Code 每次干活前会读取这些文件，按你的偏好行事。</p>
+<pre><code class="language-markdown"># SOUL.md 示例：Claude Code 个性化配置
+
+你是一个专注于代码质量和工程实践的 AI 助手。
+
+工作风格：
+- 优先使用 TypeScript（严格模式）
+- 遵循 SOLID 原则
+- 喜欢函数式编程风格
+- 测试覆盖率目标：80%+
+
+编码规范：
+- 使用 ESLint + Prettier
+- 提交信息遵循 Conventional Commits
+- 每次功能开发后更新 README
+
+安全原则：
+- 不允许未经验证的 SQL 查询
+- 敏感信息不能出现在日志中
+- 所有 API 需要输入验证
+</code></pre>
+<h3 id="83">8.3 上下文管理</h3>
+<p>Claude Code 的上下文像一块黑板：聊得越久写得越多，满了就需要压缩——保留关键内容，移除冗余对话，生成摘要。</p>
+<pre><code>
+┌──────────────────────────────────────────────────────────────────┐
+│                   上下文管理生命周期                                │
+│                                                                  │
+│  阶段1：上下文增长 (Context Growth)                                │
+│  ┌────────────────────────────────────────────────────────┐     │
+│  │  每轮对话追加：                                          │     │
+│  │    - 用户新消息                                          │     │
+│  │    - Claude 回复 + 工具调用结果                          │     │
+│  │    - 读取的文件内容                                       │     │
+│  │    - 执行的命令输出                                       │     │
+│  │                                                         │     │
+│  │  Token 计数器持续累加 ─────────────────────────►         │     │
+│  └──────────────────────┬─────────────────────────────────┘     │
+│                         │                                       │
+│                         ▼                                       │
+│  阶段2：阈值判断 (Threshold Check)                                │
+│  ┌────────────────────────────────────────────────────────┐     │
+│  │  Token 用量 > 80% 上下文窗口？                            │     │
+│  │         │                                                │     │
+│  │    ┌────┴────┐                                          │     │
+│  │    NO        YES                                         │     │
+│  │    │         │                                           │     │
+│  │    ▼         ▼                                           │     │
+│  │  继续对话   触发压缩                                       │     │
+│  └──────────────────────┬─────────────────────────────────┘     │
+│                         │                                       │
+│                         ▼                                       │
+│  阶段3：上下文压缩 (Context Compaction)                           │
+│  ┌────────────────────────────────────────────────────────┐     │
+│  │  压缩策略：                                              │     │
+│  │    ┌─────────────────────────────────────────────┐     │     │
+│  │    │  保留 (Keep)           │  丢弃 (Drop)        │     │     │
+│  │    ├────────────────────────┼────────────────────┤     │     │
+│  │    │ 关键文件内容            │ 冗余的对话轮次       │     │     │
+│  │    │ 重要架构决策            │ 重复的错误重试       │     │     │
+│  │    │ 未完成的任务目标        │ 已完成的中间步骤     │     │     │
+│  │    │ 用户偏好/约束           │ 工具调用的原始输出   │     │     │
+│  │    │ 项目配置文件内容        │ 已过时的信息         │     │     │
+│  │    └────────────────────────┴────────────────────┘     │     │
+│  │                                                         │     │
+│  │  生成结构化摘要 → 注入为新系统提示词的一部分               │     │
+│  └──────────────────────┬─────────────────────────────────┘     │
+│                         │                                       │
+│                         ▼                                       │
+│  阶段4：恢复对话 (Resume)                                         │
+│  ┌────────────────────────────────────────────────────────┐     │
+│  │  Claude 基于压缩后的上下文继续工作                        │     │
+│  │  如需之前丢弃的细节 → 重新读取相关文件                    │     │
+│  └────────────────────────────────────────────────────────┘     │
+│                                                                  │
+│  手动控制：                                                       │
+│    /compact      → 立即触发压缩                                  │
+│    /clear        → 清空所有上下文（重新开始）                     │
+│    --resume id   → 从持久化会话恢复                              │
+└──────────────────────────────────────────────────────────────────┘
+</code></pre>
+<h3 id="84">8.4 多会话协作</h3>
+<pre><code class="language-bash"># 主会话：架构设计
+claude "设计一个电商系统的微服务架构"
+
+# 子会话1：用户服务开发
+claude "实现用户服务的所有 API"
+
+# 子会话2：订单服务开发
+claude "实现订单服务的所有 API"
+
+# 主会话：集成测试
+claude "测试所有服务的集成"
+
+# 优势：
+# → 并行开发多个模块
+# → 每个会话独立上下文（互不干扰）
+# → 主会话负责协调和集成
+</code></pre>
+<hr />
+<h2 id="9-claude-code-vs">9. 与其他工具对比</h2>
+<h3 id="91-github-copilot">9.1 vs GitHub Copilot</h3>
+<p><strong>一句话</strong>：Copilot 是"自动补全"，Claude Code 是"自动干活"。</p>
+<table>
+<thead>
+<tr>
+<th>对比项</th>
+<th>Claude Code</th>
+<th>GitHub Copilot</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>定位</strong></td>
+<td>AI Agent（能执行任务）</td>
+<td>AI 补全工具（代码建议）</td>
+</tr>
+<tr>
+<td><strong>交互方式</strong></td>
+<td>自然语言对话</td>
+<td>代码自动补全</td>
+</tr>
+<tr>
+<td><strong>上下文</strong></td>
+<td>项目级持久上下文</td>
+<td>当前文件/标签页</td>
+</tr>
+<tr>
+<td><strong>文件编辑</strong></td>
+<td>完整创建/编辑/删除</td>
+<td>修改当前文件</td>
+</tr>
+<tr>
+<td><strong>命令执行</strong></td>
+<td>✅ 可执行 Shell 命令</td>
+<td>❌ 不可执行</td>
+</tr>
+<tr>
+<td><strong>Git 操作</strong></td>
+<td>✅ 完整 Git 操作</td>
+<td>❌ 不可执行</td>
+</tr>
+<tr>
+<td><strong>多文件处理</strong></td>
+<td>✅ 一次性多文件</td>
+<td>⚠️ 有限</td>
+</tr>
+<tr>
+<td><strong>会话持久化</strong></td>
+<td>✅ 持久会话</td>
+<td>❌ 无会话</td>
+</tr>
+<tr>
+<td><strong>价格</strong></td>
+<td>免费（Beta）</td>
+<td>付费（Copilot 订阅）</td>
+</tr>
+<tr>
+<td><strong>适用场景</strong></td>
+<td>复杂任务、功能开发</td>
+<td>日常编码辅助</td>
+</tr>
+</tbody>
+</table>
+<h3 id="92-cursor">9.2 vs Cursor</h3>
+<table>
+<thead>
+<tr>
+<th>对比项</th>
+<th>Claude Code</th>
+<th>Cursor</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>运行环境</strong></td>
+<td>CLI 终端</td>
+<td>IDE（VS Code / JetBrains）</td>
+</tr>
+<tr>
+<td><strong>上下文范围</strong></td>
+<td>全项目</td>
+<td>当前项目（IDE 感知）</td>
+</tr>
+<tr>
+<td><strong>工具调用</strong></td>
+<td>丰富的内置工具集</td>
+<td>依赖 IDE 能力</td>
+</tr>
+<tr>
+<td><strong>权限控制</strong></td>
+<td>细粒度 /allow /deny</td>
+<td>Ask 确认模式</td>
+</tr>
+<tr>
+<td><strong>多会话</strong></td>
+<td>多会话并行</td>
+<td>Composer（复杂任务）</td>
+</tr>
+<tr>
+<td><strong>Web 能力</strong></td>
+<td>内置 web_fetch/web_search</td>
+<td>需配置</td>
+</tr>
+<tr>
+<td><strong>学习曲线</strong></td>
+<td>低（终端命令）</td>
+<td>中（IDE 集成）</td>
+</tr>
+<tr>
+<td><strong>最适合场景</strong></td>
+<td>复杂后端/全栈任务</td>
+<td>前端日常开发</td>
+</tr>
+</tbody>
+</table>
+<h3 id="93-openclaw">9.3 vs OpenClaw</h3>
+<table>
+<thead>
+<tr>
+<th>对比项</th>
+<th>Claude Code</th>
+<th>OpenClaw</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>定位</strong></td>
+<td>专业 AI 编程 Agent</td>
+<td>多工具 Agent 平台</td>
+</tr>
+<tr>
+<td><strong>核心能力</strong></td>
+<td>编程（代码生成/重构/调试）</td>
+<td>多领域（编程/文档/搜索/日历）</td>
+</tr>
+<tr>
+<td><strong>工具集成</strong></td>
+<td>Shell/Git/Web</td>
+<td>浏览器/文档/Web/日历/MCP</td>
+</tr>
+<tr>
+<td><strong>上下文</strong></td>
+<td>项目代码上下文</td>
+<td>个人知识库/记忆系统</td>
+</tr>
+<tr>
+<td><strong>持久化</strong></td>
+<td>会话级</td>
+<td>长期记忆/每日笔记</td>
+</tr>
+<tr>
+<td><strong>协作模式</strong></td>
+<td>单一 Agent</td>
+<td>多 Agent 协作/子 Agent</td>
+</tr>
+<tr>
+<td><strong>交互方式</strong></td>
+<td>终端对话</td>
+<td>多渠道（Web/Discord/微信等）</td>
+</tr>
+<tr>
+<td><strong>最适合场景</strong></td>
+<td>专业开发者编程任务</td>
+<td>个人效率/跨领域任务</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="10">10. 工程实践与最佳实践</h2>
+<h3 id="101">10.1 项目启动最佳流程</h3>
+<pre><code class="language-bash"># 1. 进入项目目录
+cd my-project
+
+# 2. 快速了解项目
+claude "帮我了解这个项目的结构和技术栈"
+
+# 3. 让 Claude 读取关键配置文件
+claude "读取 package.json 和 README.md，了解项目配置"
+
+# 4. 开始任务
+claude "帮我实现用户认证模块"
+</code></pre>
+<h3 id="102">10.2 提示词工程实践</h3>
+<p><strong>核心原则：越具体，产出越靠谱。</strong>对 Claude Code 说话就像对实习生分配任务——描述越详细（技术栈、需求、约束），结果越精准。</p>
+<pre><code>高效提示词 vs 低效提示词：
+
+❌ 低效：
+"帮我写一个排序算法"
+
+✅ 高效（一次性详尽描述）：
+"""
+为电商系统实现商品排序功能：
+
+技术栈：TypeScript + React + Zustand
+功能需求：
+  - 按价格升序/降序
+  - 按销量排序
+  - 按评分排序
+  - 支持多维度组合排序
+
+代码要求：
+  - 使用 React useMemo 优化排序性能
+  - 添加单元测试（Vitest）
+  - 排序状态存储在 Zustand store 中
+  - 遵循项目现有的代码风格
+
+约束：
+  - 不要引入新的依赖
+  - 保持与现有 Filter 组件的接口一致
+"""
+
+✅ 迭代式提示词（逐步细化）：
+  1. "帮我实现商品排序组件"
+  2. "加一个多维度组合排序"
+  3. "用 useMemo 优化性能"
+  4. "加上 Vitest 测试"
+</code></pre>
+<h3 id="103">10.3 代码审查流程</h3>
+<pre><code>Claude Code 辅助代码审查：
+
+1. 发起审查
+   claude "帮我审查 src/api/user.ts 这个文件"
+
+2. Claude 分析
+   - 代码结构
+   - 安全问题
+   - 性能问题
+   - 代码风格
+   - 潜在 Bug
+
+3. Claude 输出审查报告
+   问题列表：
+   - 🔴 高风险：缺少输入验证（SQL 注入风险）
+   - 🟡 中风险：异常处理过于宽泛
+   - 🟢 低风险：命名不一致
+
+4. Claude 修复建议
+   - 高风险：建议使用 zod 添加输入验证
+   - 中风险：建议分类处理不同异常类型
+
+5. 执行修复
+   用户：帮我按建议修复这些问题
+   Claude：[逐一修复]
+</code></pre>
+<h3 id="104">10.4 典型错误处理</h3>
+<pre><code>错误处理最佳实践：
+
+1. 让 Claude 读取完整错误信息
+   用户：[粘贴完整的错误日志，包含 stack trace]
+
+2. 让 Claude 分析
+   claude "分析这个错误日志，找出根本原因"
+
+3. Claude 定位问题
+   → 分析错误类型
+   → 定位到具体文件和行号
+   → 分析调用链
+   → 给出修复方案
+
+4. 验证修复
+   claude "修复后运行 npm run build 验证"
+</code></pre>
+<hr />
+<h2 id="11_1">11. 高频面试题</h2>
+<h3 id="q1claude-code-copilot">Q1：Claude Code 的定位是什么？与 Copilot 有什么区别？</h3>
+<p><strong>面试话术</strong>：</p>
+<p>Claude Code 是<strong>专业级 AI 编程 Agent</strong>，GitHub Copilot 是<strong>代码补全工具</strong>。Copilot 像导航提醒"前方有测速"，Claude Code 像自动驾驶——能直接帮你开一段路，但每个路口会问你要不要拐弯（ask 模式）。</p>
+<p>核心区别：
+- <strong>Copilot</strong>：IDE 中代码补全建议，输入时触发，无持久上下文
+- <strong>Claude Code</strong>：自然语言对话执行任务，持久上下文，能执行 Shell/Git 等命令</p>
+<p>三个关键词：<strong>Agent 定位</strong>、<strong>持久化上下文</strong>、<strong>安全权限体系</strong>。</p>
+<h3 id="q2claude-code">Q2：Claude Code 的安全机制是如何设计的？</h3>
+<p><strong>面试话术</strong>：</p>
+<p>三层防御体系：
+1. <strong>工作目录边界隔离</strong>：CLI 默认只能操作当前项目目录，系统目录不可达
+2. <strong>ask 模式 + Pattern 权限</strong>：ask（默认）每次操作需用户批准；<code>/allow</code>/<code>/deny</code> 精确控制操作粒度
+3. <strong>透明审计</strong>：所有操作实时显示，危险操作二次确认，会话历史可导出</p>
+<p>核心设计思想：<strong>Default Deny——默认最小权限，逐级显式授权。用户全程可见。</strong></p>
+<h3 id="q3claude-code">Q3：Claude Code 如何管理长会话的上下文？</h3>
+<p><strong>面试话术</strong>：</p>
+<p>四种机制配合：
+- <strong>自动上下文压缩</strong>：token 超过 80% 阈值时自动触发，保留关键信息、移除冗余对话、生成摘要
+- <strong>手动压缩</strong>：<code>/compact</code> 按需触发
+- <strong>会话持久化</strong>：本地保存，<code>--resume</code> 恢复
+- <strong>文件上下文</strong>：已读取的关键文件内容保留在压缩后的上下文中</p>
+<p>这个机制直接关系到<strong>对话质量和成本控制</strong>的平衡。</p>
+<h3 id="q4claude-code">Q4：Claude Code 的工具调用原理是什么？</h3>
+<p><strong>面试话术</strong>：</p>
+<p>通过 <strong>Tool Use 协议</strong>实现"大脑-身体"分离架构，五步流程：
+1. 用户自然语言指令 → Claude 模型分析意图
+2. 判断需要调用哪些工具（read/write/exec/git 等），生成结构化 Tool Call
+3. ask 模式下弹出请求等用户批准
+4. 批准后 CLI 层执行工具调用，拿到结果
+5. 结果返回模型，基于结果继续下一步或返回最终答案</p>
+<p>核心理解：Claude 模型本身不能操作文件——它只负责推理和决策（大脑），CLI 层负责实际执行（身体），两者通过 JSON-RPC 协议通信。权限检查在 CLI 层完成，模型无法绕过。这类似于浏览器的进程隔离。</p>
+<h3 id="q5claude-code">Q5：Claude Code 适合哪些场景？不适合哪些场景？</h3>
+<p><strong>面试话术</strong>：</p>
+<p><strong>适合</strong>：
+- 🟢 功能开发（CRUD、API、组件）
+- 🟢 代码重构（拆分、合并、迁移）
+- 🟢 调试（分析错误日志、定位问题）
+- 🟢 技术调研（生成 POC、验证方案）
+- 🟢 测试编写（单元测试、集成测试）</p>
+<p><strong>不适合</strong>：
+- 🔴 安全敏感代码（密码、支付）——需要人工安全审查
+- 🔴 复杂算法（需要数学证明的）——超出 LLM 能力边界
+- 🔴 需要深度业务背景的任务——不了解公司内部逻辑
+- 🔴 超长项目（上下文膨胀）——超过一定长度后质量下降</p>
+<h3 id="q6-claude-code">Q6：如何使用 Claude Code 进行代码审查？</h3>
+<p><strong>面试话术</strong>：</p>
+<p>三步走：</p>
+<pre><code class="language-bash"># 1. 精准提问（告诉它关注什么）
+claude "审查 src/api/user.ts 这个文件，重点关注安全和性能"
+
+# 2. Claude 输出审查报告
+# - 安全问题（SQL注入、XSS、输入验证）
+# - 性能问题（N+1查询、不必要的重计算）
+# - 代码质量问题（命名、职责分离、异常处理）
+
+# 3. 让它顺便修了
+claude "按审查报告修复所有高风险和中风险问题"
+</code></pre>
+<h3 id="q7claude-code-openclaw">Q7：Claude Code 与 OpenClaw 在定位上有何不同？</h3>
+<p><strong>面试话术</strong>：</p>
+<ul>
+<li><strong>Claude Code</strong>：专注编程——"程序员的生产力工具"</li>
+<li><strong>OpenClaw</strong>：多领域 Agent 平台——"个人效率的瑞士军刀"</li>
+</ul>
+<p>两者互补：Claude Code 处理编程任务，OpenClaw 协调多领域工作流（查日历 + 看文档 + 写邮件）。</p>
+<hr />
+<blockquote>
+<p><strong>学习建议</strong>：Claude Code 面试核心围绕三个关键词——<strong>Agent 定位</strong>（vs 补全工具）、<strong>安全机制</strong>（三层防御/权限体系）、<strong>工程实践</strong>（Tool Use 协议/上下文管理/子 Agent）。建议按顺序理解：先搞清楚 Agent 工具的定位优势，再深入安全机制和 Tool Use 原理，最后掌握高级用法（子 Agent/上下文压缩/多会话协作）。</p>
+<p><strong>与面试岗位的关联</strong>：Claude Code 主要出现在<strong>AI 工程化/工具开发/全栈/开发效率</strong>方向面试中，常与以下话题联合考察：Vibe Coding 理念、AI Agent 原理、Prompt Engineering、GitHub Copilot 对比、AI 辅助开发的工程实践等。</p>
+</blockquote>
+
+<script>
+// Scroll spy — highlight active sidebar item
+window.addEventListener('scroll', function() {
+    var links = document.querySelectorAll('.sidebar-toc a');
+    var scrollY = window.scrollY + 120;
+    var current = '';
+    for (var i = links.length - 1; i >= 0; i--) {
+        var target = document.getElementById(links[i].getAttribute('href').slice(1));
+        if (target && target.offsetTop <= scrollY) {
+            current = links[i];
+            break;
+        }
+    }
+    links.forEach(function(a) { a.style.fontWeight = 'normal'; a.style.color = '#555'; });
+    if (current) { current.style.fontWeight = 'bold'; current.style.color = '#0366d6'; }
+});
+</script>
+
+
+<script>
+document.querySelectorAll("pre>code").forEach(function(c){var p=c.parentNode;p.style.position="relative";var b=document.createElement("button");b.className="copy-btn";b.textContent="复制";p.appendChild(b);b.addEventListener("click",function(){var t=c.textContent;navigator.clipboard.writeText(t).then(function(){b.textContent="已复制";b.classList.add("copied");setTimeout(function(){b.textContent="复制";b.classList.remove("copied")},2000)}).catch(function(){var a=document.createElement("textarea");a.value=t;a.style.position="fixed";a.style.opacity="0";document.body.appendChild(a);a.select();document.execCommand("copy");document.body.removeChild(a);b.textContent="已复制";b.classList.add("copied");setTimeout(function(){b.textContent="复制";b.classList.remove("copied")},2000)})})})
+</script>

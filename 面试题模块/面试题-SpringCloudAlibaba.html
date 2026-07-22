@@ -1,0 +1,875 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>面试题 - SpringCloudAlibaba</title>
+<style>
+body {
+    transition: margin-left .25s ease;
+    font-family: -apple-system, "Noto Sans SC", "Microsoft YaHei", sans-serif;
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 20px 24px 60px;
+    line-height: 1.8;
+    color: #333;
+    background: #fff;
+}
+h1 { border-bottom: 2px solid #eee; padding-bottom: 10px; color: #222; }
+h2 { color: #333; margin-top: 32px; }
+h3 { color: #555; }
+a { color: #0366d6; text-decoration: none; }
+a:hover { text-decoration: underline; }
+pre {
+    background: #f6f8fa;
+    border-radius: 6px;
+    padding: 16px;
+    overflow-x: auto;
+    font-size: 14px;
+    line-height: 1.45;
+}
+code {
+    background: #f0f2f4;
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-size: 14px;
+}
+pre code { background: none; padding: 0; }
+blockquote {
+    border-left: 4px solid #ddd;
+    margin: 0;
+    padding: 0 16px;
+    color: #666;
+}
+table {
+    border-collapse: collapse;
+    width: 100%;
+    margin: 16px 0;
+}
+th, td {
+    border: 1px solid #ddd;
+    padding: 8px 12px;
+    text-align: left;
+}
+th { background: #f6f8fa; }
+img { max-width: 100%; }
+.back-link {
+    margin-bottom: 20px;
+    display: block;
+    color: #666;
+}
+.back-link:hover { color: #0366d6; }
+
+.sidebar-toc {
+    transition: left .25s ease;
+    position: fixed;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    width: 220px;
+    background: #f8f9fa;
+    border-right: 1px solid #e9ecef;
+    padding: 20px 0;
+    overflow-y: auto;
+    font-size: 13px;
+    z-index: 100;
+}
+.sidebar-toc a {
+    display: block;
+    padding: 6px 16px;
+    color: #555;
+    text-decoration: none;
+    border-left: 3px solid transparent;
+    line-height: 1.5;
+}
+.sidebar-toc a:hover {
+    background: #e9ecef;
+    color: #0366d6;
+    border-left-color: #0366d6;
+}
+.sidebar-toc .toc-h3 { padding-left: 20px; font-size: 12px; }
+body { margin-left: 240px; }
+
+
+.copy-btn {
+    position: absolute; top: 6px; right: 6px;
+    background: #e9ecef; border: none;
+    border-radius: 4px; padding: 3px 10px;
+    font-size: 12px; color: #555; cursor: pointer;
+    opacity: 0; transition: opacity 0.2s;
+    z-index: 1;
+}
+pre:hover .copy-btn { opacity: 1; }
+.copy-btn:hover { background: #d0d7de; }
+.copy-btn.copied { opacity: 1; background: #2da44e; color: #fff; }
+.copy-btn{position:absolute;top:6px;right:6px;background:#e9ecef;border:none;border-radius:4px;padding:3px 10px;font-size:12px;color:#555;cursor:pointer;opacity:0;transition:opacity .2s;z-index:1}pre:hover .copy-btn{opacity:1}.copy-btn:hover{background:#d0d7de}.copy-btn.copied{opacity:1;background:#2da44e;color:#fff}
+.copy-btn{position:absolute;top:6px;right:6px;background:#e9ecef;border:none;border-radius:4px;padding:3px 10px;font-size:12px;color:#555;cursor:pointer;opacity:0;transition:opacity .2s;z-index:1}pre:hover .copy-btn{opacity:1}.copy-btn:hover{background:#d0d7de}.copy-btn.copied{opacity:1;background:#2da44e;color:#fff}
+.copy-btn{position:absolute;top:6px;right:6px;background:#e9ecef;border:none;border-radius:4px;padding:3px 10px;font-size:12px;color:#555;cursor:pointer;opacity:0;transition:opacity .2s;z-index:1}pre:hover .copy-btn{opacity:1}.copy-btn:hover{background:#d0d7de}.copy-btn.copied{opacity:1;background:#2da44e;color:#fff}
+.sidebar-toggle-btn {
+  position: fixed;
+  left: 220px;
+  top: 0;
+  width: 28px;
+  height: 40px;
+  background: #f8f9fa;
+  border: 1px solid #e9ecef;
+  border-left: none;
+  border-radius: 0 4px 4px 0;
+  cursor: pointer;
+  font-size: 16px;
+  color: #555;
+  z-index: 101;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: left .25s, background .2s;
+  padding: 0;
+  line-height: 1;
+}
+.sidebar-toggle-btn:hover { background: #e9ecef; color: #0366d6; }
+.sidebar-collapsed .sidebar-toc { left: -220px; }
+.sidebar-collapsed .sidebar-toggle-btn { left: 0; }
+.sidebar-collapsed body, body.sidebar-collapsed { margin-left: 28px; }
+.sidebar-overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,.3);
+  z-index: 99;
+}
+@media (max-width: 768px) {
+  .sidebar-collapsed .sidebar-overlay { display: none; }
+  .sidebar-toc { left: -220px; }
+  .sidebar-toggle-btn { left: 0; }
+  body { margin-left: 28px; }
+}
+
+</style>
+</head>
+</head>
+<body>
+<nav class="sidebar-toc"><a class="toc-h3" href="#1">1. 什么是微服务?优缺点?</a><a class="toc-h3" href="#2-nacos">2. Nacos 的三大核心能力?</a><a class="toc-h3" href="#2a-nacos">2a. Nacos 的服务注册与发现流程?</a><a class="toc-h3" href="#2b-nacos">2b. Nacos 的心跳机制?</a><a class="toc-h3" href="#2c-nacos-2x-grpc">2c. Nacos 2.x gRPC 通信原理?</a><a class="toc-h3" href="#2d-nacos-namespace-group">2d. Nacos 的 Namespace 和 Group 的区别?</a><a class="toc-h3" href="#2e-nacos">2e. Nacos 集群选主机制?</a><a class="toc-h3" href="#2f-nacos-vs-eureka-vs-spring-cloud-config">2f. Nacos vs Eureka vs Spring Cloud Config?</a><a class="toc-h3" href="#3-nacos-ap-cp">3. Nacos 的 AP 和 CP 如何切换?</a><a class="toc-h3" href="#4">4. 微服务网关的作用?</a><a class="toc-h3" href="#5-sentinel">5. Sentinel 的核心原理和流控方式?</a><a class="toc-h3" href="#5a-sentinel">5a. Sentinel 熔断有哪些策略?</a><a class="toc-h3" href="#5b-sentinelresource-blockhandler-fallback">5b. @SentinelResource 的 blockHandler 和 fallback 有什么区别?</a><a class="toc-h3" href="#5c-sentinel">5c. Sentinel 如何实现动态规则推送?</a><a class="toc-h3" href="#6">6. 分布式事务解决方案</a><a class="toc-h3" href="#7-cap">7. CAP 定理?</a><a class="toc-h3" href="#8">8. 服务间通信方式?</a><a class="toc-h3" href="#9">9. 如何保证接口幂等性?</a><a class="toc-h3" href="#10-id">10. 分布式 ID 生成方案</a><a class="toc-h3" href="#11">11. 注册中心对比?</a><a class="toc-h3" href="#12">12. 配置中心如何实现动态刷新?</a><a class="toc-h3" href="#13">13. 负载均衡策略?</a><a class="toc-h3" href="#14-openfeign">14. OpenFeign 的原理?</a><a class="toc-h3" href="#15">15. 微服务链路追踪如何实现?</a><a class="toc-h3" href="#16-sentinel">16. Sentinel 熔断降级规则有哪些类型?</a><a class="toc-h3" href="#17-spring-cloud-alibaba">17. Spring Cloud Alibaba 包含哪些组件?各自作用?</a><a class="toc-h3" href="#18-dubbo-feign">18. Dubbo 和 Feign 的区别?如何选型?</a><a class="toc-h3" href="#19-rocketmq">19. RocketMQ 事务消息解决什么问题?</a><a class="toc-h3" href="#20">20. 如何保证微服务架构的稳定性?</a><a class="toc-h3" href="#21-seata-at">21. Seata AT 模式的回滚日志是如何存储和恢复的？</a></nav>
+<button class="sidebar-toggle-btn" onclick="toggleSidebar()" title="切换侧栏">☰</button>
+
+<div class="sidebar-overlay" onclick="toggleSidebar()"></div>
+
+<script>
+function toggleSidebar() {
+  document.body.classList.toggle('sidebar-collapsed');
+  try { localStorage.setItem('sidebarCollapsed', document.body.classList.contains('sidebar-collapsed')); } catch(e) {}
+}
+(function() {
+  try {
+    if (localStorage.getItem('sidebarCollapsed') === 'true') {
+      document.body.classList.add('sidebar-collapsed');
+    }
+  } catch(e) {}
+})();
+</script>
+<a class="back-link" href="/blog/2026/05/16/面试题/面试题/">← 返回面试题目录</a>
+<h1 id=page-title>Spring Cloud Alibaba &amp; 微服务</h1>
+<h3 id="1">1. 什么是微服务?优缺点?</h3>
+<pre><code>单体 vs 微服务:
+
+单体架构:
+  [前端] → [一个大应用:用户+订单+商品+支付] → [一个DB]
+  改一行代码 → 整个应用重新部署
+
+微服务架构:
+  [前端] → [网关]
+            ├─ 用户服务 → [用户DB]
+            ├─ 订单服务 → [订单DB]
+            ├─ 商品服务 → [商品DB]
+            └─ 支付服务 → [支付DB]
+  改订单服务 → 只部署订单服务
+</code></pre>
+<p><strong>优点</strong>:独立部署(改一个服务不用重启全部)、故障隔离(订单崩了不影响用户登录)、团队自治(Java/Go/Python 一个团队一种技术栈也行)、可扩展(订单压力大只扩订单服务)</p>
+<p><strong>缺点</strong>:分布式复杂性(网络不可靠、数据一致性难保证、事务跨服务)、运维成本高(监控/日志/链路追踪都要配套)、调试困难(一个请求跨 N 个服务)</p>
+<blockquote>
+<p><strong>扩展</strong>:团队 &lt; 10 人、业务不复杂 → 单体更合适。Martin Fowler:"如果你做不好单体,也做不好微服务"--先写模块化单体,等扛不住了再拆。</p>
+</blockquote>
+<h3 id="2-nacos">2. Nacos 的三大核心能力?</h3>
+<table>
+<thead>
+<tr>
+<th>能力</th>
+<th>大白话说</th>
+<th>技术说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>服务发现</strong></td>
+<td>微服务的通讯录,自动注册、自动找</td>
+<td>服务注册、健康检查、负载均衡、服务元数据</td>
+</tr>
+<tr>
+<td><strong>配置管理</strong></td>
+<td>统一的遥控器,改配置不用重启</td>
+<td>集中化配置管理、热更新、多环境隔离、变更推送</td>
+</tr>
+<tr>
+<td><strong>服务及元数据管理</strong></td>
+<td>服务标签、分组、版本管理</td>
+<td>服务元数据管理、标签、DNS 域名</td>
+</tr>
+</tbody>
+</table>
+<p>Nacos 相比 Eureka 的核心优势:Eureka 只是注册中心(且已停更),Nacos 注册+配置一体,一个组件干两件事。而且 Nacos 支持 AP/CP 切换--服务发现用 AP(可用性优先),配置管理用 CP(一致性优先)。</p>
+<blockquote>
+<p><strong>扩展</strong>:Nacos 2.x 通过 gRPC 长连接通信,不再需要 HTTP 心跳轮询。阿里双十一验证过超大规模场景。</p>
+</blockquote>
+<h3 id="2a-nacos">2a. Nacos 的服务注册与发现流程?</h3>
+<pre><code>服务提供者启动:
+  → Nacos Client 发送 REST 请求注册实例
+  → Nacos Server 存储实例到本地缓存(ConcurrentHashMap)
+  → 异步同步到 MySQL(持久化实例)
+  → 向订阅该服务的 Client 推送变更通知
+
+服务消费者启动/调用:
+  → Nacos Client 订阅服务
+  → Nacos Server 返回当前所有健康实例列表
+  → Nacos Client 本地缓存实例列表
+  → 按负载均衡策略选择实例发起调用
+
+服务变更(健康检查):
+  → Nacos Server 定时检查实例心跳
+  → 30s 无心跳 → 标记 unhealthy → 剔除
+  → 推送变更通知给订阅者
+  → 消费者刷新本地缓存
+</code></pre>
+<blockquote>
+<p><strong>面试话术</strong>:"提供者启动时注册到 Nacos Server,消费者订阅服务获取实例列表并本地缓存。健康检查通过心跳机制--临时实例 30 秒无心跳剔除,永久实例由服务端主动探测。变更通过 gRPC 长连接实时推送给订阅者。"</p>
+</blockquote>
+<h3 id="2b-nacos">2b. Nacos 的心跳机制?</h3>
+<table>
+<thead>
+<tr>
+<th>实例类型</th>
+<th>心跳方式</th>
+<th>超时处理</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>临时实例(ephemeral=true)</td>
+<td>客户端每 5 秒主动发送心跳</td>
+<td>15s 未收到 → 标记 unhealthy,30s 未收到 → 剔除</td>
+</tr>
+<tr>
+<td>永久实例(ephemeral=false)</td>
+<td>服务端主动探测(TCP/HTTP)</td>
+<td>不健康不剔除,仅标记</td>
+</tr>
+</tbody>
+</table>
+<p>临时实例适合无状态服务(Pod/IP 漂移场景),永久实例适合有状态服务(数据库、缓存)。</p>
+<h3 id="2c-nacos-2x-grpc">2c. Nacos 2.x gRPC 通信原理?</h3>
+<pre><code>Nacos 2.x 基于 gRPC 实现长连接:
+
+1. Client 启动时:与 Server 建立 9848 端口的 gRPC 连接,建立 Session
+2. 配置/服务变更时:Server 直接通过 gRPC Stream 推送,无需 Client 轮询
+3. 优势:毫秒级推送(vs 1.x 的 30s 轮询)、服务端资源占用更低、支持双向通信
+4. 降级机制:2.x Server 仍保留 HTTP 接口,1.x Client 可正常访问
+</code></pre>
+<p>Nacos 三个关键端口:8848(HTTP 控制台 + REST API)、9848(gRPC 客户端↔服务端通信,必须开放)、9849(服务端↔服务端 Raft 协议,集群内互通)。</p>
+<h3 id="2d-nacos-namespace-group">2d. Nacos 的 Namespace 和 Group 的区别?</h3>
+<table>
+<thead>
+<tr>
+<th>概念</th>
+<th>作用</th>
+<th>隔离级别</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Namespace</strong></td>
+<td>环境隔离</td>
+<td>最彻底(dev/test/prod)</td>
+</tr>
+<tr>
+<td><strong>Group</strong></td>
+<td>项目/模块分组</td>
+<td>中等(DEFAULT_GROUP / 自定义)</td>
+</tr>
+<tr>
+<td><strong>Data ID</strong></td>
+<td>配置文件标识</td>
+<td>细粒度(应用级别)</td>
+</tr>
+</tbody>
+</table>
+<p>典型使用:Namespace: dev → Group: order-service → Data ID: order-service-dev.yaml</p>
+<h3 id="2e-nacos">2e. Nacos 集群选主机制?</h3>
+<p>Nacos 使用 <strong>Raft 协议</strong>进行 Leader 选举:
+1. 初始状态:所有节点为 Follower
+2. 选举超时(150-300ms 随机)→ Follower 变为 Candidate,发起选举,给自己投票
+3. 获得多数票的节点成为 Leader
+4. Leader 发送心跳(AppendEntries)维持领导地位
+5. 若 Leader 故障,其他节点重新选举</p>
+<h3 id="2f-nacos-vs-eureka-vs-spring-cloud-config">2f. Nacos vs Eureka vs Spring Cloud Config?</h3>
+<table>
+<thead>
+<tr>
+<th>对比项</th>
+<th>Nacos</th>
+<th>Eureka</th>
+<th>Spring Cloud Config</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>维护状态</td>
+<td>阿里巴巴活跃维护</td>
+<td>Netflix 已停更</td>
+<td>Spring 官方</td>
+</tr>
+<tr>
+<td>功能</td>
+<td>注册中心 + 配置中心</td>
+<td>仅注册中心</td>
+<td>仅配置中心</td>
+</tr>
+<tr>
+<td>一致性</td>
+<td>CP+AP 可切换</td>
+<td>仅 AP</td>
+<td>依赖 Git</td>
+</tr>
+<tr>
+<td>配置推送</td>
+<td>gRPC 毫秒级</td>
+<td>无</td>
+<td>Git Webhook + Bus</td>
+</tr>
+<tr>
+<td>界面</td>
+<td>有</td>
+<td>无</td>
+<td>无</td>
+</tr>
+<tr>
+<td>推荐度</td>
+<td>新项目首选</td>
+<td>已淘汰</td>
+<td>需配套组件多</td>
+</tr>
+</tbody>
+</table>
+<h3 id="3-nacos-ap-cp">3. Nacos 的 AP 和 CP 如何切换?</h3>
+<pre><code>AP vs CP 切换:
+
+临时实例(ephemeral=true,默认) → AP 模式
+  协议:Distro(阿里自研,最终一致性)
+  特点:挂了也能继续提供发现服务(可能拿到旧数据)
+  场景:服务注册(拿到旧实例比拿不到强)
+
+持久实例(ephemeral=false) → CP 模式
+  协议:Raft(强一致性)
+  特点:网络发生分区时,少数派不可用,保证数据一致
+  场景:配置管理(宁可不更新,不能拿到错误配置)
+</code></pre>
+<p>生产实践:服务注册用临时实例(AP),配置管理用持久实例(CP)。Nacos 一个集群可以同时支持两种实例。</p>
+<blockquote>
+<p><strong>扩展</strong>:Eureka 纯 AP(所有实例平等,无 Leader,挂了也能读本地缓存保障可用性)、Zookeeper 纯 CP(Leader 选举期间整个集群不可用)、Consul 默认 CP。选型建议:服务发现选 AP(可用性 &gt; 一致性),配置中心选 CP(一致性 &gt; 可用性)。</p>
+</blockquote>
+<h3 id="4">4. 微服务网关的作用?</h3>
+<pre><code>网关 = 所有请求的&quot;前台&quot;
+
+客户端 → [Gateway 网关] → 后端服务
+              │
+              ├─ 路由转发:/order/** → 订单服务,/user/** → 用户服务
+              ├─ 统一认证:在网关验证 JWT,后端不用再验
+              ├─ 限流熔断:QPS 超阈值 → 拒绝 / 排队
+              ├─ 日志采集:记录每个请求的耗时、状态码
+              ├─ 跨域处理:统一 CORS 配置,不用每个服务配
+              └─ 协议转换:外部 HTTP → 内部 Dubbo/gRPC
+</code></pre>
+<p>就像公司前台--所有访客先过前台,前台登记、刷身份证、告诉你坐哪个电梯。你不需要认识每个部门的人。</p>
+<blockquote>
+<p><strong>扩展</strong>:Spring Cloud Gateway(基于 WebFlux,响应式,推荐) vs Zuul 1.x(Servlet 阻塞式,已淘汰) vs Zuul 2.x(Netty 异步,非 Spring 系)。Gateway 用 Route → Predicate(匹配条件)→ Filter(处理逻辑)的三段式设计。注意网关不能做太重--业务逻辑应该放后端,网关只做横切关注点。</p>
+</blockquote>
+<h3 id="5-sentinel">5. Sentinel 的核心原理和流控方式?</h3>
+<p>Sentinel 核心是基于 <strong>Slot Chain(处理器链)</strong> 实现的,就像机场安检流水线:</p>
+<pre><code>请求 → NodeSelectorSlot → StatisticSlot → FlowSlot → DegradeSlot → SystemSlot → 业务逻辑
+</code></pre>
+<p>每个 Slot 各司其职:<code>StatisticSlot</code> 实时统计(滑动窗口,500ms 一个采样点)、<code>FlowSlot</code> 检查限流规则、<code>DegradeSlot</code> 检查熔断规则、<code>SystemSlot</code> 检查系统保护。任何一个 Slot 判断需要拦截,就抛出异常,后续业务不执行。</p>
+<p><strong>五种限流方式</strong>:
+1. <strong>QPS 限流</strong>:每秒请求数限制--最常用
+2. <strong>并发线程数限流</strong>:同时执行线程数限制--控制并发深度
+3. <strong>热点参数限流</strong>:参数级别的细粒度限流--针对特定用户/商品
+4. <strong>系统自适应保护</strong>:CPU/Load/RT 自适应--全局保护
+5. <strong>集群流控</strong>:Token Server 统一管控集群总 QPS--多节点协同</p>
+<p>Sentinel 使用<strong>滑动窗口算法</strong>(非固定窗口),解决了临界突变问题。相比 Hystrix 的关键优势:Hystrix 只支持并发线程数限流,Sentinel 支持 QPS 限流。</p>
+<h3 id="5a-sentinel">5a. Sentinel 熔断有哪些策略?</h3>
+<p>三种策略:
+1. <strong>慢调用比例熔断</strong>:响应时间 &gt; 阈值的慢调用占比 &gt; 设定值 → "服务太慢了,先停一下"
+2. <strong>异常比例熔断</strong>:异常请求占比 &gt; 阈值 → "出错的太多了"
+3. <strong>异常数熔断</strong>:异常请求数量 &gt; 阈值 → "连续出错"</p>
+<p>熔断状态机:Closed(正常)→ 触发条件 → Open(熔断,直接拒绝)→ 等待时间窗 → Half-Open(放一个请求试探)→ 成功 → Closed / 失败 → Open。</p>
+<p>面试亮点:<strong>minRequestAmount</strong> 是个巧妙的参数--窗口内请求太少时不触发熔断,避免冷启动误判。</p>
+<h3 id="5b-sentinelresource-blockhandler-fallback">5b. @SentinelResource 的 blockHandler 和 fallback 有什么区别?</h3>
+<table>
+<thead>
+<tr>
+<th>参数</th>
+<th>触发条件</th>
+<th>异常类型</th>
+<th>大白话</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>blockHandler</strong></td>
+<td>Sentinel 限流/熔断触发</td>
+<td><code>BlockException</code></td>
+<td>"门口保安拦住你了"</td>
+</tr>
+<tr>
+<td><strong>fallback</strong></td>
+<td>业务代码抛出异常</td>
+<td><code>Throwable</code></td>
+<td>"你自己在业务里摔倒了"</td>
+</tr>
+</tbody>
+</table>
+<p>blockHandler 处理流量控制(被"拦住"了),fallback 处理业务异常(业务逻辑自身出了 Bug)。两者是不同层面的保护。</p>
+<h3 id="5c-sentinel">5c. Sentinel 如何实现动态规则推送?</h3>
+<p>核心是 <strong>"写存分离"模式</strong>:
+1. 外部存储(Nacos/Apollo/ZooKeeper)存储规则--真正的"数据库"
+2. 客户端通过数据源监听规则变更(Watcher/Listener)
+3. 规则变更时,客户端自动加载新规则--<strong>无需重启服务</strong>
+4. Dashboard 修改规则 → 写入 Nacos → 客户端监听生效</p>
+<p>一句话:Dashboard 只管"改",Nacos 负责"存",客户端负责"听"。</p>
+<blockquote>
+<p><strong>扩展</strong>:Sentinel 客户端无状态,不依赖 Dashboard(Dashboard 挂了不影响限流)。规则存 Nacos/Apollo,Sentinel 崩溃不影响业务。</p>
+</blockquote>
+<h3 id="6">6. 分布式事务解决方案</h3>
+<p>核心方案:Seata(AT/TCC/Saga)、消息队列事务消息、本地消息表。详见「30. 分布式事务」章节。</p>
+<h3 id="7-cap">7. CAP 定理?</h3>
+<pre><code>CAP 定理:
+
+C(Consistency):所有节点同一时刻看到的数据相同
+A(Availability):每个请求都能收到响应(不管成功失败)
+P(Partition Tolerance):网络分区时系统仍能工作
+
+为什么只能三选二:
+  网络出问题了(P 发生)→ 节点之间断了联系
+  → 要么等它们恢复(放弃 A,选 CP)
+  → 要么先响应用户(放弃 C,选 AP)
+</code></pre>
+<pre><code>注册中心选型:
+  Nacos:AP / CP 可切换(新项目首选)
+  Eureka:AP(宁可拿到旧地址也不能拿不到地址列表)→ 已停更
+  Zookeeper:CP(Leader 挂了选举期间整个不可用)→ 老项目在用
+  Consul:CP(强一致,健康检查精确但性能低)
+</code></pre>
+<blockquote>
+<p><strong>扩展</strong>:CAP 是"网络分区时"的取舍,不是常态。Paxos/Raft 在保证 P 的前提下兼顾 C 和 A。</p>
+</blockquote>
+<h3 id="8">8. 服务间通信方式?</h3>
+<pre><code>三种通信方式对比:
+
+同步 HTTP/REST(OpenFeign):
+  适用:查询类接口,需要立即拿到结果
+  优点:简单、通用、跨语言
+  缺点:调用方等待,下游慢你也慢
+
+同步 RPC(Dubbo/gRPC):
+  适用:内部高性能服务间调用
+  优点:序列化快、长连接、支持多种负载均衡
+  缺点:耦合语言(Dubbo 是 Java 生态)
+
+异步消息(RocketMQ/Kafka):
+  适用:不需要立即结果的场景(下单→发短信)
+  优点:解耦、削峰、最终一致
+  缺点:增加复杂度,调试困难
+</code></pre>
+<blockquote>
+<p><strong>扩展</strong>:gRPC 基于 Protobuf + HTTP/2,跨语言能力强,是云原生场景首选 RPC 方案。</p>
+</blockquote>
+<h3 id="9">9. 如何保证接口幂等性?</h3>
+<pre><code>幂等 = 支付多次不会扣多次钱
+
+场景:用户点了两次&quot;提交订单&quot;按钮
+      或网关超时重试,后端实际执行了两次
+
+方案1:数据库唯一索引
+  INSERT INTO orders (order_id, ...)
+  → 重复 order_id 直接报错(DupliateKeyException)
+  最可靠,适合新建操作
+
+方案2:Token 机制
+  提交前先 GET /token(服务器发 Token)
+  提交时带 Token → 服务器校验 Token → 删除 Token
+  第二次提交 → Token 已不存在 → 拒绝
+
+方案3:状态机
+  UPDATE orders SET status='PAID' WHERE id=5 AND status='UNPAID'
+  第二次执行 → status 已经不是 UNPAID → 影响行数为 0
+
+方案4:乐观锁
+  UPDATE orders SET ... version=version+1 WHERE id=5 AND version=3
+</code></pre>
+<blockquote>
+<p><strong>扩展</strong>:MQ 消费幂等通常用消息表 + 唯一索引:<code>INSERT INTO msg_consumed (msg_id) VALUES (?)</code>。</p>
+</blockquote>
+<h3 id="10-id">10. 分布式 ID 生成方案</h3>
+<p>详见「25. 系统设计场景题 #4」--含雪花算法、号段模式、UUID、Redis 自增的详细对比及大厂实践。</p>
+<h3 id="11">11. 注册中心对比?</h3>
+<table>
+<thead>
+<tr>
+<th>维度</th>
+<th>Nacos</th>
+<th>Eureka</th>
+<th>Zookeeper</th>
+<th>Consul</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>CAP</td>
+<td>AP/CP 可选</td>
+<td>AP</td>
+<td>CP</td>
+<td>CP</td>
+</tr>
+<tr>
+<td>一致性协议</td>
+<td>Distro/Raft</td>
+<td>无 Leader</td>
+<td>ZAB</td>
+<td>Raft</td>
+</tr>
+<tr>
+<td>配置中心</td>
+<td>内置</td>
+<td>无</td>
+<td>无</td>
+<td>内置(弱)</td>
+</tr>
+<tr>
+<td>健康检查</td>
+<td>TCP/HTTP/MySQL</td>
+<td>HTTP 心跳</td>
+<td>TCP 长连接</td>
+<td>TCP/HTTP</td>
+</tr>
+<tr>
+<td>雪崩保护</td>
+<td>有</td>
+<td>有</td>
+<td>无</td>
+<td>无</td>
+</tr>
+<tr>
+<td>推荐度</td>
+<td>新项目首选</td>
+<td>已停更</td>
+<td>老项目</td>
+<td>少量使用</td>
+</tr>
+</tbody>
+</table>
+<p><strong>选型建议</strong>:新项目首选 Nacos(阿里维护,注册+配置一体);老项目用 Eureka 的可迁移到 Nacos;Zookeeper 正在被逐步替代(Dubbo 3.x 后默认不再推荐 ZK)。</p>
+<blockquote>
+<p><strong>扩展</strong>:Eureka 自我保护--网络抖动时保留已注册实例而非全部剔除,避免服务发现整体失效。</p>
+</blockquote>
+<h3 id="12">12. 配置中心如何实现动态刷新?</h3>
+<pre><code>Nacos 配置动态刷新流程:
+
+1 修改 Nacos 配置 → Nacos 推送变更通知
+2 收到通知 → 发布 RefreshEvent 事件
+3 @RefreshScope 的 Bean → 懒加载代理被标记为&quot;脏&quot;
+4 下次访问该 Bean → 代理销毁旧 Bean → 重新创建 → 新配置生效
+5 不需要重启应用!
+</code></pre>
+<p><strong>关键机制</strong>:<code>@RefreshScope</code> 本质是 <code>@Scope("refresh")</code> 的作用域代理--Bean 被代理包装,当收到 RefreshEvent 时,代理清空缓存,下次调用再重新创建。</p>
+<blockquote>
+<p><strong>扩展</strong>:<code>@RefreshScope</code> 是懒刷新。<code>@ConfigurationProperties</code> 天然支持刷新,无需额外加 <code>@RefreshScope</code>。</p>
+</blockquote>
+<h3 id="13">13. 负载均衡策略?</h3>
+<table>
+<thead>
+<tr>
+<th>策略</th>
+<th>原理</th>
+<th>适用</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>轮询</td>
+<td>一个个轮</td>
+<td>通用</td>
+</tr>
+<tr>
+<td>加权轮询</td>
+<td>配置高的机器多分</td>
+<td>机器配置不均</td>
+</tr>
+<tr>
+<td>最小连接数</td>
+<td>谁最闲给谁</td>
+<td>长连接/耗时差异大</td>
+</tr>
+<tr>
+<td>一致性哈希</td>
+<td>同一用户固定到同一台</td>
+<td>有状态/需要亲和性</td>
+</tr>
+<tr>
+<td>随机</td>
+<td>随便选</td>
+<td>简单场景</td>
+</tr>
+</tbody>
+</table>
+<p>Spring Cloud LoadBalancer(替代了 Ribbon)默认使用轮询。Dubbo 的加权随机更精细,可以根据预热时间(warmup)给刚启动的机器少分配流。</p>
+<blockquote>
+<p><strong>扩展</strong>:Ribbon 已进入维护模式,Spring Cloud 推荐 Spring Cloud LoadBalancer。Gateway 和微服务内部是两层负载均衡。</p>
+</blockquote>
+<h3 id="14-openfeign">14. OpenFeign 的原理?</h3>
+<pre><code>OpenFeign 工作原理:
+
+@FeignClient(name = &quot;user-service&quot;)
+interface UserClient {
+    @GetMapping(&quot;/user/{id}&quot;)
+    User getUser(@PathVariable Long id);
+}
+
+底层流程:
+1 Spring 扫描 @FeignClient 接口
+2 为接口创建 JDK 动态代理
+3 调用 getUser(1L) 时:
+   → 代理拦截 → 解析注解(GET + /user/{id} + 参数)
+   → 从负载均衡获取 user-service 的实例地址
+   → 发送 HTTP 请求 → 解析响应 → 返回 User 对象
+</code></pre>
+<p>本质是<strong>动态代理</strong>--你调接口方法,代理在背后替你发 HTTP 请求、解析返回。集成了负载均衡(Spring Cloud LoadBalancer)和熔断(Sentinel)。</p>
+<blockquote>
+<p><strong>扩展</strong>:Feign 底层可换 <code>OkHttp</code>(连接池,性能好)。Spring Boot 3.x 下 <code>@FeignClient</code> 支持 <code>fallback</code> 降级。</p>
+</blockquote>
+<h3 id="15">15. 微服务链路追踪如何实现?</h3>
+<pre><code>链路追踪原理:
+
+用户请求 → 生成全局唯一的 TraceId
+  ├─ 服务A(SpanId: A, ParentSpanId: null, TraceId: T001)
+  │   └─ 调用服务B → HTTP Header 传 TraceId + SpanId
+  ├─ 服务B(SpanId: B, ParentSpanId: A, TraceId: T001)
+  │   └─ 调用服务C
+  └─ 服务C(SpanId: C, ParentSpanId: B, TraceId: T001)
+
+所有 Span 用同一个 TraceId,形成完整调用链
+出问题时按 TraceId 串起所有日志 → 定位哪个环节出错
+</code></pre>
+<p><strong>主流方案</strong>:
+- <strong>SkyWalking</strong>(推荐):Java Agent 自动埋点,零代码侵入。性能好,支持多种语言和中间件
+- <strong>Sleuth + Zipkin</strong>:Spring 生态,轻量但功能有限(Sleuth 已进入维护模式,推荐迁移到 Micrometer Tracing)
+- <strong>Jaeger</strong>:CNCF 项目,兼容 OpenTracing 标准</p>
+<blockquote>
+<p><strong>扩展</strong>:Micrometer Tracing 是 Spring Cloud 新一代追踪方案(Spring Boot 3.x 推荐)。生产采样率一般设 10%-30%。</p>
+</blockquote>
+<hr />
+<h3 id="16-sentinel">16. Sentinel 熔断降级规则有哪些类型?</h3>
+<p>三种策略:
+- <strong>慢调用比例</strong>:响应时间超过阈值的比例超过设定值时熔断
+- <strong>异常比例</strong>:异常请求比例超过阈值时熔断
+- <strong>异常数</strong>:异常请求数量超过阈值时熔断</p>
+<p>熔断状态机:Closed(正常)→ 触发条件 → Open(熔断,直接拒绝)→ 等待时间窗口到期 → Half-Open(放一个请求试探)→ 成功 → Closed / 失败 → Open。</p>
+<h3 id="17-spring-cloud-alibaba">17. Spring Cloud Alibaba 包含哪些组件?各自作用?</h3>
+<table>
+<thead>
+<tr>
+<th>组件</th>
+<th>功能</th>
+<th>一句话概括</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Nacos</strong></td>
+<td>注册中心 + 配置中心</td>
+<td>服务的"通讯录"和"公告栏"</td>
+</tr>
+<tr>
+<td><strong>Sentinel</strong></td>
+<td>流量控制 + 熔断降级</td>
+<td>交通管制中心</td>
+</tr>
+<tr>
+<td><strong>Seata</strong></td>
+<td>分布式事务</td>
+<td>跨行转账协调器</td>
+</tr>
+<tr>
+<td><strong>Dubbo</strong></td>
+<td>高性能 RPC 框架</td>
+<td>服务间高速公路</td>
+</tr>
+<tr>
+<td><strong>RocketMQ</strong></td>
+<td>分布式消息</td>
+<td>异步快递系统</td>
+</tr>
+<tr>
+<td><strong>SchedulerX</strong></td>
+<td>分布式任务调度</td>
+<td>定时工作分配器</td>
+</tr>
+</tbody>
+</table>
+<p>Spring Cloud Alibaba 是 Netflix 停更后的替代方案--Nacos 替代 Eureka+Config、Sentinel 替代 Hystrix、Dubbo 替代 Feign+Ribbon、Seata 填补分布式事务空白。</p>
+<h3 id="18-dubbo-feign">18. Dubbo 和 Feign 的区别?如何选型?</h3>
+<table>
+<thead>
+<tr>
+<th>对比项</th>
+<th>Dubbo</th>
+<th>Feign</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>协议</td>
+<td>Dubbo 协议(TCP)/ HTTP / gRPC</td>
+<td>HTTP/REST</td>
+</tr>
+<tr>
+<td>性能</td>
+<td>高(约 10 万 TPS)</td>
+<td>中(约 2 万 TPS)</td>
+</tr>
+<tr>
+<td>连接</td>
+<td>长连接(Netty)</td>
+<td>短连接</td>
+</tr>
+<tr>
+<td>适用场景</td>
+<td>内部高性能 RPC</td>
+<td>对外 HTTP API</td>
+</tr>
+<tr>
+<td>服务治理</td>
+<td>完整(限流/路由/权重)</td>
+<td>基础</td>
+</tr>
+</tbody>
+</table>
+<p>选型建议:内部微服务调用优先 Dubbo(高性能、低延迟),对外暴露 API / 与前端交互使用 Feign(标准化 REST)。</p>
+<h3 id="19-rocketmq">19. RocketMQ 事务消息解决什么问题?</h3>
+<p>解决<strong>本地事务成功但消息发送失败</strong>的分布式一致性问题。</p>
+<pre><code>传统 MQ 问题:
+  业务 DB 操作(成功)→ 发送 MQ 消息(失败)→ 下游收不到消息,数据不一致
+
+RocketMQ 事务消息:
+  1. TM 向 MQ 发送半消息(Half Message,消费者不可见)
+  2. 执行本地事务
+  3. 本地事务成功 → Commit → 消费者可见
+     本地事务失败 → Rollback → 消费者不可见
+  4. MQ Broker 定期回调 TM 检查事务状态(解决网络闪断)
+</code></pre>
+<h3 id="20">20. 如何保证微服务架构的稳定性?</h3>
+<pre><code>Spring Cloud Alibaba 全链路稳定性保障:
+
+1. 流量控制(Sentinel):QPS 限流 + 并发限流 + 热点参数限流
+2. 熔断降级(Sentinel / Dubbo 集群容错):慢调用/异常比例熔断 + 降级兜底
+3. 隔离策略:Nacos 命名空间隔离 + 线程池隔离 + Dubbo 服务分组隔离
+4. 超时控制:各层合理超时(Dubbo 默认 3000ms,Feign 默认 1000ms)
+5. 幂等设计:消息消费幂等(去重表/唯一键)+ 接口幂等(Token/乐观锁)
+6. 监控告警:Sentinel Dashboard + RocketMQ 堆积监控 + Nacos 健康检查 + ELK
+</code></pre>
+<p>核心思路:<strong>从限到熔、从拦到疏、从外到内</strong>--层层递进,不依赖单一防线。</p>
+<h3 id="21-seata-at">21. Seata AT 模式的回滚日志是如何存储和恢复的？</h3>
+<p>Seata AT 模式通过 <strong>undolog（回滚日志）</strong> 实现自动补偿：</p>
+<pre><code>执行流程:
+TC(Transaction Coordinator)
+  ↓ 一阶段：注册全局事务
+  ↓ 
+TM(Transaction Manager) — 应用端
+  ↓ 开启分支事务
+  Branch1: UPDATE account SET bal=bal-100 WHERE id=1
+    ↓ 记录前置镜像 (before_image): id=1, bal=原值
+    ↓ 执行 SQL
+    ↓ 记录后置镜像 (after_image): id=1, bal=新值
+    ↓ 异步向 TC 注册分支，TC 写 undolog 到 db
+  ↓ 二阶段（commit）：
+    TC: 删除 undolog（全局事务结束）
+  ↓ 二阶段（rollback）：
+    TC: 读取 undolog 前后镜像
+    逆 SQL: UPDATE account SET bal=原值 WHERE id=1
+</code></pre>
+<p><strong>undolog 表结构</strong>（AT 模式）：</p>
+<pre><code class="language-sql">CREATE TABLE `undo_log` (
+  `id` bigint NOT NULL AUTO_INCREMENT,
+  `branch_id` bigint NOT NULL,
+  `xid` varchar(100) NOT NULL,
+  `context` varchar(128) NOT NULL,
+  `rollback_info` longblob NOT NULL,  -- JSON 存储前后镜像
+  `log_status` int NOT NULL,
+  `log_created` datetime NOT NULL,
+  `log_modified` datetime NOT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `ux_undo_log` (`xid`,`branch_id`)
+);
+</code></pre>
+<blockquote>
+<p><strong>扩展</strong>：undolog 和业务表在同一 DB，同一事务提交；性能优于 XA（因为是本地事务），但只能用于支持 ACID 的关系型 DB；TCC 模式不依赖 undolog，需自己实现补偿逻辑。</p>
+</blockquote>
+
+<script>
+// Scroll spy — highlight active sidebar item
+window.addEventListener('scroll', function() {
+    var links = document.querySelectorAll('.sidebar-toc a');
+    var scrollY = window.scrollY + 120;
+    var current = '';
+    for (var i = links.length - 1; i >= 0; i--) {
+        var target = document.getElementById(links[i].getAttribute('href').slice(1));
+        if (target && target.offsetTop <= scrollY) {
+            current = links[i];
+            break;
+        }
+    }
+    links.forEach(function(a) { a.style.fontWeight = 'normal'; a.style.color = '#555'; });
+    if (current) { current.style.fontWeight = 'bold'; current.style.color = '#0366d6'; }
+});
+</script>
+
+
+<script>
+document.querySelectorAll('pre > code').forEach(function(codeBlock, i) {
+    var pre = codeBlock.parentNode;
+    pre.style.position = 'relative';
+    var btn = document.createElement('button');
+    btn.className = 'copy-btn';
+    btn.textContent = '复制';
+    pre.appendChild(btn);
+    btn.addEventListener('click', function() {
+        var text = codeBlock.textContent;
+        navigator.clipboard.writeText(text).then(function() {
+            btn.textContent = '已复制';
+            btn.classList.add('copied');
+            setTimeout(function() {
+                btn.textContent = '复制';
+                btn.classList.remove('copied');
+            }, 2000);
+        }).catch(function() {
+            // Fallback
+            var ta = document.createElement('textarea');
+            ta.value = text; ta.style.position = 'fixed'; ta.style.opacity = '0';
+            document.body.appendChild(ta); ta.select();
+            document.execCommand('copy'); document.body.removeChild(ta);
+            btn.textContent = '已复制'; btn.classList.add('copied');
+            setTimeout(function() { btn.textContent = '复制'; btn.classList.remove('copied'); }, 2000);
+        });
+    });
+});
+</script>
+
+
+<script>document.querySelectorAll("pre>code").forEach(function(c){var p=c.parentNode;p.style.position="relative";var b=document.createElement("button");b.className="copy-btn";b.textContent="复制";p.appendChild(b);b.addEventListener("click",function(){var t=c.textContent;navigator.clipboard.writeText(t).then(function(){b.textContent="已复制";b.classList.add("copied");setTimeout(function(){b.textContent="复制";b.classList.remove("copied")},2000)}).catch(function(){var a=document.createElement("textarea");a.value=t;a.style.position="fixed";a.style.opacity="0";document.body.appendChild(a);a.select();document.execCommand("copy");document.body.removeChild(a);b.textContent="已复制";b.classList.add("copied");setTimeout(function(){b.textContent="复制";b.classList.remove("copied")},2000)})})})</script>
+</body>
+</html>

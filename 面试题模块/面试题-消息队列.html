@@ -1,0 +1,1000 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>面试题 - 消息队列</title>
+<style>
+body {
+    transition: margin-left .25s ease;
+    font-family: -apple-system, "Noto Sans SC", "Microsoft YaHei", sans-serif;
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 20px 24px 60px;
+    line-height: 1.8;
+    color: #333;
+    background: #fff;
+}
+h1 { border-bottom: 2px solid #eee; padding-bottom: 10px; color: #222; }
+h2 { color: #333; margin-top: 32px; }
+h3 { color: #555; }
+a { color: #0366d6; text-decoration: none; }
+a:hover { text-decoration: underline; }
+pre {
+    background: #f6f8fa;
+    border-radius: 6px;
+    padding: 16px;
+    overflow-x: auto;
+    font-size: 14px;
+    line-height: 1.45;
+}
+code {
+    background: #f0f2f4;
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-size: 14px;
+}
+pre code { background: none; padding: 0; }
+blockquote {
+    border-left: 4px solid #ddd;
+    margin: 0;
+    padding: 0 16px;
+    color: #666;
+}
+table {
+    border-collapse: collapse;
+    width: 100%;
+    margin: 16px 0;
+}
+th, td {
+    border: 1px solid #ddd;
+    padding: 8px 12px;
+    text-align: left;
+}
+th { background: #f6f8fa; }
+img { max-width: 100%; }
+.back-link {
+    margin-bottom: 20px;
+    display: block;
+    color: #666;
+}
+.back-link:hover { color: #0366d6; }
+
+.sidebar-toc {
+    transition: left .25s ease;
+    position: fixed;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    width: 220px;
+    background: #f8f9fa;
+    border-right: 1px solid #e9ecef;
+    padding: 20px 0;
+    overflow-y: auto;
+    font-size: 13px;
+    z-index: 100;
+}
+.sidebar-toc a {
+    display: block;
+    padding: 6px 16px;
+    color: #555;
+    text-decoration: none;
+    border-left: 3px solid transparent;
+    line-height: 1.5;
+}
+.sidebar-toc a:hover {
+    background: #e9ecef;
+    color: #0366d6;
+    border-left-color: #0366d6;
+}
+.sidebar-toc .toc-h3 { padding-left: 20px; font-size: 12px; }
+body { margin-left: 240px; }
+
+
+.copy-btn {
+    position: absolute; top: 6px; right: 6px;
+    background: #e9ecef; border: none;
+    border-radius: 4px; padding: 3px 10px;
+    font-size: 12px; color: #555; cursor: pointer;
+    opacity: 0; transition: opacity 0.2s;
+    z-index: 1;
+}
+pre:hover .copy-btn { opacity: 1; }
+.copy-btn:hover { background: #d0d7de; }
+.copy-btn.copied { opacity: 1; background: #2da44e; color: #fff; }
+.copy-btn{position:absolute;top:6px;right:6px;background:#e9ecef;border:none;border-radius:4px;padding:3px 10px;font-size:12px;color:#555;cursor:pointer;opacity:0;transition:opacity .2s;z-index:1}pre:hover .copy-btn{opacity:1}.copy-btn:hover{background:#d0d7de}.copy-btn.copied{opacity:1;background:#2da44e;color:#fff}
+.copy-btn{position:absolute;top:6px;right:6px;background:#e9ecef;border:none;border-radius:4px;padding:3px 10px;font-size:12px;color:#555;cursor:pointer;opacity:0;transition:opacity .2s;z-index:1}pre:hover .copy-btn{opacity:1}.copy-btn:hover{background:#d0d7de}.copy-btn.copied{opacity:1;background:#2da44e;color:#fff}
+.sidebar-toggle-btn {
+  position: fixed;
+  left: 220px;
+  top: 0;
+  width: 28px;
+  height: 40px;
+  background: #f8f9fa;
+  border: 1px solid #e9ecef;
+  border-left: none;
+  border-radius: 0 4px 4px 0;
+  cursor: pointer;
+  font-size: 16px;
+  color: #555;
+  z-index: 101;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: left .25s, background .2s;
+  padding: 0;
+  line-height: 1;
+}
+.sidebar-toggle-btn:hover { background: #e9ecef; color: #0366d6; }
+.sidebar-collapsed .sidebar-toc { left: -220px; }
+.sidebar-collapsed .sidebar-toggle-btn { left: 0; }
+.sidebar-collapsed body, body.sidebar-collapsed { margin-left: 28px; }
+.sidebar-overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,.3);
+  z-index: 99;
+}
+@media (max-width: 768px) {
+  .sidebar-collapsed .sidebar-overlay { display: none; }
+  .sidebar-toc { left: -220px; }
+  .sidebar-toggle-btn { left: 0; }
+  body { margin-left: 28px; }
+}
+
+</style>
+</head>
+</head>
+<body>
+<nav class="sidebar-toc"><a class="toc-h3" href="#1">1. 消息队列的作用?</a><a class="toc-h3" href="#2">2. 消息丢失怎么解决?</a><a class="toc-h3" href="#3">3. 消息重复消费怎么解决?</a><a class="toc-h3" href="#4">4. 如何保证消息顺序?</a><a class="toc-h3" href="#5-kafka">5. Kafka 为什么高吞吐?</a><a class="toc-h3" href="#6-kafka-isr">6. Kafka 的 ISR 机制?</a><a class="toc-h3" href="#7">7. 消息堆积(积压)怎么处理?</a><a class="toc-h3" href="#8">8. 死信队列是什么?怎么用?</a><a class="toc-h3" href="#9">9. 延时消息怎么实现?</a><a class="toc-h3" href="#10-kafka-rebalance">10. Kafka 的消费者组和 Rebalance 机制?</a><a class="toc-h3" href="#11-mq-rabbitmq-vs-rocketmq-vs-kafka">11. MQ 选型对比:RabbitMQ vs RocketMQ vs Kafka?</a><a class="toc-h3" href="#12-rabbitmq">12. RabbitMQ 四种交换机类型?</a><a class="toc-h3" href="#13-rabbitmq">13. RabbitMQ 如何保证消息不丢?</a><a class="toc-h3" href="#14-rocketmq">14. RocketMQ 的核心组件?</a><a class="toc-h3" href="#15-rocketmq">15. RocketMQ 集群消费和广播消费的区别?</a><a class="toc-h3" href="#16-rocketmq-commitlog-consumequeue">16. RocketMQ CommitLog 和 ConsumeQueue 怎么协同?</a><a class="toc-h3" href="#17-rocketmq">17. RocketMQ 事务消息的流程?</a><a class="toc-h3" href="#18-kafka">18. Kafka 如何保证消息不丢失?</a><a class="toc-h3" href="#18a-kafka">18a. Kafka 如何保证消息顺序?</a><a class="toc-h3" href="#18b-kafka-exactly-once">18b. Kafka 如何实现精确一次(Exactly-Once)语义?</a><a class="toc-h3" href="#19-rabbitmq">19. RabbitMQ 如何保证消息不丢?(三端防线)</a><a class="toc-h3" href="#19a">19a. 消息堆积了怎么处理?</a><a class="toc-h3" href="#19b-rabbitmq">19b. RabbitMQ 怎么做高可用?</a><a class="toc-h3" href="#20-kafka-exactly-once">20. Kafka 如何保证 Exactly-Once 语义？</a></nav>
+<button class="sidebar-toggle-btn" onclick="toggleSidebar()" title="切换侧栏">☰</button>
+
+<div class="sidebar-overlay" onclick="toggleSidebar()"></div>
+
+<script>
+function toggleSidebar() {
+  document.body.classList.toggle('sidebar-collapsed');
+  try { localStorage.setItem('sidebarCollapsed', document.body.classList.contains('sidebar-collapsed')); } catch(e) {}
+}
+(function() {
+  try {
+    if (localStorage.getItem('sidebarCollapsed') === 'true') {
+      document.body.classList.add('sidebar-collapsed');
+    }
+  } catch(e) {}
+})();
+</script>
+<a class="back-link" href="/blog/2026/05/16/面试题/面试题/">← 返回面试题目录</a>
+<h1 id=page-title>消息队列</h1>
+<h3 id="1">1. 消息队列的作用?</h3>
+<pre><code>MQ 三大作用:
+
+1 削峰填谷(过滤流量尖刺):
+   秒杀 10 万 QPS → MQ 缓冲 → 后端 5000 QPS 慢慢消费
+   就像水库蓄洪--暴雨来了先存着,慢慢放
+
+2 解耦(系统间松耦合):
+   订单系统 → MQ → 短信服务
+                  → 积分服务     ← 订单系统不知道谁在消费
+                  → 物流服务
+   上下游独立开发、独立部署、互相不感知
+
+3 异步(不重要的流程后台做):
+   用户下单 → 主流程:扣库存、创建订单(秒级返回)
+               异步:发短信、写日志、同步ES(不计入响应时间)
+</code></pre>
+<blockquote>
+<p><strong>扩展</strong>:MQ 增加系统复杂度(消息顺序、重复消费、消息丢失)。适合"不需要立即拿到结果"的场景。</p>
+</blockquote>
+<h3 id="2">2. 消息丢失怎么解决?</h3>
+<pre><code>消息丢失三层防线:
+
+┌────────────────────────────────────────────────┐
+│ 1 生产者 → MQ(生产阶段)                       │
+│   同步发送 + confirm 确认 + 失败重试             │
+│   发完消息等 MQ 回复&quot;收到了&quot;才算成功              │
+├────────────────────────────────────────────────┤
+│ 2 MQ 内部(存储阶段)                           │
+│   持久化到磁盘(同步刷盘最安全)、多副本          │
+│   RocketMQ: 同步刷盘 + 同步复制                  │
+│   Kafka: acks=all + min.insync.replicas         │
+├────────────────────────────────────────────────┤
+│ 3 MQ → 消费者(消费阶段)                       │
+│   手动 ACK(处理完再确认),不是自动 ACK          │
+│   处理失败不确认,消息会重新投递                  │
+└────────────────────────────────────────────────┘
+</code></pre>
+<blockquote>
+<p><strong>扩展</strong>:Kafka <code>acks=all</code> 最安全但最慢,<code>acks=1</code> 快但 Leader 挂了可能丢。生产在可靠性和吞吐间找平衡。</p>
+</blockquote>
+<h3 id="3">3. 消息重复消费怎么解决?</h3>
+<p>MQ 的投递语义一般是"至少一次"(At Least Once)--网络超时、重试都可能导致重复投递。消费者必须自己做幂等:</p>
+<pre><code>幂等方案:
+
+1 数据库唯一索引(最可靠)
+   INSERT INTO order_log (message_id, content) VALUES (...)
+   → 重复 message_id → DuplicateKeyException → 忽略
+
+2 Redis 判重
+   SETNX message_id:xxx 1 EX 3600
+   → 设置成功说明第一次,失败说明处理过
+
+3 消费记录表
+   处理前 INSERT 消费表(与业务操作在同一事务中)
+   下次消费前先查记录表
+
+4 业务天然幂等
+   UPDATE account SET balance = 100 WHERE id = 5
+   设置固定值天生幂等,不依赖外部去重
+</code></pre>
+<blockquote>
+<p><strong>扩展</strong>:Kafka 可通过幂等生产者+事务实现 EOS。实际常用唯一索引和业务天然幂等组合。</p>
+</blockquote>
+<h3 id="4">4. 如何保证消息顺序?</h3>
+<pre><code>全局有序 vs 局部有序:
+
+全局有序(不推荐):
+  所有消息发到同一个分区 → 单线程生产+消费
+  → 性能极差,等于放弃并行能力
+
+局部有序(推荐):
+  同一业务 ID 的消息 → 路由到同一分区
+  分区内 FIFO 天然有序
+  不同分区之间并行处理,互不影响
+
+  例:同一个订单的&quot;创建→支付→发货&quot;消息
+      都发到同一个 queue → 消费时按顺序处理
+</code></pre>
+<p><strong>RocketMQ 实现</strong>:<code>new MessageQueueSelector() { select(..., orderId.hashCode() % size) }</code>--相同 orderId 进同一个 MessageQueue。</p>
+<p><strong>Kafka 实现</strong>:按 key 哈希分区 → 同一 key 的消息一定在同一 partition。</p>
+<blockquote>
+<p><strong>扩展</strong>:消费端多线程并行处理时,需按 key 做内存归组再单线程处理保证有序。</p>
+</blockquote>
+<h3 id="5-kafka">5. Kafka 为什么高吞吐?</h3>
+<pre><code>Kafka 高性能四大支柱:
+
+1 顺序写磁盘(PageCache)
+   随机写磁盘: ~100 IOPS
+   顺序写磁盘: ~600MB/s(利用 Page Cache + 磁盘顺序写)
+   差距 1000 倍!Kafka 不删数据,只追加写(append-only)
+
+2 零拷贝(sendfile 系统调用)
+   传统:磁盘 → 内核缓冲区 → 用户缓冲区 → Socket 缓冲区 → 网卡
+   零拷贝:磁盘 → 内核缓冲区 → Socket 缓冲区 → 网卡
+   省了两次 CPU copy 和用户态/内核态切换
+
+3 批量 + 压缩
+   生产者攒一批消息一起发(batch.size + linger.ms)
+   消息压缩(GZIP/Snappy/LZ4)→ 网络和磁盘都省
+
+4 分区并行
+   一个 Topic 多个 Partition → 多个消费者并行消费
+   吞吐量随分区数线性增加
+</code></pre>
+<blockquote>
+<p><strong>扩展</strong>:OS Page Cache 让 Kafka 用磁盘价格享受内存性能。Kafka 用 sendfile 做零拷贝,RocketMQ 用 mmap(适合小批量读写)。</p>
+</blockquote>
+<h3 id="6-kafka-isr">6. Kafka 的 ISR 机制?</h3>
+<pre><code>ISR(In-Sync Replicas)= 和 Leader 保持同步的副本集合
+
+传统方案(过半提交):
+  5 副本 → 写成功 3 个就算提交 → 固定数字
+  优点:简单        缺点:任何 3 个都要等
+
+ISR 方案:
+  ISR = [Leader, Follower1, Follower2]  ← 动态集合
+  Follower 落后太多(replica.lag.time.max.ms)→ 踢出 ISR
+  Follower 追上来了 → 重新加入 ISR
+  Leader 挂了 → 从 ISR 中选新 Leader
+</code></pre>
+<p><strong>Kafka 可靠性配置</strong>:
+- <code>acks=all</code>:所有 ISR 都写入成功才确认(最可靠)
+- <code>min.insync.replicas=2</code>:ISR 至少要有几个副本(防止 ISR 只剩 Leader 自己)
+- 这两个配置配合使用才能保证数据不丢失</p>
+<blockquote>
+<p><strong>扩展</strong>:<code>unclean.leader.election.enable=false</code> 宁愿不可用也不丢数据(CP),生产默认 false。ISR 弹性收缩——网络波动时缩小,恢复后扩大。</p>
+</blockquote>
+<h3 id="7">7. 消息堆积(积压)怎么处理?</h3>
+<p>消息积压 = <strong>快递分拣员处理不过来,仓库堆满了</strong>。</p>
+<pre><code>原因诊断(先定位问题在哪个环节):
+
+  Producer 发太快? → 限流
+  Broker 写不进去? → 扩容 / 磁盘 IO 瓶颈
+  Consumer 消费太慢? → 最常见,往下看
+</code></pre>
+<p><strong>应急手段(先止血)</strong>:</p>
+<ol>
+<li><strong>临时加消费机器</strong>:增加 Consumer 实例,提升并发消费能力</li>
+<li><strong>跳过非核心消息</strong>:紧急时丢弃不重要消息,保证核心链路</li>
+<li><strong>增大 Topic 分区数</strong>:Kafka 中增加 Partition,增加消费并行度</li>
+</ol>
+<p><strong>长期优化(治本)</strong>:</p>
+<ul>
+<li>排查消费代码:有没有阻塞的 SQL / 网络调用?批量消费(<code>max.poll.records</code> 调大)</li>
+<li>Kafka 专属:Consumer Group 中的消费者数 ≤ Partition 数,多出来的消费者会闲置</li>
+<li>监控告警:对消费 Lag 设阈值,提前预警</li>
+</ul>
+<pre><code class="language-java">// Kafka 监控消费 Lag
+consumer.metrics().forEach((name, metric) -&gt; {
+    if (name.name().equals(&quot;records-lag-max&quot;)) {
+        System.out.println(&quot;最大消费延迟: &quot; + metric.metricValue());
+    }
+});
+</code></pre>
+<blockquote>
+<p><strong>扩展</strong>:<code>max.poll.interval.ms</code> 设小会导致处理慢的消费者被踢出 Group 触发 Rebalance,反而降低吞吐。</p>
+</blockquote>
+<h3 id="8">8. 死信队列是什么?怎么用?</h3>
+<p>死信 = <strong>快递反复投递失败 3 次,退回仓库标记"疑难件"</strong>,不再投递,等人工处理。</p>
+<pre><code>正常流程:Producer → Queue → Consumer ✅
+异常流程:Producer → Queue → Consumer ❌ → 重试(N次) → 死信队列 → 人工/定时任务处理
+</code></pre>
+<p><strong>什么时候消息变成死信</strong>:
+- 消息被拒绝(<code>reject</code> / <code>nack</code>)且不重新入队
+- 消息在队列中的存活时间超过 TTL
+- 队列达到最大长度,最早的消息被挤出</p>
+<p><strong>死信队列的用途</strong>:
+- 隔离:坏消息不影响正常消息的处理
+- 追溯:所有消费失败的消息都在死信队列里,方便排查
+- 兜底:定时扫描死信队列,人工或自动重试</p>
+<blockquote>
+<p><strong>扩展</strong>:大量消息进死信队列说明消费端有 Bug 或下游挂了,需尽快修。RocketMQ 死信 Topic 为 <code>%DLQ%消费组名</code>,Kafka 需自行实现 Dead Letter Topic。</p>
+</blockquote>
+<h3 id="9">9. 延时消息怎么实现?</h3>
+<p>延时消息 = <strong>定时炸弹</strong>--消息发出去后不会立刻被消费,等到了指定时间才触发。</p>
+<p>经典场景:下单一笔商品,<strong>30 分钟没付款自动取消订单</strong>。</p>
+<pre><code>Producer 发送延时消息(delay=30分钟)
+    ↓
+MQ 暂存(不投递给 Consumer)
+    ↓ 30 分钟后
+Consumer 收到消息 → 检查订单状态 → 未支付 → 取消
+</code></pre>
+<p><strong>各 MQ 的实现</strong>:</p>
+<table>
+<thead>
+<tr>
+<th>MQ</th>
+<th>方案</th>
+<th>粒度</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>RocketMQ</strong></td>
+<td>原生支持,18 个延迟级别(1s ~ 2h)</td>
+<td>预设级别,不可自定义</td>
+</tr>
+<tr>
+<td><strong>RabbitMQ</strong></td>
+<td>死信队列 + TTL 模拟</td>
+<td>灵活但复杂</td>
+</tr>
+<tr>
+<td><strong>Kafka</strong></td>
+<td>无原生支持,需自己实现(定时任务轮询)</td>
+<td>灵活但低效</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Kafka 的曲线救国</strong>:生产者发到一个专门的 Delay Topic,后台定时任务轮询--时间到了再发到真正的 Topic 给消费者。</p>
+<blockquote>
+<p><strong>扩展</strong>:延时消息适合一次性延迟动作(订单超时),定时任务适合周期性操作。精细到秒级延迟可用 Redis ZSet+轮询。</p>
+</blockquote>
+<h3 id="10-kafka-rebalance">10. Kafka 的消费者组和 Rebalance 机制?</h3>
+<p>消费者组 = <strong>一个外卖团队的同事们</strong>--每个人负责一个片区的订单,一个订单只会被团队里的一个人处理。</p>
+<pre><code>Consumer Group &quot;order-processor&quot;
+├── Consumer A → Partition 0, 1
+├── Consumer B → Partition 2
+└── Consumer C → Partition 3, 4
+
+规则:
+- 一个 Partition 只能被组内一个 Consumer 消费(保证顺序)
+- 一个 Consumer 可以负责多个 Partition
+- Consumer 数 &gt; Partition 数 → 多出来的 Consumer 闲置
+</code></pre>
+<p><strong>Rebalance(重平衡)</strong>:Consumer 加入或离开时,重新分配 Partition 的过程。</p>
+<pre><code>触发条件:
+  新 Consumer 加入 → 分担负载
+  Consumer 心跳超时 → 踢出,重新分配
+  Topic Partition 变化
+
+代价:
+  Rebalance 期间,整个 Consumer Group 暂停消费!
+  (Stop The World 式的全组暂停)
+</code></pre>
+<p><strong>减少 Rebalance 的思路</strong>:
+- <code>session.timeout.ms</code> 设大(默认 45s),避免短暂网络抖动触发
+- <code>max.poll.interval.ms</code> 设大,避免处理慢导致被踢
+- 避免 Consumer 频繁重启
+- 使用 Cooperative Rebalance(Kafka 2.4+),增量分配,不全停</p>
+<blockquote>
+<p><strong>扩展</strong>:消费一会儿停一会儿通常是 Rebalance 循环。<code>kafka-consumer-groups.sh --describe</code> 排查 Lag 和 Consumer 状态。</p>
+</blockquote>
+<h3 id="11-mq-rabbitmq-vs-rocketmq-vs-kafka">11. MQ 选型对比:RabbitMQ vs RocketMQ vs Kafka?</h3>
+<table>
+<thead>
+<tr>
+<th>维度</th>
+<th>RabbitMQ</th>
+<th>RocketMQ</th>
+<th>Kafka</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>开发语言</strong></td>
+<td>Erlang</td>
+<td>Java</td>
+<td>Java/Scala</td>
+</tr>
+<tr>
+<td><strong>吞吐量</strong></td>
+<td>万级 TPS</td>
+<td>十万级 TPS</td>
+<td><strong>百万级 TPS</strong></td>
+</tr>
+<tr>
+<td><strong>延时</strong></td>
+<td>微秒级(最低)</td>
+<td>毫秒级</td>
+<td>毫秒级</td>
+</tr>
+<tr>
+<td><strong>消息顺序</strong></td>
+<td>单队列有序</td>
+<td>可严格顺序</td>
+<td>单 Partition 有序</td>
+</tr>
+<tr>
+<td><strong>延时消息</strong></td>
+<td>间接实现</td>
+<td>原生 18 级</td>
+<td>无原生</td>
+</tr>
+<tr>
+<td><strong>事务消息</strong></td>
+<td>不支持</td>
+<td><strong>原生支持</strong></td>
+<td>0.11+ 支持</td>
+</tr>
+<tr>
+<td><strong>集群依赖</strong></td>
+<td>内置</td>
+<td>NameServer(轻量)</td>
+<td>ZK/KRaft</td>
+</tr>
+<tr>
+<td><strong>定位</strong></td>
+<td>可靠路由,低延迟</td>
+<td>金融级可靠</td>
+<td><strong>海量数据流(日志、埋点)</strong></td>
+</tr>
+</tbody>
+</table>
+<p><strong>一句话选型</strong>:</p>
+<pre><code>需要低延迟 + 灵活路由 → RabbitMQ(适合中小团队、运维简单)
+Java 全栈 + 分布式事务 → RocketMQ(阿里生态,金融级)
+日志/流处理/海量数据 → Kafka(唯一选择)
+</code></pre>
+<blockquote>
+<p><strong>扩展</strong>:创业公司 RabbitMQ(运维最简单);中型公司 RocketMQ(与 Spring Cloud Alibaba 无缝);大厂数据管道选 Kafka。Pulsar(算存分离)国内落地还不多。</p>
+</blockquote>
+<h3 id="12-rabbitmq">12. RabbitMQ 四种交换机类型?</h3>
+<p>把 RabbitMQ 的交换机想象成快递分拣中心,四种分拣规则:</p>
+<ul>
+<li>
+<p><strong>Direct Exchange(精准投递)</strong>:routing key 必须和 binding key 完全一致。就像快递员按门牌号送货--"3 栋 501"的快递只送 3 栋 501,不会送错。典型场景:支付回调,订单 <code>order.create</code> 只路由到订单处理的队列。</p>
+</li>
+<li>
+<p><strong>Topic Exchange(按主题订阅)</strong>:routing key 支持通配符--<code>*</code> 匹配恰好一个词,<code>#</code> 匹配零个或多个词。就像 RSS 订阅:订阅 <code>sports.*</code> 能收到 <code>sports.football</code> 和 <code>sports.basketball</code>,而 `sports....</p>
+</li>
+<li>
+<p><strong>Fanout Exchange(广播)</strong>:忽略 routing key,消息复制到所有绑定的队列。就像村口大喇叭--一个人喊话,全村都听到。典型场景:配置刷新通知,所有服务实例都需要收到。</p>
+</li>
+<li>
+<p><strong>Headers Exchange(按消息头匹配)</strong>:不看 routing key,只看消息头部的键值对。就像快递员不看你写了什么地址,而是扫面单上的条形码。几乎不用,因为性能差且不直观。</p>
+</li>
+</ul>
+<pre><code>            Producer
+               │
+        routing key = &quot;order.create&quot;
+               │
+               ▼
+    ┌──────────────────────┐
+    │     Exchange          │
+    │  (Direct / Topic /    │
+    │   Fanout / Headers)   │
+    └──┬───────┬───────┬───┘
+       │       │       │
+       ▼       ▼       ▼
+    Queue1  Queue2  Queue3
+</code></pre>
+<blockquote>
+<p><strong>扩展</strong>:RabbitMQ Default Exchange 以队列名为 routing key 绑定,开发调试时常用。</p>
+</blockquote>
+<h3 id="13-rabbitmq">13. RabbitMQ 如何保证消息不丢?</h3>
+<p>消息就像一份重要快递,有三个环节可能丢件:</p>
+<p><strong>第一关:生产者 → Broker(Confirm 机制)</strong></p>
+<p>想象你寄快递,把包裹丢进邮筒就走了--万一邮筒满了呢?Confirm 模式相当于快递员当面签收:你寄出快递,必须拿到回执才认为投递成功,否则重寄。</p>
+<pre><code class="language-java">// 开启 confirm 模式
+channel.confirmSelect();
+channel.basicPublish(exchange, routingKey, null, body);
+// 等待 Broker 确认收到
+if (channel.waitForConfirms()) {
+    // 发下一批
+}
+</code></pre>
+<p><strong>第二关:Broker 自己(持久化)</strong></p>
+<p>Broker 宕机了消息还在不在?三层持久化缺一不可:
+- Exchange 持久化(<code>durable=true</code>):交换机本身不丢
+- Queue 持久化(<code>durable=true</code>):队列结构不丢
+- 消息持久化(<code>deliveryMode=2</code>):消息内容写入磁盘</p>
+<p>就像重要文件不仅要存档(消息持久化),档案柜(队列)也得是铁柜不是纸箱,档案室(Exchange)也得是防火的。</p>
+<p><strong>第三关:Broker → 消费者(手动 ACK)</strong></p>
+<p>默认自动 ACK 模式:消息刚发给你,还没处理完,RabbitMQ 就认为你已经消费了。就像快递显示"已签收",但你其实还没拆包--万一这时候你宕机了,消息就丢了。</p>
+<p>正确做法:关掉自动 ACK,业务处理完了再手动确认:</p>
+<pre><code class="language-java">// 关闭自动确认
+boolean autoAck = false;
+channel.basicConsume(queueName, autoAck, (tag, delivery) -&gt; {
+    // 1. 处理业务
+    processMessage(delivery.getBody());
+    // 2. 确认签收
+    channel.basicAck(delivery.getEnvelope().getDeliveryTag(), false);
+}, tag -&gt; {});
+</code></pre>
+<pre><code>Producer                    Broker                     Consumer
+   │                          │                           │
+   │─── publish ─────────────▶│                           │
+   │◀── confirm ack ─────────│                           │
+   │                          │─── push message ─────────▶│
+   │                          │                           │── 处理业务
+   │                          │◀── manual ack ────────────│
+   │                          │   (处理完才确认)            │
+</code></pre>
+<blockquote>
+<p><strong>扩展</strong>:即使做了以上三层,极端情况下仍可能丢消息(比如磁盘坏了还没同步到从节点)。金融级可靠性还需要 <strong>镜像队列</strong>(Mirrored Queue)或 <strong>Quorum Queue</strong>(RabbitMQ 3.8+,基于 Raft 协议的主从同步)。另外 confirm 模式有性能代价--每条消息等确认会降低吞吐,可以用<strong>批量 confirm</strong>(攒一批再确认)或<strong>异步 confirm</strong>(发完不管,回调处理结果)来平衡。</p>
+</blockquote>
+<h3 id="14-rocketmq">14. RocketMQ 的核心组件?</h3>
+<p>RocketMQ 有四大核心组件,可以类比成一个<strong>大型快递中转站</strong>:</p>
+<table>
+<thead>
+<tr>
+<th>组件</th>
+<th>作用</th>
+<th>类比</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>NameServer</strong></td>
+<td>无状态注册中心,存 Broker 的路由信息(Topic 分布在哪些 Broker),各节点彼此独立</td>
+<td>快递站的<strong>地址簿</strong>,告诉你哪个包裹在哪个仓库</td>
+</tr>
+<tr>
+<td><strong>Broker</strong></td>
+<td>消息存储与转发节点,接收、持久化、投递消息,支持主从</td>
+<td><strong>仓库</strong>,存放包裹并负责出库</td>
+</tr>
+<tr>
+<td><strong>Producer</strong></td>
+<td>生产者,支持同步、异步、单向三种发送</td>
+<td><strong>寄件人</strong></td>
+</tr>
+<tr>
+<td><strong>Consumer</strong></td>
+<td>消费者,支持集群消费和广播消费两种模式</td>
+<td><strong>收件人</strong></td>
+</tr>
+</tbody>
+</table>
+<pre><code>Producer ──▶ NameServer(查 Broker 地址)
+   │              │
+   │         &quot;Topic-A 在 Broker1&quot;
+   │              │
+   └──────────────▶ Broker1 ──▶ Consumer
+        发消息         存储+投递      消费
+</code></pre>
+<blockquote>
+<p><strong>扩展</strong>:NameServer 为什么设计成各节点彼此独立、不互相通信?因为这样部署极其简单--每台 NameServer 都是完整路由表,不需要选主、不需要共识算法。Producer/Consumer 会同时连接所有 NameServer,一台挂了切另一台。这是典型的<strong>AP 设计</strong>(CAP 中牺牲一致性换可用性),因为路由信息不常变。</p>
+</blockquote>
+<h3 id="15-rocketmq">15. RocketMQ 集群消费和广播消费的区别?</h3>
+<ul>
+<li>
+<p><strong>集群消费</strong>(默认):同 Consumer Group 内多个实例分摊消息,一条消息只被一个实例处理。就像<strong>多个工人分拣一堆快递</strong>--每件快递只被一个人处理,不会重复劳动。适用场景:订单处理、任务分发。</p>
+</li>
+<li>
+<p><strong>广播消费</strong>:同 Group 内每个实例都收到全量消息。就像<strong>公司全员通知</strong>--每个人都要知道,不是一个人代表全公司听。适用场景:配置刷新、本地缓存更新。</p>
+</li>
+</ul>
+<pre><code>集群消费:                     广播消费:
+  Producer                      Producer
+     │                              │
+     ▼                              ▼
+   Queue                      ┌───Queue───┐
+     │                        │           │
+  ┌──┴──┐                     ▼           ▼
+  ▼     ▼                Consumer1   Consumer2
+ C1     C2                (全量)      (全量)
+(分摊)  (分摊)
+</code></pre>
+<blockquote>
+<p><strong>扩展</strong>:集群消费并发度上限 = Queue 数量。有 4 个 Queue 部署 10 个消费者,只有 4 个能干活。消息堆积时首先考虑增加 Queue 数量。</p>
+</blockquote>
+<h3 id="16-rocketmq-commitlog-consumequeue">16. RocketMQ CommitLog 和 ConsumeQueue 怎么协同?</h3>
+<p>这是 RocketMQ 存储设计的精髓--<strong>所有消息写一个文件,用索引来读</strong>。</p>
+<ul>
+<li>
+<p><strong>CommitLog</strong>:所有 Topic 共享的全局物理存储文件,消息按到达顺序追加写入。就像流水线上所有零件按顺序堆放在仓库--最大化磁盘顺序写性能(顺序写比随机写快几百倍)。</p>
+</li>
+<li>
+<p><strong>ConsumeQueue</strong>:每个 Topic-Queue 的索引文件,记录消息在 CommitLog 中的 offset、size、tag hash--就像书籍的<strong>目录</strong>。</p>
+</li>
+</ul>
+<pre><code>写入流程:                          消费流程:
+
+Producer 发消息                     Consumer 要消费
+    │                                   │
+    ▼                                   ▼
+CommitLog(顺序追加写)            查 ConsumeQueue(索引)
+    offset=1000                         offset=1000, size=500
+    offset=1500                              │
+    offset=2000                              ▼
+                                  去 CommitLog 读 offset=1000
+                                  的 500 字节 -- 拿到消息
+</code></pre>
+<blockquote>
+<p><strong>扩展</strong>:CommitLog 所有 Topic 混在一起写最大化顺序写性能。ConsumeQueue 只存 20 字节索引(offset+size+tagCode),读极快。</p>
+</blockquote>
+<h3 id="17-rocketmq">17. RocketMQ 事务消息的流程?</h3>
+<p>事务消息解决的是"本地操作和发消息必须同时成功"的问题。比如:扣款 + 发下单消息,不能出现扣了款但没发消息(用户钱扣了却没订单)。</p>
+<p>RocketMQ 用<strong>半消息 + 回查</strong>实现,本质是<strong>两阶段提交 + 补偿回查</strong>:</p>
+<pre><code>1 发半消息(对 Consumer 不可见)
+         │
+         ▼
+2 执行本地事务(如扣款)
+    │              │
+   成功            失败
+    │              │
+    ▼              ▼
+3 Commit        3 Rollback
+(消息可见)     (删除半消息)
+
+4 如果 Broker 超时没收到确认 → 回调 checkLocalTransaction 回查
+5 回查 15 次仍不确定 → 转入死信队列
+</code></pre>
+<pre><code>Producer                      Broker                      Consumer
+   │                             │                            │
+   │── 1发送半消息 ─────────────▶│  (半消息,Consumer 不可见)   │
+   │                             │                            │
+   │── 2执行本地事务 ────────────│                            │
+   │                             │                            │
+   │── 3Commit/Rollback ───────▶│                            │
+   │                             │── 4超时回查 ──────────────▶│
+   │◀── 回查本地事务状态 ────────│                            │
+   │── 返回最终状态 ────────────▶│── Commit → 消息可见 ──────▶│
+</code></pre>
+<blockquote>
+<p><strong>扩展</strong>:2PC/3PC 代价太高,RocketMQ 追求最终一致性(通过回查补偿),电商场景足够。</p>
+</blockquote>
+<hr />
+<h3 id="18-kafka">18. Kafka 如何保证消息不丢失?</h3>
+<pre><code>消息不丢失三道防线:
+
+┌──────────────────────────────────────────────────────────┐
+│  第一道:生产端                                            │
+│  acks=all(所有 ISR 副本确认才算写入成功)                  │
+│  retries=3(失败自动重试)                                 │
+│  enable.idempotence=true(幂等生产,防止重复写入)          │
+│  → &quot;消息发出去了一定到 Broker&quot;                              │
+├──────────────────────────────────────────────────────────┤
+│  第二道:Broker 端                                         │
+│  replication.factor&gt;=3(副本数至少 3)                     │
+│  min.insync.replicas&gt;=2(最少 2 个 ISR 副本确认)           │
+│  unclean.leader.election.enable=false(不允许落后副本选主) │
+│  → &quot;Broker 挂了也有副本兜底&quot;                                │
+├──────────────────────────────────────────────────────────┤
+│  第三道:消费端                                            │
+│  enable.auto.commit=false(关闭自动提交)                   │
+│  手动提交 offset(业务处理成功后再 submit)                  │
+│  配合幂等消费(防止重复提交后的重处理)                       │
+│  → &quot;消息处理成功了才标记,失败了重新消费&quot;                    │
+└──────────────────────────────────────────────────────────┘
+</code></pre>
+<p>常见丢消息场景:自动提交 offset(还没处理完就提交了)、leader 切换时 unclean election、acks=0/1 时 broker 挂了。</p>
+<h3 id="18a-kafka">18a. Kafka 如何保证消息顺序?</h3>
+<pre><code>Kafka 消息顺序保证:
+
+  同一 Partition 内:消息严格有序(按写入顺序排列)
+  同一 Key 的消息:hash 到同一分区 → 有序
+  不同 Partition 之间:不保证顺序
+
+  生产端:
+    有相同 Key(如订单ID)→ hash 到同一分区 → 保证该订单的所有消息有序
+
+  消费端:
+    一个分区只能被一个消费者线程处理
+    多线程消费时 → 按分区隔离 → 各自有序
+
+  注意:增加分区数会破坏顺序!
+    原来 3 个分区时 order-001 在 partition 0
+    扩容到 6 个分区后 → 新消息可能 hash 到 partition 4
+    → 同一 Key 的新老消息在不同分区 → 顺序打乱
+</code></pre>
+<h3 id="18b-kafka-exactly-once">18b. Kafka 如何实现精确一次(Exactly-Once)语义?</h3>
+<pre><code>三种消息投递语义:
+
+  At-most-once(最多一次):可能丢,不会重
+  At-least-once(至少一次):不丢,但可能重  ← Kafka 默认
+  Exactly-once(精确一次):不丢不重  ← 需要配置
+
+Exactly-Once 三层保障:
+
+  1 幂等生产者(Idempotent Producer)
+     enable.idempotence=true
+     → 重试不会导致重复写入
+     → 范围:单个分区内的幂等
+
+  2 事务(Transactions)
+     跨分区原子写入
+     → 一组消息要么全部提交要么全部回滚
+     → 范围:跨分区的原子保证
+
+  3 消费端 Exactly-Once
+     手动提交 offset + 业务层幂等
+     → 消息处理 + offset 提交 原子化(事务消费)
+     → 或消费端去重(Redis SETNX / DB 唯一索引)
+
+面试金句:Kafka 默认 at-least-once,加幂等生产者+事务 = Exactly-Once。
+</code></pre>
+<h3 id="19-rabbitmq">19. RabbitMQ 如何保证消息不丢?(三端防线)</h3>
+<pre><code>三端防线确保消息零丢失:
+
+  生产端(防发送失败):
+    Publisher Confirm(发布确认)→ Broker 收到才返回 ack
+    mandatory=true → 消息没路由到队列时回调通知
+    → &quot;发出去的每条消息都确认到了&quot;
+
+  Broker 端(防进程崩溃):
+    交换机、队列、消息全设 durable=true
+    delivery_mode=PERSISTENT(消息持久化到磁盘)
+    高可用用 Quorum Queue(Raft 协议多节点复制)
+    → &quot;重启了数据还在&quot;
+
+  消费端(防处理失败):
+    手动 ACK → 处理成功调 basicAck,失败调 basicNack
+    配合重试(Spring Retry 指数退避)
+    死信队列兜底 → 实在处理不了的不直接丢,进 DLQ 人工排查
+    → &quot;处理成功才确认,失败重试或进死信&quot;
+</code></pre>
+<h3 id="19a">19a. 消息堆积了怎么处理?</h3>
+<pre><code>消息堆积排查和处理流程:
+
+  🔍 先定位根因:
+    ├── 消费逻辑慢?(慢 SQL、远程调用超时)
+    ├── 消费者数量不够?(实例数 &lt; 队列数)
+    └── 生产端流量突增?(秒杀/大促)
+
+  💊 分级处理:
+    紧急(先止血):
+      → 临时增加消费者实例,横向扩展
+      → 调大 prefetch count,让消费者一次多拿几条
+
+    缓冲(减压力):
+      → 启用惰性队列(Lazy Queue),消息直接存磁盘,释放内存
+      → 写紧急消费者批量挪走消息或入库,回头慢慢消化
+
+    治本(优化消费):
+      → 优化消费逻辑:加缓存、改异步、精简处理流程
+      → 评估是否需要增加分区/队列数(长期扩容)
+</code></pre>
+<h3 id="19b-rabbitmq">19b. RabbitMQ 怎么做高可用?</h3>
+<pre><code>两种高可用方案:
+
+  传统方案(镜像队列 Classic Mirrored Queue):
+    主队列 + Slave 副本
+    主挂了 Slave 自动顶上
+    缺点:性能开销大(同步复制),可能有数据不一致
+    状态:已逐步淘汰
+
+  推荐方案(仲裁队列 Quorum Queue,3.8+):
+    基于 Raft 共识协议
+    数据自动复制到集群多数节点
+    Leader 挂了自动选举,毫秒级切换
+    官方推荐:新项目统一用 Quorum Queue
+
+  跨数据中心场景:
+    Federation 联邦:两个集群之间自动同步
+    Shovel 插件:跨集群消息搬运
+    → 实现异地多活
+</code></pre>
+<p>三者的核心差异可以用一句话概括:<strong>RabbitMQ 稳、Kafka 快、RocketMQ 又稳又快</strong>。</p>
+<table>
+<thead>
+<tr>
+<th>对比维度</th>
+<th>RocketMQ</th>
+<th>Kafka</th>
+<th>RabbitMQ</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>吞吐量</strong></td>
+<td>10 万级 TPS</td>
+<td><strong>百万级 TPS</strong></td>
+<td>万级 TPS</td>
+</tr>
+<tr>
+<td><strong>延迟</strong></td>
+<td>毫秒级</td>
+<td>毫秒级</td>
+<td>微秒级(低延迟最优)</td>
+</tr>
+<tr>
+<td><strong>消息可靠性</strong></td>
+<td>⭐⭐⭐⭐⭐ 极高</td>
+<td>⭐⭐⭐ 可配置</td>
+<td>⭐⭐⭐⭐ 高</td>
+</tr>
+<tr>
+<td><strong>事务消息</strong></td>
+<td>✅ <strong>原生支持</strong></td>
+<td>⚠️ 需要事务 ID + 幂等</td>
+<td>❌ 不支持</td>
+</tr>
+<tr>
+<td><strong>顺序消息</strong></td>
+<td>✅ 队列内严格有序</td>
+<td>✅ 分区内有序</td>
+<td>❌ 不保证</td>
+</tr>
+<tr>
+<td><strong>延迟消息</strong></td>
+<td>✅ 18 个预设级别</td>
+<td>❌ 需自己实现</td>
+<td>✅ 插件支持</td>
+</tr>
+<tr>
+<td><strong>消息过滤</strong></td>
+<td>Tag + SQL92 过滤</td>
+<td>❌ 消费端自己过滤</td>
+<td>❌ 不支持</td>
+</tr>
+<tr>
+<td><strong>运维复杂度</strong></td>
+<td>较低(NameServer 无状态)</td>
+<td>高(需维护 ZK/KRaft)</td>
+<td>低(Erlang 运维简单)</td>
+</tr>
+<tr>
+<td><strong>社区生态</strong></td>
+<td>阿里主导,国内流行</td>
+<td>Apache 顶级,<strong>全球最流行</strong></td>
+<td>老牌开源,社区成熟</td>
+</tr>
+<tr>
+<td><strong>协议</strong></td>
+<td>自研(Remoting)</td>
+<td>自研(二进制 TCP)</td>
+<td><strong>AMQP 标准协议</strong></td>
+</tr>
+</tbody>
+</table>
+<p><strong>选型决策(就像选交通工具)</strong>:</p>
+<pre><code>RabbitMQ = 公交车
+  优点:稳当可靠,AMQP 标准协议(兼容性好),运维简单
+  缺点:慢(吞吐量低),适合中小规模
+  场景:企业内部系统、业务解耦、中小型互联网应用
+
+Kafka = 火车
+  优点:吞吐量大(批量运输),海量数据场景无敌
+  缺点:灵活性差,运维复杂,消息可靠性需额外配置
+  场景:日志采集、大数据流处理、用户行为埋点、实时计算
+
+RocketMQ = 高铁
+  优点:既快又稳,事务消息/延迟消息等企业级功能最全
+  缺点:社区相对小,国内生态为主
+  场景:电商核心链路(下单/支付)、金融交易、对可靠性要求极高的业务
+</code></pre>
+<p><strong>面试黄金法则</strong>:</p>
+<pre><code>金融级/电商核心链路 → RocketMQ(事务消息 + 高可靠)
+大数据/日志/流处理 → Kafka(海量吞吐 + 流计算生态)
+中小规模/快速落地 → RabbitMQ(简单可靠,运维友好)
+想全球化/开源社区 → Kafka(生态最丰富)
+</code></pre>
+<blockquote>
+<p><strong>扩展</strong>:大厂典型"双 MQ 架构":核心交易用 RocketMQ,日志/数据用 Kafka。能说出实际项目经验比背对比表强得多。</p>
+</blockquote>
+<h3 id="20-kafka-exactly-once">20. Kafka 如何保证 Exactly-Once 语义？</h3>
+<p>Kafka 的 Exactly-Once 是 <strong>端到端</strong>的，需要生产者+broker+消费者三方配合：</p>
+<pre><code>Exactly-Once 三层含义:
+  1. 生产者不丢消息（幂等生产者 / 事务）
+  2. Broker 不丢消息（副本机制）
+  3. 消费者不重复消费（消费者幂等 + 事务）
+</code></pre>
+<p><strong>生产者端</strong>：</p>
+<pre><code class="language-java">// 幂等生产者（单分区 exactly-once）
+props.put(&quot;enable.idempotence&quot;, &quot;true&quot;);
+
+// 事务生产者（跨分区 exactly-once）
+producer.initTransactions();
+producer.beginTransaction();
+producer.send(record1, (mr, ex) -&gt; {});
+producer.send(record2, (mr, ex) -&gt; {});
+producer.commitTransaction();
+</code></pre>
+<p><strong>消费者端</strong>：</p>
+<pre><code class="language-java">// 必须手动提交 offset（非自动提交）
+props.put(&quot;enable.auto.commit&quot;, &quot;false&quot;);
+
+// 业务处理和 offset 提交在同一事务
+while (true) {
+    ConsumerRecords&lt;K, V&gt; records = consumer.poll(Duration.ofMillis(100));
+    producer.beginTransaction();
+    for (ConsumerRecord&lt;K, V&gt; record : records) {
+        process(record);          // 业务处理
+        producer.send(new ProducerRecord(&quot;output-topic&quot;, record));  // 写入下游
+    }
+    producer.sendOffsetsToTransaction(
+        consumer.position, currentAssignment);  // 提交 offset
+    producer.commitTransaction();               // 一次性提交（业务+offset）
+}
+</code></pre>
+<blockquote>
+<p><strong>扩展</strong>：<code>enable.idempotence=true</code> 开启幂等生产者，开销极小（推荐始终开启）；Exactly-Once 消费代价较高（每条消息都参与事务），只用于对重复敏感的场景。</p>
+</blockquote>
+<hr />
+
+<script>
+// Scroll spy — highlight active sidebar item
+window.addEventListener('scroll', function() {
+    var links = document.querySelectorAll('.sidebar-toc a');
+    var scrollY = window.scrollY + 120;
+    var current = '';
+    for (var i = links.length - 1; i >= 0; i--) {
+        var target = document.getElementById(links[i].getAttribute('href').slice(1));
+        if (target && target.offsetTop <= scrollY) {
+            current = links[i];
+            break;
+        }
+    }
+    links.forEach(function(a) { a.style.fontWeight = 'normal'; a.style.color = '#555'; });
+    if (current) { current.style.fontWeight = 'bold'; current.style.color = '#0366d6'; }
+});
+</script>
+
+
+<script>
+document.querySelectorAll('pre > code').forEach(function(codeBlock, i) {
+    var pre = codeBlock.parentNode;
+    pre.style.position = 'relative';
+    var btn = document.createElement('button');
+    btn.className = 'copy-btn';
+    btn.textContent = '复制';
+    pre.appendChild(btn);
+    btn.addEventListener('click', function() {
+        var text = codeBlock.textContent;
+        navigator.clipboard.writeText(text).then(function() {
+            btn.textContent = '已复制';
+            btn.classList.add('copied');
+            setTimeout(function() {
+                btn.textContent = '复制';
+                btn.classList.remove('copied');
+            }, 2000);
+        }).catch(function() {
+            // Fallback
+            var ta = document.createElement('textarea');
+            ta.value = text; ta.style.position = 'fixed'; ta.style.opacity = '0';
+            document.body.appendChild(ta); ta.select();
+            document.execCommand('copy'); document.body.removeChild(ta);
+            btn.textContent = '已复制'; btn.classList.add('copied');
+            setTimeout(function() { btn.textContent = '复制'; btn.classList.remove('copied'); }, 2000);
+        });
+    });
+});
+</script>
+
+<script>document.querySelectorAll("pre>code").forEach(function(c){var p=c.parentNode;p.style.position="relative";var b=document.createElement("button");b.className="copy-btn";b.textContent="复制";p.appendChild(b);b.addEventListener("click",function(){var t=c.textContent;navigator.clipboard.writeText(t).then(function(){b.textContent="已复制";b.classList.add("copied");setTimeout(function(){b.textContent="复制";b.classList.remove("copied")},2000)}).catch(function(){var a=document.createElement("textarea");a.value=t;a.style.position="fixed";a.style.opacity="0";document.body.appendChild(a);a.select();document.execCommand("copy");document.body.removeChild(a);b.textContent="已复制";b.classList.add("copied");setTimeout(function(){b.textContent="复制";b.classList.remove("copied")},2000)})})})</script>
+</body>
+</html>

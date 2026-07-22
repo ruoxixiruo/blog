@@ -1,0 +1,559 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>面试题 - RAG</title>
+<style>
+body {
+    transition: margin-left .25s ease;
+    font-family: -apple-system, "Noto Sans SC", "Microsoft YaHei", sans-serif;
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 20px 24px 60px;
+    line-height: 1.8;
+    color: #333;
+    background: #fff;
+}
+h1 { border-bottom: 2px solid #eee; padding-bottom: 10px; color: #222; }
+h2 { color: #333; margin-top: 32px; }
+h3 { color: #555; }
+a { color: #0366d6; text-decoration: none; }
+a:hover { text-decoration: underline; }
+pre {
+    background: #f6f8fa;
+    border-radius: 6px;
+    padding: 16px;
+    overflow-x: auto;
+    font-size: 14px;
+    line-height: 1.45;
+}
+code {
+    background: #f0f2f4;
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-size: 14px;
+}
+pre code { background: none; padding: 0; }
+blockquote {
+    border-left: 4px solid #ddd;
+    margin: 0;
+    padding: 0 16px;
+    color: #666;
+}
+table {
+    border-collapse: collapse;
+    width: 100%;
+    margin: 16px 0;
+}
+th, td {
+    border: 1px solid #ddd;
+    padding: 8px 12px;
+    text-align: left;
+}
+th { background: #f6f8fa; }
+img { max-width: 100%; }
+.back-link {
+    margin-bottom: 20px;
+    display: block;
+    color: #666;
+}
+.back-link:hover { color: #0366d6; }
+
+.sidebar-toc {
+    transition: left .25s ease;
+    position: fixed;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    width: 220px;
+    background: #f8f9fa;
+    border-right: 1px solid #e9ecef;
+    padding: 20px 0;
+    overflow-y: auto;
+    font-size: 13px;
+    z-index: 100;
+}
+.sidebar-toc a {
+    display: block;
+    padding: 6px 16px;
+    color: #555;
+    text-decoration: none;
+    border-left: 3px solid transparent;
+    line-height: 1.5;
+}
+.sidebar-toc a:hover {
+    background: #e9ecef;
+    color: #0366d6;
+    border-left-color: #0366d6;
+}
+.sidebar-toc .toc-h3 { padding-left: 20px; font-size: 12px; }
+body { margin-left: 240px; }
+
+
+.copy-btn {
+    position: absolute; top: 6px; right: 6px;
+    background: #e9ecef; border: none;
+    border-radius: 4px; padding: 3px 10px;
+    font-size: 12px; color: #555; cursor: pointer;
+    opacity: 0; transition: opacity 0.2s;
+    z-index: 1;
+}
+pre:hover .copy-btn { opacity: 1; }
+.copy-btn:hover { background: #d0d7de; }
+.copy-btn.copied { opacity: 1; background: #2da44e; color: #fff; }
+.copy-btn{position:absolute;top:6px;right:6px;background:#e9ecef;border:none;border-radius:4px;padding:3px 10px;font-size:12px;color:#555;cursor:pointer;opacity:0;transition:opacity .2s;z-index:1}pre:hover .copy-btn{opacity:1}.copy-btn:hover{background:#d0d7de}.copy-btn.copied{opacity:1;background:#2da44e;color:#fff}
+.copy-btn{position:absolute;top:6px;right:6px;background:#e9ecef;border:none;border-radius:4px;padding:3px 10px;font-size:12px;color:#555;cursor:pointer;opacity:0;transition:opacity .2s;z-index:1}pre:hover .copy-btn{opacity:1}.copy-btn:hover{background:#d0d7de}.copy-btn.copied{opacity:1;background:#2da44e;color:#fff}
+.copy-btn{position:absolute;top:6px;right:6px;background:#e9ecef;border:none;border-radius:4px;padding:3px 10px;font-size:12px;color:#555;cursor:pointer;opacity:0;transition:opacity .2s;z-index:1}pre:hover .copy-btn{opacity:1}.copy-btn:hover{background:#d0d7de}.copy-btn.copied{opacity:1;background:#2da44e;color:#fff}
+.sidebar-toggle-btn {
+  position: fixed;
+  left: 220px;
+  top: 0;
+  width: 28px;
+  height: 40px;
+  background: #f8f9fa;
+  border: 1px solid #e9ecef;
+  border-left: none;
+  border-radius: 0 4px 4px 0;
+  cursor: pointer;
+  font-size: 16px;
+  color: #555;
+  z-index: 101;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: left .25s, background .2s;
+  padding: 0;
+  line-height: 1;
+}
+.sidebar-toggle-btn:hover { background: #e9ecef; color: #0366d6; }
+.sidebar-collapsed .sidebar-toc { left: -220px; }
+.sidebar-collapsed .sidebar-toggle-btn { left: 0; }
+.sidebar-collapsed body, body.sidebar-collapsed { margin-left: 28px; }
+.sidebar-overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,.3);
+  z-index: 99;
+}
+@media (max-width: 768px) {
+  .sidebar-collapsed .sidebar-overlay { display: none; }
+  .sidebar-toc { left: -220px; }
+  .sidebar-toggle-btn { left: 0; }
+  body { margin-left: 28px; }
+}
+
+</style>
+</head>
+</head>
+<body>
+<nav class="sidebar-toc"><a class="toc-h3" href="#1-rag">1. RAG 的核心原理是什么?</a><a class="toc-h3" href="#2-rag">2. RAG 效果不好,从哪下手排查?</a><a class="toc-h3" href="#3-rag">3. 怎么让 RAG 搜得更准?(提升召回率/准确率)</a><a class="toc-h3" href="#4-rag">4. RAG 和微调怎么选?</a><a class="toc-h3" href="#5-rag">5. RAG 有什么局限性?</a><a class="toc-h3" href="#6-rag">6. 你怎么评估 RAG 系统好不好用?</a><a class="toc-h3" href="#7-rag-chunk_size">7. RAG 的分块策略怎么选?chunk_size 多大合适?</a><a class="toc-h3" href="#8-hydehypothetical-document-embedding">8. 什么是 HyDE(Hypothetical Document Embedding)?原理和适用场景?</a><a class="toc-h3" href="#9-rag">9. RAG 如何处理表格、图片等非文本数据?</a><a class="toc-h3" href="#10-rag">10. RAG 系统上线后怎么持续优化?</a><a class="toc-h3" href="#11-rag">11. 你怎么评估 RAG 系统好不好用?</a><a class="toc-h3" href="#12-rag">12. RAG 的混合检索怎么做？</a></nav>
+<button class="sidebar-toggle-btn" onclick="toggleSidebar()" title="切换侧栏">☰</button>
+
+<div class="sidebar-overlay" onclick="toggleSidebar()"></div>
+
+<script>
+function toggleSidebar() {
+  document.body.classList.toggle('sidebar-collapsed');
+  try { localStorage.setItem('sidebarCollapsed', document.body.classList.contains('sidebar-collapsed')); } catch(e) {}
+}
+(function() {
+  try {
+    if (localStorage.getItem('sidebarCollapsed') === 'true') {
+      document.body.classList.add('sidebar-collapsed');
+    }
+  } catch(e) {}
+})();
+</script>
+<a class="back-link" href="/blog/2026/05/16/面试题/面试题/">← 返回面试题目录</a>
+<h1 id=page-title>RAG（检索增强生成）</h1>
+<blockquote>
+<p>RAG = 给 LLM 配了一个"随时能查最新资料"的图书管理员。LLM 不再是靠记忆瞎编,而是先查资料再回答。</p>
+</blockquote>
+<h3 id="1-rag">1. RAG 的核心原理是什么?</h3>
+<p>RAG = <strong>离线建向量索引 + 在线语义检索 + 增强 Prompt 生成</strong>。核心是把外部知识"动态注入"到 LLM 生成过程中。</p>
+<pre><code>RAG 完整工作流程(&quot;建库 → 检索 → 生成&quot;三部曲):
+
+┌─────────────────────────────────────────────────────────────┐
+│  📦 离线阶段:建知识库(提前做好,非实时)                       │
+│                                                             │
+│   📄 公司文档 ──→ ✂️ 分块 ──→ 🔢 Embedding ──→ 💾 向量库     │
+│   (PDF/Word/DB)  (每块 500 字)  (1536 维向量)  (Chroma/FAISS)│
+│                                                             │
+│   例如:《2025年报.pdf》                                       │
+│    → 切成 50 个文本块 → 每个块转成 1536 个数字 → 存入向量库    │
+├─────────────────────────────────────────────────────────────┤
+│  🔍 在线阶段:用户提问时触发                                    │
+│                                                             │
+│   用户问题:&quot;去年营收多少?&quot;                                    │
+│     │                                                       │
+│     ├─→ 🔢 将问题也转成向量                                   │
+│     ├─→ 💾 在向量库中找最相似的 Top-K 块(大搜)               │
+│     ├─→ 🎯 Rerank 精排(可选,提升准确率)                     │
+│     └─→ 📋 拿到相关文本块                                     │
+│           │                                                 │
+│           ▼                                                 │
+│  ✍️ 增强 Prompt:                                             │
+│  ┌──────────────────────────────────────────────┐          │
+│  │  &quot;根据以下参考资料回答用户问题。               │          │
+│  │   ⚠️ 不要编造,不知道就说不知道。              │          │
+│  │   📎 必须标注引用来源。                        │          │
+│  │                                              │          │
+│  │   参考资料: {检索到的文本块}                    │          │
+│  │   用户问题: 去年营收多少?                      │          │
+│  │   回答:&quot;                                       │          │
+│  └──────────────────────────────────────────────┘          │
+│           │                                                 │
+│           ▼                                                 │
+│  🤖 LLM 生成: &quot;根据《2025年报》,公司去年营收 50 亿元  ← 有据可查│
+│               [来源: 《2025年报》第3页]&quot;                     │
+└─────────────────────────────────────────────────────────────┘
+</code></pre>
+<p>对比:没有 RAG 时 LLM 可能回答"I don't know"或者自信地瞎编一个数字(幻觉)。有了 RAG,所有回答都基于真实文档,还能标注来源。</p>
+<blockquote>
+<p><strong>面试话术</strong>:"RAG 解决的是大模型三大痛点--知识过时、幻觉、私有数据不可达。核心分为离线建库和在线检索生成两阶段。面试关键是把三步讲清楚:文档分块→Embedding→向量检索→增强 Prompt→LLM 生成。"</p>
+</blockquote>
+<h3 id="2-rag">2. RAG 效果不好,从哪下手排查?</h3>
+<pre><code>RAG 问题排查决策树:
+
+效果不好 → 哪个环节出问题了?
+  │
+  ├── 🔍 检索环节(搜得不准)← 最常见的根因
+  │     ├── Embedding 模型选对了吗?中文场景用英文模型 = 自废武功
+  │     ├── 分块大小合适吗?太小(100字)没上下文,太大(2000字)全是噪音
+  │     ├── Top-K 选对了吗?太少(3)漏信息,太多(20)引入垃圾
+  │     ├── 关键词搜不到?试试混合检索(向量 + BM25)
+  │     └── 排序不准?加 Rerank(粗搜 50 条 → Cross-Encoder 精挑 5 条)
+  │
+  ├── 🤖 生成环节(找到了但答案不对)← Prompt 没约束好
+  │     ├── Prompt 里有没有明确说&quot;不准瞎编&quot;?
+  │     ├── LLM 遇到不知道的是说&quot;不知道&quot;还是乱说?
+  │     ├── 要不要加后处理校验(规则/二次检查)?
+  │     └── 检索到的资料本身对不对?(垃圾进垃圾出)
+  │
+  └── ⚙️ 基建环节(数据本身有问题)← 最容易忽视
+        ├── PDF 解析质量:表格提取出来了吗?中文乱码了吗?
+        ├── 元数据是否丰富:文档来源、时间、标题有助于 LLM 理解上下文
+        ├── 向量库性能:数据量大了检索慢不慢?
+        └── Embedding 模型版本:升级模型后要不要重建索引?
+</code></pre>
+<blockquote>
+<p><strong>面试话术</strong>:"RAG 排查从三层入手--检索层是天花板,检索不出好的结果后面白搭;生成层靠 Prompt 约束防止幻觉;基建层要保证数据质量。实战中最常见的问题是分块策略和 Embedding 模型不匹配业务场景。"</p>
+</blockquote>
+<h3 id="3-rag">3. 怎么让 RAG 搜得更准?(提升召回率/准确率)</h3>
+<pre><code>五种优化策略(从简单到复杂):
+
+  简单度
+  ↑
+  │ 5 迭代检索:搜一次 → LLM 说还缺什么 → 再搜 → 补全
+  │    例:&quot;A公司CEO是谁?&quot;→ 先搜CEO→ 再搜他年龄
+  │
+  │ 4 Rerank 精排:粗搜 50 条 → Cross-Encoder 精挑 5 条
+  │    BGE-Reranker / Cohere Rerank -- 大幅提升精准度
+  │
+  │ 3 混合检索:向量检索 + BM25 关键词检索 → 合并去重
+  │    向量懂语义(&quot;苹果手机&quot;≈&quot;iPhone&quot;),BM25 懂专名(&quot;X-2000型号&quot;)
+  │
+  │ 2 元数据过滤:先按时间/类型/来源缩小范围,再向量检索
+  │    例:&quot;去年财务部发布的文件&quot; → 先筛 year=2025&amp;dept=finance
+  │
+  │ 1 Query 改写:用户&quot;那个东西怎么弄?&quot;
+  │    → LLM 改写为 &quot;RAG 系统的分块参数如何配置?&quot;
+  └─────────────────────────────────────────────────────────→ 复杂度和效果提升
+</code></pre>
+<blockquote>
+<p><strong>面试话术</strong>:"RAG 优化核心是两个方向:召回率靠混合检索和 Query 改写,精确率靠 Rerank 和元数据过滤。初创项目从 1+3 起步就行,追求极致才上 4+5。面试中可以提一句在实践中先用简单的混合检索快速上线,后续按数据反馈逐步加 Rerank。"</p>
+</blockquote>
+<h3 id="4-rag">4. RAG 和微调怎么选?</h3>
+<pre><code>RAG vs 微调 决策树:
+
+          你的需求是?
+              │
+    ┌─────────┼─────────┐
+    ▼         ▼         ▼
+ 知识经常变?  要引用来源?  要固定风格?
+    │         │         │
+    ▼         ▼         ▼
+   RAG       RAG       微调
+  (实时更新) (有据可查) (内化到模型)
+    │         │         │
+    └─────────┼─────────┘
+              │
+        推荐路线:
+        1 先上 RAG -- 快速 MVP,验证效果
+        2 风格/推理不够好 → 加微调
+        3 两全其美 → RAG + 微调组合拳
+           微调负责风格和领域知识
+           RAG 负责最新数据和引用来源
+</code></pre>
+<table>
+<thead>
+<tr>
+<th>维度</th>
+<th>RAG</th>
+<th>微调</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>知识更新</td>
+<td>实时(更新向量库即可)</td>
+<td>需重新训练</td>
+</tr>
+<tr>
+<td>可解释性</td>
+<td>强(引用来源明确)</td>
+<td>弱(黑盒)</td>
+</tr>
+<tr>
+<td>成本</td>
+<td>低(API+向量库)</td>
+<td>高(需要 GPU+标注数据)</td>
+</tr>
+<tr>
+<td>推理速度</td>
+<td>多一次检索延迟</td>
+<td>纯模型推理,快</td>
+</tr>
+<tr>
+<td>风格控制</td>
+<td>靠 Prompt</td>
+<td>内化到模型参数,更稳定</td>
+</tr>
+<tr>
+<td>幻觉控制</td>
+<td>有据可查,天然低</td>
+<td>可能记住训练数据中的错误</td>
+</tr>
+</tbody>
+</table>
+<h3 id="5-rag">5. RAG 有什么局限性?</h3>
+<p>RAG 不是银弹,五个核心局限:</p>
+<ol>
+<li><strong>检索是天花板</strong>:Embedding 和分块没调好,后面再努力也白搭。检索质量决定了整个系统的上限</li>
+<li><strong>上下文窗口有限</strong>:LLM 一次能读的文档有限(虽然现在 128K 了,但塞太多会"迷失在中间")</li>
+<li><strong>多跳推理吃力</strong>:"A 公司 CEO 多大年龄?"→ 需先搜 CEO 是谁,再搜他年龄。RAG 一次性检索做不到</li>
+<li><strong>多一次检索 = 多一份延迟 + 多一份成本</strong>:每个问题都要查向量库 + 拼接 Prompt</li>
+<li><strong>数学计算、复杂逻辑推理</strong>:纯 RAG 不行,得上 Agent + 工具调用(如计算器)</li>
+</ol>
+<blockquote>
+<p><strong>面试话术</strong>:"RAG 的局限性我很清楚。核心矛盾是检索质量和上下文窗口之间的平衡--搜太多塞不下,搜太少漏信息。多跳推理场景需要 Agent 框架配合。实践中我会坦诚评估需求:简单 QA 用 RAG,复杂推理用 Agent+RAG。"</p>
+</blockquote>
+<h3 id="6-rag">6. 你怎么评估 RAG 系统好不好用?</h3>
+<h3 id="7-rag-chunk_size">7. RAG 的分块策略怎么选?chunk_size 多大合适?</h3>
+<p><strong>核心结论</strong>:没有万能的 chunk_size,要看文档类型和业务场景。分块策略直接影响检索质量。</p>
+<pre><code>分块策略选择指南:
+
+文档类型          推荐策略              chunk_size    重叠
+──────────────────────────────────────────────────
+FAQ/QA 对         按问答对切              整个QA      0
+法律/合同          按段落/条款切            500-800     50-100
+技术文档/API       按代码块/函数切          300-600     50
+通用知识库         固定长度滑动窗口         500-1000    100-200
+论文/研究报告     递归字符切分            1000-1500    200
+</code></pre>
+<pre><code class="language-python"># LangChain 常用切分方式
+from langchain_text_splitters import (
+    RecursiveCharacterTextSplitter,    # 递归切分(默认,推荐)
+    MarkdownHeaderTextSplitter,        # 按 Markdown 标题切分(最智能)
+    TokenTextSplitter,                 # 按 Token 切分(精确控制)
+)
+
+# 推荐:按 Markdown 标题切分,保留文档结构信息
+splitter = MarkdownHeaderTextSplitter(headers_to_split_on=[
+    (&quot;#&quot;, &quot;h1&quot;),
+    (&quot;##&quot;, &quot;h2&quot;),
+    (&quot;###&quot;, &quot;h3&quot;),
+])
+chunks = splitter.split_text(document)
+</code></pre>
+<p><strong>关键原则</strong>:chunk 太小 → 语义不完整,检索出来没上下文;chunk 太大 → 噪音太多,向量被稀释,检索不准。<strong>经验值:中文文本 500-800 字,英文 200-500 tokens 是甜点区间。</strong></p>
+<h3 id="8-hydehypothetical-document-embedding">8. 什么是 HyDE(Hypothetical Document Embedding)?原理和适用场景?</h3>
+<p><strong>核心结论</strong>:HyDE = 先让 LLM 生成一个"假设答案",用这个假设答案去向量库检索(而不是用原始问题检索)。解决的问题是:<strong>用户问题短且模糊,和文档的表述差异大,直接检索召回率低。</strong></p>
+<pre><code>传统 RAG 检索:
+  用户问题 → Embedding → 向量库检索 → 召回结果
+  问题:&quot;怎么做限流&quot; ← 很短,和文档&quot;分布式限流方案设计&quot;差异大 → 召回率低
+
+HyDE 检索:
+  用户问题 → LLM 生成假设答案 → Embedding → 向量库检索 → 召回结果
+  问题:&quot;怎么做限流&quot; → LLM 生成:&quot;限流可以通过令牌桶算法...Sentinel支持QPS限流...&quot;
+                   ↑ 这个假设答案和文档语义更接近 → 召回率更高
+</code></pre>
+<p><strong>适用场景</strong>:用户问题简短/模糊、文档专业术语多、跨领域问答。<strong>不适用场景</strong>:事实型问题(如"公司电话多少")、实时数据查询。</p>
+<blockquote>
+<p><strong>面试话术</strong>:"HyDE 的本质是'用 LLM 的能力弥补 Embedding 模型的不足'。Embedding 模型擅长语义相似度,但用户问题和文档之间经常有语义鸿沟。让 LLM 先生成一个和文档风格更接近的假设答案,再检索,效果通常能提升 10-20%。代价是多一次 LLM 调用的延迟和成本。"</p>
+</blockquote>
+<h3 id="9-rag">9. RAG 如何处理表格、图片等非文本数据?</h3>
+<p><strong>核心结论</strong>:纯文本 RAG 只能处理文字,多模态数据需要额外处理 pipeline:</p>
+<pre><code>多模态 RAG 处理策略:
+
+PDF 表格 → 表格解析(Unstructured/Camelot) → 结构化文本 → 切分 → Embedding
+PDF 图片 → OCR(Tesseract/PaddleOCR) → 图片中的文字 → Embedding
+图表/截图 → 多模态 Embedding(CLIP) → 图片向量 → 向量库
+</code></pre>
+<p><strong>实战推荐</strong>:</p>
+<pre><code class="language-python"># 用 Unstructured 库解析 PDF 中的表格
+from unstructured.partition.pdf import partition_pdf
+
+elements = partition_pdf(
+    filename=&quot;report.pdf&quot;,
+    strategy=&quot;hi_res&quot;,           # 高精度模式(OCR+表格)
+    extract_images_in_pdf=True,   # 同时提取图片
+)
+
+# 按 element type 分类处理
+for element in elements:
+    if element.category == &quot;Table&quot;:
+        # 表格转 Markdown 文本,保留结构
+        table_text = element.metadata.text_as_html
+    elif element.category == &quot;Image&quot;:
+        # 图片用 CLIP 做 Embedding 或用 VLM 描述
+</code></pre>
+<blockquote>
+<p><strong>面试话术</strong>:"实际项目里,RAG 面对的 PDF 经常包含大量表格和图表。纯文本切分会把表格切碎导致语义丢失。我的方案是用 Unstructured 做 hi_res 解析,表格转 Markdown 保留结构,图片用多模态模型生成描述文本再入库。这一步做好了,RAG 在企业场景的可用性能提升一个档次。"</p>
+</blockquote>
+<h3 id="10-rag">10. RAG 系统上线后怎么持续优化?</h3>
+<p><strong>核心结论</strong>:RAG 上线不是终点,而是一个持续迭代的闭环:</p>
+<pre><code>RAG 持续优化闭环:
+
+线上用户反馈(踩/赞/反馈)
+    │
+    ▼
+LangSmith/LangFuse 追踪分析
+    │
+    ├─ 检索阶段:哪些查询召回率低?
+    │   → 调整分块策略 / 换 Embedding 模型 / 加 BM25 混合检索
+    │
+    ├─ 生成阶段:哪些回答有幻觉?
+    │   → 优化 Prompt / 加后处理校验规则 / 换更强的 LLM
+    │
+    └─ 数据阶段:哪些文档过时?
+        → 更新知识库 / 加文档时间元数据做时效过滤
+    │
+    ▼
+RAGAS 评估 → 自动计算指标变化 → 决定是否发布新版
+</code></pre>
+<blockquote>
+<p><strong>面试话术</strong>:"RAG 的上线只是1.0版本。我见过很多项目上线后没人维护,三个月后效果就烂了。关键是建立追踪+评估+反馈的闭环。每条用户反馈都是免费的训练数据,告诉你系统哪里做得不好。"</p>
+</blockquote>
+<h3 id="11-rag">11. 你怎么评估 RAG 系统好不好用?</h3>
+<pre><code>RAG 评估指标体系(两把尺子量 RAG):
+
+┌─────────────────────────────────────────────────┐
+│           📏 检索尺 -- 搜得对不对?               │
+│                                                 │
+│  Hit Rate: 正确答案在 Top-K 里吗?(0 或 1)        │
+│  MRR:     正确答案排在第几位?(位置越前越好)       │
+│  NDCG:    整体排序质量好不好?(考虑位置权重)        │
+├─────────────────────────────────────────────────┤
+│           ✍️ 生成尺 -- 答得好不好?               │
+│                                                 │
+│  Faithfulness:      有没有瞎编?(幻觉得分)        │
+│  Answer Relevance:  有没有离题?                  │
+│  Context Precision: 检索到的有没有用?             │
+└─────────────────────────────────────────────────┘
+
+实操工具: RAGAS 框架一键评估
+  from ragas import evaluate
+  result = evaluate(dataset, metrics=[&quot;faithfulness&quot;, &quot;answer_relevancy&quot;])
+
+线上关键指标(比离线指标更真实):
+  - 用户点&quot;踩&quot;比例
+  - 用户是否追问(说明第一次没答好)
+  - 引用点击率(用户信不信你的来源)
+</code></pre>
+<blockquote>
+<p><strong>面试话术</strong>:"RAG 评估分检索和生成两个维度。离线用 RAGAS 框架,重点关注 Faithfulness(诚实度)。但真正的评估在线上的用户反馈--踩赞比、追问率、引用点击率才是最终的金标准。"</p>
+</blockquote>
+<h3 id="12-rag">12. RAG 的混合检索怎么做？</h3>
+<p>混合检索 = <strong>向量检索（语义相似）</strong> + <strong>关键词检索（精确匹配）</strong>，取两者并集或交集：</p>
+<pre><code class="language-python">from langchain_community.retrievers import EnsembleRetriever
+from langchain_community.vectorstores import Chroma
+from langchain_community.retrievers import BM25Retriever
+
+# 向量检索（语义相似）
+vectorstore = Chroma.from_documents(chunks, OpenAIEmbeddings())
+vector_retriever = vectorstore.as_retriever(search_kwargs={&quot;k&quot;: 5})
+
+# BM25 关键词检索（传统 IR，基于词频-逆文档频率）
+bm25_retriever = BM25Retriever.from_documents(chunks)
+bm25_retriever.k = 5
+
+# 混合检索（权重加权平均）
+ensemble_retriever = EnsembleRetriever(
+    retrievers=[bm25_retriever, vector_retriever],
+    weights=[0.4, 0.6]  # 关键词 40%，向量 60%
+)
+
+# 融合重排（RRF - Reciprocal Rank Fusion）
+# RRF score = Σ(1 / (k + rank_i))，取排名融合分数最高的文档
+</code></pre>
+<p><strong>RRF 融合算法</strong>：</p>
+<pre><code>假设关键词检索返回: [DocA, DocB, DocC]（排名 1,2,3）
+假设向量检索返回:   [DocB, DocD, DocA]（排名 1,2,3）
+
+RRF 得分:
+  DocA: 1/(60+1) + 1/(60+3) = 0.0161 + 0.0159 = 0.0320
+  DocB: 1/(60+2) + 1/(60+1) = 0.0159 + 0.0164 = 0.0323  ← 最高
+  DocC: 1/(60+3)             = 0.0159
+  DocD: 1/(60+2)             = 0.0159
+→ 最终排序: DocB &gt; DocA &gt; DocC = DocD
+</code></pre>
+<blockquote>
+<p><strong>扩展</strong>：BM25 是 Elasticsearch 5.x 前的核心算法；<code>keyword="exact phrase"</code> 时 BM25 优于向量检索；MediSearch 场景（医学检索）混合检索准确率比纯向量高 15-20%。</p>
+</blockquote>
+
+<script>
+// Scroll spy — highlight active sidebar item
+window.addEventListener('scroll', function() {
+    var links = document.querySelectorAll('.sidebar-toc a');
+    var scrollY = window.scrollY + 120;
+    var current = '';
+    for (var i = links.length - 1; i >= 0; i--) {
+        var target = document.getElementById(links[i].getAttribute('href').slice(1));
+        if (target && target.offsetTop <= scrollY) {
+            current = links[i];
+            break;
+        }
+    }
+    links.forEach(function(a) { a.style.fontWeight = 'normal'; a.style.color = '#555'; });
+    if (current) { current.style.fontWeight = 'bold'; current.style.color = '#0366d6'; }
+});
+</script>
+
+
+<script>
+document.querySelectorAll('pre > code').forEach(function(codeBlock, i) {
+    var pre = codeBlock.parentNode;
+    pre.style.position = 'relative';
+    var btn = document.createElement('button');
+    btn.className = 'copy-btn';
+    btn.textContent = '复制';
+    pre.appendChild(btn);
+    btn.addEventListener('click', function() {
+        var text = codeBlock.textContent;
+        navigator.clipboard.writeText(text).then(function() {
+            btn.textContent = '已复制';
+            btn.classList.add('copied');
+            setTimeout(function() {
+                btn.textContent = '复制';
+                btn.classList.remove('copied');
+            }, 2000);
+        }).catch(function() {
+            // Fallback
+            var ta = document.createElement('textarea');
+            ta.value = text; ta.style.position = 'fixed'; ta.style.opacity = '0';
+            document.body.appendChild(ta); ta.select();
+            document.execCommand('copy'); document.body.removeChild(ta);
+            btn.textContent = '已复制'; btn.classList.add('copied');
+            setTimeout(function() { btn.textContent = '复制'; btn.classList.remove('copied'); }, 2000);
+        });
+    });
+});
+</script>
+
+
+<script>document.querySelectorAll("pre>code").forEach(function(c){var p=c.parentNode;p.style.position="relative";var b=document.createElement("button");b.className="copy-btn";b.textContent="复制";p.appendChild(b);b.addEventListener("click",function(){var t=c.textContent;navigator.clipboard.writeText(t).then(function(){b.textContent="已复制";b.classList.add("copied");setTimeout(function(){b.textContent="复制";b.classList.remove("copied")},2000)}).catch(function(){var a=document.createElement("textarea");a.value=t;a.style.position="fixed";a.style.opacity="0";document.body.appendChild(a);a.select();document.execCommand("copy");document.body.removeChild(a);b.textContent="已复制";b.classList.add("copied");setTimeout(function(){b.textContent="复制";b.classList.remove("copied")},2000)})})})</script>
+</body>
+</html>

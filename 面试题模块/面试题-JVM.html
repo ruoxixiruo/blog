@@ -1,0 +1,1007 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>面试题 - JVM</title>
+<style>
+body {
+    transition: margin-left .25s ease;
+    font-family: -apple-system, "Noto Sans SC", "Microsoft YaHei", sans-serif;
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 20px 24px 60px;
+    line-height: 1.8;
+    color: #333;
+    background: #fff;
+}
+h1 { border-bottom: 2px solid #eee; padding-bottom: 10px; color: #222; }
+h2 { color: #333; margin-top: 32px; }
+h3 { color: #555; }
+a { color: #0366d6; text-decoration: none; }
+a:hover { text-decoration: underline; }
+pre {
+    background: #f6f8fa;
+    border-radius: 6px;
+    padding: 16px;
+    overflow-x: auto;
+    font-size: 14px;
+    line-height: 1.45;
+}
+code {
+    background: #f0f2f4;
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-size: 14px;
+}
+pre code { background: none; padding: 0; }
+blockquote {
+    border-left: 4px solid #ddd;
+    margin: 0;
+    padding: 0 16px;
+    color: #666;
+}
+table {
+    border-collapse: collapse;
+    width: 100%;
+    margin: 16px 0;
+}
+th, td {
+    border: 1px solid #ddd;
+    padding: 8px 12px;
+    text-align: left;
+}
+th { background: #f6f8fa; }
+img { max-width: 100%; }
+.back-link {
+    margin-bottom: 20px;
+    display: block;
+    color: #666;
+}
+.back-link:hover { color: #0366d6; }
+
+.sidebar-toc {
+    transition: left .25s ease;
+    position: fixed;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    width: 220px;
+    background: #f8f9fa;
+    border-right: 1px solid #e9ecef;
+    padding: 20px 0;
+    overflow-y: auto;
+    font-size: 13px;
+    z-index: 100;
+}
+.sidebar-toc a {
+    display: block;
+    padding: 6px 16px;
+    color: #555;
+    text-decoration: none;
+    border-left: 3px solid transparent;
+    line-height: 1.5;
+}
+.sidebar-toc a:hover {
+    background: #e9ecef;
+    color: #0366d6;
+    border-left-color: #0366d6;
+}
+.sidebar-toc .toc-h3 { padding-left: 20px; font-size: 12px; }
+body { margin-left: 240px; }
+
+
+.copy-btn {
+    position: absolute; top: 6px; right: 6px;
+    background: #e9ecef; border: none;
+    border-radius: 4px; padding: 3px 10px;
+    font-size: 12px; color: #555; cursor: pointer;
+    opacity: 0; transition: opacity 0.2s;
+    z-index: 1;
+}
+pre:hover .copy-btn { opacity: 1; }
+.copy-btn:hover { background: #d0d7de; }
+.copy-btn.copied { opacity: 1; background: #2da44e; color: #fff; }
+.copy-btn{position:absolute;top:6px;right:6px;background:#e9ecef;border:none;border-radius:4px;padding:3px 10px;font-size:12px;color:#555;cursor:pointer;opacity:0;transition:opacity .2s;z-index:1}pre:hover .copy-btn{opacity:1}.copy-btn:hover{background:#d0d7de}.copy-btn.copied{opacity:1;background:#2da44e;color:#fff}
+.copy-btn{position:absolute;top:6px;right:6px;background:#e9ecef;border:none;border-radius:4px;padding:3px 10px;font-size:12px;color:#555;cursor:pointer;opacity:0;transition:opacity .2s;z-index:1}pre:hover .copy-btn{opacity:1}.copy-btn:hover{background:#d0d7de}.copy-btn.copied{opacity:1;background:#2da44e;color:#fff}
+.copy-btn{position:absolute;top:6px;right:6px;background:#e9ecef;border:none;border-radius:4px;padding:3px 10px;font-size:12px;color:#555;cursor:pointer;opacity:0;transition:opacity .2s;z-index:1}pre:hover .copy-btn{opacity:1}.copy-btn:hover{background:#d0d7de}.copy-btn.copied{opacity:1;background:#2da44e;color:#fff}
+.sidebar-toggle-btn {
+  position: fixed;
+  left: 220px;
+  top: 0;
+  width: 28px;
+  height: 40px;
+  background: #f8f9fa;
+  border: 1px solid #e9ecef;
+  border-left: none;
+  border-radius: 0 4px 4px 0;
+  cursor: pointer;
+  font-size: 16px;
+  color: #555;
+  z-index: 101;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: left .25s, background .2s;
+  padding: 0;
+  line-height: 1;
+}
+.sidebar-toggle-btn:hover { background: #e9ecef; color: #0366d6; }
+.sidebar-collapsed .sidebar-toc { left: -220px; }
+.sidebar-collapsed .sidebar-toggle-btn { left: 0; }
+.sidebar-collapsed body, body.sidebar-collapsed { margin-left: 28px; }
+.sidebar-overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,.3);
+  z-index: 99;
+}
+@media (max-width: 768px) {
+  .sidebar-collapsed .sidebar-overlay { display: none; }
+  .sidebar-toc { left: -220px; }
+  .sidebar-toggle-btn { left: 0; }
+  body { margin-left: 28px; }
+}
+
+</style>
+</head>
+</head>
+<body>
+<nav class="sidebar-toc"><a class="toc-h3" href="#1">1. 如何判断对象已死?</a><a class="toc-h3" href="#2-gc-roots">2. 哪些对象可以作为 GC Roots?</a><a class="toc-h3" href="#3">3. 类的加载过程?</a><a class="toc-h3" href="#4-stwstop-the-world">4. 什么是 STW(Stop The World)?</a><a class="toc-h3" href="#5">5. 强引用、软引用、弱引用、虚引用的区别?</a><a class="toc-h3" href="#6-eden-survivor">6. 新生代为什么要分 Eden 和 Survivor?</a><a class="toc-h3" href="#7-full-gc">7. 什么时候发生 Full GC?</a><a class="toc-h3" href="#8-jvm">8. JVM 调优参数有哪些?</a><a class="toc-h3" href="#9-minor-gcmajor-gcfull-gc">9. Minor GC、Major GC、Full GC 的区别?</a><a class="toc-h3" href="#10-gc">10. GC 日志怎么看?</a><a class="toc-h3" href="#11">11. 对象何时进入老年代?</a><a class="toc-h3" href="#12">12. 内存分配担保机制?</a><a class="toc-h3" href="#13-zgc">13. ZGC 的特点?</a><a class="toc-h3" href="#14">14. 逃逸分析?</a><a class="toc-h3" href="#15-tlab">15. TLAB?</a><a class="toc-h3" href="#16">16. 双亲委派为什么被打破?</a><a class="toc-h3" href="#17-19">17-19. 线上排查(见「线上问题排查」章节)</a><a class="toc-h3" href="#17-full-gc">17. 频繁 Full GC 怎么排查?</a><a class="toc-h3" href="#18-cms-7">18. CMS 的 7 个阶段?</a><a class="toc-h3" href="#19-g1-region-remembered-set">19. G1 的 Region 和 Remembered Set?</a><a class="toc-h3" href="#20-safepoint">20. 什么是 SafePoint?</a><a class="toc-h3" href="#21-jvm-xms-xmx-xmn">21. JVM 参数 -Xms -Xmx -Xmn 含义?</a><a class="toc-h3" href="#22-oom">22. OOM 怎么排查?常见原因有哪些?</a><a class="toc-h3" href="#23-cpu">23. CPU 飙高怎么排查?</a><a class="toc-h3" href="#24-g1-zgc">24. G1 和 ZGC 的区别?生产怎么选?</a><a class="toc-h3" href="#25-arthas-jfr">25. Arthas 和 JFR 怎么用来排查线上问题？</a></nav>
+<button class="sidebar-toggle-btn" onclick="toggleSidebar()" title="切换侧栏">☰</button>
+
+<div class="sidebar-overlay" onclick="toggleSidebar()"></div>
+
+<script>
+function toggleSidebar() {
+  document.body.classList.toggle('sidebar-collapsed');
+  try { localStorage.setItem('sidebarCollapsed', document.body.classList.contains('sidebar-collapsed')); } catch(e) {}
+}
+(function() {
+  try {
+    if (localStorage.getItem('sidebarCollapsed') === 'true') {
+      document.body.classList.add('sidebar-collapsed');
+    }
+  } catch(e) {}
+})();
+</script>
+<a class="back-link" href="/blog/2026/05/16/面试题/面试题/">← 返回面试题目录</a>
+<h1 id=page-title>JVM</h1>
+<h3 id="1">1. 如何判断对象已死?</h3>
+<pre><code>可达性分析 vs 引用计数:
+
+引用计数(Java 不用):
+  对象A.count = 1(B指向A)
+  对象B.count = 1(A指向B)
+  A→B 互相引用,计数永不归零 → 内存泄漏!
+  即使外面没人用它们了,也回收不了
+
+可达性分析(Java 用):
+  从 GC Roots 出发,顺藤摸瓜
+  能摸到的 → 活的,不能丢
+  摸不到的 → 死对象,该回收了
+</code></pre>
+<p>JVM 从一组 <strong>GC Roots</strong> 对象出发,沿着引用链一路遍历。标记过的就是活对象,没被标记的就是垃圾。</p>
+<p>GC Roots 就是"一定还在用"的东西:栈帧里的局部变量、静态变量、常量池引用、JNI 引用、synchronized 持有的对象。这些是用户代码的"入口",从它们出发能找到的才叫"活着"。</p>
+<blockquote>
+<p><strong>扩展</strong>:Python 用引用计数,Java/C# 用可达性分析。可达性分析需 STW 保证快照一致性,"减少 STW 时间"是 GC 优化的永恒主题。</p>
+</blockquote>
+<h3 id="2-gc-roots">2. 哪些对象可以作为 GC Roots?</h3>
+<pre><code>GC Roots 四类:
+
+┌─────────────────────────────────────┐
+│ 1 虚拟机栈引用的对象                 │
+│    正在执行的方法中的局部变量        │
+│    例:方法里的 User user = new User()│
+├─────────────────────────────────────┤
+│ 2 静态属性引用的对象                 │
+│    类的 static 字段                  │
+│    例:private static Cache cache   │
+├─────────────────────────────────────┤
+│ 3 常量引用的对象                     │
+│    字符串常量池、final 引用          │
+│    例:&quot;hello&quot; 字符串对象            │
+├─────────────────────────────────────┤
+│ 4 JNI 引用的对象                     │
+│    native 方法中创建/引用的对象      │
+│ 5 synchronized 持有的对象(锁)      │
+└─────────────────────────────────────┘
+</code></pre>
+<p>总结一句话:<strong>当前正在跑的程序能直接访问到的对象</strong>就是 GC Root--局部变量、静态变量、常量、锁。</p>
+<blockquote>
+<p><strong>扩展</strong>:JVM 用 OopMap 记录栈上引用位置加速 GC Roots 枚举。线程需到达 SafePoint 才能准确记录,OopMap 是 GC 高效扫描的关键。</p>
+</blockquote>
+<h3 id="3">3. 类的加载过程?</h3>
+<pre><code>类加载 7 个阶段:
+
+加载 → 验证 → 准备 → 解析 → 初始化 → 使用 → 卸载
+         ↑             ↑
+    格式/语义检查    ⭐ 关键分水岭 ⭐
+</code></pre>
+<ul>
+<li><strong>加载</strong>:通过类的全限定名找到 class 文件(可从 jar/网络/动态生成),加载到方法区,生成 Class 对象</li>
+<li><strong>验证</strong>:检查 class 文件格式是否正确、语义是否合法(防止恶意篡改字节码)</li>
+<li><strong>准备</strong>:给静态变量分配内存,赋<strong>默认零值</strong>--<code>static int x = 10</code> → 此时 x = 0(int 默认值)</li>
+<li><strong>解析</strong>:把符号引用(<code>Ljava/lang/String;</code>)替换为直接引用(内存地址)</li>
+<li><strong>初始化</strong>:执行 <code>&lt;clinit&gt;</code> 方法--这时候才把 x 真正赋值为 10,执行静态代码块</li>
+</ul>
+<p><strong>准备 vs 初始化的区别(高频考点)</strong>:</p>
+<pre><code>准备阶段:static int x = 10; → x = 0(零值)
+初始化阶段:→ x = 10(你写的值)
+</code></pre>
+<p>这就是为什么静态代码块抛出异常会导致类加载失败(<code>NoClassDefFoundError</code>)。</p>
+<blockquote>
+<p><strong>扩展</strong>:类懒加载--首次使用触发(new/访问静态字段/反射/子类初始化)。CDS/AppCDS 启动时批量加载常用类到共享归档,加速启动。</p>
+</blockquote>
+<h3 id="4-stwstop-the-world">4. 什么是 STW(Stop The World)?</h3>
+<p>STW 是 GC 时所有业务线程暂停的"世界暂停"时刻--JVM 请所有 Java 线程暂时停工,让 GC 线程安心回收垃圾。</p>
+<pre><code>没有 STW 会怎样?
+  GC 线程:这个对象没引用了,回收!
+  用户线程:等等我刚 new 完,还没赋值给别人!
+  → 活对象被误杀,程序崩溃
+
+所以 STW 是必须的--GC 需要一个&quot;静止快照&quot;来判断哪些对象还活着
+</code></pre>
+<p><strong>目标不是消除 STW,而是缩短它</strong>--就像超市盘点,不可能营业同时盘点,只能尽量盘得快。不同收集器的 STW 表现:</p>
+<table>
+<thead>
+<tr>
+<th>收集器</th>
+<th>STW 特点</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Serial</td>
+<td>单线程,停顿长</td>
+</tr>
+<tr>
+<td>Parallel</td>
+<td>多线程并行,停顿较短</td>
+</tr>
+<tr>
+<td>CMS</td>
+<td>只在初始标记+重新标记时停顿</td>
+</tr>
+<tr>
+<td>G1</td>
+<td>每次只回收部分 Region,停顿可控(设目标值)</td>
+</tr>
+<tr>
+<td>ZGC/Shenandoah</td>
+<td>停顿 &lt; 1ms,与堆大小无关</td>
+</tr>
+</tbody>
+</table>
+<blockquote>
+<p><strong>扩展</strong>:STW 时长取决于活对象数量。ZGC 染色指针+读屏障实现并发 GC,停顿仅与 GC Roots 数量相关,与堆大小无关。</p>
+</blockquote>
+<h3 id="5">5. 强引用、软引用、弱引用、虚引用的区别?</h3>
+<pre><code>四种引用--从强到弱(越往后越容易被回收):
+
+强引用(Strong):Object obj = new Object()
+  → 只要变量还引用着,死也不回收
+  → 类比:锁在保险柜里的文件
+
+软引用(Soft):new SoftReference(obj)
+  → 内存够用时保留,内存不够才回收
+  → 用途:内存敏感缓存(如图片缓存)
+  → 类比:放在桌上--桌上有空就留着,满了清掉
+
+弱引用(Weak):new WeakReference(obj)
+  → GC 一看到就回收,不管内存够不够
+  → 用途:ThreadLocal 的 key、WeakHashMap
+  → 类比:便利贴--风一吹就没了
+
+虚引用(Phantom):new PhantomReference(obj, queue)
+  → get() 永远返回 null,只是通知&quot;对象即将被回收&quot;
+  → 用途:跟踪对象销毁时间,管理堆外内存(NIO DirectByteBuffer)
+  → 类比:讣告--告诉你&quot;某某已经不在了&quot;
+</code></pre>
+<blockquote>
+<p><strong>扩展</strong>:<code>WeakHashMap</code> key 是弱引用,无外部强引用时 GC 后自动清理 entry,适合临时缓存。<code>ReferenceQueue</code> 监听软/弱/虚引用回收,配套清理堆外内存。</p>
+</blockquote>
+<h3 id="6-eden-survivor">6. 新生代为什么要分 Eden 和 Survivor?</h3>
+<pre><code>新生代结构:
+
+┌──────────────────────────────────┐
+│       新生代 (Young Gen)         │
+│  ┌────────┬──────┬──────┐        │
+│  │  Eden  │  S0  │  S1  │        │
+│  │  80%   │ 10%  │ 10%  │        │
+│  └────────┴──────┴──────┘        │
+│  主分配区   幸存者中转站          │
+└──────────────────────────────────┘
+
+一次 Minor GC 过程:
+  GC 前:Eden(有对象) + S0(有空闲)
+  GC 后:Eden 幸存对象 + S0 幸存对象 → 全部搬到 S1
+         Eden 和 S0 清空
+  下次:Eden(有新对象) + S1(有上次的幸存者)
+        幸存对象 → 全搬到 S0
+        如此循环...
+</code></pre>
+<p><strong>为什么 2 个 Survivor 而不是 1 个</strong>:只有一个 Survivor 的话,Eden 的幸存对象搬到 Survivor,下次 GC 时 Eden + Survivor 都要回收--但 Survivor 本身也有活对象和死对象混在一起!你需要另一个空 Survivor 来接收"搬家"后...</p>
+<blockquote>
+<p><strong>扩展</strong>:HotSpot 默认 <code>Eden:S0:S1 = 8:1:1</code>(<code>-XX:SurvivorRatio=8</code>)。Survivor 过小时幸存对象直接晋升老年代(分配担保)。</p>
+</blockquote>
+<h3 id="7-full-gc">7. 什么时候发生 Full GC?</h3>
+<pre><code>Full GC 触发条件:
+
+1 老年代空间不足(最常见)
+   Minor GC 后要晋升到老年代 → 老年代放不下了 → Full GC
+
+2 元空间(Metaspace)不足
+   动态代理/反射/CGLIB 疯狂生成类 → 元空间撑爆 → Full GC
+
+3 System.gc() 显式调用
+   人为触发(不建议,可能被 DisableExplicitGC 忽略)
+
+4 Minor GC 前,老年代连续空间不够放&quot;可能晋升的对象&quot;
+   空间分配担保失败 → 先 Full GC 整理老年代
+
+5 CMS 并发失败(Concurrent Mode Failure)
+   并发清理时老年代满了 → 回退到 Serial Old 做 Full GC
+</code></pre>
+<p><strong>为什么 Full GC 可怕</strong>:Full GC 通常用标记-整理算法,单线程扫描整个堆 + 元空间,STW 可能几秒甚至几十秒--用户感受到的就是"卡住了"。</p>
+<blockquote>
+<p><strong>扩展</strong>:老年代使用率持续上升且 GC 后不降说明内存泄漏。<code>-XX:+DisableExplicitGC</code> 禁用 <code>System.gc()</code>(但 NIO 堆外内存依赖它)。G1 Mixed GC 把 Full GC 拆成多次小步。</p>
+</blockquote>
+<h3 id="8-jvm">8. JVM 调优参数有哪些?</h3>
+<pre><code>生产必备 JVM 参数:
+
+内存相关:
+  -Xms4g -Xmx4g          堆初始/最大值(设一样,避免动态扩缩的停顿)
+  -Xmn2g                  新生代大小
+  -Xss256k                线程栈大小(默认 1M,可适当调小)
+  -XX:MetaspaceSize=256m  -XX:MaxMetaspaceSize=512m  元空间
+
+GC 相关:
+  -XX:+UseG1GC            指定 G1 收集器
+  -XX:MaxGCPauseMillis=200 G1 目标停顿时间(不是硬保证)
+
+OOM 排查:
+  -XX:+HeapDumpOnOutOfMemoryError         OOM 时自动 dump
+  -XX:HeapDumpPath=/path/to/dump.hprof    指定 dump 路径
+  -XX:+PrintGCDetails -XX:+PrintGCDateStamps   GC 详细日志
+
+性能利器:
+  -XX:+AlwaysPreTouch      启动时把堆内存全部 touch 一遍,运行时更快
+  -XX:+UseStringDeduplication  G1 去重相同字符串
+</code></pre>
+<blockquote>
+<p><strong>扩展</strong>:<code>-Xms=-Xmx</code> 避免动态扩缩容停顿。JDK 9+ 默认 G1。容器下建议 <code>-XX:MaxRAMPercentage=75.0</code> 而非固定 <code>-Xmx</code>。</p>
+</blockquote>
+<h3 id="9-minor-gcmajor-gcfull-gc">9. Minor GC、Major GC、Full GC 的区别?</h3>
+<pre><code>三种 GC 对比:
+
+Minor GC(Young GC):
+  只回收新生代(Eden + 当前 Survivor)
+  由 Eden 区满触发,频繁但快(STW 几十毫秒)
+  大部分对象被回收,少数晋升到老年代
+
+Full GC:
+  回收整个堆(新生代 + 老年代)+ 元空间
+  老年代满、元空间满、System.gc() 等触发
+  STW 可能几秒,对应用影响最大
+
+Major GC:
+  术语模糊,通常指老年代 GC
+  CMS 中特指并发回收老年代
+  现在少用这个词,通常就是 Full GC
+</code></pre>
+<pre><code>触发频率和影响:
+Minor GC: 每秒几次 → 正常,不慌
+Full GC:  每小时一次 → 要注意了
+Full GC:  几分钟一次 → 问题严重,赶紧查
+</code></pre>
+<blockquote>
+<p><strong>扩展</strong>:G1 有 Young GC、Mixed GC、Full GC(回退 Serial Old,最不想发生)。Full GC 超过 2 秒必须排查。</p>
+</blockquote>
+<h3 id="10-gc">10. GC 日志怎么看?</h3>
+<pre><code>GC 日志实战解读:
+
+[GC (Allocation Failure) [PSYoungGen: 65536K→10748K(76288K)]
+ 65536K→50124K(249856K), 0.0256 secs]
+
+逐段翻译:
+  Allocation Failure  → 触发原因:新生代没有空间分配新对象
+  PSYoungGen          → Parallel Scavenge 新生代收集器
+  65536K→10748K(76288K) → 新生代:回收前65M → 回收后10M(总容量76M)
+  65536K→50124K(249856K) → 整个堆:回收前65M → 回收后50M(总容量249M)
+  0.0256 secs         → 耗时 25.6 毫秒(挺快的)
+
+判断好坏:
+  回收后 → 新生代占用很小 + 老年代没涨太多 = 健康的 GC
+  回收后 → 新生代占用仍然很高 = 很多对象活下来了(可能 Survivor 太小)
+  堆总占用持续上涨 → 内存泄漏预警!
+</code></pre>
+<blockquote>
+<p><strong>扩展</strong>:JDK 9+ GC 日志用 <code>-Xlog:gc*</code> 格式。工具:GCeasy(在线)、GCViewer。生产用 <code>jstat -gcutil PID 1000</code> 实时监控。</p>
+</blockquote>
+<h3 id="11">11. 对象何时进入老年代?</h3>
+<pre><code>对象晋升老年代的 5 种路径:
+
+1 年龄到了
+   每次 Minor GC 活下来 → 年龄 +1
+   年龄 &gt; MaxTenuringThreshold(默认 15)→ 晋升
+
+2 大对象直接进
+   对象大小 &gt; PretenureSizeThreshold → 直接进老年代
+   避免大对象在 Eden 和 Survivor 之间反复复制
+
+3 Survivor 放不下
+   Minor GC 时 Survivor 装不下所有幸存对象 → 多出的直接进老年代
+
+4 动态年龄判断
+   Survivor 中某个年龄段的对象大小总和 &gt; Survivor 空间的一半
+   → 该年龄及以上全部晋升(不用等 15 岁)
+
+5 分配担保失败
+   老年代连续空间不够 → 触发 Full GC 整理 → 还是不够就 OOM
+</code></pre>
+<blockquote>
+<p><strong>扩展</strong>:age 字段 4 位最大 15。CMS 默认 6,G1 默认 15。<code>PretenureSizeThreshold</code> 默认 0(无限制)。元空间满触发 Full GC。</p>
+</blockquote>
+<h3 id="12">12. 内存分配担保机制?</h3>
+<pre><code>分配担保流程(Minor GC 前):
+
+Minor GC 之前,检查老年代最大连续可用空间
+
+  情况A:老年代空间 ≥ 新生代所有对象总大小
+    → 安全!即使所有对象都晋升也放得下 → 直接 Minor GC
+
+  情况B:老年代空间 ≥ 历史平均晋升大小
+    → 有点冒险,但历史数据说每次晋升不多 → 冒险 Minor GC
+    → 如果实际晋升超过了老年代剩余空间 → Full GC!
+
+  情况C:老年代空间 &lt; 历史平均晋升大小
+    → 太冒险了 → 先触发 Full GC 整理老年代 → 再做 Minor GC
+</code></pre>
+<p><strong>通俗理解</strong>:就像借钱--你兜里有 100 块(老年代),实际每次吃饭大概花 30 块(历史平均晋升)。虽然兜里不够 1000 块大餐(最坏情况),但历史经验告诉你应该够--先 Minor GC 试试,不够再找 ATM(Full GC)。</p>
+<blockquote>
+<p><strong>扩展</strong>:JDK 6u24 后不再需 <code>HandlePromotionFailure</code> 参数,JVM 自动根据历史数据判断。<code>-XX:PromotionFailureALot</code> 仅调试用,生产禁用。</p>
+</blockquote>
+<h3 id="13-zgc">13. ZGC 的特点?</h3>
+<p>ZGC = <strong>一边开火车一边换轮子</strong>。传统的 GC 先把火车停下来(STW)再换轮子;ZGC 大部分时间让火车继续跑(用户线程正常运行),只有极少时刻需要减速做最后的检测。染色指针就像在轮子上涂颜色标记--看到颜色不对就顺手换掉,不用专门停车排查。</p>
+<pre><code>ZGC 核心特点:
+
+目标:STW &lt; 1ms,不管堆有多大(TB 级仍保持亚毫秒停顿)
+状态:JDK 15 正式生产可用,JDK 21 引入分代 ZGC
+
+核心技术:
+┌────────────────────────────────────────┐
+│ 染色指针(Colored Pointers)           │
+│   在 64 位指针中嵌入 GC 状态信息       │
+│   指针本身带着&quot;这个对象要不要回收&quot;的标记│
+│   不需要额外的对象头,不浪费内存       │
+├────────────────────────────────────────┤
+│ 读屏障(Load Barrier)                 │
+│   读取对象时自动检查指针的染色标记     │
+│   发现需要处理 → 立即处理后再返回     │
+│   大部分 GC 工作是&quot;遇到时才做&quot;        │
+└────────────────────────────────────────┘
+</code></pre>
+<p><strong>ZGC vs G1 的区别</strong>:G1 把"回收"集中在停顿阶段做,ZGC 把大部分回收工作搬到了并发阶段(与用户线程同时运行),停顿只做最少量的标记处理。所以 G1 的停顿随堆增大而增大,ZGC 不随堆增长。</p>
+<blockquote>
+<p><strong>扩展</strong>:染色指针需 64 位系统。JDK 21 Generational ZGC 吞吐量约+10%。Shenandoah(JDK 12+,Red Hat)用 Brooks 转发指针。</p>
+</blockquote>
+<h3 id="14">14. 逃逸分析?</h3>
+<p>逃逸分析 = <strong>JVM 的"反侦察"优化</strong>--编译器发现一个对象只在某个方法内部使用、从不"外逃"(不返回、不传参给别处、不给全局变量),那就直接把它分配在栈上,方法执行完自动销毁,完全不需要 GC 介入。简而言之:对象一辈子不离开自己的房间,那就用临时便签,不用专门收纳。</p>
+<pre><code>逃逸分析三优化:
+
+1 栈上分配(对象不逃逸出方法)
+  void foo() {
+    User u = new User();  // u 只在 foo 里用,没返回也没赋值给外部
+    u.name = &quot;张三&quot;;
+  }
+  → 对象分配在栈上(foo 的栈帧),方法结束自动清理,不用 GC!
+
+2 标量替换(对象可打散为基本字段)
+  把 new Point(x, y) 替换成两个局部变量 int x 和 int y
+  对象根本没生成 → 零 GC 压力
+
+3 锁消除(对象只被一个线程访问)
+  synchronized (obj) { ... }
+  → JIT 发现 obj 不逃逸 → 去掉锁!
+</code></pre>
+<p><strong>一句话</strong>:JVM 分析对象会不会"逃出去"--只在方法内部用、不传给外部(不返回、不赋给全局变量、不传参给其他对象),就可以优化掉。</p>
+<blockquote>
+<p><strong>扩展</strong>:JDK 7+ 默认开启(<code>-XX:+DoEscapeAnalysis</code>),JIT 热点代码触发,有 CPU 成本。<code>-XX:+PrintEscapeAnalysis</code> 可查看分析结果(debug 版 JVM)。</p>
+</blockquote>
+<h3 id="15-tlab">15. TLAB?</h3>
+<pre><code>TLAB(Thread Local Allocation Buffer):
+
+没有 TLAB:
+  线程A、B、C 同时 new 对象 → 都要争 Eden 区的分配指针 → 加锁 → 效率低
+
+有 TLAB:
+  ┌──────────────────────┐
+  │ 线程A TLAB(Eden 1%)│ ← 线程A 对象优先放自己 TLAB
+  │ 线程B TLAB(Eden 1%)│ ← 线程B 对象优先放自己 TLAB
+  │ 线程C TLAB(Eden 1%)│ ← 线程C 对象优先放自己 TLAB
+  │ 共享 Eden(剩余)    │ ← TLAB 满了或大对象走这里
+  └──────────────────────┘
+  各线程在自己的 TLAB 分配,不用加锁
+  TLAB 内用指针碰撞(bump-the-pointer),极快
+</code></pre>
+<p><strong>类比</strong>:就像自助餐--每个人有自己的盘子(TLAB),往自己盘子里夹菜不用等别人。盘子满了才去公共区(共享 Eden)拿新食材。</p>
+<blockquote>
+<p><strong>扩展</strong>:TLAB 默认 Eden 的 1%(<code>-XX:TLABSize</code> 可调)。指针碰撞分配 O(1),比空闲链表快,适合高频创建小对象。</p>
+</blockquote>
+<h3 id="16">16. 双亲委派为什么被打破?</h3>
+<p>双亲委派假设类加载是严格的树状层级(Boot → Ext → App),但现实比"理想模型"复杂:</p>
+<pre><code>需要打破双亲委派的场景:
+
+1 SPI 机制(如 JDBC)
+   问题:java.sql.DriverManager 在 Bootstrap 层,但具体驱动(MySQL Driver)在 App 层
+         Bootstrap 的类无法直接加载 App 层的类
+   破法:ThreadContextClassLoader(线程上下文类加载器)
+         Bootstrap 层代码通过 TCCL 反向加载应用层的类
+
+2 Web 容器(如 Tomcat)
+   问题:多个 Web 应用部署在同一个 Tomcat,各自用不同版本的 jar
+         如果都走双亲委派,jar 冲突(A 用 Spring 5,B 用 Spring 6)
+   破法:每个 WebApp 独立的 WebAppClassLoader,优先自己加载
+         不同的 WebApp 类互相隔离
+
+3 热部署/热替换
+   问题:需要动态替换类(不改代码更新逻辑)
+   破法:自定义 ClassLoader 每次重新加载 class 文件
+</code></pre>
+<p><strong>本质</strong>:凡是重写了 <code>loadClass()</code>,把"先委托父类"改成"先自己加载"的,都是打破了双亲委派。</p>
+<blockquote>
+<p><strong>扩展</strong>:JDK 9 模块化 ModuleLayer 精确控制包可见性。OSGi 用网状 ClassLoader 控制依赖。TCCL 是最广泛的双亲委派"破例",Spring/Dubbo/MyBatis 靠它加载 SPI。</p>
+</blockquote>
+<h3 id="17-19">17-19. 线上排查(见「线上问题排查」章节)</h3>
+<p>CPU 飙高、内存泄漏、JVM 监控工具的详细排查步骤已整合到「33. 线上问题排查」章节。</p>
+<h3 id="17-full-gc">17. 频繁 Full GC 怎么排查?</h3>
+<pre><code>频繁 Full GC 排查流程:
+
+jstat -gcutil PID 1000  每秒看各区域使用率
+        ↓
+  确认是哪个区满了?
+        ↓
+┌───────┬──────────┬──────────────┐
+│ 老年代 │ 元空间   │ System.gc()  │
+│ 持续涨 │ 动态类多 │ 有人显式调用 │
+└───────┴──────────┴──────────────┘
+</code></pre>
+<p><strong>排查步骤</strong>:
+1. <code>jstat -gcutil PID 1000</code> 实时看各区域使用率变化趋势
+2. 看 GC 日志--Full GC 前是什么触发的?老年代满?元空间满?分配担保失败?
+3. Dump 堆快照:<code>jmap -dump:live,format=b,file=heap.hprof PID</code>,用 MAT/JProfiler 分析大对象</p>
+<p><strong>常见根因</strong>:</p>
+<ul>
+<li><strong>老年代持续增长(GC 后不降)</strong>:内存泄漏,泄漏对象越来越大直到撑爆 → 堆 dump 查最大对象是谁</li>
+<li><strong>元空间满</strong>:动态代理/CGLIB/反射疯狂生成类,元空间默认无上限但物理内存有限 → <code>-XX:MaxMetaspaceSize</code> 设上限</li>
+<li><strong>有人调 System.gc()</strong>:一些 NIO 框架(Netty 旧版本)靠 <code>System.gc()</code> 回收 DirectByteBuffer → 加 <code>-XX:+DisableExplicitGC</code></li>
+</ul>
+<p><strong>修复方向</strong>:加大堆(治标)、修内存泄漏(治本)、调 GC 策略、换 G1/ZGC。</p>
+<blockquote>
+<p><strong>扩展</strong>:<code>jmap -histo:live PID | head -20</code> 快速看 Top20 对象(无需 dump)。MAT Leak Suspects 自动分析泄漏嫌疑。生产用 <code>-XX:+HeapDumpOnOutOfMemoryError</code> 自动 dump。</p>
+</blockquote>
+<h3 id="18-cms-7">18. CMS 的 7 个阶段?</h3>
+<pre><code>CMS 回收流程(老年代,已废弃于 JDK 14):
+
+1. 初始标记(STW,极短)
+   标记 GC Roots 直接引用的对象
+
+2. 并发标记(与用户线程并发,时间长)
+   从 GC Roots 出发追踪所有引用链
+
+3. 并发预清理(与用户线程并发)
+   处理并发标记期间发生变化的引用
+
+   并发可中止的预清理（CMS Concurrent Abortable Preclean）
+
+4. 重新标记(STW,较短)
+   处理预清理后还剩下的变更(最终修正)
+
+5. 并发清除(与用户线程并发)
+   清除死对象,标记-清除(产生碎片!)
+
+6. 并发重置
+   重置 CMS 内部数据结构,准备下次 GC
+</code></pre>
+<p><strong>CMS 的致命缺陷</strong>:</p>
+<ul>
+<li><strong>标记-清除有碎片</strong>:老年代碎片化→没有连续空间分配→退化到 Serial Old(单线程,STW 超长)</li>
+<li><strong>浮动垃圾</strong>:并发清除时用户线程还在产生新垃圾(CMS 处理不了这批),只能等下一轮</li>
+<li><strong>Concurrent Mode Failure</strong>:并发回收期间老年代满了→降级到 Serial Old→灾难</li>
+</ul>
+<p>这就是为什么 G1 "部分回收 + 复制整理"的方案取代了 CMS。</p>
+<blockquote>
+<p><strong>扩展</strong>:JDK 9 废弃 JDK 14 移除 CMS。JDK 8 老系统建议切 G1(堆&gt;4G 体验明显更好)。CMS 标记-清除无法解决碎片。</p>
+</blockquote>
+<h3 id="19-g1-region-remembered-set">19. G1 的 Region 和 Remembered Set?</h3>
+<pre><code>G1 堆布局:
+
+┌───┬───┬───┬───┬───┬───┬───┬───┐
+│ E │ S │ E │ O │ E │ H │ O │ E │  ← 每个块是 Region(1-32MB)
+└───┴───┴───┴───┴───┴───┴───┴───┘
+  E=Eden  S=Survivor  O=Old  H=Humongous
+
+Region 不固定角色--同一块 Region,上轮是 Eden,下轮可以变成 Old
+</code></pre>
+<p><strong>Region</strong>:G1 把堆切成大小相等的 Region(通过 <code>-XX:G1HeapRegionSize</code> 设置,1~32MB,默认按堆大小自动算)。每个 Region 当前可以是 Eden / Survivor / Old / Humongous(存大对象的特殊 Region)。</p>
+<p><strong>RSet(Remembered Set)</strong>:这是 G1 能<strong>只回收部分 Region 而不用扫全堆</strong>的关键。每个 Region 维护一个 RSet,记录"外面有哪些 Region 的哪些 Card 引用了我"。</p>
+<pre><code>为什么需要 RSet?
+  Region A 的对象引用 Region B 的对象
+  回收 Region B 时 → 需要扫描 Region A!否则可能误杀活对象
+  如果不做优化 → 每次回收都要扫全堆 → 太慢了
+
+RSet 的优化:
+  Region B 的 RSet 记录了&quot;Region A 的 Card 3 引用了我&quot;
+  回收 Region B 时 → 只扫 RSet 里记录的 Card → 不用全堆扫描!
+</code></pre>
+<blockquote>
+<p><strong>扩展</strong>:Card Table 是比 Region 更细粒度的内存单元(默认 512 字节)。引入 Card Table 是为了降低 RSet 的粒度--只记录"哪个 Card 引用了我"而不是"哪个对象引用了我"。STAB(Snapshot At The Beginning)是 G1 用的并发标记算法--在 GC 开始时拍一个快照,后续的变化通过写屏障记录下来。</p>
+</blockquote>
+<h3 id="20-safepoint">20. 什么是 SafePoint?</h3>
+<pre><code>SafePoint 的工作原理:
+
+1 GC 来了 → JVM 设置全局标志位
+2 每个线程检查标志位
+3 线程跑到最近的 SafePoint → 主动停下
+4 所有线程都停下 → GC 开始工作
+5 GC 完成 → 清除标志位 → 线程继续跑
+</code></pre>
+<p><strong>SafePoint 的位置</strong>:不是在任何字节码位置都能停--必须是"引用关系确定"的位置。典型位置:方法调用返回前、循环的"回边"(跳到循环头)、异常跳转处。</p>
+<p><strong>两种 SafePoint 相关的问题</strong>:</p>
+<ul>
+<li><strong>"可数循环"问题</strong>:<code>for (int i = 0; i &lt; 1_000_000; i++) {}</code> 这个循环里没有 SafePoint!必须跑完 100 万次才能到 SafePoint → 如果这个线程正在跑,别的线程都停下来等它 → 总停顿会很慢。</li>
+<li><strong>偏向锁撤销需要 SafePoint</strong>:大量偏向锁的撤销也会导致所有线程等 SafePoint</li>
+</ul>
+<blockquote>
+<p><strong>扩展</strong>:JDK 11+ 的 ZGC 和 Shenandoah 在工作的大部分阶段不需要 SafePoint--它们通过"并发标记"和"读屏障"让 GC 和业务同时进行,只在极少数阶段需要短暂停顿。ZGC 的停顿只与 GC Roots 数量有关,通常 &lt; 1ms。这代表了 SafePoint 机制的进化方向--只做短暂停留不做长期暂停。</p>
+</blockquote>
+<hr />
+<h3 id="21-jvm-xms-xmx-xmn">21. JVM 参数 -Xms -Xmx -Xmn 含义?</h3>
+<p><strong>核心参数(面试必答)</strong>:</p>
+<pre><code>-Xms2g      堆初始大小(启动时分配的堆内存)
+-Xmx2g      堆最大大小(堆能涨到的上限)
+-Xmn1g      新生代大小(Eden + 2 个 Survivor)
+</code></pre>
+<ul>
+<li><strong>-Xms(Initial Heap)</strong>:JVM 启动时给堆分配多少内存。就像你租办公室一开始租多大</li>
+<li><strong>-Xmx(Max Heap)</strong>:堆最多能到多大。就像办公室最多能扩到多大</li>
+<li><strong>-Xmn(New Generation)</strong>:新生代区域大小。新生代越大 → GC 频率越低,但每次 GC 时间越长</li>
+</ul>
+<p><strong>为什么 -Xms = -Xmx 是生产标配?</strong></p>
+<p>把初始值和最大值设成一样,<strong>避免堆内存动态扩缩</strong>。堆在扩容时需要暂停应用重新申请内存(伴随 Full GC),反复扩缩会导致频繁的性能抖动。生产上一开始就给够,一次性分配到位。</p>
+<p><strong>其他常用参数</strong>:</p>
+<pre><code>-XX:MetaspaceSize=256m    元空间初始大小(存类定义、方法信息)
+-XX:MaxMetaspaceSize=512m 元空间最大(防内存泄漏无限制增长)
+
+-XX:SurvivorRatio=8       Eden 和 Survivor 的比例(默认 8:1:1)
+                            Eden : S0 : S1 = 8 : 1 : 1
+
+-XX:+PrintGCDetails       打印 GC 详细日志(分析 GC 问题的第一步)
+-XX:+HeapDumpOnOutOfMemoryError
+                          发生 OOM 时自动生成堆快照(事后排查的救命稻草)
+-XX:HeapDumpPath=/var/log/ 指定堆快照保存路径
+
+-XX:NewRatio=2             老年代:新生代 = 2:1(新生代占堆的 1/3)
+-XX:MaxTenuringThreshold=15
+                           对象熬过多少次 GC 才进老年代(默认 15)
+</code></pre>
+<p><strong>生产常用模板</strong>:</p>
+<pre><code class="language-bash"># 通用 4 核 8G 机器
+java -Xms4g -Xmx4g -Xmn2g \
+     -XX:MetaspaceSize=256m -XX:MaxMetaspaceSize=512m \
+     -XX:+UseG1GC \
+     -XX:+HeapDumpOnOutOfMemoryError \
+     -XX:HeapDumpPath=/var/log/heap/ \
+     -XX:+PrintGCDetails \
+     -jar app.jar
+</code></pre>
+<blockquote>
+<p><strong>扩展</strong>:JDK 8 元空间用本地内存(非堆),<code>-XX:MaxMetaspaceSize</code> 限制本地内存。Spring Boot 动态代理类多,<code>MetaspaceSize</code> 可适当调大。</p>
+</blockquote>
+<hr />
+<h3 id="22-oom">22. OOM 怎么排查?常见原因有哪些?</h3>
+<p>OOM(Out Of Memory)= 内存不够用了。但"不够用"分好几种情况,<strong>先看是哪种 OOM,再对症下药</strong>。</p>
+<p><strong>首先看 OOM 的类型(错误日志第一行就能看出来)</strong>:</p>
+<pre><code>java.lang.OutOfMemoryError: Java heap space           → 堆内存不足
+java.lang.OutOfMemoryError: Metaspace                 → 元空间(类定义太多)
+java.lang.OutOfMemoryError: GC overhead limit exceeded → GC 干了 98% 时间只回收 &lt;2% 内存
+java.lang.OutOfMemoryError: unable to create native thread → 线程开太多了
+java.lang.OutOfMemoryError: Direct buffer memory      → 堆外内存不足
+</code></pre>
+<p><strong>完整排查 5 步法</strong>:</p>
+<pre><code>1 保留现场(最关键的第一步!)
+   事先配置:-XX:+HeapDumpOnOutOfMemoryError -XX:HeapDumpPath=/path/
+   进程还活着:jmap -dump:format=b,file=dump.hprof [PID]
+   ⚠️ 注意:生产上 jmap 会触发 STW,谨慎使用
+
+2 分析堆转储文件(dump.hprof)
+   Eclipse MAT 三步:
+   a. 打开 dump → Leak Suspects Report(自动找出嫌疑对象)
+   b. 看 Dominator Tree:按 Retained Heap 排序,找最大的
+   c. 对嫌疑对象 → Path to GC Roots → 看引用链 → 定位到代码
+
+3 查 GC 日志
+   jstat -gcutil [PID] 1000  ← 每秒看 GC 频率和回收效果
+   老年代使用率一直涨 + Full GC 回收效果差 → 内存泄漏
+   老年代使用率正常 + 频繁 Young GC → 对象创建太快
+
+4 代码定位
+   根据 MAT 找到的类名/字段名 grep 源码
+   常见泄漏点:static HashMap 只增不减、ThreadLocal 未 remove
+             连接未关闭、缓存无上限
+
+5 修复 + 验证
+   改代码 → 压测验证内存曲线 → 监控告警
+</code></pre>
+<p><strong>6 种常见内存泄漏场景(按出现频率排序)</strong>:</p>
+<pre><code>1 静态集合类(最常见!)
+   static Map&lt;String, Object&gt; cache = new HashMap&lt;&gt;();
+   cache.put(key, value);  // 永远不 remove → 永远不回收
+   解决:用 WeakHashMap 或 Guava Cache(有大小/时间限制)
+
+2 ThreadLocal 没 remove
+   线程池场景:线程复用 → ThreadLocal 值一直存在
+   解决:finally { threadLocal.remove(); }
+
+3 连接没关(数据库连接、文件流、网络连接)
+   解决:try-with-resources 自动关
+
+4 监听器没注销
+   addListener() 了但没 removeListener()
+   对象被监听器持有 → GC 回收不了
+
+5 单例持有短生命周期对象
+   Singleton 是永生的,它持有的对象也永生了
+
+6 缓存没上限
+   本地用 ConcurrentHashMap 做缓存,疯狂 put → OOM
+   解决:设 size 上限 + LRU 淘汰
+</code></pre>
+<blockquote>
+<p><strong>扩展</strong>:泄漏是过程(对象无法回收慢慢涨),溢出是结果(彻底不够抛异常)。治泄漏是治本,调内存是治标。</p>
+</blockquote>
+<hr />
+<h3 id="23-cpu">23. CPU 飙高怎么排查?</h3>
+<p><strong>标准 4 步定位法</strong>:</p>
+<pre><code class="language-bash"># 第 1 步:找到哪个进程在吃 CPU
+top
+# 输出:PID=12345 的 java 进程 CPU 占 200%
+
+# 第 2 步:找到该进程中哪个线程在吃 CPU
+top -H -p 12345
+# 输出:线程 12388 CPU 占 90%
+
+# 第 3 步:线程 ID 转十六进制(jstack 里线程 ID 是十六进制的)
+printf &quot;%x\n&quot; 12388
+# 输出:3064
+
+# 第 4 步:看这个线程在干什么
+jstack 12345 | grep -A 30 &quot;3064&quot;
+# 如果显示&quot;nid=0x3064&quot; → 找到!看栈帧就知道哪行代码
+</code></pre>
+<p><strong>进阶工具:Arthas(阿里出品,面试加分神器)</strong>:</p>
+<pre><code class="language-bash"># 一行命令看 CPU Top 3 线程,比手动 jstack 快 10 倍
+thread -n 3
+
+# 看某个方法耗时分布
+trace com.example.Service processOrder -n 5
+
+# 监控方法调用
+monitor -c 5 com.example.Service processOrder
+</code></pre>
+<p><strong>CPU 飙高 5 大常见原因 + 排查方向</strong>:</p>
+<table>
+<thead>
+<tr>
+<th>原因</th>
+<th>特征</th>
+<th>定位方法</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>死循环</strong></td>
+<td>CPU 持续 100%,不降</td>
+<td>jstack 看到线程一直停在某一行 <code>while(true)</code></td>
+</tr>
+<tr>
+<td><strong>频繁 GC</strong></td>
+<td>CPU 高 + 内存高 + GC 日志频繁</td>
+<td><code>jstat -gcutil</code> 看 FGC 频率,本质是内存问题</td>
+</tr>
+<tr>
+<td><strong>正则回溯</strong></td>
+<td>请求超时 + CPU 高</td>
+<td>查耗时正则,改成预编译 Pattern 或换算法</td>
+</tr>
+<tr>
+<td><strong>JSON 序列化大对象</strong></td>
+<td>大对象序列化 CPU 持续高</td>
+<td>看 GC 日志中的大对象分配</td>
+</tr>
+<tr>
+<td><strong>锁竞争激烈</strong></td>
+<td>CPU 高但大部分是 sys%(系统态)</td>
+<td>jstack 看 BLOCKED 状态的线程数</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Arthas 火焰图(快速定位热点方法)</strong>:</p>
+<pre><code class="language-bash">profiler start                       # 开始采样
+profiler stop --format html          # 停止并生成火焰图
+# 火焰图中&quot;最宽&quot;的矩形 = CPU 耗时最多的方法
+</code></pre>
+<blockquote>
+<p><strong>扩展</strong>:jstack 无异常可用 <code>perf top</code> 或 <code>async-profiler</code> 火焰图。CPU 飙高还可能是伪共享(多线程修改同缓存行不同字段互相失效)。</p>
+</blockquote>
+<hr />
+<h3 id="24-g1-zgc">24. G1 和 ZGC 的区别?生产怎么选?</h3>
+<p>G1 和 ZGC 是两代"低延迟"GC。G1 的目标是<strong>"大多数时候不太慢"</strong>(可控的暂停),ZGC 的目标是<strong>"几乎感觉不到暂停"</strong>(亚毫秒级)。</p>
+<pre><code>GC 演进路线:
+
+Serial → Parallel → CMS → G1 → ZGC → Shenandoah
+串行     并行      并发标  分区+   染色     (Red Hat)
+单线程   吞吐优先   记清除  增量回收  指针    类似 ZGC
+
+                         JDK 9    JDK 15
+                         默认      生产可用
+</code></pre>
+<table>
+<thead>
+<tr>
+<th>对比维度</th>
+<th>G1</th>
+<th>ZGC</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>目标暂停时间</strong></td>
+<td>可配置(默认 200ms)</td>
+<td><strong>&lt;1ms</strong>(亚毫秒)</td>
+</tr>
+<tr>
+<td><strong>暂停与堆大小关系</strong></td>
+<td>随堆变大而变大</td>
+<td><strong>无关</strong>(暂停时间固定)</td>
+</tr>
+<tr>
+<td><strong>堆上限</strong></td>
+<td>推荐 &lt; 64GB</td>
+<td>支持 <strong>16TB</strong></td>
+</tr>
+<tr>
+<td><strong>回收算法</strong></td>
+<td>标记-复制(分区增量)</td>
+<td>染色指针 + 读屏障</td>
+</tr>
+<tr>
+<td><strong>内存开销</strong></td>
+<td>需要 Remembered Set(额外内存)</td>
+<td>无 RSet,但指针染色占用部分地址位</td>
+</tr>
+<tr>
+<td><strong>JDK 版本</strong></td>
+<td>JDK 7 实验,JDK 9 默认</td>
+<td>JDK 11 实验,JDK 15 生产可用</td>
+</tr>
+<tr>
+<td><strong>适用场景</strong></td>
+<td>通用,4-64GB 堆</td>
+<td>超大堆(&gt;32GB)、极低延迟</td>
+</tr>
+</tbody>
+</table>
+<p><strong>ZGC 的核心技术--染色指针(Colored Pointers)</strong>:</p>
+<p>传统 GC 在对象头里记录 GC 状态,ZGC 把这个信息<strong>编码到指针本身</strong>里。64 位指针的某些位用来标记对象状态(已标记/已重定位/已释放)。这意味着:
+- 读对象时通过"读屏障"检查指针染色 → 需要移动就顺手修正引用
+- 不需要 STW 来标记--GC 和应用线程可以真正并发
+- 代价:染色指针占了指针里的位,可用地址空间变小(但仍足够 16TB)</p>
+<p><strong>选型决策</strong>:</p>
+<pre><code>在线服务(API/Web):
+  堆 4-16GB:G1(默认,够用)
+  堆 16-64GB:G1 或 ZGC
+  堆 &gt;32GB + P99 延迟敏感:ZGC
+  典型场景:电商交易、支付、IM
+
+离线/批处理(大数据/定时任务):
+  对暂停不敏感 → Parallel GC(吞吐量最高)
+  对暂停有一定要求 → G1(平衡选择)
+  场景:数据 ETL、报表计算、日志处理
+
+游戏/实时系统:
+  ZGC(亚毫秒暂停,玩家无感知)
+</code></pre>
+<pre><code>选型口诀:
+- 小堆(&lt;4GB)→ 别犹豫,Serial/Parallel 就够了
+- 中堆(4-32GB)→ G1(JDK 9+ 默认,中庸之选)
+- 大堆(&gt;32GB)+ 要低延迟 → ZGC
+- 超大堆(&gt;64GB)+ 要低延迟 → ZGC(G1 会吃力)
+</code></pre>
+<blockquote>
+<p><strong>扩展</strong>:生产选 GC 还需考虑 JDK 版本(ZGC 需要 15+)。Shenandoah 用 Brooks 指针而非染色指针。Mixed GC 回收部分老年代 Region,Full GC 回收全部(G1 的目标是避免 Full GC)。</p>
+</blockquote>
+<h3 id="25-arthas-jfr">25. Arthas 和 JFR 怎么用来排查线上问题？</h3>
+<p><strong>Arthas</strong>（阿里开源）：线上 JVM 诊断神器，attach 到运行中进程，无需重启：</p>
+<pre><code class="language-bash"># 启动
+java -jar arthas-boot.jar
+
+# 1. 查看哪个方法最耗时
+trace com.example.Service methodName
+
+# 2. 查看对象大小
+sc -d com.example.Order | grep instance
+
+# 3. 反编译类（看线上代码版本）
+jad com.example.Service
+
+# 4. 动态修改日志级别
+logger --name com.example --level DEBUG
+</code></pre>
+<p><strong>JFR</strong>（Java Flight Recorder）：JVM 内置低开销持续监控：</p>
+<pre><code class="language-bash"># 启动 JFR 录制
+-XX:StartFlightRecording=dumponexit=true,filename=app.jfr
+
+# JDK Mission Control 分析 .jfr 文件
+# 查看：CPU 热点、内存分配、GC 事件、锁竞争、IO 事件
+</code></pre>
+<p><strong>组合用法</strong>：先用 Arthas <code>dashboard</code>/<code>thread</code> 快速定位进程/线程问题，再用 JFR 深入分析热点。</p>
+<blockquote>
+<p><strong>扩展</strong>：Arthas 的 <code>profiler</code> 命令调用 <code>async-profiler</code> 生成火焰图；JFR 开销 &lt; 1%，可长期开启；JDK Mission Control 在 JDK 11 后开源免费。</p>
+</blockquote>
+
+<script>
+// Scroll spy — highlight active sidebar item
+window.addEventListener('scroll', function() {
+    var links = document.querySelectorAll('.sidebar-toc a');
+    var scrollY = window.scrollY + 120;
+    var current = '';
+    for (var i = links.length - 1; i >= 0; i--) {
+        var target = document.getElementById(links[i].getAttribute('href').slice(1));
+        if (target && target.offsetTop <= scrollY) {
+            current = links[i];
+            break;
+        }
+    }
+    links.forEach(function(a) { a.style.fontWeight = 'normal'; a.style.color = '#555'; });
+    if (current) { current.style.fontWeight = 'bold'; current.style.color = '#0366d6'; }
+});
+</script>
+
+
+<script>
+document.querySelectorAll('pre > code').forEach(function(codeBlock, i) {
+    var pre = codeBlock.parentNode;
+    pre.style.position = 'relative';
+    var btn = document.createElement('button');
+    btn.className = 'copy-btn';
+    btn.textContent = '复制';
+    pre.appendChild(btn);
+    btn.addEventListener('click', function() {
+        var text = codeBlock.textContent;
+        navigator.clipboard.writeText(text).then(function() {
+            btn.textContent = '已复制';
+            btn.classList.add('copied');
+            setTimeout(function() {
+                btn.textContent = '复制';
+                btn.classList.remove('copied');
+            }, 2000);
+        }).catch(function() {
+            // Fallback
+            var ta = document.createElement('textarea');
+            ta.value = text; ta.style.position = 'fixed'; ta.style.opacity = '0';
+            document.body.appendChild(ta); ta.select();
+            document.execCommand('copy'); document.body.removeChild(ta);
+            btn.textContent = '已复制'; btn.classList.add('copied');
+            setTimeout(function() { btn.textContent = '复制'; btn.classList.remove('copied'); }, 2000);
+        });
+    });
+});
+</script>
+
+
+<script>document.querySelectorAll("pre>code").forEach(function(c){var p=c.parentNode;p.style.position="relative";var b=document.createElement("button");b.className="copy-btn";b.textContent="复制";p.appendChild(b);b.addEventListener("click",function(){var t=c.textContent;navigator.clipboard.writeText(t).then(function(){b.textContent="已复制";b.classList.add("copied");setTimeout(function(){b.textContent="复制";b.classList.remove("copied")},2000)}).catch(function(){var a=document.createElement("textarea");a.value=t;a.style.position="fixed";a.style.opacity="0";document.body.appendChild(a);a.select();document.execCommand("copy");document.body.removeChild(a);b.textContent="已复制";b.classList.add("copied");setTimeout(function(){b.textContent="复制";b.classList.remove("copied")},2000)})})})</script>
+</body>
+</html>

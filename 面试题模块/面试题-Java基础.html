@@ -1,0 +1,1117 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>面试题 - Java基础</title>
+<style>
+body {
+    transition: margin-left .25s ease;
+    font-family: -apple-system, "Noto Sans SC", "Microsoft YaHei", sans-serif;
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 20px 24px 60px;
+    line-height: 1.8;
+    color: #333;
+    background: #fff;
+}
+h1 { border-bottom: 2px solid #eee; padding-bottom: 10px; color: #222; }
+h2 { color: #333; margin-top: 32px; }
+h3 { color: #555; }
+a { color: #0366d6; text-decoration: none; }
+a:hover { text-decoration: underline; }
+pre {
+    background: #f6f8fa;
+    border-radius: 6px;
+    padding: 16px;
+    overflow-x: auto;
+    font-size: 14px;
+    line-height: 1.45;
+}
+code {
+    background: #f0f2f4;
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-size: 14px;
+}
+pre code { background: none; padding: 0; }
+blockquote {
+    border-left: 4px solid #ddd;
+    margin: 0;
+    padding: 0 16px;
+    color: #666;
+}
+table {
+    border-collapse: collapse;
+    width: 100%;
+    margin: 16px 0;
+}
+th, td {
+    border: 1px solid #ddd;
+    padding: 8px 12px;
+    text-align: left;
+}
+th { background: #f6f8fa; }
+img { max-width: 100%; }
+.back-link {
+    margin-bottom: 20px;
+    display: block;
+    color: #666;
+}
+.back-link:hover { color: #0366d6; }
+
+.sidebar-toc {
+    transition: left .25s ease;
+    position: fixed;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    width: 220px;
+    background: #f8f9fa;
+    border-right: 1px solid #e9ecef;
+    padding: 20px 0;
+    overflow-y: auto;
+    font-size: 13px;
+    z-index: 100;
+}
+.sidebar-toc a {
+    display: block;
+    padding: 6px 16px;
+    color: #555;
+    text-decoration: none;
+    border-left: 3px solid transparent;
+    line-height: 1.5;
+}
+.sidebar-toc a:hover {
+    background: #e9ecef;
+    color: #0366d6;
+    border-left-color: #0366d6;
+}
+.sidebar-toc .toc-h3 { padding-left: 20px; font-size: 12px; }
+body { margin-left: 240px; }
+
+
+.copy-btn {
+    position: absolute; top: 6px; right: 6px;
+    background: #e9ecef; border: none;
+    border-radius: 4px; padding: 3px 10px;
+    font-size: 12px; color: #555; cursor: pointer;
+    opacity: 0; transition: opacity 0.2s;
+    z-index: 1;
+}
+pre:hover .copy-btn { opacity: 1; }
+.copy-btn:hover { background: #d0d7de; }
+.copy-btn.copied { opacity: 1; background: #2da44e; color: #fff; }
+.copy-btn{position:absolute;top:6px;right:6px;background:#e9ecef;border:none;border-radius:4px;padding:3px 10px;font-size:12px;color:#555;cursor:pointer;opacity:0;transition:opacity .2s;z-index:1}pre:hover .copy-btn{opacity:1}.copy-btn:hover{background:#d0d7de}.copy-btn.copied{opacity:1;background:#2da44e;color:#fff}
+.copy-btn{position:absolute;top:6px;right:6px;background:#e9ecef;border:none;border-radius:4px;padding:3px 10px;font-size:12px;color:#555;cursor:pointer;opacity:0;transition:opacity .2s;z-index:1}pre:hover .copy-btn{opacity:1}.copy-btn:hover{background:#d0d7de}.copy-btn.copied{opacity:1;background:#2da44e;color:#fff}
+.copy-btn{position:absolute;top:6px;right:6px;background:#e9ecef;border:none;border-radius:4px;padding:3px 10px;font-size:12px;color:#555;cursor:pointer;opacity:0;transition:opacity .2s;z-index:1}pre:hover .copy-btn{opacity:1}.copy-btn:hover{background:#d0d7de}.copy-btn.copied{opacity:1;background:#2da44e;color:#fff}
+.sidebar-toggle-btn {
+  position: fixed;
+  left: 220px;
+  top: 0;
+  width: 28px;
+  height: 40px;
+  background: #f8f9fa;
+  border: 1px solid #e9ecef;
+  border-left: none;
+  border-radius: 0 4px 4px 0;
+  cursor: pointer;
+  font-size: 16px;
+  color: #555;
+  z-index: 101;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: left .25s, background .2s;
+  padding: 0;
+  line-height: 1;
+}
+.sidebar-toggle-btn:hover { background: #e9ecef; color: #0366d6; }
+.sidebar-collapsed .sidebar-toc { left: -220px; }
+.sidebar-collapsed .sidebar-toggle-btn { left: 0; }
+.sidebar-collapsed body, body.sidebar-collapsed { margin-left: 28px; }
+.sidebar-overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,.3);
+  z-index: 99;
+}
+@media (max-width: 768px) {
+  .sidebar-collapsed .sidebar-overlay { display: none; }
+  .sidebar-toc { left: -220px; }
+  .sidebar-toggle-btn { left: 0; }
+  body { margin-left: 28px; }
+}
+
+</style>
+</head>
+</head>
+<body>
+<nav class="sidebar-toc"><a class="toc-h3" href="#1-jdkjrejvm">1. JDK、JRE、JVM 的区别?</a><a class="toc-h3" href="#2-equals">2. == 和 equals() 的区别?</a><a class="toc-h3" href="#3-hashcode-equals">3. hashCode() 和 equals() 的关系?</a><a class="toc-h3" href="#4-stringstringbuilderstringbuffer">4. String、StringBuilder、StringBuffer 的区别?</a><a class="toc-h3" href="#5-arraylist-linkedlist">5. ArrayList 和 LinkedList 的区别?</a><a class="toc-h3" href="#6-hashmap-18">6. HashMap 的原理(1.8)?</a><a class="toc-h3" href="#7-concurrenthashmap">7. ConcurrentHashMap 如何保证线程安全?</a><a class="toc-h3" href="#8-synchronized">8. synchronized 锁升级过程?</a><a class="toc-h3" href="#9-volatile">9. volatile 的作用?</a><a class="toc-h3" href="#10-threadlocal">10. ThreadLocal 原理及内存泄漏问题?</a><a class="toc-h3" href="#11-jvm">11. JVM 内存模型?</a><a class="toc-h3" href="#12">12. 垃圾回收算法?</a><a class="toc-h3" href="#13-cms-g1">13. CMS 和 G1 的区别?</a><a class="toc-h3" href="#14-java-8">14. Java 8 新特性有哪些?</a><a class="toc-h3" href="#15-checked-unchecked">15. 异常体系中 checked 和 unchecked 的区别?</a><a class="toc-h3" href="#16">16. 反射的原理及应用场景?</a><a class="toc-h3" href="#17-extends-t-super-t">17. 泛型中的 &lt;? extends T&gt; 和 &lt;? super T&gt; 的区别?</a><a class="toc-h3" href="#18-java">18. Java 的类加载机制?</a><a class="toc-h3" href="#19-java-try-with-resources">19. Java 中 try-with-resources 的原理?</a><a class="toc-h3" href="#20">20. 接口和抽象类的区别?</a><a class="toc-h3" href="#21">21. 什么是泛型擦除?有什么影响?</a><a class="toc-h3" href="#22-java-21-virtual-thread">22. Java 21 虚拟线程(Virtual Thread)的原理?和传统线程有什么区别?</a><a class="toc-h3" href="#23-java-record">23. Java 的 Record 类是什么?解决了什么问题?</a><a class="toc-h3" href="#24">24. 强引用、软引用、弱引用、虚引用有什么区别?使用场景?</a><a class="toc-h3" href="#25-jdk-17-zgc">25. JDK 17 ZGC 有哪些改进？</a></nav>
+<button class="sidebar-toggle-btn" onclick="toggleSidebar()" title="切换侧栏">☰</button>
+
+<div class="sidebar-overlay" onclick="toggleSidebar()"></div>
+
+<script>
+function toggleSidebar() {
+  document.body.classList.toggle('sidebar-collapsed');
+  try { localStorage.setItem('sidebarCollapsed', document.body.classList.contains('sidebar-collapsed')); } catch(e) {}
+}
+(function() {
+  try {
+    if (localStorage.getItem('sidebarCollapsed') === 'true') {
+      document.body.classList.add('sidebar-collapsed');
+    }
+  } catch(e) {}
+})();
+</script>
+<a class="back-link" href="/blog/2026/05/16/面试题/面试题/">← 返回面试题目录</a>
+<h1 id=page-title>Java</h1>
+<h3 id="1-jdkjrejvm">1. JDK、JRE、JVM 的区别?</h3>
+<pre><code>JDK(最大)
+├── JRE
+│   ├── JVM(核心引擎)
+│   └── 核心类库(rt.jar / java.base)
+├── javac(编译器)
+├── javadoc(文档工具)
+├── jdb(调试器)
+└── 其他开发工具
+</code></pre>
+<ul>
+<li><strong>JVM(Java 虚拟机)</strong>:执行字节码的引擎。把 <code>.class</code> 文件翻译成机器码跑起来。相当于"灶台"--只管加热</li>
+<li><strong>JRE(运行环境)</strong>:JVM + 核心类库(如 <code>java.lang</code>、<code>java.util</code>)。跑 Java 程序需要的最小环境。相当于"灶台+锅碗瓢盆"--能做饭了</li>
+<li><strong>JDK(开发工具包)</strong>:JRE + 编译器(javac)+ 调试工具(jdb)+ 文档工具(javadoc)。写 Java 程序需要的。相当于"完整厨房"--能买菜、切菜、做饭</li>
+</ul>
+<p>包含关系:JDK ⊃ JRE ⊃ JVM。用户电脑只需装 JRE(或直接用 jlink 打包的最小运行时),开发者需要 JDK。</p>
+<blockquote>
+<p><strong>扩展</strong>:JDK 11 后 Oracle 不再提供单独的 JRE--运行时由 jlink 按需构建。JDK 9 引入模块化(JPMS),把原本庞大臃肿的 <code>rt.jar</code> 拆成了精细的模块,程序可以只打包需要的模块。另外,GraalVM 作为新的"多语言虚拟机",可以跑 Java、Python、JavaScript 等,还能做 AOT 编译成原生镜像。</p>
+</blockquote>
+<h3 id="2-equals">2. <code>==</code> 和 <code>equals()</code> 的区别?</h3>
+<pre><code>==    (引用比较):两个指针是否指向同一块内存地址
+equals(值比较)  :两个对象的内容是否相同
+
+堆内存:
+  [String &quot;hello&quot; @0x100] ← a 指向这里
+  [String &quot;hello&quot; @0x200] ← b 指向这里
+  a == b        → false(地址不同)
+  a.equals(b)   → true(内容相同)
+</code></pre>
+<ul>
+<li><code>==</code>:基本类型比值,引用类型比<strong>内存地址</strong>(是不是同一个对象)。就像比"是不是住在同一个房子里"</li>
+<li><code>equals()</code>:Object 默认也是比地址(和 <code>==</code> 一样),但 String、Integer 等重写了,比的是<strong>值</strong>。就像比"两个人名字是不是一样"</li>
+</ul>
+<pre><code class="language-java">String a = new String(&quot;hello&quot;);
+String b = new String(&quot;hello&quot;);
+a == b       // false,两个不同的对象
+a.equals(b)  // true,内容一样
+</code></pre>
+<blockquote>
+<p><strong>扩展</strong>:字符串常量池的存在让情况更复杂--<code>String s1 = "hello"; String s2 = "hello"; s1 == s2</code> 是 <strong>true</strong>,因为两个变量指向常量池中同一个对象。<code>Integer</code> 也有缓存池(-128 到 127),在这个范围内 <code>==</code> 也可能返回 true。面试时经常拿这些"反直觉"的情况考察对底层机制的理解。</p>
+</blockquote>
+<h3 id="3-hashcode-equals">3. <code>hashCode()</code> 和 <code>equals()</code> 的关系?</h3>
+<pre><code>HashMap 查找流程:
+key → hashCode() → 定位桶(bucket) → equals() 精确匹配
+
+如果只重写 equals 没重写 hashCode:
+  obj1.equals(obj2) == true
+  obj1.hashCode()  != obj2.hashCode()
+  → HashMap 把它们放到不同的桶 → 找不到!
+</code></pre>
+<p><strong>铁律</strong>:equals 相等的两个对象,hashCode 必须相等。反过来不一定(哈希碰撞--不同的对象可以有相同的 hashCode)。</p>
+<p>为什么?HashMap/HashSet 先通过 hashCode 快速定位到桶(就像快递先看收件小区),再用 equals 精确判断(再核实门牌号)。如果你重写了 equals 但没重写 hashCode,两个逻辑相等的对象可能被放到不同的桶里--HashMap 就找不到正确的值了。</p>
+<p><strong>结论:重写 equals 必须同时重写 hashCode</strong>。Lombok 的 <code>@EqualsAndHashCode</code> 和 IDEA 的 Generate 功能都能自动保证这个一致性。</p>
+<blockquote>
+<p><strong>扩展</strong>:好的 hashCode 实现能减少哈希碰撞→提升 HashMap 性能。常见做法是用质数 31 作为乘数--<code>31 * result + field.hashCode()</code>。因为 31 是质数且 JVM 可以将 <code>31 * i</code> 优化为 <code>(i &lt;&lt; 5) - i</code>(位运算更快)。String 的 hashCode 就用这个算法:<code>s[0]*31^(n-1) + s[1]*31^(n-2) + ... + s[n-1]</code>。</p>
+</blockquote>
+<h3 id="4-stringstringbuilderstringbuffer">4. String、StringBuilder、StringBuffer 的区别?</h3>
+<table>
+<thead>
+<tr>
+<th>类型</th>
+<th>可变性</th>
+<th>线程安全</th>
+<th>性能</th>
+<th>场景</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>String</td>
+<td>不可变</td>
+<td>天然安全</td>
+<td>拼接时慢(创建新对象)</td>
+<td>少量拼接、常量、Map 的 key</td>
+</tr>
+<tr>
+<td>StringBuilder</td>
+<td>可变</td>
+<td>不安全</td>
+<td>最快</td>
+<td>单线程频繁拼接</td>
+</tr>
+<tr>
+<td>StringBuffer</td>
+<td>可变</td>
+<td>安全(synchronized)</td>
+<td>较慢</td>
+<td>多线程拼接</td>
+</tr>
+</tbody>
+</table>
+<pre><code>String 拼接陷阱:
+String s = &quot;&quot;;
+for (int i = 0; i &lt; 10000; i++) {
+    s += i;  // 每次循环都 new String()!10000 个临时对象
+}
+
+用 StringBuilder:
+StringBuilder sb = new StringBuilder();
+for (int i = 0; i &lt; 10000; i++) {
+    sb.append(i);  // 同一块内存追加,无临时对象
+}
+</code></pre>
+<p>String 不可变因为底层是 <code>final byte[]</code>(JDK 9+,之前是 <code>char[]</code>)--一旦创建不能改。好处:哈希值可以被缓存(HashMap 的 key 首选 String)、线程安全、字符串常量池可以共享相同值。</p>
+<blockquote>
+<p><strong>扩展</strong>:JDK 9 将 char[] 改为 byte<a href="Compact Strings"></a>,因为大多数拉丁字符只需 1 字节。JDK 9+ 的字符串拼接底层自动优化为 <code>invokedynamic</code> + <code>StringConcatFactory</code>,简单拼接不比 StringBuilder 差。但循环中拼接编译器无法优化,仍要用 StringBuilder。另外 <code>StringJoiner</code> 和 <code>String.join()</code> 在拼接分隔符时比手动追加更简洁。</p>
+</blockquote>
+<h3 id="5-arraylist-linkedlist">5. ArrayList 和 LinkedList 的区别?</h3>
+<pre><code>ArrayList(底层数组 Object[]):
+  [A][B][C][D][_]  ← 连续内存
+  get(2) → O(1) 直接 C = elementData[2]
+  add(1, X) → O(n) 要把 BCD 往右移一格
+
+LinkedList(底层双向链表):
+  head ⇄ [A|prev|next] ⇄ [B|prev|next] ⇄ [C|prev|next] ⇄ tail
+  get(2) → O(n) 从 head 走两步才找到 B
+  add(1, X) → O(1) 改前后两个指针就行(但找位置要 O(n))
+</code></pre>
+<table>
+<thead>
+<tr>
+<th>操作</th>
+<th>ArrayList</th>
+<th>LinkedList</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>随机 get</td>
+<td>O(1)</td>
+<td>O(n)</td>
+</tr>
+<tr>
+<td>尾部 add</td>
+<td>O(1) 均摊</td>
+<td>O(1)</td>
+</tr>
+<tr>
+<td>中间 add/remove</td>
+<td>O(n)(移动元素)</td>
+<td>O(1)(改指针,但找位置 O(n))</td>
+</tr>
+<tr>
+<td>内存占用</td>
+<td>紧凑(连续)</td>
+<td>多两个指针</td>
+</tr>
+</tbody>
+</table>
+<p><strong>实际建议</strong>:90% 的场景用 ArrayList--连续内存对 CPU 缓存友好,链表指针跳转会造成 cache miss。LinkedList 只在频繁头/尾部插入且不需要随机访问时考虑(但此时 ArrayDeque 更合适)。</p>
+<blockquote>
+<p><strong>扩展</strong>:ArrayList 默认容量 10,满了按 1.5 倍扩容(<code>oldCapacity + oldCapacity &gt;&gt; 1</code>)。扩容会用 <code>Arrays.copyOf()</code> 复制整个数组,所以如果能预估大小,用 <code>new ArrayList&lt;&gt;(n)</code> 指定初始容量减少扩容次数。<code>Vector</code> 是老牌的线程安全 List(synchronized 所有方法),已被 <code>CopyOnWriteArrayList</code> 和 <code>Collections.synchronizedList()</code> 替代。</p>
+</blockquote>
+<h3 id="6-hashmap-18">6. HashMap 的原理(1.8)?</h3>
+<p>HashMap = <strong>一个超大号抽屉柜</strong>。每个抽屉(桶)编了号(哈希值定位),一个抽屉里可能塞多个文件(哈希碰撞→链表),东西太多时抽屉升级成文件夹分类(→红黑树)。</p>
+<pre><code>HashMap 数据结构(JDK 1.8):
+
+bucket:   [0]   [1]   [2]   [3]   ...   [15]
+            |     |           |
+          链表  红黑树        null
+          A→B   C
+               / \
+              D   E
+</code></pre>
+<p><strong>put 流程</strong>:</p>
+<pre><code>key.hashCode() → 扰动处理(高16位 ^ 低16位)→ 与 (n-1) 取模定位桶
+  → 桶为空:直接放
+  → 桶有数据(哈希碰撞):
+     → 链表节点 &lt; 8:追加到链表末尾
+     → 链表节点 ≥ 8 且数组长度 &lt; 64:扩容
+     → 链表节点 ≥ 8 且数组长度 ≥ 64:链表转红黑树
+  → key 相同:覆盖旧值
+</code></pre>
+<p><strong>关键参数</strong>:</p>
+<ul>
+<li>默认容量 16,负载因子 0.75--当元素数 &gt; 16 × 0.75 = 12 时触发扩容</li>
+<li>扩容时容量 ×2,每个桶的节点要么在原位置,要么移到原位置 + 原容量</li>
+<li>容量必须是 2 的幂--这样 <code>hash &amp; (n-1)</code> 等价于 <code>hash % n</code>,位运算更快</li>
+<li>链表转红黑树阈值 = 8(泊松分布下概率约千万分之一),红黑树退化为链表阈值 = 6</li>
+</ul>
+<blockquote>
+<p><strong>扩展</strong>:JDK 1.7 的 HashMap 存在"死循环"问题--扩容时头插法会导致链表成环(多线程并发时)。1.8 改为尾插法修复了这个问题,所以面试时常说"1.7 HashMap 线程不安全是因为死循环,1.8 是因为数据覆盖"。<code>(n-1) &amp; hash</code> 比 <code>%</code> 快是因为位运算只用 1 个 CPU 周期,取模要几十个周期。hash 值扰动(高 16 位异或低 16 位)是为了让高位也参与低位运算,因为大多数场景下容量不大的 HashMap 只用低位。</p>
+<p><strong>高级追问--HashMap 设计决策的"为什么"</strong>:</p>
+<p><strong>为什么容量必须是 2 的幂?</strong> <code>hash &amp; (n-1)</code> 等价于 <code>hash % n</code> 只在 n 是 2 的幂时成立。如果容量不是 2 的幂,低位会有槽永远用不上,分布严重不均。扩容时 2 倍扩容还有一个好处:元素要么在原来位置,要么在原位置+原容量(只需判断 hash 新增的那一位是 0 还是 1),迁移成本低。</p>
+<p><strong>为什么负载因子是 0.75?</strong> 空间和时间的权衡:设低了(如 0.5)-空间利用率低但冲突少;设高了(如 1.0)-空间利用率高但冲突多、查询退化。0.75 是 JDK 团队在大量测试后选的甜点值,也是泊松分布计算的基准参数。</p>
+<p><strong>为什么树化阈值是 8?</strong> 基于泊松分布:负载因子 0.75 时,链表长度 ≥8 的概率约千万分之六。也就是说正常情况下几乎不会树化--树化是一个"极端情况的兜底",不是常规路径。退化阈值设为 6(不等 8)是为了留一个缓冲,防止在 7-8 之间反复树化和退化。</p>
+</blockquote>
+<h3 id="7-concurrenthashmap">7. ConcurrentHashMap 如何保证线程安全?</h3>
+<pre><code>JDK 1.7(Segment 分段锁):
+┌─────────────────────────────┐
+│ Segment[0]  Segment[1]      │
+│  ┌─┬─┬─┐     ┌─┬─┬─┐       │
+│  │a│b│c│     │d│e│f│       │
+│  └─┴─┴─┘     └─┴─┴─┘       │
+│  锁住整个   锁住整个        │ ← 并发度 = Segment 数量(默认 16)
+│  Segment    Segment         │
+└─────────────────────────────┘
+
+JDK 1.8(CAS + synchronized 锁桶头节点):
+┌─────────────────────────────┐
+│ [0]  [1]  [2]  [3]  ...     │
+│  ↓    ↓    ↓    ↓           │
+│ CAS  syn  null CAS          │ ← 只锁冲突的那个桶
+└─────────────────────────────┘
+</code></pre>
+<p><strong>1.7(分段锁)</strong>:整个 Map 分成 16 个 Segment,每个 Segment 内一把锁。16 个线程分别操作不同 Segment 时互不阻塞。但并发度被局限在 16,且粒度还是偏粗。</p>
+<p><strong>1.8 改进--CAS + synchronized</strong>:
+- <strong>put 操作</strong>:桶为空 → CAS 尝试设置(无锁);桶有数据 → 只对<strong>桶头节点</strong>加 synchronized(最小粒度)
+- <strong>get 操作</strong>:完全不加锁(Node 的 val 和 next 都是 volatile,保证可见性)
+- <strong>扩容</strong>:多线程可以协作扩容(<code>transfer</code> 方法给每个线程分配迁移区间),效率大幅提升</p>
+<p>就像 1.7 是锁整个楼层(同一楼层的人都要等),1.8 是锁每个房间的门--只有同一个房间的人需要排队。</p>
+<blockquote>
+<p><strong>扩展</strong>:ConcurrentHashMap 不允许 null 的 key 和 value(HashMap 允许),因为多线程下 <code>get(null)</code> 无法区分"key 不存在"和"value 就是 null"。<code>size()</code> 方法在 1.8 中不再锁整个 map 而是通过 <code>baseCount + CounterCell</code> 数组累加各线程的计数,精度比 1.7 稍低但性能好很多。<code>computeIfAbsent</code> 方法在 ConcurrentHashMap 中是<strong>原子</strong>的,可以安全地做"不存在则计算并放入"。</p>
+</blockquote>
+<h3 id="8-synchronized">8. <code>synchronized</code> 锁升级过程?</h3>
+<pre><code>锁升级路径(单向,不可降级):
+
+无锁 ──→ 偏向锁 ──→ 轻量级锁 ──→ 重量级锁
+ 无竞争   同一线程  少量竞争   激烈竞争
+        反复进入  CAS 自旋   进入阻塞队列
+                        ↓
+                   自旋失败/竞争加剧
+</code></pre>
+<p><strong>偏向锁</strong>:第一个线程进来时,锁上贴个"专属于线程 A"的标签(Mark Word 记录线程 ID)。以后线程 A 再来,看到是自己的标签--直接进,什么都不用做。就像你的专属停车位--看到名字直接停。</p>
+<p><strong>轻量级锁</strong>:其他线程也来抢时,偏向锁升级。线程 B 通过 CAS 尝试在 Mark Word 中设置 Lock Record 指针。没抢到的自旋等待(循环尝试,不阻塞)。适合<strong>锁持有时间短</strong>的场景--自旋的 CPU 开销 &lt; 线程阻塞/唤醒的开销。</p>
+<p><strong>重量级锁</strong>:自旋了一定次数还是拿不到锁 → 升级为重量级锁。线程进入 OS 级别的互斥量(Mutex),进内核态排队阻塞。CPU 开销转嫁给了 OS 调度。适合<strong>锁持有时间长</strong>或<strong>竞争激烈</strong>的场景。</p>
+<blockquote>
+<p><strong>扩展</strong>:JDK 15 默认禁用了偏向锁(因为在高竞争场景下偏向锁撤销的开销可能大于收益),JDK 21 中偏向锁已被标记为废弃。锁消除(JIT 发现不可能有竞争,直接去掉锁)和锁粗化(合并相邻的加锁/解锁)也是 JIT 对 synchronized 的重要优化。JDK 21 的虚拟线程(Virtual Threads)可以极大降低重量级锁阻塞的代价--虚拟线程阻塞不占用 OS 线程。</p>
+</blockquote>
+<h3 id="9-volatile">9. <code>volatile</code> 的作用?</h3>
+<pre><code>volatile 的两大能力:
+
+1 可见性:
+  线程A:flag = true;  → 立刻刷到主内存
+  线程B:读 flag  → 直接从主内存读(不用工作内存的缓存)
+  保证:A 的修改 B 立刻能看到
+
+2 禁止指令重排:
+  写 volatile 之前的操作不能排到后面
+  读 volatile 之后的操作不能排到前面
+  (内存屏障保证)
+</code></pre>
+<p><strong>不保证原子性</strong>--<code>i++</code> 看起来一步,实际是"读→改→写"三步:</p>
+<pre><code>线程A 读 i=0 → 线程B 读 i=0 → A 写 i=1 → B 写 i=1
+  结果 i=1,应该是 2!volatile 管不了这件事
+</code></pre>
+<p><strong>使用 volatile 的经典场景</strong>:</p>
+<ul>
+<li>状态标记:<code>private volatile boolean running = true;</code></li>
+<li>DCL 单例中的 <code>instance</code>(防止指令重排导致的"半初始化"对象逸出)</li>
+<li>读多写少的计数器不要求严格精确时</li>
+</ul>
+<blockquote>
+<p><strong>扩展</strong>:DCL(Double-Checked Locking)单例中 <code>instance</code> 必须用 volatile,因为 <code>new Singleton()</code> 不是原子的--它分三步:分配内存 → 初始化对象 → 赋值给引用。不加 volatile,JIT 可能把"初始化"和"赋值"重排,导致其他线程拿到一个未初始化的对象。<code>synchronized</code> 也能保证可见性(退出同步块时刷主内存),但 volatile 比 synchronized 轻量得多(只是内存屏障,无锁)。</p>
+</blockquote>
+<h3 id="10-threadlocal">10. ThreadLocal 原理及内存泄漏问题?</h3>
+<pre><code>ThreadLocal 内部结构:
+
+Thread-1                     Thread-2
+  ThreadLocalMap               ThreadLocalMap
+    key(弱引用) → TL对象        key(弱引用) → TL对象
+    value → 用户数据            value → 用户数据
+    key(弱引用) → TL对象2
+    value → 用户数据2
+
+每个线程都有一个 ThreadLocalMap
+每个 ThreadLocal 对象是 Map 的 key
+</code></pre>
+<p><strong>原理</strong>:每个线程内部维护一个 <code>ThreadLocalMap</code>,key 是 ThreadLocal 对象的<strong>弱引用</strong>,value 是你存的值。这样不同线程访问同一个 ThreadLocal 对象的 <code>get()</code> 时,实际上是从自己线程的 Map 里取值--天然线程隔离。</p>
+<p><strong>内存泄漏原因</strong>:</p>
+<pre><code>ThreadLocal 对象(外部强引用被置 null)
+  → GC 回收 ThreadLocal 对象(因为是弱引用 key)
+  → 但 value 还在 ThreadLocalMap 中(强引用)
+  → 线程池线程长期不销毁 → value 永远不被回收 → 内存泄漏
+</code></pre>
+<p><strong>解决</strong>:用完一定要调 <code>remove()</code>。就像用完储物柜要清空--key(号码牌)还了,东西(value)还占着柜子。</p>
+<blockquote>
+<p><strong>扩展</strong>:JDK 8 的 ThreadLocal 已经在 get/set/remove 时会顺便清理 key 为 null 的 Entry(惰性清理),但没有调 remove 的话清理不完全。InheritableThreadLocal 可以让子线程继承父线程的值(fork-join 场景),但不支持线程池(线程复用导致继承失效)。阿里 TransmittableThreadLocal(TTL)解决了线程池场景下的上下文传递问题,已被 Spring Cloud 和 Dubbo 采用。</p>
+</blockquote>
+<h3 id="11-jvm">11. JVM 内存模型?</h3>
+<pre><code>JVM 运行时数据区域:
+
+┌─────────────────────────────────────────┐
+│              堆 (Heap)                   │ ← 所有线程共享,GC 主战场
+│  ┌────┬────┬────────────┐               │
+│  │Eden│ S0 │ S1 │ Old Gen│               │
+│  └────┴────┴────────────┘               │
+├─────────────────────────────────────────┤
+│          元空间 (Metaspace)              │ ← 方法区的实现,存类元信息
+│     直接内存 (Direct Memory)             │ ← NIO 使用的堆外内存
+├──────────┬──────────┬───────────────────┤
+│ 虚拟机栈  │ 本地方法栈│  程序计数器        │ ← 线程私有
+│ (Java调用)│(native)  │  (当前字节码行号)   │
+└──────────┴──────────┴───────────────────┘
+</code></pre>
+<ul>
+<li><strong>堆</strong>:对象和数组的实例存放区,GC 主要发生地。分新生代(Eden + 两个 Survivor)和老年代</li>
+<li><strong>方法区/元空间</strong>:存储类信息、常量、静态变量、JIT 编译的代码。JDK 8 后从堆内永久代(PermGen)移到本地内存(Metaspace),不再容易 OOM</li>
+<li><strong>虚拟机栈</strong>:每个线程私有。每个方法调用时创建一个栈帧(存局部变量表、操作数栈、方法返回地址)</li>
+<li><strong>本地方法栈</strong>:类似虚拟机栈,但服务于 native 方法</li>
+<li><strong>程序计数器</strong>:记录当前线程执行到哪条字节码指令,是 JVM 中唯一不会 OOM 的区域</li>
+</ul>
+<blockquote>
+<p><strong>扩展</strong>:JDK 8 将永久代替换为元空间的主要原因是--永久代大小固定(<code>-XX:MaxPermSize</code>),类加载多了容易 OOM: PermGen。元空间使用本地内存,默认无上限(受限于物理内存),并且字符串常量池也从永久代移到了堆中。直接内存(DirectByteBuffer)不受 GC 管理,适合大块数据长期驻留的场景(如 Netty 的网络缓冲区),但需要手动释放。</p>
+</blockquote>
+<h3 id="12">12. 垃圾回收算法?</h3>
+<pre><code>四种 GC 算法对比:
+
+标记-清除(Mark-Sweep):
+  [A][ ][B][ ][C][ ][D][ ]  → 碎片化,大对象可能放不下
+
+标记-整理(Mark-Compact):
+  [A][B][C][D][ ][ ][ ][ ]  → 无碎片,但整理慢(STW 长)
+
+复制(Copying):
+  内存分两块,只用一半:
+  Eden + S0 → 活对象复制到 S1,Eden+S0 清空
+  快,无碎片,但浪费一半空间
+
+分代收集(Generational):
+  新生代 → 复制(对象朝生夕死,98% 活不过一轮)
+  老年代 → 标记-整理 或 标记-清除
+</code></pre>
+<table>
+<thead>
+<tr>
+<th>算法</th>
+<th>怎么做</th>
+<th>优点</th>
+<th>缺点</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>标记-清除</td>
+<td>标记活对象 → 清除死的</td>
+<td>简单</td>
+<td>碎片化</td>
+</tr>
+<tr>
+<td>标记-整理</td>
+<td>标记活对象 → 移到一端</td>
+<td>无碎片</td>
+<td>STW 长</td>
+</tr>
+<tr>
+<td>复制</td>
+<td>活的复制到另一区</td>
+<td>无碎片,快</td>
+<td>浪费一半空间</td>
+</tr>
+<tr>
+<td>分代收集</td>
+<td>新老分别用复制/整理</td>
+<td>各取所长</td>
+<td>复杂度高</td>
+</tr>
+</tbody>
+</table>
+<p><strong>为什么新生代用复制</strong>:新生代中 98% 的对象"朝生夕死",每次 GC 只有少量存活。复制少量活对象到 Survivor 区就行,很高效。只需要 10% 的保留空间(两个 Survivor 区),不算浪费。</p>
+<p><strong>为什么老年代用标记-整理</strong>:老年代中的对象存活率高、存活时间长。如果用复制,一半空间浪费太大。所以用标记-清除(CMS)或标记-整理(Serial/Parallel Old)。</p>
+<blockquote>
+<p><strong>扩展</strong>:复制算法中的 Survivor 为什么是两个(S0 和 S1)而不是一个?因为每次 GC 后 Eden + 其中一个 Survivor 的存活对象要复制到另一个 Survivor,两个 Survivor 交替使用,始终保持一个为空。如果 Survivor 不够放,存活对象直接进入老年代(分配担保机制)。大对象(超过 <code>-XX:PretenureSizeThreshold</code>)也会直接进老年代。</p>
+</blockquote>
+<h3 id="13-cms-g1">13. CMS 和 G1 的区别?</h3>
+<pre><code>CMS(Concurrent Mark Sweep):
+  老年代用,标记-清除
+  目标:最短停顿时间
+  问题:碎片化 + 浮动垃圾
+  JDK 14 已废弃
+
+G1(Garbage First):
+  整堆划分为等大小的 Region
+  优先回收垃圾最多的 Region
+  目标:可预测的停顿时间(-XX:MaxGCPauseMillis)
+  JDK 9+ 默认收集器
+</code></pre>
+<table>
+<thead>
+<tr>
+<th>对比维度</th>
+<th>CMS</th>
+<th>G1</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>堆结构</td>
+<td>连续新生代 + 连续老年代</td>
+<td>多 Region(逻辑分代)</td>
+</tr>
+<tr>
+<td>回收策略</td>
+<td>只回收老年代</td>
+<td>选垃圾最多的 Region 回收</td>
+</tr>
+<tr>
+<td>碎片</td>
+<td>标记-清除有碎片</td>
+<td>复制整理,无碎片</td>
+</tr>
+<tr>
+<td>停顿预测</td>
+<td>不可预测</td>
+<td>可设目标值</td>
+</tr>
+<tr>
+<td>适用堆大小</td>
+<td>小到中(&lt; 4G)</td>
+<td>中到大(&gt; 4G)</td>
+</tr>
+<tr>
+<td>JDK 状态</td>
+<td>14+ 废弃</td>
+<td>9+ 默认,推荐</td>
+</tr>
+</tbody>
+</table>
+<p><strong>CMS 的问题</strong>:标记-清除产生碎片,老年代没有连续空间分配大对象时,触发 Full GC(Serial Old 做标记-整理,单线程,STW 很长)。另外并发清理时用户线程还在运行会产生新的垃圾(浮动垃圾),可能在下一次 GC 前触发 Concurrent Mode Failure。</p>
+<p><strong>G1 如何解决</strong>:将堆分成大小相等的 Region(1-32MB),每次只回收一部分垃圾最多的 Region(而不是整个老年代),控制每次停顿时间。Region 之间用 Remembered Set(记忆集)记录跨 Region 引用,避免扫描全堆。</p>
+<blockquote>
+<p><strong>扩展</strong>:ZGC(JDK 11 实验,15+ 生产可用)和 Shenandoah(JDK 12+)是新一代低延迟收集器,目标是把 STW 控制在 10ms 以内,且停顿时间不随堆大小增加。ZGC 使用着色指针和读屏障,Shenandoah 使用 Brooks 指针和转发指针。JDK 21 的 Generational ZGC 把 ZGC 改成了分代模式,性能进一步提升。未来 CMS 和 Parallel Old 都会逐步退役。</p>
+</blockquote>
+<h3 id="14-java-8">14. Java 8 新特性有哪些?</h3>
+<pre><code>Java 8 核心特性一览:
+
+Lambda      → (a, b) -&gt; a + b        匿名函数的简洁写法
+Stream      → filter/map/reduce      函数式处理集合,声明式编程
+Optional    → Optional.ofNullable()  消灭 NPE 的容器
+接口增强     → default / static       接口可以有方法体了
+新时间 API   → LocalDate/LocalTime   不可变、线程安全、API 清晰
+CompletableFuture → 异步编排         回调地狱的终结者
+方法引用     → String::length         Lambda 的简化写法
+</code></pre>
+<p>重点解读:</p>
+<ul>
+<li><strong>Lambda 表达式</strong>:<code>(参数) -&gt; { 方法体 }</code>,本质是函数式接口(只有一个抽象方法的接口)的匿名实现。让代码从"怎么做"变成"要什么"</li>
+<li><strong>Stream API</strong>:<code>list.stream().filter(x -&gt; x &gt; 10).map(String::valueOf).collect(toList())</code>--链式声明式处理,内部迭代 + 惰性求值</li>
+<li><strong>Optional</strong>:包装可能为 null 的值,强制你处理空值情况。<code>optional.map().orElse()</code> 替代层层 if-null 判断</li>
+<li><strong>新日期时间 API</strong>(java.time):<code>Date</code> 和 <code>Calendar</code> 终于可以扔了--不可变、线程安全、API 直观(<code>LocalDate.now().plusDays(7)</code>)</li>
+<li><strong>CompletableFuture</strong>:<code>supplyAsync().thenApply().thenAccept()</code> 链式编排异步任务,摆脱回调嵌套</li>
+</ul>
+<blockquote>
+<p><strong>扩展</strong>:Stream 的惰性求值--中间操作(filter/map)不立即执行,只在终端操作(collect/forEach/count)触发时才上一条龙处理。默认方法解决了接口演化问题--给 Collection 加 <code>stream()</code> 方法而不用逼所有实现类都改。JDK 8 中还引入了 <code>Base64</code> 工具类、<code>ConcurrentHashMap</code> 重写等大量改进。</p>
+</blockquote>
+<h3 id="15-checked-unchecked">15. 异常体系中 checked 和 unchecked 的区别?</h3>
+<pre><code>Java 异常体系:
+
+Throwable
+├── Error(不应捕获)
+│   └── OutOfMemoryError, StackOverflowError
+└── Exception
+    ├── RuntimeException(unchecked,不强制处理)
+    │   └── NullPointerException, IllegalArgumentException
+    └── 其他 Exception(checked,编译器强制处理)
+        └── IOException, SQLException, ClassNotFoundException
+</code></pre>
+<table>
+<thead>
+<tr>
+<th>对比</th>
+<th>Checked</th>
+<th>Unchecked(RuntimeException)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>编译检查</td>
+<td>必须 try-catch 或 throws</td>
+<td>不强制</td>
+</tr>
+<tr>
+<td>典型场景</td>
+<td>外部系统异常(IO、网络)</td>
+<td>编程错误(空指针、越界)</td>
+</tr>
+<tr>
+<td>设计意图</td>
+<td>"这个错误你应该预见到"</td>
+<td>"这是你代码写得不对"</td>
+</tr>
+<tr>
+<td>举例</td>
+<td><code>FileNotFoundException</code></td>
+<td><code>NullPointerException</code></td>
+</tr>
+</tbody>
+</table>
+<p><strong>设计哲学</strong>:可预测的外部异常(文件不存在、网络断开)强制你处理--因为你无法控制外部环境。程序逻辑错误(空指针、数组越界)不强制--你的代码不该写出这种 bug,如果写了就让程序崩溃,而不是悄悄吞掉。</p>
+<blockquote>
+<p><strong>扩展</strong>:Spring 框架倾向于使用 RuntimeException(提倡 unchecked 异常),认为 checked 异常增加了代码噪音且很多场景无法从异常中恢复。<code>@Transactional</code> 默认只在 RuntimeException 和 Error 时回滚,checked 异常不自动回滚(需要 <code>rollbackFor</code> 指定)。另外 <code>finally</code> 块中的 <code>return</code> 会吞掉 try 中的异常,这是经典的坑。</p>
+</blockquote>
+<h3 id="16">16. 反射的原理及应用场景?</h3>
+<pre><code>反射工作流程:
+
+类加载 → JVM 在方法区创建 Class 对象(包含类的所有元信息)
+  → 通过 Class.forName() / obj.getClass() / 类名.class 获取 Class 对象
+  → 获取 Field / Method / Constructor
+  → 调用 method.invoke(obj, args) 或 field.set(obj, value)
+</code></pre>
+<p>反射让程序在<strong>运行时</strong>获取类的所有信息并操作它--就像有了一个类的"X 光片",能在运行时看穿里面的每个字段、每个方法。</p>
+<p><strong>经典应用场景</strong>:
+- Spring 依赖注入:<code>@Autowired</code> 时通过反射设置字段值
+- JDK 动态代理:Proxy 类用反射调用目标方法
+- JDBC 驱动加载:<code>Class.forName("com.mysql.cj.jdbc.Driver")</code> 加载驱动类(JDK 4+ 后 SPI 自动加载)
+- JSON 序列化:Jackson/Gson 用反射读写对象字段
+- 单元测试:JUnit 通过反射调用 <code>@Test</code> 方法</p>
+<p><strong>代价</strong>:性能比直接调用慢(需要安全检查、包装/拆箱、方法查找),破坏了封装性(<code>setAccessible(true)</code> 可以访问 private 成员)。</p>
+<blockquote>
+<p><strong>扩展</strong>:<code>setAccessible(true)</code> 的性能开销较大,建议在初始化时缓存 Method/Field 对象避免重复查找。JDK 17+ 中反射访问被模块化系统限制更严格(强封装),但 <code>--add-opens</code> JVM 参数可以开放。MethodHandle(JDK 7+)和 VarHandle(JDK 9+)是反射的替代方案,性能接近直接调用。Lambda 表达式底层用 <code>invokedynamic</code> + LambdaMetafactory,不依赖反射。</p>
+</blockquote>
+<h3 id="17-extends-t-super-t">17. 泛型中的 <code>&lt;? extends T&gt;</code> 和 <code>&lt;? super T&gt;</code> 的区别?</h3>
+<pre><code>PECS 原则:Producer Extends, Consumer Super
+
+List&lt;? extends Number&gt;:生产者,你从里面拿东西
+  → 只能读(get 返回 Number),不能写(add 不知道具体类型)
+  → 可以接受 List&lt;Integer&gt;、List&lt;Double&gt; 等
+
+List&lt;? super Integer&gt;:消费者,你往里面放东西
+  → 能写(可以 add Integer),读只能拿到 Object
+  → 可以接受 List&lt;Integer&gt;、List&lt;Number&gt;、List&lt;Object&gt;
+</code></pre>
+<table>
+<thead>
+<tr>
+<th>通配符</th>
+<th>读(get)</th>
+<th>写(add)</th>
+<th>适用</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>? extends T</code></td>
+<td>T 类型</td>
+<td>不能写</td>
+<td>生产者</td>
+</tr>
+<tr>
+<td><code>? super T</code></td>
+<td>Object</td>
+<td>T 及其子类</td>
+<td>消费者</td>
+</tr>
+<tr>
+<td>无通配符 <code>&lt;T&gt;</code></td>
+<td>T</td>
+<td>T</td>
+<td>读写都有</td>
+</tr>
+</tbody>
+</table>
+<p><strong>经典例子</strong>:</p>
+<pre><code class="language-java">// 把 src 的元素复制到 dest
+// src 是生产者(只读),dest 是消费者(只写)
+void copy(List&lt;? extends T&gt; src, List&lt;? super T&gt; dest) {
+    for (T item : src) {
+        dest.add(item);
+    }
+}
+</code></pre>
+<p>不能写的原因:<code>List&lt;? extends Number&gt;</code> 可能是 <code>List&lt;Integer&gt;</code> 也可能是 <code>List&lt;Double&gt;</code>,你往里面 add <code>3.14</code> 如果它实际是 <code>List&lt;Integer&gt;</code> 就炸了。(类型安全)</p>
+<blockquote>
+<p><strong>扩展</strong>:Java 泛型是"编译期擦除"--编译后 <code>List&lt;Integer&gt;</code> 和 <code>List&lt;String&gt;</code> 都是 <code>List</code>,泛型信息只在编译时存在。所以不能 <code>instanceof List&lt;Integer&gt;</code>、不能 <code>new T()</code>、不能创建泛型数组。<code>? extends</code> 和 <code>? super</code> 是编译期的类型约束,运行时不区分。Kotlin 的泛型更清晰--<code>in</code> = <code>? super</code>(消费者),<code>out</code> = <code>? extends</code>(生产者),且支持声明处型变。</p>
+</blockquote>
+<h3 id="18-java">18. Java 的类加载机制?</h3>
+<pre><code>双亲委派模型:
+
+Bootstrap ClassLoader(最顶层)
+  ↑ 加载 &lt;JAVA_HOME&gt;/lib,核心类 rt.jar / java.base
+Extension ClassLoader
+  ↑ 加载 &lt;JAVA_HOME&gt;/lib/ext
+Application ClassLoader(最底层)
+  ↑ 加载 classpath 下的类
+
+加载流程(自底向上询问,自顶向下加载):
+  1 AppClassLoader 收到请求
+  2 先问 ExtClassLoader:你能加载吗?
+  3 ExtClassLoader 再问 Bootstrap:你能加载吗?
+  4 Bootstrap 加载不到 → ExtClassLoader 也加载不到 → AppClassLoader 自己加载
+</code></pre>
+<p><strong>好处</strong>:</p>
+<ol>
+<li><strong>避免重复加载</strong>:父加载器已经加载过这个类,子加载器就不用再加载(同一个命名空间只用一份)</li>
+<li><strong>保护核心类安全</strong>:你写一个 <code>java.lang.String</code> 想替换 JDK 的核心 String--Bootstrap ClassLoader 说"我已经加载过了",你的冒牌货不会被加载,防止核心库被注入恶意代码</li>
+</ol>
+<p><strong>打破双亲委派</strong>:某些场景需要打破:</p>
+<ul>
+<li>Tomcat:每个 Web 应用有自己的 WebAppClassLoader,隔离不同应用的类和 jar</li>
+<li>SPI(JDBC 驱动):<code>ServiceLoader</code> 的线程上下文类加载器让 Bootstrap 类能加载应用级的实现类</li>
+<li>OSGi:网状加载,模块间精确控制类可见性</li>
+</ul>
+<blockquote>
+<p><strong>扩展</strong>:JDK 9 模块化后,类加载从三层变为--Bootstrap(<code>java.base</code> 等核心模块)、Platform(替代 ExtClassLoader 加载 <code>java.se</code> 等)、App。模块化将 ExtClassLoader 改名为 PlatformClassLoader,且引入模块描述符(module-info.java)控制包的导出和依赖。自定义类加载器只需重写 <code>findClass()</code>(遵循双亲委派)或重写 <code>loadClass()</code>(打破双亲委派)。</p>
+</blockquote>
+<hr />
+<h3 id="19-java-try-with-resources">19. Java 中 try-with-resources 的原理?</h3>
+<p>try-with-resources 是 Java 7 引入的<strong>语法糖</strong>--让你不用手动在 finally 里关资源,编译器帮你生成了关闭代码。</p>
+<p><strong>传统写法 vs try-with-resources</strong>:</p>
+<pre><code class="language-java">// 传统写法:手动关资源,又臭又长
+BufferedReader br = null;
+try {
+    br = new BufferedReader(new FileReader(&quot;file.txt&quot;));
+    String line = br.readLine();
+} catch (IOException e) {
+    e.printStackTrace();
+} finally {
+    if (br != null) {
+        try {
+            br.close();  // close() 也可能抛异常!
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+}
+
+// try-with-resources:一行括号搞定
+try (BufferedReader br = new BufferedReader(new FileReader(&quot;file.txt&quot;))) {
+    String line = br.readLine();
+}  // br.close() 自动调用
+</code></pre>
+<p><strong>底层原理</strong>:</p>
+<p>编译后,javac 把 try-with-resources 展开成 try-finally 结构。关键点:所有实现了 <code>AutoCloseable</code>(或 <code>Closeable</code>)的对象都可以放 try() 括号里。</p>
+<p><strong>Suppressed 异常(核心考点)</strong>:</p>
+<p>如果业务代码和 close() 都抛异常,怎么办?传统写法中 finally 抛的异常会<strong>覆盖</strong> try 里的异常--你最想知道的那个业务异常就丢了!try-with-resources 用 <strong>suppressed 异常</strong> 机制解决了这个问题:</p>
+<pre><code class="language-java">try (BadResource r = new BadResource()) {
+    r.doSomething();  // 抛异常 A(业务异常)
+    // r.close() 也抛异常 B(关闭异常)
+}
+// 最终抛出异常 A,异常 B 作为 suppressed 附加在 A 上
+// 通过 ex.getSuppressed() 能拿到异常 B
+</code></pre>
+<p><strong>多个资源</strong>:声明顺序打开,相反顺序关闭(类似栈--后进先出)。</p>
+<pre><code class="language-java">try (A a = new A(); B b = new B(); C c = new C()) {
+    // 使用 a, b, c
+}
+// 关闭顺序:c.close() → b.close() → a.close()
+</code></pre>
+<blockquote>
+<p><strong>扩展</strong>:Java 9 改进了 try-with-resources--可以在 try 外面声明资源变量,只要变量是"effectively final"就行。这样代码更清晰:<code>BufferedReader br = new BufferedReader(...); try (br) { ... }</code>。另外,连接池的 Connection(如 HikariCP)的 close() 不是真关闭连接,而是归还连接池--所以放 try() 里没问题。</p>
+</blockquote>
+<hr />
+<h3 id="20">20. 接口和抽象类的区别?</h3>
+<p>用一句话区分:<strong>接口=行为合同(你能做什么),抽象类=基因继承(你是什么)</strong>。就像鸟和飞机都会飞(接口 Flyable),但鸟是动物、飞机是机器(抽象类不同)。</p>
+<table>
+<thead>
+<tr>
+<th>对比维度</th>
+<th>接口(Interface)</th>
+<th>抽象类(Abstract Class)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>继承方式</strong></td>
+<td>多实现,一个类可实现多个接口</td>
+<td>单继承,一个类只能继承一个抽象类</td>
+</tr>
+<tr>
+<td><strong>方法</strong></td>
+<td>Java 8 前只有抽象方法;8 后支持 <code>default</code>/<code>static</code></td>
+<td>可以有抽象方法,也可以有具体实现</td>
+</tr>
+<tr>
+<td><strong>变量</strong></td>
+<td>只能是 <code>public static final</code> 常量</td>
+<td>可以有各种修饰符的成员变量</td>
+</tr>
+<tr>
+<td><strong>构造器</strong></td>
+<td><strong>没有</strong></td>
+<td><strong>有</strong>(给子类调用的)</td>
+</tr>
+<tr>
+<td><strong>设计目的</strong></td>
+<td>定义"能做什么"(has-a 关系、行为规范)</td>
+<td>代码复用 + 模板设计(is-a 关系)</td>
+</tr>
+<tr>
+<td><strong>实例化</strong></td>
+<td>不能</td>
+<td>不能</td>
+</tr>
+</tbody>
+</table>
+<pre><code class="language-java">// 接口:定义行为规范
+interface Flyable {
+    int MAX_HEIGHT = 1000;       // 隐式 public static final
+    void fly();                   // 隐式 public abstract
+
+    default void land() {         // Java 8+:默认实现,子类可覆盖
+        System.out.println(&quot;降落&quot;);
+    }
+}
+
+// 抽象类:包含部分实现 + 模板方法
+abstract class Bird {
+    String name;
+    Bird(String name) { this.name = name; }  // 构造器给子类用
+
+    abstract void sing();                      // 子类必须实现
+    void eat() { System.out.println(name + &quot;吃东西&quot;); }  // 子类直接继承
+}
+
+// 类可实现多个接口,但只能继承一个抽象类
+class Eagle extends Bird implements Flyable { ... }
+</code></pre>
+<p><strong>选型决策</strong>:</p>
+<pre><code>用接口当:不同类共享行为但无继承关系
+  例:鸟、飞机、超人 都实现 Flyable
+  例:String、Integer 都实现 Comparable
+
+用抽象类当:多个类有共同属性和部分相同实现
+  例:所有动物都有 name 属性 + eat() 方法,但 sing() 各自不同
+  例:模板方法模式--流程骨架在抽象类,细节在子类
+</code></pre>
+<blockquote>
+<p><strong>扩展</strong>:为什么 Java 8 要给接口加 default 方法?为了<strong>向后兼容</strong>--比如 Java 8 在 Collection 接口中加了 <code>stream()</code> 默认方法,如果这是抽象方法,所有 Collection 的实现类(包括你自定义的)全要改代码。default 方法给了老接口"进化"的能力。另外接口可以<strong>多继承</strong>(一个接口 extends 多个父接口),这是抽象类做不到的。</p>
+</blockquote>
+<hr />
+<h3 id="21">21. 什么是泛型擦除?有什么影响?</h3>
+<p>泛型擦除 = <strong>安检只在进门时检查,进来后都一样</strong>。编译时 <code>List&lt;String&gt;</code> 和 <code>List&lt;Integer&gt;</code> 是不同的(编译器会检查),但编译后字节码里都是 <code>List</code>(类型信息被擦除了)。这样做的目的是兼容老版本 Java(Java 5 之前没有泛型)。</p>
+<pre><code class="language-java">// 编译前
+List&lt;String&gt; list = new ArrayList&lt;&gt;();
+list.add(&quot;Hello&quot;);
+String s = list.get(0);      // 不需要强转
+
+// 编译后(泛型被擦除,等价于):
+List list = new ArrayList();  // 原始类型
+list.add(&quot;Hello&quot;);
+String s = (String) list.get(0); // 编译器自动插入强转
+</code></pre>
+<p><strong>泛型擦除带来的 5 个限制</strong>:</p>
+<pre><code>1 运行时无法获取泛型类型
+   list.getClass() 返回 ArrayList,不是 ArrayList&lt;String&gt;
+   if (obj instanceof List&lt;String&gt;)  ← 编译报错!
+
+2 不能用基本类型做泛型参数
+   List&lt;int&gt; ← 编译报错,只能 List&lt;Integer&gt;
+   原因:擦除后 int 不能当 Object
+
+3 方法签名冲突(桥方法)
+   class Parent&lt;T&gt; { void set(T t) {} }
+   class Child extends Parent&lt;String&gt; {
+       void set(String s) {}  // 编译器生成桥方法 void set(Object o) 保证多态
+   }
+
+4 不能创建泛型数组
+   T[] arr = new T[10];  ← 编译报错
+   List&lt;String&gt;[] arr = new List&lt;String&gt;[10];  ← 编译报错
+
+5 静态方法不能用类的泛型参数
+   class Box&lt;T&gt; {
+       static T value;  ← 编译报错!(静态方法属于类,不依赖实例,T 无法确定)
+   }
+</code></pre>
+<p><strong>通配符(PECS 原则)</strong>:</p>
+<pre><code class="language-java">// 上界通配符 - Producer(生产者,只读不写)
+List&lt;? extends Number&gt; nums;  // 能接受 List&lt;Integer&gt;/List&lt;Double&gt;
+Number n = nums.get(0);       // ✅ 读出来一定是 Number
+nums.add(1);                  // ❌ 编译报错!不知道具体是什么类型
+
+// 下界通配符 - Consumer(消费者,只写不读)
+List&lt;? super Integer&gt; list;   // 能接受 List&lt;Integer&gt;/List&lt;Number&gt;/List&lt;Object&gt;
+list.add(1);                  // ✅ 写 Integer 一定安全
+Integer i = list.get(0);      // ❌ 编译报错!不知道取出来是什么
+</code></pre>
+<blockquote>
+<p><strong>PECS 记忆法</strong>:Producer Extends, Consumer Super。如果一个集合只往外取数据(生产者),用 <code>? extends T</code>;如果只往里放数据(消费者),用 <code>? super T</code>。</p>
+<p><strong>扩展</strong>:Java 为什么不用 C# 的"真泛型"(运行时保留类型信息)?因为 Java 选择的是<strong>迁移兼容性</strong>--老代码不加修改就能在 Java 5 上运行。C# 2.0 直接改了 CLR(运行时),老代码需要重新编译。这是两种哲学:Java 选了兼容、C# 选了完整性。现在 Java 也在通过 Valhalla 项目探索在运行时保留部分泛型信息。</p>
+</blockquote>
+<h3 id="22-java-21-virtual-thread">22. Java 21 虚拟线程(Virtual Thread)的原理?和传统线程有什么区别?</h3>
+<p>虚拟线程 = JVM 管理的轻量级线程(Project Loom)。传统 Java 线程是 OS 线程的 1:1 映射,虚拟线程是 M:N 映射--多个虚拟线程运行在少量<strong>载体线程</strong>(Carrier Thread)上。</p>
+<pre><code class="language-java">// 创建虚拟线程(Java 21+)
+Thread vThread = Thread.ofVirtual().start(() -&gt; {
+    System.out.println(&quot;Hello Virtual Thread&quot;);
+});
+
+// 虚拟线程池:1 万个任务只占用少量平台线程!
+try (ExecutorService executor = Executors.newVirtualThreadPerTaskExecutor()) {
+    for (int i = 0; i &lt; 10_000; i++) {
+        executor.submit(() -&gt; Thread.sleep(1000));
+    }
+}
+</code></pre>
+<p><strong>核心原理</strong>:虚拟线程阻塞时(如 <code>Thread.sleep()</code>、<code>Socket.read()</code>)会从载体线程<strong>卸载</strong>,载体线程可以去执行其他虚拟线程。阻塞结束后,虚拟线程重新挂载到载体线程继续执行。由 JVM 自动管理,不需要程序员干预。</p>
+<table>
+<thead>
+<tr>
+<th>对比</th>
+<th>传统线程</th>
+<th>虚拟线程</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>调度者</td>
+<td>OS 内核</td>
+<td>JVM</td>
+</tr>
+<tr>
+<td>栈空间</td>
+<td>默认 1MB(可调)</td>
+<td>动态增长,在堆上</td>
+</tr>
+<tr>
+<td>阻塞时</td>
+<td>载体线程被占用</td>
+<td>载体线程释放</td>
+</tr>
+<tr>
+<td>适合场景</td>
+<td>CPU 密集</td>
+<td>IO 密集</td>
+</tr>
+</tbody>
+</table>
+<blockquote>
+<p><strong>扩展</strong>:虚拟线程里不能用 <code>synchronized</code>(会 pin 住载体线程),要用 <code>ReentrantLock</code>。CPU 密集任务不适合虚拟线程--计算不会触发卸载。</p>
+</blockquote>
+<hr />
+<h3 id="23-java-record">23. Java 的 Record 类是什么?解决了什么问题?</h3>
+<p>Record = 不可变数据载体的语法糖。当你需要一个纯数据类(只有字段 + 访问器,没有业务逻辑),Record 一行搞定。</p>
+<pre><code class="language-java">// 传统写法:一堆样板代码
+class User {
+    private final String name;
+    private final int age;
+    User(String name, int age) { this.name = name; this.age = age; }
+    String getName() { return name; }
+    int getAge() { return age; }
+    // 还要重写 equals/hashCode/toString...
+}
+
+// Record 写法:编译器自动生成构造器、访问器、equals、hashCode、toString
+record User(String name, int age) {}
+</code></pre>
+<p><strong>Record 的规则</strong>:
+- 所有字段隐式 <code>final</code>(不可变)
+- 不能声明实例字段(只能有 static 字段)
+- 类是 <code>final</code> 的(不能被继承)
+- 可以实现接口,但不能继承其他类</p>
+<p><strong>和 Lombok @Data 的区别</strong>:@Data 生成可变类(有 setter),Record 是不可变类(无 setter)。@Data 可以继承其他类,Record 不能。</p>
+<blockquote>
+<p><strong>扩展</strong>:Record 适合做 DTO、模式匹配配合(Java 17+ <code>instanceof</code> 模式匹配)、<code>Map.entry(k, v)</code> 的返回类型就是 Record。</p>
+</blockquote>
+<hr />
+<h3 id="24">24. 强引用、软引用、弱引用、虚引用有什么区别?使用场景?</h3>
+<pre><code>强引用 (Strong Reference)
+  Object o = new Object();
+  → GC 永不回收(只要引用还在)
+  → 场景:普通对象引用
+
+软引用 (Soft Reference)
+  SoftReference&lt;Object&gt; ref = new SoftReference&lt;&gt;(obj);
+  → 内存不够时(OOM 前)才回收
+  → 场景:内存敏感缓存(如图片缓存)
+
+弱引用 (Weak Reference)
+  WeakReference&lt;Object&gt; ref = new WeakReference&lt;&gt;(obj);
+  → 下次 GC 必回收(不管内存够不够)
+  → 场景:WeakHashMap、ThreadLocal(见下文)
+
+虚引用 (Phantom Reference)
+  PhantomReference&lt;Object&gt; ref = new PhantomReference&lt;&gt;(obj, queue);
+  → get() 永远返回 null,只能配合 ReferenceQueue 在对象被回收时收到通知
+  → 场景:管理堆外内存(DirectByteBuffer 的 Cleaner)
+</code></pre>
+<p><strong>ThreadLocal 为什么用弱引用</strong>(高频追问):</p>
+<pre><code class="language-java">// ThreadLocalMap 的 Entry 设计
+Entry extends WeakReference&lt;ThreadLocal&lt;?&gt;&gt; { Object value; }
+// key(ThreadLocal)是弱引用,value 是强引用
+</code></pre>
+<p>如果 key 是强引用:线程池场景,线程长期运行,ThreadLocalMap 持有 ThreadLocal 的强引用,即使外部 <code>threadLocal = null</code>,ThreadLocal 也无法被回收 → 内存泄漏!用弱引用后,<code>threadLocal = null</code> 时,下次 GC 会回收 ThreadLocal(Entry.key = null),后续 ThreadLocalMap 会清理这些 Entry。</p>
+<blockquote>
+<p><strong>扩展</strong>:用完 ThreadLocal 必须调用 <code>remove()</code>!弱引用只能保证 ThreadLocal 被回收,但 value 还是强引用,不 remove 还是会内存泄漏。</p>
+</blockquote>
+<hr />
+<h3 id="25-jdk-17-zgc">25. JDK 17 ZGC 有哪些改进？</h3>
+<p>ZGC（Z Garbage Collector）是低延迟 GC，目标是 &lt; 1ms 停顿：</p>
+<pre><code>ZGC 核心设计:
+  - 染色指针(Colored Pointers)：在对象头64位中染色标记
+  - 读屏障(Load Barrier)：读取对象时检查染色位
+  - 并发标记+重定位：GC 时和应用线程并发执行
+  - 分代 ZGC(JDK 21)：引入年轻代/老年代，减少 GC 开销
+</code></pre>
+<p><strong>JDK 17 改进</strong>：
+- 卸载不使用的类（<code>-XX:+ClassUnloading</code> 默认开启）
+- 增强 NUMA 支持（多插槽服务器的本地内存访问优化）
+- 兆字节级堆支持（<code>−Xms512m −Xmx8T</code>）</p>
+<p><strong>JDK 21 里程碑</strong>：分代 ZGC（Generational ZGC）正式发布，GC 次数大幅减少，吞吐量比 ZGC 提升 10-20%。</p>
+<blockquote>
+<p><strong>扩展</strong>：<code>−XX:+UseZGC −Xmx4g</code> 启用；ZGC 的 STW 停顿始终 &lt; 1ms，与堆大小无关；CMS、G1 的停顿随堆增大而增大；延迟敏感服务（金融报价、游戏服务器）首选 ZGC。</p>
+</blockquote>
+
+<script>
+// Scroll spy — highlight active sidebar item
+window.addEventListener('scroll', function() {
+    var links = document.querySelectorAll('.sidebar-toc a');
+    var scrollY = window.scrollY + 120;
+    var current = '';
+    for (var i = links.length - 1; i >= 0; i--) {
+        var target = document.getElementById(links[i].getAttribute('href').slice(1));
+        if (target && target.offsetTop <= scrollY) {
+            current = links[i];
+            break;
+        }
+    }
+    links.forEach(function(a) { a.style.fontWeight = 'normal'; a.style.color = '#555'; });
+    if (current) { current.style.fontWeight = 'bold'; current.style.color = '#0366d6'; }
+});
+</script>
+
+
+<script>
+document.querySelectorAll('pre > code').forEach(function(codeBlock, i) {
+    var pre = codeBlock.parentNode;
+    pre.style.position = 'relative';
+    var btn = document.createElement('button');
+    btn.className = 'copy-btn';
+    btn.textContent = '复制';
+    pre.appendChild(btn);
+    btn.addEventListener('click', function() {
+        var text = codeBlock.textContent;
+        navigator.clipboard.writeText(text).then(function() {
+            btn.textContent = '已复制';
+            btn.classList.add('copied');
+            setTimeout(function() {
+                btn.textContent = '复制';
+                btn.classList.remove('copied');
+            }, 2000);
+        }).catch(function() {
+            // Fallback
+            var ta = document.createElement('textarea');
+            ta.value = text; ta.style.position = 'fixed'; ta.style.opacity = '0';
+            document.body.appendChild(ta); ta.select();
+            document.execCommand('copy'); document.body.removeChild(ta);
+            btn.textContent = '已复制'; btn.classList.add('copied');
+            setTimeout(function() { btn.textContent = '复制'; btn.classList.remove('copied'); }, 2000);
+        });
+    });
+});
+</script>
+
+
+<script>document.querySelectorAll("pre>code").forEach(function(c){var p=c.parentNode;p.style.position="relative";var b=document.createElement("button");b.className="copy-btn";b.textContent="复制";p.appendChild(b);b.addEventListener("click",function(){var t=c.textContent;navigator.clipboard.writeText(t).then(function(){b.textContent="已复制";b.classList.add("copied");setTimeout(function(){b.textContent="复制";b.classList.remove("copied")},2000)}).catch(function(){var a=document.createElement("textarea");a.value=t;a.style.position="fixed";a.style.opacity="0";document.body.appendChild(a);a.select();document.execCommand("copy");document.body.removeChild(a);b.textContent="已复制";b.classList.add("copied");setTimeout(function(){b.textContent="复制";b.classList.remove("copied")},2000)})})})</script>
+</body>
+</html>

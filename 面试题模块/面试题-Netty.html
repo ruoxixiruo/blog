@@ -1,0 +1,645 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>面试题 - Netty</title>
+<style>
+body {
+    transition: margin-left .25s ease;
+    font-family: -apple-system, "Noto Sans SC", "Microsoft YaHei", sans-serif;
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 20px 24px 60px;
+    line-height: 1.8;
+    color: #333;
+    background: #fff;
+}
+h1 { border-bottom: 2px solid #eee; padding-bottom: 10px; color: #222; }
+h2 { color: #333; margin-top: 32px; }
+h3 { color: #555; }
+a { color: #0366d6; text-decoration: none; }
+a:hover { text-decoration: underline; }
+pre {
+    background: #f6f8fa;
+    border-radius: 6px;
+    padding: 16px;
+    overflow-x: auto;
+    font-size: 14px;
+    line-height: 1.45;
+}
+code {
+    background: #f0f2f4;
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-size: 14px;
+}
+pre code { background: none; padding: 0; }
+blockquote {
+    border-left: 4px solid #ddd;
+    margin: 0;
+    padding: 0 16px;
+    color: #666;
+}
+table {
+    border-collapse: collapse;
+    width: 100%;
+    margin: 16px 0;
+}
+th, td {
+    border: 1px solid #ddd;
+    padding: 8px 12px;
+    text-align: left;
+}
+th { background: #f6f8fa; }
+img { max-width: 100%; }
+.back-link {
+    margin-bottom: 20px;
+    display: block;
+    color: #666;
+}
+.back-link:hover { color: #0366d6; }
+
+.sidebar-toc {
+    transition: left .25s ease;
+    position: fixed;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    width: 220px;
+    background: #f8f9fa;
+    border-right: 1px solid #e9ecef;
+    padding: 20px 0;
+    overflow-y: auto;
+    font-size: 13px;
+    z-index: 100;
+}
+.sidebar-toc a {
+    display: block;
+    padding: 6px 16px;
+    color: #555;
+    text-decoration: none;
+    border-left: 3px solid transparent;
+    line-height: 1.5;
+}
+.sidebar-toc a:hover {
+    background: #e9ecef;
+    color: #0366d6;
+    border-left-color: #0366d6;
+}
+.sidebar-toc .toc-h3 { padding-left: 20px; font-size: 12px; }
+body { margin-left: 240px; }
+
+
+.copy-btn {
+    position: absolute; top: 6px; right: 6px;
+    background: #e9ecef; border: none;
+    border-radius: 4px; padding: 3px 10px;
+    font-size: 12px; color: #555; cursor: pointer;
+    opacity: 0; transition: opacity 0.2s;
+    z-index: 1;
+}
+pre:hover .copy-btn { opacity: 1; }
+.copy-btn:hover { background: #d0d7de; }
+.copy-btn.copied { opacity: 1; background: #2da44e; color: #fff; }
+.copy-btn{position:absolute;top:6px;right:6px;background:#e9ecef;border:none;border-radius:4px;padding:3px 10px;font-size:12px;color:#555;cursor:pointer;opacity:0;transition:opacity .2s;z-index:1}pre:hover .copy-btn{opacity:1}.copy-btn:hover{background:#d0d7de}.copy-btn.copied{opacity:1;background:#2da44e;color:#fff}
+.copy-btn{position:absolute;top:6px;right:6px;background:#e9ecef;border:none;border-radius:4px;padding:3px 10px;font-size:12px;color:#555;cursor:pointer;opacity:0;transition:opacity .2s;z-index:1}pre:hover .copy-btn{opacity:1}.copy-btn:hover{background:#d0d7de}.copy-btn.copied{opacity:1;background:#2da44e;color:#fff}
+.copy-btn{position:absolute;top:6px;right:6px;background:#e9ecef;border:none;border-radius:4px;padding:3px 10px;font-size:12px;color:#555;cursor:pointer;opacity:0;transition:opacity .2s;z-index:1}pre:hover .copy-btn{opacity:1}.copy-btn:hover{background:#d0d7de}.copy-btn.copied{opacity:1;background:#2da44e;color:#fff}
+.sidebar-toggle-btn {
+  position: fixed;
+  left: 220px;
+  top: 0;
+  width: 28px;
+  height: 40px;
+  background: #f8f9fa;
+  border: 1px solid #e9ecef;
+  border-left: none;
+  border-radius: 0 4px 4px 0;
+  cursor: pointer;
+  font-size: 16px;
+  color: #555;
+  z-index: 101;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: left .25s, background .2s;
+  padding: 0;
+  line-height: 1;
+}
+.sidebar-toggle-btn:hover { background: #e9ecef; color: #0366d6; }
+.sidebar-collapsed .sidebar-toc { left: -220px; }
+.sidebar-collapsed .sidebar-toggle-btn { left: 0; }
+.sidebar-collapsed body, body.sidebar-collapsed { margin-left: 28px; }
+.sidebar-overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,.3);
+  z-index: 99;
+}
+@media (max-width: 768px) {
+  .sidebar-collapsed .sidebar-overlay { display: none; }
+  .sidebar-toc { left: -220px; }
+  .sidebar-toggle-btn { left: 0; }
+  body { margin-left: 28px; }
+}
+
+</style>
+</head>
+</head>
+<body>
+<nav class="sidebar-toc"><a class="toc-h3" href="#1-netty">1. Netty 是什么?为什么用?</a><a class="toc-h3" href="#2-netty">2. Netty 的线程模型?</a><a class="toc-h3" href="#3-netty">3. Netty 为什么快?</a><a class="toc-h3" href="#4-netty-tomcat">4. Netty 和 Tomcat 的区别?</a><a class="toc-h3" href="#5-netty">5. Netty 的零拷贝是怎么实现的?</a><a class="toc-h3" href="#6-netty">6. Netty 的心跳和断线重连怎么实现?</a><a class="toc-h3" href="#7-netty-channelpipeline">7. Netty 的 ChannelPipeline 是怎么工作的?</a><a class="toc-h3" href="#8-netty">8. Netty 如何解决拆包/粘包?</a><a class="toc-h3" href="#9-netty-bytebuf-java-nio-bytebuffer">9. Netty 的 ByteBuf 为什么比 Java NIO ByteBuffer 更好?</a><a class="toc-h3" href="#10-netty">10. Netty 如何实现异步回调?</a><a class="toc-h3" href="#11-netty">11. Netty 如何处理半包和粘包问题?</a><a class="toc-h3" href="#12-netty-bytebuf">12. Netty ByteBuf 为什么要设计成池化？</a></nav>
+<button class="sidebar-toggle-btn" onclick="toggleSidebar()" title="切换侧栏">☰</button>
+
+<div class="sidebar-overlay" onclick="toggleSidebar()"></div>
+
+<script>
+function toggleSidebar() {
+  document.body.classList.toggle('sidebar-collapsed');
+  try { localStorage.setItem('sidebarCollapsed', document.body.classList.contains('sidebar-collapsed')); } catch(e) {}
+}
+(function() {
+  try {
+    if (localStorage.getItem('sidebarCollapsed') === 'true') {
+      document.body.classList.add('sidebar-collapsed');
+    }
+  } catch(e) {}
+})();
+</script>
+<a class="back-link" href="/blog/2026/05/16/面试题/面试题/">← 返回面试题目录</a>
+<h1 id=page-title>Netty</h1>
+<h3 id="1-netty">1. Netty 是什么?为什么用?</h3>
+<p>Netty 是 Java 高性能网络通信框架。Dubbo、RocketMQ、Elasticsearch 的底层网络通信都在用它。</p>
+<p>核心原因:<strong>Java 原生 NIO API 太难用</strong>、坑太多(epoll 空轮询 bug、ByteBuffer 不可变、API 复杂)。Netty 把 NIO 封装好了,提供简单 API + 高性能 + 安全稳定。</p>
+<pre><code>         应用层
+    ┌──────┼──────┐
+    │ Dubbo│ RocketMQ│ ES │  ← 各种中间件
+    └──────┼──────┘
+           │
+    ┌──────▼──────┐
+    │    Netty     │  ← 统一的网络通信层
+    └──────┬──────┘
+           │
+    ┌──────▼──────┐
+    │ Java NIO/Epoll│  ← 操作系统级 IO
+    └─────────────┘
+</code></pre>
+<blockquote>
+<p><strong>扩展</strong>:Netty 的广泛应用证明了一个道理--好的基础设施比好的应用更值钱。你不需要自己写高性能网络层,直接用 Netty 就行。Spring WebFlux、gRPC Java 版也基于 Netty--它已经是 Java 生态网络通信的事实标准。</p>
+</blockquote>
+<h3 id="2-netty">2. Netty 的线程模型?</h3>
+<p><strong>Boss Group + Worker Group</strong>:</p>
+<ul>
+<li><strong>Boss 线程</strong>(通常 1 个):负责接收客户端连接</li>
+<li><strong>Worker 线程</strong>(CPU 核数 × 2):负责读写 IO 和处理业务</li>
+</ul>
+<p>每个线程绑定一个 Selector,能管多个 Channel。</p>
+<pre><code>客户端连接 ──▶ BossGroup (1线程)
+                    │ 接收连接
+                    ▼
+              WorkerGroup (N线程)
+              ┌───┬───┬───┐
+              │W1 │W2 │W3 │  ← 每个线程管多个 Channel
+              └───┴───┴───┘
+                轮询 IO 事件
+                    │
+                    ▼
+              Pipeline 链式处理
+              (编码 → 业务 → 解码)
+</code></pre>
+<blockquote>
+<p><strong>扩展</strong>:Boss 线程只有 1 个够吗?对于大多数场景够了--一个线程管理几千个连接的建立绰绰有余。如果真有海量连接(百万级),可以配多个 Boss 线程,每个 Boss 监听不同端口。真正的工作瓶颈在 Worker 线程--它既要读数据又要做业务处理,所以按 CPU 核数配。</p>
+</blockquote>
+<h3 id="3-netty">3. Netty 为什么快?</h3>
+<ol>
+<li><strong>NIO 多路复用(epoll)</strong>:单线程处理多连接,不用为每个连接开一个线程</li>
+<li><strong>零拷贝</strong>:DirectBuffer 减少内存拷贝(直接操作堆外内存,跳过堆内复制);文件传输用 <code>sendfile</code>(内核态直接到网卡)</li>
+<li><strong>内存池</strong>:复用 ByteBuf,减少 GC 压力</li>
+<li><strong>无锁化</strong>:每个 Channel 绑定单个线程,串行处理无需锁</li>
+<li><strong>对象池</strong>:ChannelHandler 等可复用,减少对象创建</li>
+</ol>
+<pre><code>传统 IO(多次拷贝):          零拷贝 sendfile:
+磁盘 → 内核缓存 → 用户态 → 内核缓存 → 网卡    磁盘 → 内核缓存 → 网卡
+      (拷贝1)    (拷贝2)   (拷贝3)   (拷贝4)         (DMA)    (DMA)
+                                                  零次 CPU 拷贝!
+</code></pre>
+<blockquote>
+<p><strong>扩展</strong>:DirectBuffer 虽然快,但分配和回收成本比堆内存高--所以 Netty 用了<strong>池化</strong>来复用。另外 DirectBuffer 不在 GC 管辖范围,如果忘了释放会导致堆外内存泄漏--Netty 的 <code>ByteBuf</code> 用引用计数来管理生命周期,<code>release()</code> 减到 0 自动回收。</p>
+</blockquote>
+<h3 id="4-netty-tomcat">4. Netty 和 Tomcat 的区别?</h3>
+<table>
+<thead>
+<tr>
+<th>维度</th>
+<th>Netty</th>
+<th>Tomcat</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>定位</td>
+<td>通用网络通信框架</td>
+<td>Web 应用容器</td>
+</tr>
+<tr>
+<td>协议</td>
+<td>自定义协议(TCP/UDP)</td>
+<td>主要 HTTP</td>
+</tr>
+<tr>
+<td>IO 模型</td>
+<td>原生 NIO/Epoll</td>
+<td>早期 BIO,新版支持 NIO</td>
+</tr>
+<tr>
+<td>场景</td>
+<td>RPC、IM、网关底层</td>
+<td>Web 应用部署</td>
+</tr>
+</tbody>
+</table>
+<p>简单的说:Tomcat 是"开箱即用的 Web 服务器",Netty 是"造通信系统用的乐高积木"。</p>
+<blockquote>
+<p><strong>扩展</strong>:Spring Boot 默认内嵌 Tomcat,但可以换成 Netty(<code>spring-boot-starter-webflux</code> 默认用 Netty)。如果只做 HTTP Web 应用,Tomcat 够用;如果要自研网关、IM、RPC 框架,用 Netty。</p>
+</blockquote>
+<h3 id="5-netty">5. Netty 的零拷贝是怎么实现的?</h3>
+<p>零拷贝 = <strong>快递员不需要把每件货卸到仓库再搬上车,直接从 A 车搬到 B 车</strong>--数据不经过用户态拷贝到用户缓冲区,全程在内核态完成。</p>
+<p>Netty 的零拷贝是<strong>组合拳</strong>:</p>
+<pre><code>1. CompositeByteBuf(组合缓冲区)
+
+   Header Buffer(请求头)+ Body Buffer(请求体)
+         ↓ 不需要拷贝
+   CompositeByteBuf(逻辑上是一个整体)
+   = 零拷贝合并多个 ByteBuf
+
+2. wrap / slice(包装/切片)
+
+   原始 ByteBuf [H][E][L][L][O]
+     slice(1,3) →  [E][L][L](共享同一块内存!)
+
+3. FileRegion(文件传输)
+
+   磁盘 → DMA → 内核缓冲区 → DMA → 网卡
+         (全程不经过用户态,不用 CPU 搬运)
+
+4. 池化内存(PooledByteBufAllocator)
+   = 对象复用而非每次 new,减少 GC 压力
+</code></pre>
+<p><strong>和操作系统零拷贝的区别</strong>:OS 零拷贝(<code>sendfile</code>)是系统调用层面的优化,Netty 的 CompositeByteBuf 是 JVM 层面的优化--两者互补。Netty 用 <code>FileRegion</code> 封装了 <code>transferTo()</code>(底层是 <code>sendfile</code>),把文件直接写...</p>
+<blockquote>
+<p><strong>扩展</strong>:Netty 4.1+ 的 <code>EpollSocketChannel</code> 在 Linux 上直接走 epoll,配合 SO_REUSEPORT 可以实现多线程绑定同一端口,进一步提升吞吐。但 Windows 上只能用 NIO(Selector),所以生产部署务必用 Linux。</p>
+</blockquote>
+<h3 id="6-netty">6. Netty 的心跳和断线重连怎么实现?</h3>
+<p>心跳 = <strong>定期给对方发"我还在"</strong>。如果对方几次没回应,就判对方断了,执行重连或清理。</p>
+<pre><code>心跳机制:
+
+  Client                        Server
+    │                              │
+    │──── PING ──────────────────→ │  (客户端发心跳)
+    │←─── PONG ───────────────────│  (服务端回应)
+    │                              │
+    │  ... 5 秒一次 ...            │
+    │                              │
+    │──── PING ──→ X  ⚡(超时)    │
+    │  ... 3 次没回 ...            │
+    │                              │
+    │  判断断连 → 执行重连逻辑      │
+</code></pre>
+<p><strong>Netty 心跳实现(IdleStateHandler)</strong>:</p>
+<pre><code class="language-java">// 服务端:5 秒没读到客户端数据 → 认为空闲 → 发心跳 → 30 秒还没数据 → 断开
+ch.pipeline().addLast(new IdleStateHandler(30, 0, 0, TimeUnit.SECONDS));
+
+// 客户端:5 秒没写数据 → 主动发 PING
+ch.pipeline().addLast(new IdleStateHandler(0, 5, 0, TimeUnit.SECONDS));
+</code></pre>
+<p><strong>断线重连(ChannelFutureListener)</strong>:</p>
+<pre><code class="language-java">public void connect() {
+    bootstrap.connect(host, port).addListener((ChannelFutureListener) future -&gt; {
+        if (!future.isSuccess()) {
+            // 断线后延迟重连
+            future.channel().eventLoop().schedule(this::connect, 5, TimeUnit.SECONDS);
+        }
+    });
+}
+</code></pre>
+<blockquote>
+<p><strong>扩展</strong>:生产上心跳间隔别设太短--1 秒一次心跳 × 10 万连接 = 每秒 10 万次网络 IO,服务器撑不住。一般 30~60 秒一次足够。另外 IdleStateHandler 判断的是"没读写"而非"连接断没断"--TCP 半开连接可能还在但对方已经挂了,要靠心跳这种应用层探测来发现。</p>
+</blockquote>
+<h3 id="7-netty-channelpipeline">7. Netty 的 ChannelPipeline 是怎么工作的?</h3>
+<p>ChannelPipeline = <strong>一条双向流水线</strong>。入站数据从 Head 流向 Tail,出站数据从 Tail 流向 Head。每个 Handler 是一道工序。</p>
+<pre><code>入站(读数据):
+
+  [Head] → [帧解码器] → [协议解析] → [业务Handler] → [Tail]
+               ↑              ↑              ↑
+           将字节流按         把字节转为        处理业务逻辑
+           长度拆成帧          Java对象
+
+出站(写数据):
+
+  [Tail] → [业务Handler] → [协议编码] → [帧编码] → [Head]
+               ↑              ↑            ↑
+           业务返回对象       对象→字节    加上长度头
+</code></pre>
+<p><strong>核心规则</strong>:</p>
+<ul>
+<li><strong>InboundHandler</strong>(入站处理器):按添加顺序执行,数据从 Head → Tail</li>
+<li><strong>OutboundHandler</strong>(出站处理器):按添加的<strong>逆序</strong>执行,数据从 Tail → Head</li>
+<li><code>ctx.fireChannelRead(msg)</code>:传给下一个 InboundHandler(忘调 = 数据丢了)</li>
+<li><code>ctx.write(msg)</code>:从当前 Handler 往前找 OutboundHandler 开始写出站</li>
+</ul>
+<pre><code class="language-java">ch.pipeline()
+    .addLast(new LengthFieldBasedFrameDecoder(...))  // Inbound 1: 拆帧
+    .addLast(new ProtobufDecoder(...))               // Inbound 2: 解码
+    .addLast(new ProtobufEncoder())                  // Outbound 1: 编码
+    .addLast(new LengthFieldPrepender(2))            // Outbound 2: 加帧头
+    .addLast(new BusinessHandler());                 // Inbound 3: 业务
+</code></pre>
+<blockquote>
+<p><strong>扩展</strong>:ChannelPipeline 的设计本质上是<strong>责任链模式 + 链表</strong>。每个 Channel 有独立的 Pipeline(线程安全,因为一个 Channel 绑定一个 EventLoop 线程)。注意:不要在 Pipeline 里做耗时操作(如 IO、复杂计算)--会阻塞整个 EventLoop,影响该线程上所有 Channel。耗时操作请丢进业务线程池。</p>
+</blockquote>
+<hr />
+<h3 id="8-netty">8. Netty 如何解决拆包/粘包?</h3>
+<p>四种解码器:FixedLengthFrameDecoder、LineBasedFrameDecoder、DelimiterBasedFrameDecoder、LengthFieldBasedFrameDecoder(最常用)。</p>
+<h3 id="9-netty-bytebuf-java-nio-bytebuffer">9. Netty 的 ByteBuf 为什么比 Java NIO ByteBuffer 更好?</h3>
+<p><strong>核心结论</strong>:ByteBuf 支持池化+零拷贝+读写分离指针+引用计数管理,性能和易用性都碾压 ByteBuffer。</p>
+<pre><code>ByteBuffer 致命缺陷:
+
+1. 写入后 flip() 才能读,读完后 compact() 才能写 ← 操作繁琐
+2. 固定长度,不够了得创建新的 ← 内存浪费
+3. 没有池化,频繁 GC ← 性能瓶颈
+
+ByteBuf 改进:
+
+       读指针(readerIndex)    写指针(writerIndex)
+              ↓                    ↓
+┌─────────────────────────────────────────────┐
+│  已读区  │   可读区   │   可写区    │  可扩容  │
+│ (discard) │ (readable) │ (writable) │(动态扩容)│
+└─────────────────────────────────────────────┘
+
+- 读写指针分离,不需要 flip
+- 支持动态扩容(写满自动扩容)
+- 支持池化(PooledByteBufAllocator)
+- 引用计数自动管理内存释放
+</code></pre>
+<p><strong>ByteBuf 三种类型</strong>:</p>
+<table>
+<thead>
+<tr>
+<th>类型</th>
+<th>分配方式</th>
+<th>适用场景</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Heap ByteBuf</td>
+<td>堆内存,GC 管理</td>
+<td>普通业务</td>
+</tr>
+<tr>
+<td>Direct ByteBuf</td>
+<td>堆外内存,零拷贝</td>
+<td>高性能网络 IO</td>
+</tr>
+<tr>
+<td>Composite ByteBuf</td>
+<td>逻辑组合,无拷贝</td>
+<td>多 Buffer 合并</td>
+</tr>
+</tbody>
+</table>
+<p><strong>引用计数使用示例</strong>:</p>
+<pre><code class="language-java">ByteBuf buf = ByteBufAllocator.DEFAULT.buffer(1024);
+buf.retain();  // 引用计数 +1
+buf.release(); // 引用计数 -1,减到 0 自动回收
+
+// 错误:忘记 release → 内存泄漏
+ByteBuf buf = ...;
+process(buf);
+// 忘了 release! 堆外内存永远不会被 GC 回收
+</code></pre>
+<blockquote>
+<p><strong>扩展</strong>:Netty 用内存池解决 DirectBuffer 分配慢的问题--预先分配大块内存,切分成小块复用。<code>PooledByteBufAllocator</code> 比非池化性能高 5 倍以上。调试内存泄漏可以用 <code>ResourceLeakDetector</code>。生产上务必检查:如果日志中出现 <code>LEAK: ByteBuf.release() was not called before it's garbage-collected</code>,说明有 ByteBuf 没释放。</p>
+</blockquote>
+<h3 id="10-netty">10. Netty 如何实现异步回调?</h3>
+<p><strong>核心结论</strong>:ChannelFuture + GenericFutureListener = 异步非阻塞,比传统 Future.get() 更高效。</p>
+<pre><code>传统 Future 问题:
+
+Future&lt;String&gt; future = executor.submit(() -&gt; doRequest());
+String result = future.get();  // 阻塞等待! ← 线程空转
+
+Netty ChannelFuture:
+
+ChannelFuture future = channel.writeAndFlush(msg);
+future.addListener((ChannelFutureListener) f -&gt; {
+    if (f.isSuccess()) {
+        System.out.println(&quot;发送成功&quot;);
+    } else {
+        System.out.println(&quot;发送失败: &quot; + f.cause());
+    }
+});
+// 不阻塞! 继续干别的事 ← 异步回调
+</code></pre>
+<p><strong>异步回调链</strong>:</p>
+<pre><code class="language-java">// 链式异步调用
+bootstrap.connect(host, port)
+    .addListener(f -&gt; {
+        if (f.isSuccess()) {
+            System.out.println(&quot;连接成功&quot;);
+            // 连接成功后发送数据
+            Channel ch = ((ChannelFuture) f).channel();
+            ch.writeAndFlush(msg)
+                .addListener(f2 -&gt; {
+                    if (f2.isSuccess()) {
+                        System.out.println(&quot;发送成功&quot;);
+                    }
+                });
+        } else {
+            System.out.println(&quot;连接失败,5秒后重试&quot;);
+            Thread.sleep(5000);
+            bootstrap.connect(host, port);  // 断线重连
+        }
+    });
+</code></pre>
+<p><strong>同步 vs 异步对比</strong>:</p>
+<table>
+<thead>
+<tr>
+<th>方式</th>
+<th>线程利用率</th>
+<th>适用场景</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>sync()</td>
+<td>低(阻塞等待)</td>
+<td>简单测试</td>
+</tr>
+<tr>
+<td>addListener()</td>
+<td>高(回调通知)</td>
+<td>高并发生产</td>
+</tr>
+</tbody>
+</table>
+<blockquote>
+<p><strong>扩展</strong>:Netty 的 Promise 是可写的 Future,既支持设置结果又支持异步回调。Dubbo 的异步调用就是基于 Netty ChannelFuture 实现的。注意:回调逻辑不要做耗时操作,否则阻塞 EventLoop 线程,影响整个 Selector 上所有 Channel 的处理。</p>
+</blockquote>
+<h3 id="11-netty">11. Netty 如何处理半包和粘包问题?</h3>
+<p><strong>核心结论</strong>:TCP 是流式协议,需要应用层定义消息边界--长度字段、分隔符、固定长度均可。</p>
+<pre><code>TCP 粘包/拆包本质:
+
+发送方:  消息1(16B) | 消息2(32B) | 消息3(8B)
+                           │
+            TCP 缓冲区(可能合并发送)
+                           ▼
+接收方读取到的可能情况:
+
+粘包:  消息1+消息2(48B) ← 两个包粘在一起
+拆包:  消息1前半(10B) | 消息1后半+消息2(38B) ← 一个包被拆开
+</code></pre>
+<p><strong>四种解决方案</strong>:</p>
+<table>
+<thead>
+<tr>
+<th>方案</th>
+<th>解码器</th>
+<th>适用场景</th>
+<th>缺点</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>固定长度</td>
+<td>FixedLengthFrameDecoder</td>
+<td>定长协议</td>
+<td>浪费带宽</td>
+</tr>
+<tr>
+<td>换行分隔</td>
+<td>LineBasedFrameDecoder</td>
+<td>文本协议(如 Redis)</td>
+<td>消息不能含换行</td>
+</tr>
+<tr>
+<td>自定义分隔符</td>
+<td>DelimiterBasedFrameDecoder</td>
+<td>特殊分隔符</td>
+<td>同上</td>
+</tr>
+<tr>
+<td>长度字段</td>
+<td>LengthFieldBasedFrameDecoder</td>
+<td>二进制协议(最通用)</td>
+<td>复杂度高</td>
+</tr>
+</tbody>
+</table>
+<p><strong>LengthFieldBasedFrameDecoder 示例</strong>:</p>
+<pre><code>消息格式:
+┌───────────┬─────────────┬─────────────┐
+│ 长度(4B)  │  版本(2B)   │   数据(NB)  │
+│ length    │   version   │    body     │
+└───────────┴─────────────┴─────────────┘
+
+解码器配置:
+new LengthFieldBasedFrameDecoder(
+    1024,   // maxFrameLength: 最大帧长度
+    0,      // lengthFieldOffset: 长度字段偏移
+    4,      // lengthFieldLength: 长度字段占 4 字节
+    -2,     // lengthAdjustment: 长度值不含版本和数据,需调整
+    4       // initialBytesToStrip: 解码后去掉长度字段
+);
+</code></pre>
+<blockquote>
+<p><strong>扩展</strong>:自定义协议通常用长度字段方案,因为灵活且不浪费带宽。大多数 RPC 框架(如 Dubbo、gRPC)都用长度字段。调试时可以用 Wireshark 抓包看 TCP 流的实际分段情况,理解粘包拆包的真相。</p>
+</blockquote>
+<h3 id="12-netty-bytebuf">12. Netty ByteBuf 为什么要设计成池化？</h3>
+<p>ByteBuf 是 Netty 的数据容器，池化解决了两大问题：</p>
+<pre><code>直接申请 ByteBuf 的问题：
+  - 每次分配都调用系统 malloc()
+  - GC 回收时需要 C free()
+  - 频繁分配/释放造成内存碎片
+  - 高并发下 malloc 成为性能瓶颈
+
+池化（PooledByteBufAllocator）的解决方案：
+  - 预分配内存池，按大小分组（16B~16MB）
+  - 申请时从池中取，释放时归还池（不真的释放）
+  - 减少 90%+ 的 malloc/free 调用
+</code></pre>
+<p><strong>内存分配算法</strong>（Slab 分配）：</p>
+<pre><code>Chunk（16MB大块）分为多个 Page（默认8KB）：
+
+Tiny 池: 16B, 32B, 48B, ..., 496B（每16B递增）→ Page 内按序分配
+Small 池: 512B, 1KB, 2KB, 4KB           → Page 内分配
+Normal 池: 8KB, 16KB, 32KB...            → 多页组合
+Huge 池: &gt; 16MB                           → 非池化，每次直接分配
+</code></pre>
+<p><strong>PooledByteBuf vs Unpooled</strong>：</p>
+<pre><code class="language-java">// UnpooledHeapByteBuf（默认）：堆内存，有 GC 开销
+// UnpooledDirectByteBuf：直接内存（堆外），无 GC，但申请慢
+// PooledHeapByteBuf（推荐）：池化堆内存，综合最优
+// PooledDirectByteBuf：池化直接内存，高性能网络框架首选
+
+// Netty 默认使用 PooledDirectByteBuf
+// 零拷贝场景（文件传输）用 PooledHeapByteBuf + CompositeByteBuf
+</code></pre>
+<blockquote>
+<p><strong>扩展</strong>：<code>System.bytebuf.pool.size.threshold</code> 控制池大小；<code>io.netty.leakDetection.level=PARANOID</code> 检测内存泄漏；Netty 4.x 全面池化，3.x 是非池化（这是 3→4 性能提升的关键）。</p>
+</blockquote>
+
+<script>
+// Scroll spy — highlight active sidebar item
+window.addEventListener('scroll', function() {
+    var links = document.querySelectorAll('.sidebar-toc a');
+    var scrollY = window.scrollY + 120;
+    var current = '';
+    for (var i = links.length - 1; i >= 0; i--) {
+        var target = document.getElementById(links[i].getAttribute('href').slice(1));
+        if (target && target.offsetTop <= scrollY) {
+            current = links[i];
+            break;
+        }
+    }
+    links.forEach(function(a) { a.style.fontWeight = 'normal'; a.style.color = '#555'; });
+    if (current) { current.style.fontWeight = 'bold'; current.style.color = '#0366d6'; }
+});
+</script>
+
+
+<script>
+document.querySelectorAll('pre > code').forEach(function(codeBlock, i) {
+    var pre = codeBlock.parentNode;
+    pre.style.position = 'relative';
+    var btn = document.createElement('button');
+    btn.className = 'copy-btn';
+    btn.textContent = '复制';
+    pre.appendChild(btn);
+    btn.addEventListener('click', function() {
+        var text = codeBlock.textContent;
+        navigator.clipboard.writeText(text).then(function() {
+            btn.textContent = '已复制';
+            btn.classList.add('copied');
+            setTimeout(function() {
+                btn.textContent = '复制';
+                btn.classList.remove('copied');
+            }, 2000);
+        }).catch(function() {
+            // Fallback
+            var ta = document.createElement('textarea');
+            ta.value = text; ta.style.position = 'fixed'; ta.style.opacity = '0';
+            document.body.appendChild(ta); ta.select();
+            document.execCommand('copy'); document.body.removeChild(ta);
+            btn.textContent = '已复制'; btn.classList.add('copied');
+            setTimeout(function() { btn.textContent = '复制'; btn.classList.remove('copied'); }, 2000);
+        });
+    });
+});
+</script>
+
+
+<script>document.querySelectorAll("pre>code").forEach(function(c){var p=c.parentNode;p.style.position="relative";var b=document.createElement("button");b.className="copy-btn";b.textContent="复制";p.appendChild(b);b.addEventListener("click",function(){var t=c.textContent;navigator.clipboard.writeText(t).then(function(){b.textContent="已复制";b.classList.add("copied");setTimeout(function(){b.textContent="复制";b.classList.remove("copied")},2000)}).catch(function(){var a=document.createElement("textarea");a.value=t;a.style.position="fixed";a.style.opacity="0";document.body.appendChild(a);a.select();document.execCommand("copy");document.body.removeChild(a);b.textContent="已复制";b.classList.add("copied");setTimeout(function(){b.textContent="复制";b.classList.remove("copied")},2000)})})})</script>
+</body>
+</html>

@@ -1,0 +1,700 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Kafka学习文档</title>
+<style>
+body {
+    transition: margin-left .25s ease;
+    font-family: -apple-system, "Noto Sans SC", "Microsoft YaHei", sans-serif;
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 20px 24px 60px;
+    line-height: 1.8;
+    color: #333;
+    background: #fff;
+}
+h1 { border-bottom: 2px solid #eee; padding-bottom: 10px; color: #222; }
+h2 { color: #333; margin-top: 32px; }
+h3 { color: #555; }
+a { color: #0366d6; text-decoration: none; }
+a:hover { text-decoration: underline; }
+pre {
+    background: #f6f8fa;
+    border-radius: 6px;
+    padding: 16px;
+    overflow-x: auto;
+    font-size: 14px;
+    line-height: 1.45;
+}
+code {
+    background: #f0f2f4;
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-size: 14px;
+}
+pre code { background: none; padding: 0; }
+blockquote {
+    border-left: 4px solid #ddd;
+    margin: 0;
+    padding: 0 16px;
+    color: #666;
+}
+table {
+    border-collapse: collapse;
+    width: 100%;
+    margin: 16px 0;
+}
+th, td {
+    border: 1px solid #ddd;
+    padding: 8px 12px;
+    text-align: left;
+}
+th { background: #f6f8fa; }
+img { max-width: 100%; }
+.back-link {
+    margin-bottom: 20px;
+    display: block;
+    color: #666;
+}
+.back-link:hover { color: #0366d6; }
+
+.sidebar-toc {
+    transition: left .25s ease;
+    position: fixed;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    width: 220px;
+    background: #f8f9fa;
+    border-right: 1px solid #e9ecef;
+    padding: 20px 0;
+    overflow-y: auto;
+    font-size: 13px;
+    z-index: 100;
+}
+.sidebar-toc a {
+    display: block;
+    padding: 6px 16px;
+    color: #555;
+    text-decoration: none;
+    border-left: 3px solid transparent;
+    line-height: 1.5;
+}
+.sidebar-toc a:hover {
+    background: #e9ecef;
+    color: #0366d6;
+    border-left-color: #0366d6;
+}
+.sidebar-toc .toc-h2 { padding-left: 16px; font-weight: 500; }
+.sidebar-toc .toc-h3 { padding-left: 32px; font-size: 12px; }
+body { margin-left: 240px; }
+
+
+.copy-btn {
+    position: absolute; top: 6px; right: 6px;
+    background: #e9ecef; border: none;
+    border-radius: 4px; padding: 3px 10px;
+    font-size: 12px; color: #555; cursor: pointer;
+    opacity: 0; transition: opacity 0.2s;
+    z-index: 1;
+}
+pre:hover .copy-btn { opacity: 1; }
+.copy-btn:hover { background: #d0d7de; }
+.copy-btn.copied { opacity: 1; background: #2da44e; color: #fff; }
+.copy-btn{position:absolute;top:6px;right:6px;background:#e9ecef;border:none;border-radius:4px;padding:3px 10px;font-size:12px;color:#555;cursor:pointer;opacity:0;transition:opacity .2s;z-index:1}pre:hover .copy-btn{opacity:1}.copy-btn:hover{background:#d0d7de}.copy-btn.copied{opacity:1;background:#2da44e;color:#fff}
+.copy-btn{position:absolute;top:6px;right:6px;background:#e9ecef;border:none;border-radius:4px;padding:3px 10px;font-size:12px;color:#555;cursor:pointer;opacity:0;transition:opacity .2s;z-index:1}pre:hover .copy-btn{opacity:1}.copy-btn:hover{background:#d0d7de}.copy-btn.copied{opacity:1;background:#2da44e;color:#fff}
+.copy-btn{position:absolute;top:6px;right:6px;background:#e9ecef;border:none;border-radius:4px;padding:3px 10px;font-size:12px;color:#555;cursor:pointer;opacity:0;transition:opacity .2s;z-index:1}pre:hover .copy-btn{opacity:1}.copy-btn:hover{background:#d0d7de}.copy-btn.copied{opacity:1;background:#2da44e;color:#fff}
+.sidebar-toggle-btn {
+  position: fixed;
+  left: 220px;
+  top: 0;
+  width: 28px;
+  height: 40px;
+  background: #f8f9fa;
+  border: 1px solid #e9ecef;
+  border-left: none;
+  border-radius: 0 4px 4px 0;
+  cursor: pointer;
+  font-size: 16px;
+  color: #555;
+  z-index: 101;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: left .25s, background .2s;
+  padding: 0;
+  line-height: 1;
+}
+.sidebar-toggle-btn:hover { background: #e9ecef; color: #0366d6; }
+.sidebar-collapsed .sidebar-toc { left: -220px; }
+.sidebar-collapsed .sidebar-toggle-btn { left: 0; }
+.sidebar-collapsed body, body.sidebar-collapsed { margin-left: 28px; }
+.sidebar-overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,.3);
+  z-index: 99;
+}
+@media (max-width: 768px) {
+  .sidebar-collapsed .sidebar-overlay { display: none; }
+  .sidebar-toc { left: -220px; }
+  .sidebar-toggle-btn { left: 0; }
+  body { margin-left: 28px; }
+}
+
+</style>
+</head>
+</head>
+<body>
+<nav class="sidebar-toc"><a class="toc-h2" href="#1-kafka">1. 先搞懂：Kafka 到底是什么？</a><a class="toc-h3" href="#11">1.1 用快递分拣中心来理解</a><a class="toc-h3" href="#12">1.2 官方定义（用大白话说）</a><a class="toc-h3" href="#13-kafka">1.3 Kafka 的三个身份</a><a class="toc-h3" href="#14-kafka">1.4 为什么 Kafka 这么快？</a><a class="toc-h2" href="#2">2. 核心组件：谁在干活？</a><a class="toc-h3" href="#21">2.1 一句话认识每个角色</a><a class="toc-h3" href="#22">2.2 整体架构图</a><a class="toc-h2" href="#3">3. 生产者：怎么发消息？</a><a class="toc-h3" href="#31-5">3.1 发送流程（5 步）</a><a class="toc-h3" href="#32">3.2 核心配置（面试要记住的）</a><a class="toc-h3" href="#33-acks">3.3 acks 参数——消息可靠性的关键</a><a class="toc-h3" href="#34">3.4 幂等生产者——防止消息重复</a><a class="toc-h2" href="#4">4. 消费者：怎么收消息？</a><a class="toc-h3" href="#41">4.1 消费者组——面试必考</a><a class="toc-h3" href="#42-offset">4.2 Offset 提交——记录消费到哪了</a><a class="toc-h3" href="#43-rebalance">4.3 重平衡（Rebalance）——消费者变动时的自动调整</a><a class="toc-h2" href="#5">5. 主题和分区：消息怎么组织？</a><a class="toc-h3" href="#51">5.1 分区怎么设？</a><a class="toc-h3" href="#52">5.2 消息保留策略</a><a class="toc-h2" href="#6">6. 副本和高可用：坏了怎么办？</a><a class="toc-h3" href="#61-isr">6.1 ISR——哪些副本跟上了？</a><a class="toc-h3" href="#62">6.2 消息不丢的配置</a><a class="toc-h2" href="#7-kafka-streams">7. Kafka Streams：实时处理</a><a class="toc-h3" href="#71">7.1 一句话理解</a><a class="toc-h2" href="#8-spring-boot">8. Spring Boot 集成</a><a class="toc-h3" href="#81">8.1 配置</a><a class="toc-h3" href="#82">8.2 发送和接收</a><a class="toc-h2" href="#9">9. 性能优化</a><a class="toc-h3" href="#91">9.1 三端优化速查</a><a class="toc-h2" href="#10-kafka-vs-rabbitmq-vs-rocketmq">10. Kafka vs RabbitMQ vs RocketMQ</a><a class="toc-h2" href="#11_1">11. 面试会怎么问？</a><a class="toc-h3" href="#q1kafka">Q1：Kafka 为什么这么快？</a><a class="toc-h3" href="#q2">Q2：怎么保证消息不丢失？</a><a class="toc-h3" href="#q3">Q3：消息顺序怎么保证？</a><a class="toc-h3" href="#q4">Q4：消费者组是什么？</a><a class="toc-h3" href="#q5-isr">Q5：什么是 ISR？</a><a class="toc-h3" href="#q6exactly-once">Q6：怎么实现精确一次（Exactly-Once）？</a></nav>
+<button class="sidebar-toggle-btn" onclick="toggleSidebar()" title="切换侧栏">☰</button>
+
+<div class="sidebar-overlay" onclick="toggleSidebar()"></div>
+
+<script>
+function toggleSidebar() {
+  document.body.classList.toggle('sidebar-collapsed');
+  try { localStorage.setItem('sidebarCollapsed', document.body.classList.contains('sidebar-collapsed')); } catch(e) {}
+}
+(function() {
+  try {
+    if (localStorage.getItem('sidebarCollapsed') === 'true') {
+      document.body.classList.add('sidebar-collapsed');
+    }
+  } catch(e) {}
+})();
+</script>
+<a class="back-link" href="/blog/2026/05/16/面试题/面试题/">← 返回面试题目录</a>
+<h1 id=page-title>Kafka 面试学习文档</h1>
+<blockquote>
+<p>整理日期：2026-06-14 | 像快递分拣中心一样理解 Kafka：消息来了 → 分类 → 暂存 → 配送</p>
+</blockquote>
+<hr />
+
+<h2 id="1-kafka">1. 先搞懂：Kafka 到底是什么？</h2>
+
+<pre><code>  ┌──────────┐      ┌─────────────────────────┐      ┌──────────┐
+  │ Producer │ ────→│     Kafka Cluster        │────→ │ Consumer │
+  │ (发消息)  │      │  ┌──────┐ ┌──────┐       │      │ (收消息)  │
+  │          │      │  │Topic1│ │Topic2│ ...   │      │          │
+  │ 订单系统  │      │  │ 分区0│ │ 分区0│       │      │ 短信系统  │
+  │ 日志采集  │      │  │ 分区1│ │ 分区1│       │      │ 数据仓库  │
+  └──────────┘      │  └──────┘ └──────┘       │      └──────────┘
+                    └─────────────────────────┘
+                    消息持久化在磁盘，消费完不删除
+</code></pre>
+
+<h3 id="11">1.1 用快递分拣中心来理解</h3>
+<p>把 Kafka 想象成一个超大型快递分拣中心：</p>
+<ol>
+<li>各地包裹不断送来（<strong>生产者</strong>）</li>
+<li>按目的地分类到不同传送带（<strong>Topic</strong>），每个目的地再细分几条子传送带（<strong>Partition</strong>）</li>
+<li>配送员按负责区域取走包裹（<strong>消费者</strong>）</li>
+<li>每个包裹有编号，取到哪一号都记录着（<strong>Offset</strong>）</li>
+<li>包裹不销毁，保留一段时间方便对账（<strong>消息持久化</strong>）</li>
+</ol>
+<p>Kafka 本质上就是一个<strong>超大容量、超高速度的消息分拣中心</strong>。</p>
+
+<h3 id="12">1.2 官方定义（用大白话说）</h3>
+<p>Apache 开源的<strong>分布式消息系统</strong>，LinkedIn 最早研发它来处理海量用户行为日志。<strong>一句话：帮你在系统间可靠、快速地搬运数据的管道。</strong></p>
+
+<h3 id="13-kafka">1.3 Kafka 的三个身份</h3>
+<table>
+<thead>
+<tr>
+<th>身份</th>
+<th>能干什么</th>
+<th>举个例子</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>消息队列</strong></td>
+<td>系统间异步传递消息</td>
+<td>下单后发短信——订单系统丢消息给 Kafka，短信系统慢慢处理</td>
+</tr>
+<tr>
+<td><strong>数据管道</strong></td>
+<td>把数据从源头搬到目的地</td>
+<td>数据库变更日志 → Kafka → 数据仓库</td>
+</tr>
+<tr>
+<td><strong>流处理平台</strong></td>
+<td>实时处理流式数据</td>
+<td>用户点击 → Kafka Streams → 每 5 分钟点击量统计</td>
+</tr>
+</tbody>
+</table>
+
+<h3 id="14-kafka">1.4 为什么 Kafka 这么快？</h3>
+<p>每秒百万级消息，靠 6 个技巧：</p>
+<pre><code>① 顺序写磁盘 (Append Only)
+   只往尾巴追加，不随机读写，速度接近内存
+
+② Page Cache
+   热点数据留在 OS 缓存，不用每次读磁盘
+
+③ 零拷贝 (Zero Copy)
+   数据从磁盘 DMA → 网卡，跳过 CPU 内存拷贝
+
+④ 批量发送
+   攒够一批再发，减少网络往返
+
+⑤ 数据压缩
+   支持 Snappy / LZ4 / GZIP，减小传输量
+
+⑥ 分区并行
+   一个 Topic 拆多个 Partition，多台机器同时读写
+</code></pre>
+<hr />
+<h2 id="2">2. 核心组件：谁在干活？</h2>
+<h3 id="21">2.1 一句话认识每个角色</h3>
+<pre><code>Producer（生产者）
+  → 发消息的人。如订单系统创建订单后发给 Kafka
+
+Broker（代理节点）
+  → Kafka 服务器。消息存在这里
+
+Topic（主题）
+  → 消息的分类标签。如 "订单主题"、"日志主题"
+
+Partition（分区）
+  → Topic 拆成多份，分散到不同机器。类似把一本书拆成多个分册
+
+Consumer（消费者）
+  → 收消息的人。如短信系统从 Kafka 取订单消息然后发短信
+
+Consumer Group（消费者组）
+  → 一组消费者抱团消费。组内分摊，不同组独立
+
+Offset（偏移量）
+  → 消息在分区里的位置编号，记录消费进度
+</code></pre>
+
+<h3 id="22">2.2 整体架构图</h3>
+<pre><code>                     ZooKeeper / KRaft (元数据)
+                          │
+  ┌─────────┐     ┌───────┴───────┐     ┌──────────────┐
+  │Producer A│────→│               │────→│Consumer Group A│
+  └─────────┘     │               │     │ Consumer-1    │
+                  │ Kafka Cluster │     │ Consumer-2    │
+  ┌─────────┐     │               │     └──────────────┘
+  │Producer B│────→│ Topic: orders │
+  └─────────┘     │  ├─Partition-0│────→┌──────────────┐
+                  │  ├─Partition-1│     │Consumer Group B│
+                  │  └─Partition-2│     │ (独立消费)     │
+                  └───────────────┘     └──────────────┘
+</code></pre>
+<hr />
+<h2 id="3">3. 生产者：怎么发消息？</h2>
+
+<pre><code>发送流程：
+
+  Producer.send(msg)
+      │
+      ▼
+  ① 序列化 ──→ 对象 → 字节数组
+      │
+      ▼
+  ② 选分区 ──→ 有 key → hash(key) % 分区数
+      │         没 key → 轮询
+      ▼
+  ③ 攒批次 ──→ 消息进缓冲区 (RecordAccumulator)
+      │         凑够 batch.size 或等够 linger.ms
+      ▼
+  ④ 发送   ──→ Sender 线程发往目标 Broker
+      │
+      ▼
+  ⑤ 确认   ──→ Broker 返回 RecordMetadata
+               (topic, partition, offset)
+             失败则重试 (retries 次)
+</code></pre>
+
+<h3 id="31-5">3.1 发送流程（5 步）</h3>
+<pre><code>① 序列化 → 把对象变成字节数组
+② 选分区 → 有 key 就 hash，没 key 就轮询
+③ 攒批次 → 消息先放进缓冲区，凑够一批再发
+④ 发送 → Sender 线程把批次发给目标 Broker
+⑤ 确认 → Broker 返回元数据 (topic/partition/offset)，失败则重试
+</code></pre>
+
+<h3 id="32">3.2 核心配置（面试要记住的）</h3>
+<pre><code class="language-java">Properties props = new Properties();
+props.put("bootstrap.servers", "kafka1:9092,kafka2:9092");
+props.put("key.serializer", StringSerializer.class.getName());
+props.put("value.serializer", StringSerializer.class.getName());
+
+// ⭐ 这三个是面试必问
+props.put("acks", "all");              // 消息确认级别
+props.put("retries", 3);               // 失败重试次数
+props.put("enable.idempotence", true); // 开启幂等（防止重复）
+
+// 性能相关
+props.put("batch.size", 16384);        // 批次大小（16KB）
+props.put("linger.ms", 10);            // 等 10ms，攒够了再发
+props.put("compression.type", "lz4");  // 用 LZ4 压缩
+</code></pre>
+
+<h3 id="33-acks">3.3 acks 参数——消息可靠性的关键</h3>
+<table>
+<thead>
+<tr>
+<th>acks 值</th>
+<th>什么意思</th>
+<th>可靠性</th>
+<th>性能</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>0</strong></td>
+<td>发了就不管，不等人确认</td>
+<td>最低</td>
+<td>最高</td>
+</tr>
+<tr>
+<td><strong>1</strong></td>
+<td>Leader 收到就确认</td>
+<td>中</td>
+<td>中</td>
+</tr>
+<tr>
+<td><strong>all (-1)</strong></td>
+<td>所有 ISR 副本都收到才确认</td>
+<td>最高</td>
+<td>最低</td>
+</tr>
+</tbody>
+</table>
+<blockquote>
+<p><strong>面试话术</strong>："生产环境用 <code>acks=all</code> + <code>enable.idempotence=true</code>，保证消息不丢也不重。"</p>
+</blockquote>
+
+<h3 id="34">3.4 幂等生产者——防止消息重复</h3>
+<p>网络波动导致消息重发？开启幂等即可：</p>
+<pre><code class="language-java">props.put("enable.idempotence", true);
+// 原理：每个 Producer 有唯一 PID，每条消息带序列号
+//       Broker 发现序列号重复就直接丢弃
+</code></pre>
+<hr />
+<h2 id="4">4. 消费者：怎么收消息？</h2>
+
+<h3 id="41">4.1 消费者组——面试必考</h3>
+<p>核心规则：<strong>组内竞争，组间广播</strong>。</p>
+<ul>
+<li><strong>组内</strong>：一个 Partition 只能被同组一个 Consumer 消费</li>
+<li><strong>组间</strong>：不同 Consumer Group 各自独立消费，互不影响</li>
+</ul>
+
+<pre><code>Topic: order-topic (3 个分区: P0, P1, P2)
+
+Consumer Group A (2 个消费者):
+  ┌── P0 ──┐
+  │  P1    │──→ Consumer-A1 (负责 P0 + P2, 一个人干两摊)
+  │  P2 ──┘
+  └── P1 ────→ Consumer-A2 (只负责 P1)
+
+Consumer Group A (3 个消费者):
+  ┌── P0 ──→ Consumer-A1
+  │  P1 ──→ Consumer-A2           (刚刚好，各司其职)
+  └── P2 ──→ Consumer-A3
+
+Consumer Group A (4 个消费者):
+  ┌── P0 ──→ Consumer-A1
+  │  P1 ──→ Consumer-A2
+  │  P2 ──→ Consumer-A3
+  └── ?? ──→ Consumer-A4 (空闲！消费者数 > 分区数，多的闲着)
+
+Consumer Group B (2 个消费者):
+  ┌── P0 ──→ Consumer-B1
+  │  P1 ──→ Consumer-B1          (B 组独立消费同一份数据)
+  └── P2 ──→ Consumer-B2
+</code></pre>
+<blockquote>
+<p><strong>结论</strong>：Topic 的并行消费上限 = 分区数。消费者超过分区数就是浪费。</p>
+</blockquote>
+
+<h3 id="42-offset">4.2 Offset 提交——记录消费到哪了</h3>
+<table>
+<thead>
+<tr>
+<th>方式</th>
+<th>怎么做的</th>
+<th>会丢消息吗</th>
+<th>会重复吗</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>自动提交</strong></td>
+<td>后台定时提交，不管业务处理完没</td>
+<td>容易丢</td>
+<td>不会</td>
+</tr>
+<tr>
+<td><strong>手动同步提交</strong></td>
+<td>业务处理完再提交</td>
+<td>不丢</td>
+<td>可能重复</td>
+</tr>
+<tr>
+<td><strong>手动提交 + 幂等</strong></td>
+<td>业务处理完提交 + 数据库去重</td>
+<td>不丢</td>
+<td>不重复</td>
+</tr>
+</tbody>
+</table>
+<pre><code class="language-java">// 推荐写法：先处理业务，成功了再提交 offset
+while (true) {
+    ConsumerRecords&lt;String, String&gt; records = consumer.poll(Duration.ofMillis(100));
+    for (ConsumerRecord&lt;String, String&gt; record : records) {
+        processRecord(record);  // 处理业务逻辑
+    }
+    consumer.commitSync();  // 处理完一批，提交一次
+}
+</code></pre>
+
+<h3 id="43-rebalance">4.3 重平衡（Rebalance）——消费者变动时的自动调整</h3>
+<p>消费者加入或离开组时，Kafka 重新分配分区。<strong>重平衡期间整个消费者组暂停消费。</strong></p>
+<p>避免频繁重平衡：</p>
+<ul>
+<li><code>session.timeout.ms</code> 别太短（默认 10s）</li>
+<li><code>max.poll.interval.ms</code> 别太小（默认 5 分钟），确保业务处理不会超时</li>
+<li>用 CooperativeSticky 策略（增量重平衡，减少停顿）</li>
+</ul>
+<hr />
+<h2 id="5">5. 主题和分区：消息怎么组织？</h2>
+
+<h3 id="51">5.1 分区怎么设？</h3>
+<pre><code>分区数 = 最大并行消费数
+
+经验值：
+  小型应用：3-6 个分区
+  中型应用：6-12 个分区
+  大型应用：12-64 个分区
+
+注意：分区不是越多越好
+  分区太多 → 文件句柄多、内存占用高、端到端延迟增加
+</code></pre>
+
+<h3 id="52">5.2 消息保留策略</h3>
+<p>Kafka 不会消费完就删消息（和 RabbitMQ 不同），按时间或大小保留：</p>
+<pre><code class="language-properties">log.retention.hours=168          # 保留 7 天
+log.retention.bytes=1073741824   # 或者每个分区最大 1GB
+</code></pre>
+<hr />
+<h2 id="6">6. 副本和高可用：坏了怎么办？</h2>
+
+<h3 id="61-isr">6.1 ISR——哪些副本跟上了？</h3>
+
+<pre><code>每个分区有多个 Replica（副本）：
+
+  Partition-0:
+    ┌──────────────────────────────────┐
+    │  Leader (Broker-1)    ← 负责读写  │
+    │  Follower (Broker-2)  ← 只同步    │ ← ISR 集合 (同步中的副本)
+    │  Follower (Broker-3)  ← 只同步    │
+    └──────────────────────────────────┘
+
+  写入流程 (acks=all):
+    Producer → Leader 写入 → Follower-2 同步 → Follower-3 同步
+                                ↓                  ↓
+                         全部 ISR 确认 ←───── 返回成功
+
+  Leader 挂了怎么办？
+    从 ISR 中选一个新 Leader，保证数据不丢。
+
+  落后超过 replica.lag.time.max.ms (默认 30s) → 踢出 ISR
+</code></pre>
+
+<h3 id="62">6.2 消息不丢的配置</h3>
+<pre><code>生产端：acks=all + retries + 幂等
+Broker端：副本数 ≥ 3 + min.insync.replicas ≥ 2
+消费端：手动提交 offset + 幂等消费
+</code></pre>
+<hr />
+<h2 id="7-kafka-streams">7. Kafka Streams：实时处理</h2>
+<h3 id="71">7.1 一句话理解</h3>
+<p>Kafka Streams 让你直接在 Kafka 内部对消息流做<strong>实时计算</strong>——过滤、聚合、统计——无需额外部署 Spark 或 Flink。</p>
+<pre><code class="language-java">// 经典例子：实时统计单词出现次数
+KStream&lt;String, String&gt; source = builder.stream("input-topic");
+
+KTable&lt;String, Long&gt; counts = source
+    .flatMapValues(value -&gt; Arrays.asList(value.toLowerCase().split("\\W+")))
+    .groupBy((key, word) -&gt; word)
+    .count();
+
+counts.toStream().to("output-topic");
+</code></pre>
+<hr />
+<h2 id="8-spring-boot">8. Spring Boot 集成</h2>
+<h3 id="81">8.1 配置</h3>
+<pre><code class="language-yaml">spring:
+  kafka:
+    bootstrap-servers: kafka1:9092,kafka2:9092
+    producer:
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.apache.kafka.common.serialization.StringSerializer
+      acks: all
+      retries: 3
+    consumer:
+      group-id: order-consumer-group
+      enable-auto-commit: false
+      auto-offset-reset: earliest
+    listener:
+      ack-mode: MANUAL  # 手动提交
+</code></pre>
+<h3 id="82">8.2 发送和接收</h3>
+<pre><code class="language-java">// 发送
+@Service
+public class OrderProducer {
+    @Autowired
+    private KafkaTemplate&lt;String, String&gt; kafkaTemplate;
+
+    public void sendOrder(Order order) {
+        kafkaTemplate.send("order-topic", order.getId(), JSON.toJSONString(order));
+    }
+}
+
+// 接收（手动 ACK）
+@Component
+public class OrderConsumer {
+    @KafkaListener(topics = "order-topic", groupId = "order-consumer-group")
+    public void handleOrder(ConsumerRecord&lt;String, String&gt; record, Acknowledgment ack) {
+        Order order = JSON.parseObject(record.value(), Order.class);
+        processOrder(order);
+        ack.acknowledge();  // 处理成功才确认
+    }
+}
+</code></pre>
+<hr />
+<h2 id="9">9. 性能优化</h2>
+<h3 id="91">9.1 三端优化速查</h3>
+<pre><code>生产端：
+  ✅ batch.size 调大（32KB）
+  ✅ linger.ms 适当（10-20ms）
+  ✅ 开启压缩（LZ4）
+
+消费端：
+  ✅ max-poll-records 调大（500-1000）
+  ✅ 并发数 = 分区数
+  ✅ 手动提交
+
+Broker端：
+  ✅ num.network.threads 调大
+  ✅ num.io.threads 调大
+  ✅ log.flush.interval.ms 适当
+</code></pre>
+<hr />
+<h2 id="10-kafka-vs-rabbitmq-vs-rocketmq">10. Kafka vs RabbitMQ vs RocketMQ</h2>
+<table>
+<thead>
+<tr>
+<th>对比项</th>
+<th>Kafka</th>
+<th>RabbitMQ</th>
+<th>RocketMQ</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>一句话定位</strong></td>
+<td>大数据管道</td>
+<td>业务消息中间人</td>
+<td>阿里的 Kafka+MQ 合体</td>
+</tr>
+<tr>
+<td><strong>吞吐量</strong></td>
+<td>百万级/秒</td>
+<td>万级/秒</td>
+<td>十万级/秒</td>
+</tr>
+<tr>
+<td><strong>延迟</strong></td>
+<td>毫秒级</td>
+<td>微秒级</td>
+<td>毫秒级</td>
+</tr>
+<tr>
+<td><strong>消息回溯</strong></td>
+<td>天生支持</td>
+<td>消费完就没了</td>
+<td>支持</td>
+</tr>
+<tr>
+<td><strong>适用场景</strong></td>
+<td>日志、大数据、流处理</td>
+<td>业务消息、任务分发</td>
+<td>业务消息、事务消息</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="11_1">11. 面试会怎么问？</h2>
+
+<pre><code>面试速记三个词: 高性能(顺序写/零拷贝) 高可用(ISR/副本) 可靠性(acks/手动提交)
+</code></pre>
+
+<h3 id="q1kafka">Q1：Kafka 为什么这么快？</h3>
+<p>六个原因：顺序写磁盘、Page Cache、零拷贝、批量发送、数据压缩、分区并行。类比流水线：货物排一队上传送带（顺序写），缓冲区暂存（Page Cache），直接搬上卡车（零拷贝），凑满一车发（批量），真空袋压缩（压缩），多条传送带同时工作（分区并行）。</p>
+
+<h3 id="q2">Q2：怎么保证消息不丢失？</h3>
+<ul>
+<li><strong>生产端</strong>：acks=all + 重试 + 幂等</li>
+<li><strong>Broker 端</strong>：副本数 >= 3 + min.insync.replicas >= 2</li>
+<li><strong>消费端</strong>：手动提交 offset + 业务幂等</li>
+</ul>
+
+<h3 id="q3">Q3：消息顺序怎么保证？</h3>
+<ul>
+<li><strong>同一 Partition 内</strong>：消息严格有序</li>
+<li><strong>相同 Key 的消息</strong>：hash 到同一分区，有序</li>
+<li><strong>不同 Partition 之间</strong>：不保证顺序</li>
+</ul>
+
+<h3 id="q4">Q4：消费者组是什么？</h3>
+<p>组内消费者分摊干活（一个分区只能给一个消费者），不同组独立消费。并行消费上限 = 分区数。</p>
+
+<h3 id="q5-isr">Q5：什么是 ISR？</h3>
+<p>In-Sync Replicas——和 Leader 保持同步的副本集合。acks=all 时，消息必须被所有 ISR 副本确认才算写入成功。落后超过 30 秒的副本会被踢出 ISR。</p>
+
+<h3 id="q6exactly-once">Q6：怎么实现精确一次（Exactly-Once）？</h3>
+<ul>
+<li>幂等生产者：enable.idempotence=true</li>
+<li>事务：跨分区原子写入</li>
+<li>消费者：手动提交 + 业务层去重（Redis/DB）</li>
+</ul>
+<hr />
+<blockquote>
+<p>💡 <strong>学习建议</strong>：Kafka 面试记三个词——<strong>高性能</strong>（顺序写/零拷贝）、<strong>高可用</strong>（ISR/副本）、<strong>可靠性</strong>（acks/手动提交）。先理解整体架构图，再搞懂生产者和消费者的核心配置，面试就够了。</p>
+<p><strong>与面试岗位的关联</strong>：Kafka 常出现在<strong>后端 / 大数据 / 架构</strong>方向面试中，通常和分布式系统、消息队列选型、流处理（Flink/KSQL）等话题一起考察。</p>
+</blockquote>
+
+<script>
+// Scroll spy — highlight active sidebar item
+window.addEventListener('scroll', function() {
+    var links = document.querySelectorAll('.sidebar-toc a');
+    var scrollY = window.scrollY + 120;
+    var current = '';
+    for (var i = links.length - 1; i >= 0; i--) {
+        var target = document.getElementById(links[i].getAttribute('href').slice(1));
+        if (target && target.offsetTop <= scrollY) {
+            current = links[i];
+            break;
+        }
+    }
+    links.forEach(function(a) { a.style.fontWeight = 'normal'; a.style.color = '#555'; });
+    if (current) { current.style.fontWeight = 'bold'; current.style.color = '#0366d6'; }
+});
+</script>
+
+
+<script>
+document.querySelectorAll("pre>code").forEach(function(c){var p=c.parentNode;p.style.position="relative";var b=document.createElement("button");b.className="copy-btn";b.textContent="复制";p.appendChild(b);b.addEventListener("click",function(){var t=c.textContent;navigator.clipboard.writeText(t).then(function(){b.textContent="已复制";b.classList.add("copied");setTimeout(function(){b.textContent="复制";b.classList.remove("copied")},2000)}).catch(function(){var a=document.createElement("textarea");a.value=t;a.style.position="fixed";a.style.opacity="0";document.body.appendChild(a);a.select();document.execCommand("copy");document.body.removeChild(a);b.textContent="已复制";b.classList.add("copied");setTimeout(function(){b.textContent="复制";b.classList.remove("copied")},2000)})})})
+</script>
+</body>
+</html>

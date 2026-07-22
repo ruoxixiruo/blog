@@ -1,0 +1,976 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Zookeeper学习文档</title>
+<style>
+body {
+    transition: margin-left .25s ease;
+    font-family: -apple-system, "Noto Sans SC", "Microsoft YaHei", sans-serif;
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 20px 24px 60px;
+    line-height: 1.8;
+    color: #333;
+    background: #fff;
+}
+h1 { border-bottom: 2px solid #eee; padding-bottom: 10px; color: #222; }
+h2 { color: #333; margin-top: 32px; }
+h3 { color: #555; }
+a { color: #0366d6; text-decoration: none; }
+a:hover { text-decoration: underline; }
+pre {
+    background: #f6f8fa;
+    border-radius: 6px;
+    padding: 16px;
+    overflow-x: auto;
+    font-size: 14px;
+    line-height: 1.45;
+}
+code {
+    background: #f0f2f4;
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-size: 14px;
+}
+pre code { background: none; padding: 0; }
+blockquote {
+    border-left: 4px solid #ddd;
+    margin: 0;
+    padding: 0 16px;
+    color: #666;
+}
+table {
+    border-collapse: collapse;
+    width: 100%;
+    margin: 16px 0;
+}
+th, td {
+    border: 1px solid #ddd;
+    padding: 8px 12px;
+    text-align: left;
+}
+th { background: #f6f8fa; }
+img { max-width: 100%; }
+.back-link {
+    margin-bottom: 20px;
+    display: block;
+    color: #666;
+}
+.back-link:hover { color: #0366d6; }
+
+.sidebar-toc {
+    transition: left .25s ease;
+    position: fixed;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    width: 220px;
+    background: #f8f9fa;
+    border-right: 1px solid #e9ecef;
+    padding: 20px 0;
+    overflow-y: auto;
+    font-size: 13px;
+    z-index: 100;
+}
+.sidebar-toc a {
+    display: block;
+    padding: 6px 16px;
+    color: #555;
+    text-decoration: none;
+    border-left: 3px solid transparent;
+    line-height: 1.5;
+}
+.sidebar-toc a:hover {
+    background: #e9ecef;
+    color: #0366d6;
+    border-left-color: #0366d6;
+}
+.sidebar-toc .toc-h2 { padding-left: 16px; font-weight: 500; }
+.sidebar-toc .toc-h3 { padding-left: 32px; font-size: 12px; }
+body { margin-left: 240px; }
+
+
+.copy-btn {
+    position: absolute; top: 6px; right: 6px;
+    background: #e9ecef; border: none;
+    border-radius: 4px; padding: 3px 10px;
+    font-size: 12px; color: #555; cursor: pointer;
+    opacity: 0; transition: opacity 0.2s;
+    z-index: 1;
+}
+pre:hover .copy-btn { opacity: 1; }
+.copy-btn:hover { background: #d0d7de; }
+.copy-btn.copied { opacity: 1; background: #2da44e; color: #fff; }
+.copy-btn{position:absolute;top:6px;right:6px;background:#e9ecef;border:none;border-radius:4px;padding:3px 10px;font-size:12px;color:#555;cursor:pointer;opacity:0;transition:opacity .2s;z-index:1}pre:hover .copy-btn{opacity:1}.copy-btn:hover{background:#d0d7de}.copy-btn.copied{opacity:1;background:#2da44e;color:#fff}
+.copy-btn{position:absolute;top:6px;right:6px;background:#e9ecef;border:none;border-radius:4px;padding:3px 10px;font-size:12px;color:#555;cursor:pointer;opacity:0;transition:opacity .2s;z-index:1}pre:hover .copy-btn{opacity:1}.copy-btn:hover{background:#d0d7de}.copy-btn.copied{opacity:1;background:#2da44e;color:#fff}
+.copy-btn{position:absolute;top:6px;right:6px;background:#e9ecef;border:none;border-radius:4px;padding:3px 10px;font-size:12px;color:#555;cursor:pointer;opacity:0;transition:opacity .2s;z-index:1}pre:hover .copy-btn{opacity:1}.copy-btn:hover{background:#d0d7de}.copy-btn.copied{opacity:1;background:#2da44e;color:#fff}
+.sidebar-toggle-btn {
+  position: fixed;
+  left: 220px;
+  top: 0;
+  width: 28px;
+  height: 40px;
+  background: #f8f9fa;
+  border: 1px solid #e9ecef;
+  border-left: none;
+  border-radius: 0 4px 4px 0;
+  cursor: pointer;
+  font-size: 16px;
+  color: #555;
+  z-index: 101;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: left .25s, background .2s;
+  padding: 0;
+  line-height: 1;
+}
+.sidebar-toggle-btn:hover { background: #e9ecef; color: #0366d6; }
+.sidebar-collapsed .sidebar-toc { left: -220px; }
+.sidebar-collapsed .sidebar-toggle-btn { left: 0; }
+.sidebar-collapsed body, body.sidebar-collapsed { margin-left: 28px; }
+.sidebar-overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,.3);
+  z-index: 99;
+}
+@media (max-width: 768px) {
+  .sidebar-collapsed .sidebar-overlay { display: none; }
+  .sidebar-toc { left: -220px; }
+  .sidebar-toggle-btn { left: 0; }
+  body { margin-left: 28px; }
+}
+
+</style>
+</head>
+</head>
+<body>
+<nav class="sidebar-toc"><a class="toc-h2" href="#1-zookeeper">1. Zookeeper 是什么？解决什么问题？</a><a class="toc-h3" href="#11">1.1 用大白话说</a><a class="toc-h3" href="#12">1.2 技术定义</a><a class="toc-h3" href="#13-zk">1.3 ZK 不适合做什么</a><a class="toc-h2" href="#2">2. 数据模型——类文件系统的树</a><a class="toc-h3" href="#21">2.1 树结构</a><a class="toc-h3" href="#22">2.2 四种节点类型</a><a class="toc-h3" href="#23">2.3 关键限制</a><a class="toc-h2" href="#3-zab">3. ZAB 协议——分布式一致性的核心</a><a class="toc-h3" href="#31-zab">3.1 什么是 ZAB？</a><a class="toc-h3" href="#32">3.2 两阶段流程</a><a class="toc-h3" href="#33-zab-vs-raft">3.3 ZAB vs Raft</a><a class="toc-h3" href="#34-zk-cp-ap">3.4 为什么 ZK 选 CP 不是 AP？</a><a class="toc-h2" href="#4-leader">4. Leader 选举——首席法官怎么选出来的？</a><a class="toc-h3" href="#41">4.1 选举流程</a><a class="toc-h3" href="#42">4.2 选主规则</a><a class="toc-h3" href="#43">4.3 为什么集群推荐奇数台？</a><a class="toc-h2" href="#5-watcher">5. Watcher 机制——发布/订阅的智慧</a><a class="toc-h3" href="#51">5.1 工作原理</a><a class="toc-h3" href="#52">5.2 三大坑</a><a class="toc-h3" href="#53">5.3 正确用法</a><a class="toc-h2" href="#6">6. 会话机制——门禁卡制度</a><a class="toc-h3" href="#61-session">6.1 Session 生命周期</a><a class="toc-h3" href="#62-vs">6.2 临时节点 vs 持久节点</a><a class="toc-h2" href="#7">7. 分布式锁——公平排队的实现</a><a class="toc-h3" href="#71">7.1 实现原理</a><a class="toc-h3" href="#72">7.2 底层流程</a><a class="toc-h3" href="#73">7.3 羊群效应</a><a class="toc-h2" href="#8">8. 脑裂问题——过半机制如何根治</a><a class="toc-h3" href="#81">8.1 什么是脑裂？</a><a class="toc-h3" href="#82-zk">8.2 ZK 的解决方案：过半机制</a><a class="toc-h2" href="#9-zk-vs-nacos">9. ZK vs Nacos——注册中心怎么选？</a><a class="toc-h3" href="#91">9.1 功能对比</a><a class="toc-h3" href="#92">9.2 架构差异</a><a class="toc-h3" href="#93">9.3 选型建议</a><a class="toc-h2" href="#10-zk-vs-redis">10. ZK vs Redis——分布式锁怎么选？</a><a class="toc-h2" href="#11-curatorzk">11. Curator——ZK 客户端最佳实践</a><a class="toc-h3" href="#111-curator-zk">11.1 为什么用 Curator 而不是原生 ZK？</a><a class="toc-h3" href="#112-curator">11.2 Curator 常用功能</a><a class="toc-h3" href="#113">11.3 锁的高级用法</a><a class="toc-h2" href="#12_1">12. 高频面试题——临门一脚</a><a class="toc-h3" href="#121">12.1 基础篇</a><a class="toc-h3" href="#122">12.2 进阶篇</a><a class="toc-h3" href="#123">12.3 源码篇</a></nav>
+<button class="sidebar-toggle-btn" onclick="toggleSidebar()" title="切换侧栏">☰</button>
+
+<div class="sidebar-overlay" onclick="toggleSidebar()"></div>
+
+<script>
+function toggleSidebar() {
+  document.body.classList.toggle('sidebar-collapsed');
+  try { localStorage.setItem('sidebarCollapsed', document.body.classList.contains('sidebar-collapsed')); } catch(e) {}
+}
+(function() {
+  try {
+    if (localStorage.getItem('sidebarCollapsed') === 'true') {
+      document.body.classList.add('sidebar-collapsed');
+    }
+  } catch(e) {}
+})();
+</script>
+<a class="back-link" href="/blog/2026/05/16/面试题/面试题/">← 返回面试题目录</a>
+<h1 id=page-title>Zookeeper 面试学习文档</h1>
+<blockquote>
+<p>Zookeeper = 分布式陪审团。3~5 位法官（节点），过半同意才算数。首席法官（Leader）挂了就重选，选出来之前法庭暂停。ZooKeeper 帮所有分布式系统解决共识问题。</p>
+<p>整理日期：2026-06-26</p>
+</blockquote>
+<hr />
+
+<h2 id="1-zookeeper">1. Zookeeper 是什么？解决什么问题？</h2>
+<h3 id="11">1.1 核心问题</h3>
+<p>分布式系统的共识四难：</p>
+<pre><code>1. 选主（Leader Election）—— 多个节点谁干活？
+2. 服务注册 —— 节点 A 说在线，节点 B 说挂了，信谁？
+3. 配置同步 —— 配置文件改了怎么通知所有节点？
+4. 数据一致性 —— 多节点读同一份数据，怎么保证结果相同？
+</code></pre>
+<h3 id="12">1.2 技术定义</h3>
+<p>ZooKeeper = 开源的分布式协调服务，三大能力：</p>
+<table>
+<thead>
+<tr>
+<th>能力</th>
+<th>描述</th>
+<th>典型用途</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>数据存储</strong></td>
+<td>树形命名空间，类文件系统</td>
+<td>配置、元数据</td>
+</tr>
+<tr>
+<td><strong>通知机制</strong></td>
+<td>Watcher 订阅数据变化</td>
+<td>服务发现、动态配置</td>
+</tr>
+<tr>
+<td><strong>一致性保证</strong></td>
+<td>ZAB 协议保证副本一致</td>
+<td>选主、分布式锁</td>
+</tr>
+</tbody>
+</table>
+<h3 id="13-zk">1.3 ZK 不适合做什么</h3>
+<table>
+<thead>
+<tr>
+<th>不要做</th>
+<th>适合做</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>存大数据（节点限 1MB，推荐 &lt; 1KB）</td>
+<td>存元数据、配置、服务地址</td>
+</tr>
+<tr>
+<td>做消息队列（存储量有限）</td>
+<td>做服务注册与发现</td>
+</tr>
+<tr>
+<td>做数据库（强一致但写性能低）</td>
+<td>做分布式锁、选主</td>
+</tr>
+</tbody>
+</table>
+<blockquote>
+<p><strong>面试话术</strong>："Zookeeper 做协调不做存储。存数据用数据库，做队列用 MQ，ZooKeeper 只管让分布式系统达成共识。"</p>
+</blockquote>
+<hr />
+<h2 id="2">2. 数据模型——类文件系统的树</h2>
+<h3 id="21">2.1 树结构</h3>
+<p>ZK 的数据模型 = 类文件系统的树，每个 ZNode 既能存数据又能有子节点。</p>
+<pre><code>/ (根节点)
+├── /services              ← 持久节点
+│   ├── /order-service     ← 持久节点
+│   │   ├── /node-1        ← 临时节点（Provider 在线）
+│   │   └── /node-2        ← 临时节点（Provider 在线）
+│   └── /user-service
+├── /config                ← 持久节点
+│   └── /db-config         ← 持久节点
+└── /locks                 ← 持久节点
+    └── /order-lock        ← 临时顺序节点
+</code></pre>
+<h3 id="22">2.2 四种节点类型</h3>
+<table>
+<thead>
+<tr>
+<th>类型</th>
+<th>行为</th>
+<th>典型用途</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>持久节点</strong></td>
+<td>创建后一直存在，除非主动删除</td>
+<td>存配置、元数据</td>
+</tr>
+<tr>
+<td><strong>持久顺序节点</strong></td>
+<td>名字自动加递增序号</td>
+<td>分布式锁排队</td>
+</tr>
+<tr>
+<td><strong>临时节点</strong></td>
+<td>客户端断连自动删除</td>
+<td>服务注册</td>
+</tr>
+<tr>
+<td><strong>临时顺序节点</strong></td>
+<td>临时 + 自动编号</td>
+<td>分布式锁、选主</td>
+</tr>
+</tbody>
+</table>
+<h3 id="23">2.3 关键限制</h3>
+<ul>
+<li>每个 ZNode 默认最大 <strong>1MB</strong>，推荐 &lt; <strong>1KB</strong></li>
+<li>ZNode 更新是<strong>整个覆盖</strong>（不可 append）</li>
+<li>所有数据存储在<strong>内存</strong>中</li>
+</ul>
+<blockquote>
+<p><strong>面试话术</strong>："ZK 的数据全在内存里，单节点建议 &lt; 1KB。定位是『存地址的通讯录』不是『存档案的档案馆』。"</p>
+</blockquote>
+<hr />
+<h2 id="3-zab">3. ZAB 协议——分布式一致性的核心</h2>
+<h3 id="31-zab">3.1 什么是 ZAB？</h3>
+<p>ZAB（ZooKeeper Atomic Broadcast）= ZK 内部的副本一致性协议。核心：<strong>过半即可提交</strong>，不要求全票。ZK 集群推荐奇数台（3/5/7），容忍 (N-1)/2 台宕机。</p>
+<h3 id="32">3.2 ZAB 协议完整流程</h3>
+<pre><code>
+                 ZAB 协议 —— 两阶段流程
+    ====================================================
+
+    ┌──────────────────────────────────────────────────────┐
+    │                   Phase 1: Leader 选举                │
+    │                                                      │
+    │  所有节点 LOOKING 状态                                │
+    │       │                                              │
+    │       ▼                                              │
+    │  各自投自己一票 (myid, zxid)                          │
+    │       │                                              │
+    │       ▼                                              │
+    │  广播投票给其他节点                                    │
+    │       │                                              │
+    │       ▼                                              │
+    │  收到他人投票 → PK 规则:                              │
+    │     · 先比 zxid（事务 ID，越大数据越新）               │
+    │     · zxid 相同比 myid（节点编号）                     │
+    │       │                                              │
+    │       ▼                                              │
+    │  赢者获得选票 → 改投赢者                               │
+    │       │                                              │
+    │       ▼                                              │
+    │  某节点票数 ＞ N/2 → 当选 Leader                       │
+    │  其余节点 → FOLLOWING 状态                            │
+    │                                                      │
+    │  Leader 当选后 → 同步阶段:                            │
+    │    将所有 Follower 的日志与 Leader 对齐               │
+    │    收到过半 Follower 的 ACK(NEWLEADER) 后完成同步     │
+    │    进入 BROADCASTING 阶段                             │
+    └──────────────────┬───────────────────────────────────┘
+                       │
+                       ▼
+    ┌──────────────────────────────────────────────────────┐
+    │                  Phase 2: 消息广播                     │
+    │                                                      │
+    │  Client 写请求                                        │
+    │       │                                              │
+    │       ▼                                              │
+    │  Leader 生成 Proposal (zxid, data)                    │
+    │       │                                              │
+    │       ▼                                              │
+    │  Leader 广播 Proposal 给所有 Follower                  │
+    │       │                                              │
+    │       ▼                                              │
+    │  Follower 收到 Proposal:                              │
+    │    1. 写入事务日志 (txn log)                           │
+    │    2. 回复 ACK 给 Leader                              │
+    │       │                                              │
+    │       ▼                                              │
+    │  Leader 统计 ACK 数量:                                │
+    │    · 过半 ACK → 本地 Commit                           │
+    │    · 未过半 → 本次 Proposal 失败，重试                  │
+    │       │                                              │
+    │       ▼                                              │
+    │  Leader 发送 Commit 消息给所有 Follower                │
+    │       │                                              │
+    │       ▼                                              │
+    │  Follower 收到 Commit → 写入内存 DataTree → 响应 Client│
+    │                                                      │
+    └──────────────────────────────────────────────────────┘
+
+    关键规则:
+    · 过半原则: 无论选主还是提交，都需要 &gt; N/2 票
+    · 顺序性: 所有 Proposal 按 zxid 严格递增
+    · 原子性: 一个 Proposal 要么在所有节点成功，要么都不成功
+</code></pre>
+<h3 id="33-zab-vs-raft">3.3 ZAB vs Raft</h3>
+<table>
+<thead>
+<tr>
+<th>维度</th>
+<th>ZAB</th>
+<th>Raft</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>选主依据</td>
+<td>ZXID（日志新旧）</td>
+<td>Term（任期先后）</td>
+</tr>
+<tr>
+<td>消息方向</td>
+<td>Leader → 所有 Follower</td>
+<td>Leader → 所有 Follower</td>
+</tr>
+<tr>
+<td>主要差异</td>
+<td>崩溃恢复时保证已提交提案不丢</td>
+<td>选主更严格，日志复制更清晰</td>
+</tr>
+</tbody>
+</table>
+<h3 id="34-zk-cp-ap">3.4 为什么 ZK 选 CP 不是 AP？</h3>
+<pre><code>ZK = CP 系统:
+宁可短暂不可用，也不让数据不一致。
+
+网络分区示例 (5节点集群):
+  分区 A（2 节点）→ 不够过半 → 拒绝对外服务
+  分区 B（3 节点）→ 过半 → 正常提供服务
+
+结论: 局部不可用 → 数据绝对一致 ✅
+</code></pre>
+<blockquote>
+<p><strong>面试话术</strong>："ZAB 的灵魂是过半原则。3 台挂 1 台正常，5 台挂 2 台正常；再多就整体不可用——CP 系统的典型特征，用可用性换一致性。"</p>
+</blockquote>
+<hr />
+<h2 id="4-leader">4. Leader 选举——怎么选出 Leader？</h2>
+<h3 id="41">4.1 选举流程图</h3>
+<pre><code>
+              Leader 选举 —— 完整流程（3 节点为例）
+    =========================================================
+
+    初始状态: 3 节点同时启动，均为 LOOKING 状态
+
+    Node1 (myid=1, zxid=100)   Node2 (myid=2, zxid=200)   Node3 (myid=3, zxid=100)
+
+         │ 投自己(1,100)              │ 投自己(2,200)              │ 投自己(3,100)
+         ▼                            ▼                            ▼
+    ┌─────────┐                 ┌─────────┐                 ┌─────────┐
+    │ 广播投票 │                 │ 广播投票 │                 │ 广播投票 │
+    └────┬────┘                 └────┬────┘                 └────┬────┘
+         │                            │                            │
+         └────────────────────────────┼────────────────────────────┘
+                                      │
+                                      ▼
+    ┌──────────────────────────────────────────────────────────────┐
+    │                      交换投票结果                             │
+    │                                                              │
+    │  Node1 收到 Node2 的票 (2,200):                              │
+    │    100 ＜ 200 → Node2 zxid 更大 → Node1 改投 Node2           │
+    │                                                              │
+    │  Node3 收到 Node2 的票 (2,200):                              │
+    │    100 ＜ 200 → Node2 zxid 更大 → Node3 改投 Node2           │
+    │                                                              │
+    │  Node2 收到 Node1 和 Node3 的票:                             │
+    │    保持投自己                                                  │
+    └──────────────────────────────────────────────────────────────┘
+                                      │
+                                      ▼
+    ┌──────────────────────────────────────────────────────────────┐
+    │                      计票结果                                │
+    │                                                              │
+    │  Node2 获得: 自己 + Node1 + Node3 = 3 票                     │
+    │  3 票 ＞ 3/2 = 1.5（过半！）                                  │
+    │                                                              │
+    │  → Node2 当选 Leader (LEADING)                               │
+    │  → Node1, Node3 变为 Follower (FOLLOWING)                    │
+    └──────────────────────────────────────────────────────────────┘
+
+    选举规则:
+    · 先比 zxid: 大的当选（数据最新不丢失）
+    · zxid 相同比 myid: 打破平局
+    · 必须 ＞ N/2 票才能当选
+</code></pre>
+<h3 id="42">4.2 选主规则</h3>
+<p><strong>先比 zxid（事务 ID），再比 myid（节点编号）</strong></p>
+<ul>
+<li><strong>zxid 大的当选</strong>：zxid 大 = 数据最新，选它保证最新数据不丢失</li>
+<li><strong>zxid 相同比 myid</strong>：myid 只用于打破平局</li>
+</ul>
+<h3 id="43">4.3 为什么集群推荐奇数台？</h3>
+<table>
+<thead>
+<tr>
+<th>集群大小</th>
+<th>容忍宕机</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>3 台</td>
+<td>1 台</td>
+<td>2 台 = 过半，正常</td>
+</tr>
+<tr>
+<td>4 台</td>
+<td>1 台</td>
+<td>3 台 = 过半正常，但 2vs2 平局时无法选主</td>
+</tr>
+<tr>
+<td>5 台</td>
+<td>2 台</td>
+<td>3 台 = 过半，正常</td>
+</tr>
+</tbody>
+</table>
+<p><strong>3 台和 4 台一样都只能挂 1 台</strong>，4 台还多了平局风险。所以<strong>奇数台省钱又安全</strong>。</p>
+<blockquote>
+<p><strong>面试话术</strong>："过半原则决定 ZK 集群推荐奇数台。3 台和 4 台的容错能力一样（都只能挂 1 台），4 台多了一台开销还有平局风险。生产上 3 台起步，规模大了上 5 台或 7 台。"</p>
+</blockquote>
+<hr />
+<h2 id="5-watcher">5. Watcher 机制——发布/订阅</h2>
+<h3 id="51">5.1 工作原理</h3>
+<p>Watcher = <strong>订阅推送，但只通知一次</strong>——每次触发后自动销毁，需要重新注册。</p>
+<pre><code>生命周期:
+  Client 注册 Watcher → getData(path, watcher)
+      ↓
+  ZNode 数据变化 → ZK Server 通知 Client
+      ↓
+  Watcher 触发 → 自动销毁（关键！）
+      ↓
+  Client 在回调中重新注册 Watcher
+</code></pre>
+<h3 id="52">5.2 三大坑</h3>
+<table>
+<thead>
+<tr>
+<th>#</th>
+<th>坑</th>
+<th>说明</th>
+<th>解决</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td><strong>一次性触发</strong></td>
+<td>触发后自动销毁，忘记重注册 = 丢事件</td>
+<td>回调里重新注册</td>
+</tr>
+<tr>
+<td>2</td>
+<td><strong>串行通知</strong></td>
+<td>同一 Client 的 Watcher 串行处理，一个慢的全堵</td>
+<td>Watcher 里不做耗时操作</td>
+</tr>
+<tr>
+<td>3</td>
+<td><strong>先通知后读</strong></td>
+<td>收到通知后去读，数据可能又变了</td>
+<td>业务层做好幂等</td>
+</tr>
+</tbody>
+</table>
+<h3 id="53">5.3 正确用法</h3>
+<pre><code class="language-java">// Watcher 正确使用：回调里重新注册
+Watcher watcher = event -&gt; {
+    if (event.getType() == EventType.NodeDataChanged) {
+        byte[] newData = zk.getData(path, false, null);
+        zk.getData(path, this, null);  // 关键：重新注册
+    }
+};
+</code></pre>
+<blockquote>
+<p><strong>面试话术</strong>："Watcher 最大坑是一次性触发——必须在回调里重新注册。生产上永远用 Curator 的 NodeCache/TreeCache，它们内部自动处理反复注册。"</p>
+</blockquote>
+<hr />
+<h2 id="6">6. 会话机制——门禁卡制度</h2>
+<h3 id="61-session">6.1 Session 生命周期</h3>
+<p>Session = ZK 给客户端的"门禁卡"，过期就自动清理临时节点。</p>
+<pre><code>流程:
+  Client 连接 → Server 分配 SessionID + Timeout
+      ↓
+  Client 定期心跳（ping）
+      ↓
+  Server 在 timeout/2 内未收到心跳 → Session 过期
+      ↓
+  该 Client 创建的临时节点全部自动删除
+      ↓
+  其他 Client 的 Watcher 收到子节点变化事件
+</code></pre>
+<h3 id="62-vs">6.2 临时节点 vs 持久节点</h3>
+<table>
+<thead>
+<tr>
+<th>类型</th>
+<th>生命周期</th>
+<th>子节点</th>
+<th>典型用途</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>临时节点</strong></td>
+<td>跟随 Session，断连自动删除</td>
+<td>不能有子节点</td>
+<td>服务注册、分布式锁</td>
+</tr>
+<tr>
+<td><strong>持久节点</strong></td>
+<td>永远存在（除非主动删）</td>
+<td>可以有</td>
+<td>配置、元数据目录</td>
+</tr>
+</tbody>
+</table>
+<blockquote>
+<p>临时节点不能有子节点：父节点断连后子节点变成"孤儿"，不可管理。</p>
+</blockquote>
+<hr />
+<h2 id="7">7. 分布式锁——公平排队的实现</h2>
+<h3 id="71">7.1 一句话实现</h3>
+<pre><code class="language-java">// Curator 一句话实现分布式锁
+InterProcessMutex lock = new InterProcessMutex(client, "/locks/order");
+
+lock.acquire();     // 获取锁（阻塞直到拿到）
+processOrder();
+lock.release();     // 释放锁
+</code></pre>
+<h3 id="72">7.2 分布式锁完整流程图</h3>
+<pre><code>
+                ZK 分布式锁 —— 公平锁原理
+    =========================================================
+
+    锁路径: /lock
+
+    ┌──────────────────────────────────────────────────────────┐
+    │                    1. 创建节点                           │
+    │                                                          │
+    │  Client A 创建 /lock/seq-0001        (临时顺序节点)       │
+    │  Client B 创建 /lock/seq-0002                           │
+    │  Client C 创建 /lock/seq-0003                           │
+    │  Client D 创建 /lock/seq-0004                           │
+    │                                                          │
+    │  /lock 的子节点 (按序号排列):                             │
+    │    seq-0001  ← 最小                                      │
+    │    seq-0002                                              │
+    │    seq-0003                                              │
+    │    seq-0004  ← 最大                                      │
+    └──────────────────────┬───────────────────────────────────┘
+                           │
+                           ▼
+    ┌──────────────────────────────────────────────────────────┐
+    │                 2. 判断是否拿锁                           │
+    │                                                          │
+    │  每个 Client 查看自己是不是序号最小的：                    │
+    │                                                          │
+    │  Client A: "我是 seq-0001，最小！" → 成功拿锁             │
+    │  Client B: "我是 seq-0002，前面还有 seq-0001"             │
+    │            → 注册 Watch 监听 seq-0001 的删除事件          │
+    │            → 进入等待                                     │
+    │  Client C: "我是 seq-0003，前面还有 seq-0002"             │
+    │            → 注册 Watch 监听 seq-0002 的删除事件          │
+    │            → 进入等待                                     │
+    │  Client D: "我是 seq-0004，前面还有 seq-0003"             │
+    │            → 注册 Watch 监听 seq-0003 的删除事件          │
+    │            → 进入等待                                     │
+    └──────────────────────┬───────────────────────────────────┘
+                           │
+                           ▼
+    ┌──────────────────────────────────────────────────────────┐
+    │                 3. 链式释放与通知                         │
+    │                                                          │
+    │  步骤 1: Client A 业务完成 → release()                   │
+    │          → 删除 /lock/seq-0001                           │
+    │          → ZK 通知 Client B (Watch 了 seq-0001)          │
+    │                                                          │
+    │  步骤 2: Client B 收到通知                               │
+    │          → 检查自己是最小？ 是 (seq-0002)                 │
+    │          → 成功拿锁，执行业务                             │
+    │                                                          │
+    │  步骤 3: Client B 业务完成 → release()                   │
+    │          → 删除 /lock/seq-0002                           │
+    │          → ZK 通知 Client C                              │
+    │                                                          │
+    │  ... 以此类推，链式传递 ...                               │
+    │                                                          │
+    └──────────────────────────────────────────────────────────┘
+
+    ┌──────────────────────────────────────────────────────────┐
+    │              异常场景：Client 崩溃                        │
+    │                                                          │
+    │  Client A 拿锁后崩溃 (未主动 release):                    │
+    │    → Session 超时                                        │
+    │    → 临时节点 seq-0001 自动删除                           │
+    │    → ZK 通知 Client B                                    │
+    │    → Client B 拿锁                                       │
+    │                                                          │
+    │  优势: 临时节点保证锁不会"死锁"                           │
+    └──────────────────────────────────────────────────────────┘
+</code></pre>
+<h3 id="73">7.3 羊群效应</h3>
+<pre><code>错误做法: 所有等待者 watch /lock 子节点变化
+  → /lock 变更 → 通知所有人 → 全部抢锁 → 惊群
+
+正确做法: 只 watch 前一个节点
+  → seq-0001 释放 → 只通知 seq-0002 → 链式通知，无惊群
+</code></pre>
+<blockquote>
+<p><strong>面试话术</strong>："ZK 分布式锁的核心：临时顺序节点 + watch 前一个节点。这保证公平性（排队拿锁）和解决羊群效应（链式通知）。这是 ZK 锁相比 Redis 锁最大的设计优势。"</p>
+</blockquote>
+<hr />
+<h2 id="8">8. 脑裂问题——过半机制根治</h2>
+<h3 id="81">8.1 什么是脑裂？</h3>
+<p>网络分区导致集群分裂成两个子集群，各自选出 Leader，互相认为对方已死。</p>
+<pre><code>脑裂场景: 5 节点集群，ZK1/2 和 ZK3/4/5 网络不通
+
+  分区 A（ZK1, ZK2）:              分区 B（ZK3, ZK4, ZK5）:
+    2 票 ＜ 3 (不过半)               3 票 ≥ 3 (过半！)
+    无法选主                         正常选出 Leader
+
+结论: 通过过半机制，两个分区不可能同时选出 Leader
+</code></pre>
+<h3 id="82-zk">8.2 ZK 的解决方案</h3>
+<table>
+<thead>
+<tr>
+<th>机制</th>
+<th>作用</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>过半选举</strong></td>
+<td>票数 &lt; N/2+1 无法当选 Leader</td>
+</tr>
+<tr>
+<td><strong>ZXID 比较</strong></td>
+<td>优先选数据最新的节点</td>
+</tr>
+<tr>
+<td><strong>Fencing Token</strong></td>
+<td>每次选举 epoch+1，旧 Leader 指令被拒绝</td>
+</tr>
+</tbody>
+</table>
+<blockquote>
+<p><strong>面试话术</strong>："ZK 靠过半选举根除脑裂——任何时刻最多只有一个分区有过半票数，不可能出现两个 Leader。代价是：如果集群只剩不到一半节点，整体不可用。这是用可用性换一致性。"</p>
+</blockquote>
+<hr />
+<h2 id="9-zk-vs-nacos">9. ZK vs Nacos——注册中心怎么选？</h2>
+<h3 id="91">9.1 功能对比</h3>
+<table>
+<thead>
+<tr>
+<th>维度</th>
+<th>Zookeeper</th>
+<th>Nacos</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>一致性</strong></td>
+<td>CP（强一致，ZAB 协议）</td>
+<td>AP 为主（也支持 CP）</td>
+</tr>
+<tr>
+<td><strong>健康检查</strong></td>
+<td>临时节点 + 会话超时</td>
+<td>心跳保活</td>
+</tr>
+<tr>
+<td><strong>大规模</strong></td>
+<td>Watch 机制大集群性能差</td>
+<td>支持百万级实例</td>
+</tr>
+<tr>
+<td><strong>功能</strong></td>
+<td>仅服务发现</td>
+<td>服务发现 + 配置中心一体化</td>
+</tr>
+</tbody>
+</table>
+<h3 id="92">9.2 架构差异</h3>
+<pre><code>ZK（CP）：
+  → Leader 挂了 → 重新选举 → 期间不可写
+  → 必须过半同意才能写
+
+Nacos（AP）：
+  → 一个节点挂了 → 其余继续工作 → 最终一致
+  → 各记各的，定期同步
+</code></pre>
+<h3 id="93">9.3 选型建议</h3>
+<pre><code>已有 ZK 且稳定       → 继续用，别为换而换
+新项目               → 直接 Nacos
+大规模集群           → Nacos（ZK Watch 性能跟不上）
+服务发现 + 配置中心  → Nacos 一体化
+</code></pre>
+<blockquote>
+<p>Nacos 的巧妙设计：<strong>AP 做服务发现</strong>（不能因选主发现不了服务），<strong>CP 做配置中心</strong>（配置绝对不能错）。同一系统对不同的数据用不同一致性策略。</p>
+</blockquote>
+<hr />
+<h2 id="10-zk-vs-redis">10. ZK vs Redis——分布式锁怎么选？</h2>
+<table>
+<thead>
+<tr>
+<th>维度</th>
+<th>ZK 锁</th>
+<th>Redis 锁</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>公平性</strong></td>
+<td>公平锁（排队拿锁）</td>
+<td>非公平锁（SETNX 抢锁）</td>
+</tr>
+<tr>
+<td><strong>自动释放</strong></td>
+<td>会话断开自动删临时节点</td>
+<td>超时自动过期</td>
+</tr>
+<tr>
+<td><strong>性能</strong></td>
+<td>低（ZAB 协议开销）</td>
+<td>高（纯内存操作）</td>
+</tr>
+<tr>
+<td><strong>可靠性</strong></td>
+<td>高（强一致）</td>
+<td>中（ap 模式，脑裂可能丢锁）</td>
+</tr>
+<tr>
+<td><strong>使用复杂度</strong></td>
+<td>简单（Curator 封装）</td>
+<td>中等（Redisson 封装）</td>
+</tr>
+</tbody>
+</table>
+<p><strong>选型决策</strong>：</p>
+<pre><code>公平性要求高、锁持有时间长  → ZK 锁 (Curator InterProcessMutex)
+高并发、短时间持锁           → Redis 锁 (Redisson)
+不能容忍锁丢失              → ZK 锁
+性能瓶颈在锁                → Redis 锁
+</code></pre>
+<hr />
+<h2 id="11-curatorzk">11. Curator——ZK 客户端最佳实践</h2>
+<h3 id="111-curator-zk">11.1 为什么用 Curator 而不是原生 ZK？</h3>
+<pre><code class="language-java">// 原生 ZK：样板代码多，Watcher 需手动重新注册
+zk.getData(path, event -&gt; {
+    zk.getData(path, this, null);  // 忘了就丢事件
+}, null);
+
+// Curator：一行搞定，内部自动重新注册
+NodeCache cache = new NodeCache(client, path);
+cache.getListenable().addListener(() -&gt; {
+    byte[] data = cache.getCurrentData().getData();
+});
+cache.start();
+</code></pre>
+<h3 id="112-curator">11.2 Curator 常用功能</h3>
+<table>
+<thead>
+<tr>
+<th>功能</th>
+<th>Curator 类</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>分布式锁</strong></td>
+<td>InterProcessMutex</td>
+<td>可重入公平锁</td>
+</tr>
+<tr>
+<td><strong>读写锁</strong></td>
+<td>InterProcessReadWriteLock</td>
+<td>读读不互斥</td>
+</tr>
+<tr>
+<td><strong>选主</strong></td>
+<td>LeaderSelector</td>
+<td>集群中选一个 Leader</td>
+</tr>
+<tr>
+<td><strong>节点监听</strong></td>
+<td>NodeCache</td>
+<td>监听单个节点变化</td>
+</tr>
+<tr>
+<td><strong>子节点监听</strong></td>
+<td>PathChildrenCache</td>
+<td>监听子节点变化</td>
+</tr>
+<tr>
+<td><strong>整树监听</strong></td>
+<td>TreeCache</td>
+<td>递归监听整棵树</td>
+</tr>
+</tbody>
+</table>
+<h3 id="113">11.3 锁的高级用法</h3>
+<pre><code class="language-java">// 带超时的获取锁
+if (lock.acquire(5, TimeUnit.SECONDS)) {
+    try {
+        processOrder();
+    } finally {
+        lock.release();  // 必须在 finally 中释放
+    }
+} else {
+    fallbackProcess();  // 超时走降级逻辑
+}
+</code></pre>
+<hr />
+<h2 id="12_1">12. 高频面试题</h2>
+<h3 id="121">12.1 基础篇</h3>
+<h4 id="1-zookeeper_1">1. Zookeeper 是什么？</h4>
+<p>分布式协调服务。解决：选主、服务注册、配置同步。核心：ZAB 协议保证强一致，树形 ZNode 存数据，Watcher 实现发布/订阅。</p>
+<h4 id="2-zk">2. ZK 的节点类型？</h4>
+<p>四种：持久节点（配置/元数据）、持久顺序节点（锁排队）、临时节点（服务注册，断连自动删）、临时顺序节点（分布式锁/选主）。记住：临时节点没有子节点，跟随 Session 生命周期。</p>
+<h4 id="3-zab_1">3. ZAB 协议的核心流程？</h4>
+<p>两阶段：Leader 选举 + 消息广播。Leader 收到写请求 → Proposal 发给 Follower → Follower 写日志后 ACK → 过半 ACK → Leader Commit → 通知 Follower Commit。过半原则是核心。</p>
+<h4 id="4-leader_1">4. Leader 选举规则？</h4>
+<p>先比 zxid（大的当选，数据最新），再比 myid（打破平局）。获得过半票数当选。推荐奇数台（3/5/7）。</p>
+<h3 id="122">12.2 进阶篇</h3>
+<h4 id="5-watcher_1">5. Watcher 有哪些坑？</h4>
+<p>三个坑：一次性触发（必须回调里重注册）、串行通知（一个慢的全堵）、先通知后读（数据可能又变了）。最佳实践：用 Curator 的 NodeCache/TreeCache。</p>
+<h4 id="6-session">6. Session 过期的影响？</h4>
+<p>该 Client 创建的所有临时节点自动删除。服务注册信息 → 服务下架；分布式锁节点 → 锁自动释放，下一个等待者拿到。</p>
+<h4 id="7-zk">7. ZK 分布式锁原理？如何解决羊群效应？</h4>
+<p>临时顺序节点 + watch 前一个节点 = 公平锁 + 链式通知。每个 Client 在 /lock 下创建临时顺序节点，序号最小的拿锁，其他 watch 前一个。释放时只通知下一个——链式传递，无惊群。</p>
+<h4 id="8-zk">8. ZK 集群脑裂怎么解决？为什么推荐奇数台？</h4>
+<p>过半选举：票数 &lt; N/2+1 不能当选。任何时刻最多一个分区有过半票数，不会出现两个 Leader。奇数台：3 台和 4 台容错一样（都只挂 1 台），4 台多了平局风险。</p>
+<h4 id="9-zk-nacos">9. ZK 和 Nacos 的区别？</h4>
+<p>ZK 是 CP（强一致，选主期间不可用），Nacos 是 AP（最终一致，高可用）。新项目推荐 Nacos：服务发现用 AP，配置中心用 CP，一套系统两套一致性策略。</p>
+<h4 id="10-zk-redis">10. ZK 锁 vs Redis 锁？</h4>
+<p>ZK 锁是公平锁（排队拿锁，靠临时顺序节点），Redis 锁是非公平锁（SETNX 抢锁）。ZK 锁更可靠（会话断连自动释放），性能较低。公平性要求高、锁持有时间长 → ZK；高并发、短持锁 → Redis。</p>
+<h3 id="123">12.3 源码篇</h3>
+<h4 id="11-zk">11. ZK 为什么不适合大规模服务注册？</h4>
+<p>Watch 机制在大集群下性能差。每有 Provider 上下线，ZK 触发所有订阅者的 Watcher。1000 服务 x 1000 实例 = 百万级推送风暴。Nacos 用 Pull + 长轮询避免此问题。</p>
+<h4 id="12-curator-interprocessmutex">12. InterProcessMutex 底层实现？</h4>
+<p>在 /locks/lock-name 下创建临时顺序节点，检查自己是否最小：是 → 拿锁；不是 → watch 前一个节点。前一个释放（删除）时，ZK 通知它 → 再检查自己是否最小 → 是则拿锁。</p>
+<h4 id="13-zk_1">13. 如何保证 ZK 分布式锁可重入？</h4>
+<p>Curator InterProcessMutex 用 ConcurrentHashMap 记录当前线程锁持有次数。同一线程多次 acquire() 不阻塞，需同样次数 release() 才真正释放。务必在 finally 里调用 release()。</p>
+<blockquote>
+<p><strong>总结</strong>：Zookeeper 面试核心四块——<strong>ZAB 协议</strong>（过半原则 + Leader 选举）、<strong>数据模型</strong>（持久/临时/顺序节点 + Session）、<strong>Watcher 机制</strong>（一次性触发 + Curator 最佳实践）、<strong>分布式锁</strong>（临时顺序节点 + 公平锁 + 避免羊群效应）。理解这四块，面试稳了。</p>
+</blockquote>
+
+<script>
+// Scroll spy — highlight active sidebar item
+window.addEventListener('scroll', function() {
+    var links = document.querySelectorAll('.sidebar-toc a');
+    var scrollY = window.scrollY + 120;
+    var current = '';
+    for (var i = links.length - 1; i >= 0; i--) {
+        var target = document.getElementById(links[i].getAttribute('href').slice(1));
+        if (target && target.offsetTop <= scrollY) {
+            current = links[i];
+            break;
+        }
+    }
+    links.forEach(function(a) { a.style.fontWeight = 'normal'; a.style.color = '#555'; });
+    if (current) { current.style.fontWeight = 'bold'; current.style.color = '#0366d6'; }
+});
+</script>
+
+
+<script>
+document.querySelectorAll('pre > code').forEach(function(codeBlock, i) {
+    var pre = codeBlock.parentNode;
+    pre.style.position = 'relative';
+    var btn = document.createElement('button');
+    btn.className = 'copy-btn';
+    btn.textContent = '复制';
+    pre.appendChild(btn);
+    btn.addEventListener('click', function() {
+        var text = codeBlock.textContent;
+        navigator.clipboard.writeText(text).then(function() {
+            btn.textContent = '已复制';
+            btn.classList.add('copied');
+            setTimeout(function() {
+                btn.textContent = '复制';
+                btn.classList.remove('copied');
+            }, 2000);
+        }).catch(function() {
+            // Fallback
+            var ta = document.createElement('textarea');
+            ta.value = text; ta.style.position = 'fixed'; ta.style.opacity = '0';
+            document.body.appendChild(ta); ta.select();
+            document.execCommand('copy'); document.body.removeChild(ta);
+            btn.textContent = '已复制'; btn.classList.add('copied');
+            setTimeout(function() { btn.textContent = '复制'; btn.classList.remove('copied'); }, 2000);
+        });
+    });
+});
+</script>
+
+
+<script>document.querySelectorAll("pre>code").forEach(function(c){var p=c.parentNode;p.style.position="relative";var b=document.createElement("button");b.className="copy-btn";b.textContent="复制";p.appendChild(b);b.addEventListener("click",function(){var t=c.textContent;navigator.clipboard.writeText(t).then(function(){b.textContent="已复制";b.classList.add("copied");setTimeout(function(){b.textContent="复制";b.classList.remove("copied")},2000)}).catch(function(){var a=document.createElement("textarea");a.value=t;a.style.position="fixed";a.style.opacity="0";document.body.appendChild(a);a.select();document.execCommand("copy");document.body.removeChild(a);b.textContent="已复制";b.classList.add("copied");setTimeout(function(){b.textContent="复制";b.classList.remove("copied")},2000)})})})</script>
+</body>
+</html>

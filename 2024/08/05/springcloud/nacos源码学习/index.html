@@ -1,0 +1,577 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 5.4.2">
+  <link rel="apple-touch-icon" sizes="180x180" href="/blog/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/blog/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/blog/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/blog/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/blog/css/main.css">
+
+
+<link rel="stylesheet" href="/blog/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"ruoxixiruo.github.io","root":"/blog/","scheme":"Gemini","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":true,"show_result":true,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":true},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}};
+  </script>
+
+  <meta name="description" content="1，Nacos 源码模块总览Nacos 源码采用多模块 Maven 项目结构，核心模块如下： 1234567891011121314151617nacos&#x2F;├── address&#x2F;          # 地址模块（集群节点发现）├── api&#x2F;              # API 接口定义├── auth&#x2F;             # 鉴权模块├── client&#x2F;           # ★">
+<meta property="og:type" content="article">
+<meta property="og:title" content="nacos源码学习">
+<meta property="og:url" content="https://ruoxixiruo.github.io/blog/2024/08/05/springcloud/nacos%E6%BA%90%E7%A0%81%E5%AD%A6%E4%B9%A0/index.html">
+<meta property="og:site_name" content="RUOXI-BLOG">
+<meta property="og:description" content="1，Nacos 源码模块总览Nacos 源码采用多模块 Maven 项目结构，核心模块如下： 1234567891011121314151617nacos&#x2F;├── address&#x2F;          # 地址模块（集群节点发现）├── api&#x2F;              # API 接口定义├── auth&#x2F;             # 鉴权模块├── client&#x2F;           # ★">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2024-08-05T10:00:00.000Z">
+<meta property="article:modified_time" content="2026-07-22T02:51:55.000Z">
+<meta property="article:author" content="ruoxi">
+<meta property="article:tag" content="java">
+<meta property="article:tag" content="源码">
+<meta property="article:tag" content="nacos">
+<meta name="twitter:card" content="summary">
+
+<link rel="canonical" href="https://ruoxixiruo.github.io/blog/2024/08/05/springcloud/nacos%E6%BA%90%E7%A0%81%E5%AD%A6%E4%B9%A0/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+
+  <title>nacos源码学习 | RUOXI-BLOG</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/blog/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">RUOXI-BLOG</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/blog/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/blog/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/blog/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/blog/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a>
+
+  </li>
+        <li class="menu-item menu-item-posts">
+
+    <a href="/blog/posts/" rel="section"><i class="fa fa-rss fa-fw"></i>posts</a>
+
+  </li>
+  </ul>
+</nav>
+
+
+
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+  <div class="reading-progress-bar"></div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://ruoxixiruo.github.io/blog/2024/08/05/springcloud/nacos%E6%BA%90%E7%A0%81%E5%AD%A6%E4%B9%A0/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/blog/images/avatar.gif">
+      <meta itemprop="name" content="ruoxi">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="RUOXI-BLOG">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          nacos源码学习
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2024-08-05 10:00:00" itemprop="dateCreated datePublished" datetime="2024-08-05T10:00:00+00:00">2024-08-05</time>
+            </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/blog/categories/java/" itemprop="url" rel="index"><span itemprop="name">java</span></a>
+                </span>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <h5 id="1，Nacos-源码模块总览"><a href="#1，Nacos-源码模块总览" class="headerlink" title="1，Nacos 源码模块总览"></a>1，Nacos 源码模块总览</h5><p>Nacos 源码采用多模块 Maven 项目结构，核心模块如下：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line">nacos/</span><br><span class="line">├── address/          <span class="comment"># 地址模块（集群节点发现）</span></span><br><span class="line">├── api/              <span class="comment"># API 接口定义</span></span><br><span class="line">├── auth/             <span class="comment"># 鉴权模块</span></span><br><span class="line">├── client/           <span class="comment"># ★ Nacos 客户端（SDK）</span></span><br><span class="line">├── cmdb/             <span class="comment"># CMDB 对接</span></span><br><span class="line">├── common/           <span class="comment"># 公共工具（通知、SPI 等）</span></span><br><span class="line">├── config/           <span class="comment"># ★★ 配置中心核心</span></span><br><span class="line">├── consistency/      <span class="comment"># ★ 一致性协议（Raft / Distro）</span></span><br><span class="line">├── console/          <span class="comment"># Web 控制台后端</span></span><br><span class="line">├── core/             <span class="comment"># ★ 核心（集群管理、远程调用等）</span></span><br><span class="line">├── istio/            <span class="comment"># Istio 集成</span></span><br><span class="line">├── naming/           <span class="comment"># ★★ 服务发现核心</span></span><br><span class="line">├── persistence/      <span class="comment"># 持久化层</span></span><br><span class="line">├── plugin/           <span class="comment"># 插件</span></span><br><span class="line">├── sys/              <span class="comment"># 系统工具</span></span><br><span class="line">└── <span class="built_in">test</span>/             <span class="comment"># 测试</span></span><br></pre></td></tr></table></figure>
+
+<span id="more"></span>
+
+<h5 id="2，整体架构"><a href="#2，整体架构" class="headerlink" title="2，整体架构"></a>2，整体架构</h5><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line">┌──────────────────────────────────────────────────┐</span><br><span class="line">│                  Nacos Server                      │</span><br><span class="line">│                                                    │</span><br><span class="line">│  ┌──────────────┐  ┌──────────────────────────┐   │</span><br><span class="line">│  │ naming 模块   │  │     config 模块           │   │</span><br><span class="line">│  │ (服务发现)     │  │     (配置管理)            │   │</span><br><span class="line">│  ├──────────────┤  ├──────────────────────────┤   │</span><br><span class="line">│  │ InstanceCtrl  │  │ ConfigController         │   │</span><br><span class="line">│  │ ServiceManager │  │ CacheConfigService       │   │</span><br><span class="line">│  │ ClientManager  │  │ LongPollingService       │   │</span><br><span class="line">│  ├──────────────┤  ├──────────────────────────┤   │</span><br><span class="line">│  │ consistency  │  │ persistence              │   │</span><br><span class="line">│  │ (一致性协议)   │  │ (持久化)                  │   │</span><br><span class="line">│  └──────────────┘  └──────────────────────────┘   │</span><br><span class="line">│                                                    │</span><br><span class="line">│  ┌────────────────────────────────────────────┐   │</span><br><span class="line">│  │              core 模块                       │   │</span><br><span class="line">│  │  (集群管理 / 远程调用 / 通知广播)             │   │</span><br><span class="line">│  └────────────────────────────────────────────┘   │</span><br><span class="line">└──────────────────────────────────────────────────┘</span><br></pre></td></tr></table></figure>
+
+<h5 id="3，SPI-机制-——-Nacos-的扩展基础"><a href="#3，SPI-机制-——-Nacos-的扩展基础" class="headerlink" title="3，SPI 机制 —— Nacos 的扩展基础"></a>3，SPI 机制 —— Nacos 的扩展基础</h5><p>Nacos 大量使用 SPI（Service Provider Interface）实现可插拔架构。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// ============ Nacos SPI 加载机制 ============</span></span><br><span class="line"></span><br><span class="line"><span class="comment">// 1. 定义 SPI 接口</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">interface</span> <span class="title class_">ConsistencyService</span> &#123;</span><br><span class="line">    <span class="keyword">void</span> <span class="title function_">put</span><span class="params">(String key, Object value)</span> <span class="keyword">throws</span> NacosException;</span><br><span class="line">    Object <span class="title function_">get</span><span class="params">(String key)</span> <span class="keyword">throws</span> NacosException;</span><br><span class="line">    <span class="keyword">void</span> <span class="title function_">remove</span><span class="params">(String key)</span> <span class="keyword">throws</span> NacosException;</span><br><span class="line">    <span class="keyword">void</span> <span class="title function_">listen</span><span class="params">(String key, RecordListener listener)</span> <span class="keyword">throws</span> NacosException;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 2. 在 META-INF/services/ 下创建接口全限定名的文件</span></span><br><span class="line"><span class="comment">//    文件内容为实现类的全限定名</span></span><br><span class="line"></span><br><span class="line"><span class="comment">// 3. Nacos 自定义的 SPI 加载器</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">NacosServiceLoader</span> &#123;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> &lt;T&gt; Collection&lt;T&gt; <span class="title function_">load</span><span class="params">(Class&lt;T&gt; clazz)</span> &#123;</span><br><span class="line">        ServiceLoader&lt;T&gt; loader = ServiceLoader.load(clazz);</span><br><span class="line">        List&lt;T&gt; result = <span class="keyword">new</span> <span class="title class_">ArrayList</span>&lt;&gt;();</span><br><span class="line">        <span class="keyword">for</span> (T instance : loader) &#123;</span><br><span class="line">            result.add(instance);</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> result;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// SPI 的应用：</span></span><br><span class="line"><span class="comment">// - 一致性协议切换（AP → Distro，CP → Raft）</span></span><br><span class="line"><span class="comment">// - 持久化切换（Derby → MySQL）</span></span><br><span class="line"><span class="comment">// - 健康检查协议切换</span></span><br><span class="line"><span class="comment">// - 地址发现切换</span></span><br></pre></td></tr></table></figure>
+
+<h5 id="4，启动流程源码"><a href="#4，启动流程源码" class="headerlink" title="4，启动流程源码"></a>4，启动流程源码</h5><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// ============ Nacos 启动入口 ============</span></span><br><span class="line"></span><br><span class="line"><span class="comment">// Nacos.java（com.alibaba.nacos.Nacos）</span></span><br><span class="line"><span class="meta">@SpringBootApplication</span></span><br><span class="line"><span class="meta">@EnableScheduling</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">Nacos</span> &#123;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title function_">main</span><span class="params">(String[] args)</span> &#123;</span><br><span class="line">        <span class="comment">// ★ 1. 通过 StandaloneMemberEventMaker 判断单机/集群模式</span></span><br><span class="line">        <span class="comment">//    如果启动参数含有 -m standalone，设置单机模式标识</span></span><br><span class="line"></span><br><span class="line">        <span class="comment">// ★ 2. 初始化配置</span></span><br><span class="line">        <span class="comment">//    加载 application.properties</span></span><br><span class="line">        <span class="comment">//    初始化数据源（Derby 或 MySQL）</span></span><br><span class="line">        <span class="comment">//    初始化集群信息（cluster.conf）</span></span><br><span class="line"></span><br><span class="line">        SpringApplication.run(Nacos.class, args);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// ============ 启动后初始化 ============</span></span><br><span class="line"></span><br><span class="line"><span class="comment">// Nacos 在 Spring 容器启动后，</span></span><br><span class="line"><span class="comment">// 通过 @PostConstruct 或 ApplicationRunner 执行初始化逻辑</span></span><br><span class="line"></span><br><span class="line"><span class="comment">// 关键初始化顺序：</span></span><br><span class="line"><span class="comment">// 1. 初始化 Notifier（通知器）</span></span><br><span class="line"><span class="comment">// 2. 初始化 ClusterRpcClientProxy（集群 RPC 客户端）</span></span><br><span class="line"><span class="comment">// 3. 初始化一致性协议（JRaft / Distro）</span></span><br><span class="line"><span class="comment">// 4. 加载持久化数据到内存</span></span><br><span class="line"><span class="comment">// 5. 注册健康检查</span></span><br><span class="line"><span class="comment">// 6. 开启定时任务（心跳检测、数据清理等）</span></span><br></pre></td></tr></table></figure>
+
+<h5 id="5，服务注册源码（Server-端）"><a href="#5，服务注册源码（Server-端）" class="headerlink" title="5，服务注册源码（Server 端）"></a>5，服务注册源码（Server 端）</h5><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// ============ InstanceController —— 服务注册入口 ============</span></span><br><span class="line"></span><br><span class="line"><span class="meta">@RestController</span></span><br><span class="line"><span class="meta">@RequestMapping(&quot;/v1/ns&quot;)</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">InstanceController</span> &#123;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Autowired</span></span><br><span class="line">    <span class="keyword">private</span> ServiceManager serviceManager;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// ★ POST /v1/ns/instance —— 服务注册</span></span><br><span class="line">    <span class="meta">@PutMapping(&quot;/instance&quot;)</span></span><br><span class="line">    <span class="keyword">public</span> String <span class="title function_">register</span><span class="params">(HttpServletRequest request)</span> <span class="keyword">throws</span> Exception &#123;</span><br><span class="line"></span><br><span class="line">        <span class="comment">// 1. 解析请求参数</span></span><br><span class="line">        <span class="type">String</span> <span class="variable">namespaceId</span> <span class="operator">=</span> WebUtils.optional(request, <span class="string">&quot;namespaceId&quot;</span>, Constants.DEFAULT_NAMESPACE_ID);</span><br><span class="line">        <span class="type">String</span> <span class="variable">serviceName</span> <span class="operator">=</span> WebUtils.required(request, <span class="string">&quot;serviceName&quot;</span>);</span><br><span class="line">        <span class="type">String</span> <span class="variable">groupName</span> <span class="operator">=</span> WebUtils.optional(request, <span class="string">&quot;groupName&quot;</span>, Constants.DEFAULT_GROUP);</span><br><span class="line">        <span class="type">String</span> <span class="variable">ip</span> <span class="operator">=</span> WebUtils.required(request, <span class="string">&quot;ip&quot;</span>);</span><br><span class="line">        <span class="type">int</span> <span class="variable">port</span> <span class="operator">=</span> Integer.parseInt(WebUtils.required(request, <span class="string">&quot;port&quot;</span>));</span><br><span class="line">        <span class="type">boolean</span> <span class="variable">ephemeral</span> <span class="operator">=</span> Boolean.parseBoolean(WebUtils.optional(request, <span class="string">&quot;ephemeral&quot;</span>, <span class="string">&quot;true&quot;</span>));</span><br><span class="line"></span><br><span class="line">        <span class="comment">// 2. 构造 Instance</span></span><br><span class="line">        <span class="type">Instance</span> <span class="variable">instance</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">Instance</span>();</span><br><span class="line">        instance.setIp(ip);</span><br><span class="line">        instance.setPort(port);</span><br><span class="line">        instance.setWeight(Double.parseDouble(WebUtils.optional(request, <span class="string">&quot;weight&quot;</span>, <span class="string">&quot;1.0&quot;</span>)));</span><br><span class="line">        instance.setClusterName(WebUtils.optional(request, <span class="string">&quot;clusterName&quot;</span>, <span class="string">&quot;DEFAULT&quot;</span>));</span><br><span class="line">        instance.setEphemeral(ephemeral);</span><br><span class="line">        instance.setMetadata(parseMetadata(request));</span><br><span class="line"></span><br><span class="line">        <span class="comment">// 3. ★★★ 核心：调用 ServiceManager 注册</span></span><br><span class="line">        serviceManager.registerInstance(namespaceId, serviceName, groupName, instance);</span><br><span class="line"></span><br><span class="line">        <span class="keyword">return</span> <span class="string">&quot;ok&quot;</span>;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// ============ ServiceManager —— 服务管理核心 ============</span></span><br><span class="line"></span><br><span class="line"><span class="meta">@Component</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">ServiceManager</span> <span class="keyword">implements</span> <span class="title class_">RecordListener</span>&lt;Service&gt; &#123;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// ★ 内存中的服务注册表：Namespace → Group::ServiceName → Service</span></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">final</span> ConcurrentHashMap&lt;String, Map&lt;String, Service&gt;&gt; serviceMap =</span><br><span class="line">        <span class="keyword">new</span> <span class="title class_">ConcurrentHashMap</span>&lt;&gt;();</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">registerInstance</span><span class="params">(String namespaceId, String serviceName,</span></span><br><span class="line"><span class="params">                                  String groupName, Instance instance)</span> <span class="keyword">throws</span> NacosException &#123;</span><br><span class="line">        <span class="comment">// ★ 1. 创建或获取 Namespace 的服务注册表</span></span><br><span class="line">        Map&lt;String, Service&gt; namespaceServices =</span><br><span class="line">            serviceMap.computeIfAbsent(namespaceId, k -&gt; <span class="keyword">new</span> <span class="title class_">ConcurrentHashMap</span>&lt;&gt;());</span><br><span class="line"></span><br><span class="line">        <span class="comment">// ★ 2. 创建或获取 Service 对象</span></span><br><span class="line">        <span class="comment">//    Service 内部维护一个 Cluster → Instance 列表的映射</span></span><br><span class="line">        <span class="type">String</span> <span class="variable">groupServiceName</span> <span class="operator">=</span> groupName + <span class="string">&quot;@@&quot;</span> + serviceName;</span><br><span class="line">        <span class="type">Service</span> <span class="variable">service</span> <span class="operator">=</span> namespaceServices.computeIfAbsent(</span><br><span class="line">            groupServiceName,</span><br><span class="line">            key -&gt; <span class="keyword">new</span> <span class="title class_">Service</span>(groupServiceName)</span><br><span class="line">        );</span><br><span class="line"></span><br><span class="line">        <span class="comment">// ★ 3. 将 Instance 添加到 Service 中</span></span><br><span class="line">        addInstance(namespaceId, serviceName, service, instance);</span><br><span class="line"></span><br><span class="line">        <span class="comment">// ★ 4. 根据实例类型选择一致性协议</span></span><br><span class="line">        <span class="keyword">if</span> (instance.isEphemeral()) &#123;</span><br><span class="line">            <span class="comment">// ★ 临时实例 → Distro 协议（AP）</span></span><br><span class="line">            <span class="comment">//    异步同步到集群其他节点</span></span><br><span class="line">            distroConsistencyService.put(key, instances);</span><br><span class="line">        &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">            <span class="comment">// ★ 持久化实例 → Raft 协议（CP）</span></span><br><span class="line">            <span class="comment">//    通过 Raft 日志复制到集群其他节点</span></span><br><span class="line">            raftConsistencyService.put(key, instances);</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="comment">// ★ 5. 通知订阅者（UDP / gRPC）</span></span><br><span class="line">        notifySubscribers(service, instances);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// ============ 添加实例 ============</span></span><br><span class="line"></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">void</span> <span class="title function_">addInstance</span><span class="params">(String namespaceId, String serviceName,</span></span><br><span class="line"><span class="params">                              Service service, Instance instance)</span> &#123;</span><br><span class="line">        <span class="comment">// 1. 获取或创建 Cluster</span></span><br><span class="line">        Map&lt;String, Cluster&gt; clusterMap = service.getClusterMap();</span><br><span class="line">        <span class="type">String</span> <span class="variable">clusterName</span> <span class="operator">=</span> instance.getClusterName();</span><br><span class="line">        <span class="type">Cluster</span> <span class="variable">cluster</span> <span class="operator">=</span> clusterMap.computeIfAbsent(</span><br><span class="line">            clusterName, key -&gt; <span class="keyword">new</span> <span class="title class_">Cluster</span>(clusterName, service));</span><br><span class="line"></span><br><span class="line">        <span class="comment">// 2. ★ 更新或添加 Instance（基于 ip:port 去重）</span></span><br><span class="line">        List&lt;Instance&gt; instances = cluster.allIPs();</span><br><span class="line">        <span class="type">int</span> <span class="variable">index</span> <span class="operator">=</span> instances.indexOf(instance);</span><br><span class="line">        <span class="keyword">if</span> (index &gt;= <span class="number">0</span>) &#123;</span><br><span class="line">            <span class="comment">// 已存在：更新</span></span><br><span class="line">            instances.set(index, instance);</span><br><span class="line">        &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">            <span class="comment">// 新实例：添加</span></span><br><span class="line">            instances.add(instance);</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="comment">// 3. 如果启用了 CMDB，同时更新 CMDB 数据</span></span><br><span class="line"></span><br><span class="line">        <span class="comment">// 4. ★ 发布 ServiceChangeEvent</span></span><br><span class="line">        NotifyCenter.publishEvent(</span><br><span class="line">            <span class="keyword">new</span> <span class="title class_">ServiceChangeEvent</span>(instance.getClusterName(), instance));</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h5 id="6，心跳处理源码"><a href="#6，心跳处理源码" class="headerlink" title="6，心跳处理源码"></a>6，心跳处理源码</h5><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// ============ 客户端心跳发送（nacos-client）============</span></span><br><span class="line"></span><br><span class="line"><span class="comment">// BeatReactor —— 心跳引擎</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">BeatReactor</span> <span class="keyword">implements</span> <span class="title class_">Closeable</span> &#123;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">final</span> ScheduledExecutorService executorService;</span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">final</span> NamingProxy serverProxy;</span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">final</span> Map&lt;String, BeatInfo&gt; dom2Beat = <span class="keyword">new</span> <span class="title class_">ConcurrentHashMap</span>&lt;&gt;();</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="title function_">BeatReactor</span><span class="params">(NamingProxy serverProxy, <span class="type">int</span> threadCount)</span> &#123;</span><br><span class="line">        <span class="built_in">this</span>.serverProxy = serverProxy;</span><br><span class="line">        <span class="built_in">this</span>.executorService = <span class="keyword">new</span> <span class="title class_">ScheduledThreadPoolExecutor</span>(</span><br><span class="line">            threadCount,</span><br><span class="line">            r -&gt; <span class="keyword">new</span> <span class="title class_">Thread</span>(r, <span class="string">&quot;com.alibaba.nacos.naming.beat.sender&quot;</span>)</span><br><span class="line">        );</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">addBeatInfo</span><span class="params">(String groupName, String serviceName, BeatInfo beatInfo)</span> &#123;</span><br><span class="line">        <span class="type">String</span> <span class="variable">key</span> <span class="operator">=</span> buildKey(groupName, serviceName, beatInfo.getIp(), beatInfo.getPort());</span><br><span class="line">        dom2Beat.put(key, beatInfo);</span><br><span class="line"></span><br><span class="line">        <span class="comment">// ★ 定时发送心跳</span></span><br><span class="line">        executorService.scheduleAtFixedRate(</span><br><span class="line">            <span class="keyword">new</span> <span class="title class_">BeatTask</span>(beatInfo),</span><br><span class="line">            beatInfo.getPeriod(),    <span class="comment">// 默认 5000ms</span></span><br><span class="line">            beatInfo.getPeriod(),</span><br><span class="line">            TimeUnit.MILLISECONDS</span><br><span class="line">        );</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">class</span> <span class="title class_">BeatTask</span> <span class="keyword">implements</span> <span class="title class_">Runnable</span> &#123;</span><br><span class="line">        <span class="meta">@Override</span></span><br><span class="line">        <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">run</span><span class="params">()</span> &#123;</span><br><span class="line">            <span class="keyword">if</span> (beatInfo.isStopped()) <span class="keyword">return</span>;</span><br><span class="line"></span><br><span class="line">            <span class="keyword">try</span> &#123;</span><br><span class="line">                <span class="comment">// ★ 发送 HTTP 请求到 Nacos Server</span></span><br><span class="line">                <span class="comment">//    PUT /nacos/v1/ns/instance/beat</span></span><br><span class="line">                <span class="type">JsonNode</span> <span class="variable">result</span> <span class="operator">=</span> serverProxy.sendBeat(beatInfo);</span><br><span class="line"></span><br><span class="line">                <span class="comment">// ★ 服务端返回下次心跳间隔（可动态调整）</span></span><br><span class="line">                <span class="type">long</span> <span class="variable">clientBeatInterval</span> <span class="operator">=</span> result.get(<span class="string">&quot;clientBeatInterval&quot;</span>).asLong();</span><br><span class="line">                beatInfo.setPeriod(clientBeatInterval);</span><br><span class="line"></span><br><span class="line">                <span class="comment">// 检查服务端是否要求停止心跳（如实例被强制下线）</span></span><br><span class="line">                <span class="type">boolean</span> <span class="variable">lightBeatEnabled</span> <span class="operator">=</span> result.get(<span class="string">&quot;lightBeatEnabled&quot;</span>).asBoolean();</span><br><span class="line">                <span class="keyword">if</span> (!lightBeatEnabled) &#123;</span><br><span class="line">                    beatInfo.setStopped(<span class="literal">true</span>);</span><br><span class="line">                &#125;</span><br><span class="line">            &#125; <span class="keyword">catch</span> (Exception e) &#123;</span><br><span class="line">                log.warn(<span class="string">&quot;心跳发送失败&quot;</span>, e);</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// ============ 服务端心跳处理 ============</span></span><br><span class="line"></span><br><span class="line"><span class="comment">// InstanceController —— 处理心跳请求</span></span><br><span class="line"><span class="meta">@RestController</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">InstanceController</span> &#123;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@PutMapping(&quot;/beat&quot;)</span></span><br><span class="line">    <span class="keyword">public</span> ObjectNode <span class="title function_">beat</span><span class="params">(HttpServletRequest request)</span> &#123;</span><br><span class="line">        <span class="comment">// 1. 解析参数</span></span><br><span class="line">        <span class="type">String</span> <span class="variable">serviceName</span> <span class="operator">=</span> request.getParameter(<span class="string">&quot;serviceName&quot;</span>);</span><br><span class="line">        <span class="type">String</span> <span class="variable">ip</span> <span class="operator">=</span> request.getParameter(<span class="string">&quot;ip&quot;</span>);</span><br><span class="line">        <span class="type">int</span> <span class="variable">port</span> <span class="operator">=</span> Integer.parseInt(request.getParameter(<span class="string">&quot;port&quot;</span>));</span><br><span class="line">        <span class="type">String</span> <span class="variable">beat</span> <span class="operator">=</span> request.getParameter(<span class="string">&quot;beat&quot;</span>);</span><br><span class="line"></span><br><span class="line">        <span class="comment">// 2. ★ 调用 ClientManager 处理心跳</span></span><br><span class="line">        <span class="type">Client</span> <span class="variable">client</span> <span class="operator">=</span> clientManager.getClient(ip + <span class="string">&quot;:&quot;</span> + port);</span><br><span class="line">        <span class="keyword">if</span> (client == <span class="literal">null</span>) &#123;</span><br><span class="line">            <span class="comment">// 客户端不存在，创建 Client 并注册</span></span><br><span class="line">            client = <span class="keyword">new</span> <span class="title class_">IpPortBasedClient</span>(ip + <span class="string">&quot;:&quot;</span> + port, <span class="literal">true</span>);</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="comment">// 3. ★ 更新心跳时间</span></span><br><span class="line">        client.setLastUpdatedTime(System.currentTimeMillis());</span><br><span class="line"></span><br><span class="line">        <span class="keyword">if</span> (!clientServiceInstances.contains(serviceName)) &#123;</span><br><span class="line">            <span class="comment">// 4. 为该客户端注册服务实例映射</span></span><br><span class="line">            clientServiceInstances.add(serviceName);</span><br><span class="line">            <span class="type">Service</span> <span class="variable">service</span> <span class="operator">=</span> serviceManager.getService(namespaceId, serviceName);</span><br><span class="line">            service.init();  <span class="comment">// 触发健康检查</span></span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="comment">// 5. ★ 返回响应（含下次心跳间隔）</span></span><br><span class="line">        <span class="type">ObjectNode</span> <span class="variable">result</span> <span class="operator">=</span> JacksonUtils.createEmptyJsonNode();</span><br><span class="line">        result.put(<span class="string">&quot;clientBeatInterval&quot;</span>, switchDomain.getClientBeatInterval()); <span class="comment">// 默认 5000</span></span><br><span class="line">        result.put(<span class="string">&quot;lightBeatEnabled&quot;</span>, <span class="literal">true</span>);</span><br><span class="line">        <span class="keyword">return</span> result;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// ============ 服务端健康检查（定时任务）============</span></span><br><span class="line"></span><br><span class="line"><span class="comment">// ClientBeatCheckTask —— 服务端定时检查过期心跳</span></span><br><span class="line"><span class="meta">@Component</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">ClientBeatCheckTask</span> <span class="keyword">implements</span> <span class="title class_">Runnable</span> &#123;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">run</span><span class="params">()</span> &#123;</span><br><span class="line">        <span class="keyword">for</span> (Client client : clientManager.allClients()) &#123;</span><br><span class="line">            <span class="comment">// ★ 如果上次心跳时间超过过期阈值（默认 15 秒）</span></span><br><span class="line">            <span class="comment">//    标记实例为不健康</span></span><br><span class="line">            <span class="keyword">if</span> (System.currentTimeMillis() - client.getLastUpdatedTime()</span><br><span class="line">                    &gt; switchDomain.getClientExpiredTime()) &#123;</span><br><span class="line"></span><br><span class="line">                <span class="comment">// 通过 Nacos 集群广播 —— 该实例不健康</span></span><br><span class="line">                NotifyCenter.publishEvent(</span><br><span class="line">                    <span class="keyword">new</span> <span class="title class_">ClientBeatChangeEvent</span>(client, <span class="literal">false</span>));</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// ★ 如果到剔除阈值（默认 30 秒），从 ServiceManager 中移除实例</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h5 id="7，Distro-协议源码分析（AP-模式）"><a href="#7，Distro-协议源码分析（AP-模式）" class="headerlink" title="7，Distro 协议源码分析（AP 模式）"></a>7，Distro 协议源码分析（AP 模式）</h5><p>Distro 是 Nacos 自研的 AP 一致性协议，用于临时实例的服务数据同步。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// ============ Distro 协议核心流程 ============</span></span><br><span class="line"></span><br><span class="line"><span class="comment">// 1. 每个服务归属于某个节点（Owner）</span></span><br><span class="line"><span class="comment">// 2. 注册请求发送到任意节点</span></span><br><span class="line"><span class="comment">// 3. 如果不是 Owner，转发给 Owner</span></span><br><span class="line"><span class="comment">// 4. Owner 写本地，异步同步给其他节点</span></span><br><span class="line"></span><br><span class="line"><span class="comment">// ============ Distro 数据分片 ============</span></span><br><span class="line"></span><br><span class="line"><span class="comment">// DistroMapper —— 负责将服务路由到特定节点</span></span><br><span class="line"><span class="meta">@Component</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">DistroMapper</span> &#123;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// ★ 一致性 Hash 环 —— 确定每个服务属于哪个节点</span></span><br><span class="line">    <span class="keyword">private</span> List&lt;String&gt; healthyList = <span class="keyword">new</span> <span class="title class_">ArrayList</span>&lt;&gt;();</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 判断该服务是否属于本节点</span></span><br><span class="line">    <span class="keyword">public</span> <span class="type">boolean</span> <span class="title function_">responsible</span><span class="params">(String serviceName)</span> &#123;</span><br><span class="line">        <span class="keyword">if</span> (healthyList.isEmpty()) <span class="keyword">return</span> <span class="literal">true</span>;</span><br><span class="line"></span><br><span class="line">        <span class="comment">// ★ 一致性 Hash：将服务名映射到节点</span></span><br><span class="line">        <span class="type">int</span> <span class="variable">index</span> <span class="operator">=</span> distroHash(serviceName) % healthyList.size();</span><br><span class="line">        <span class="type">String</span> <span class="variable">target</span> <span class="operator">=</span> healthyList.get(index);</span><br><span class="line"></span><br><span class="line">        <span class="comment">// 是否为本节点</span></span><br><span class="line">        <span class="keyword">return</span> target.equals(memberManager.getSelf().getAddress());</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// ============ Distro 数据同步 ============</span></span><br><span class="line"></span><br><span class="line"><span class="comment">// DistroProtocol —— Distro 协议入口</span></span><br><span class="line"><span class="meta">@Component</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">DistroProtocol</span> &#123;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// ★ 同步数据到集群所有节点（主动推送）</span></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">sync</span><span class="params">(DistroKey distroKey, DataOperation action, <span class="type">long</span> delay)</span> &#123;</span><br><span class="line">        <span class="keyword">for</span> (Member member : memberManager.allMembers()) &#123;</span><br><span class="line">            <span class="keyword">if</span> (member.equals(memberManager.getSelf())) <span class="keyword">continue</span>;  <span class="comment">// 跳过自己</span></span><br><span class="line"></span><br><span class="line">            <span class="comment">// 构造同步任务</span></span><br><span class="line">            <span class="type">DistroDelayTask</span> <span class="variable">task</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">DistroDelayTask</span>(member, distroKey, action);</span><br><span class="line"></span><br><span class="line">            <span class="comment">// 延迟执行（减少突发同步）</span></span><br><span class="line">            GlobalExecutor.submitDistroTask(task, delay);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// ★ 接收其他节点同步过来的数据</span></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">onReceive</span><span class="params">(DistroData distroData)</span> &#123;</span><br><span class="line">        <span class="comment">// 1. 反序列化数据</span></span><br><span class="line">        <span class="comment">// 2. 写入本地 ServiceManager</span></span><br><span class="line">        <span class="comment">// 3. 通知订阅者</span></span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 同步类型：</span></span><br><span class="line"><span class="comment">// ADD    —— 新增实例</span></span><br><span class="line"><span class="comment">// CHANGE —— 更新实例（权重、元数据等）</span></span><br><span class="line"><span class="comment">// DELETE —— 删除实例</span></span><br><span class="line"><span class="comment">// VERIFY —— 校验数据一致性（定期检查）</span></span><br></pre></td></tr></table></figure>
+
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// ============ Distro 故障恢复 ============</span></span><br><span class="line"></span><br><span class="line"><span class="comment">// 当某节点宕机：</span></span><br><span class="line"><span class="comment">// 1. 集群中其他节点检测到该节点下线（心跳超时）</span></span><br><span class="line"><span class="comment">// 2. 重新计算该节点服务的归属（重新 Hash）</span></span><br><span class="line"><span class="comment">// 3. 新的 Owner 从本地缓存或快照恢复数据</span></span><br><span class="line"><span class="comment">// 4. 客户端查询透明切换到新 Owner</span></span><br><span class="line"></span><br><span class="line"><span class="comment">// 当节点重新加入：</span></span><br><span class="line"><span class="comment">// 1. 节点启动后从其他节点同步全量数据</span></span><br><span class="line"><span class="comment">// 2. 恢复属于该节点的服务分片</span></span><br></pre></td></tr></table></figure>
+
+<h5 id="8，JRaft-协议源码速览（CP-模式）"><a href="#8，JRaft-协议源码速览（CP-模式）" class="headerlink" title="8，JRaft 协议源码速览（CP 模式）"></a>8，JRaft 协议源码速览（CP 模式）</h5><p>Nacos 的 CP 模式基于 SOFAJRaft（蚂蚁金服 Raft 实现）。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// ============ JRaft 关键组件 ============</span></span><br><span class="line"></span><br><span class="line"><span class="comment">// 1. Node —— Raft 节点</span></span><br><span class="line"><span class="comment">//    管理 Raft 日志复制、Leader 选举、状态机应用</span></span><br><span class="line"><span class="comment">//    关键方法：</span></span><br><span class="line"><span class="comment">//    - apply(task) → 提交任务到 Raft 日志</span></span><br><span class="line"><span class="comment">//    - onApply(iterator) → 状态机应用日志</span></span><br><span class="line"><span class="comment">//    - handleVoteRequest() → 处理投票请求</span></span><br><span class="line"></span><br><span class="line"><span class="comment">// 2. StateMachine —— 状态机</span></span><br><span class="line"><span class="comment">//    实现 onApply 方法，将日志应用到业务状态</span></span><br><span class="line"><span class="comment">//    Nacos 的 RaftStore 实现了 StateMachine</span></span><br><span class="line"></span><br><span class="line"><span class="comment">// 3. RaftGroupService —— Raft 组服务</span></span><br><span class="line"><span class="comment">//    Nacos 中有两个 Raft Group：</span></span><br><span class="line"><span class="comment">//    - naming_raft → 服务注册数据</span></span><br><span class="line"><span class="comment">//    - config_raft → 配置数据</span></span><br><span class="line"></span><br><span class="line"><span class="comment">// 4. Leader 选举：</span></span><br><span class="line"><span class="comment">//    随机超时 → Candidate → RequestVote → 获多数票 → Leader</span></span><br><span class="line"><span class="comment">//    Heartbeat 超时 → 重新选举</span></span><br><span class="line"></span><br><span class="line"><span class="comment">// 5. 日志复制：</span></span><br><span class="line"><span class="comment">//    Leader 接收写请求 → 追加日志 → 复制到 Follower</span></span><br><span class="line"><span class="comment">//    → 多数确认 → 提交 → 应用到状态机</span></span><br></pre></td></tr></table></figure>
+
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// ============ Nacos 中 JRaft 的使用 ============</span></span><br><span class="line"></span><br><span class="line"><span class="comment">// RaftConsistencyServiceImpl</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">RaftConsistencyServiceImpl</span> <span class="keyword">implements</span> <span class="title class_">ConsistencyService</span> &#123;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">private</span> RaftCore raftCore;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="title function_">RaftConsistencyServiceImpl</span><span class="params">()</span> &#123;</span><br><span class="line">        <span class="comment">// ★ 初始化 Raft 节点</span></span><br><span class="line">        <span class="built_in">this</span>.raftCore = RaftCore.getInstance();</span><br><span class="line">        raftCore.init();</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">put</span><span class="params">(String key, Record value)</span> <span class="keyword">throws</span> NacosException &#123;</span><br><span class="line">        <span class="keyword">try</span> &#123;</span><br><span class="line">            <span class="comment">// ★ 通过 Raft 协议写数据（强一致性）</span></span><br><span class="line">            raftCore.signalPublish(key, value);</span><br><span class="line">        &#125; <span class="keyword">catch</span> (Exception e) &#123;</span><br><span class="line">            <span class="keyword">throw</span> <span class="keyword">new</span> <span class="title class_">NacosException</span>(...);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="keyword">public</span> Datum <span class="title function_">get</span><span class="params">(String key)</span> <span class="keyword">throws</span> NacosException &#123;</span><br><span class="line">        <span class="comment">// 从状态机中读取已提交的数据</span></span><br><span class="line">        <span class="keyword">return</span> raftCore.getDatum(key);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">remove</span><span class="params">(String key)</span> <span class="keyword">throws</span> NacosException &#123;</span><br><span class="line">        raftCore.signalDelete(key);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">listen</span><span class="params">(String key, RecordListener listener)</span> &#123;</span><br><span class="line">        raftCore.listen(key, listener);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h5 id="9，配置中心核心源码"><a href="#9，配置中心核心源码" class="headerlink" title="9，配置中心核心源码"></a>9，配置中心核心源码</h5><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// ============ ConfigController —— 配置 CRUD ============</span></span><br><span class="line"></span><br><span class="line"><span class="meta">@RestController</span></span><br><span class="line"><span class="meta">@RequestMapping(&quot;/v1/cs&quot;)</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">ConfigController</span> &#123;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Autowired</span></span><br><span class="line">    <span class="keyword">private</span> ConfigServletInner inner;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// ★ 1. 获取配置</span></span><br><span class="line">    <span class="meta">@GetMapping(&quot;/configs&quot;)</span></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">getConfig</span><span class="params">(HttpServletRequest request, HttpServletResponse response)</span></span><br><span class="line">            <span class="keyword">throws</span> Exception &#123;</span><br><span class="line">        <span class="comment">// 检查长轮询标识</span></span><br><span class="line">        <span class="type">String</span> <span class="variable">isLongPolling</span> <span class="operator">=</span> request.getHeader(<span class="string">&quot;Long-Pulling-Timeout&quot;</span>);</span><br><span class="line">        <span class="keyword">if</span> (StringUtils.isNotBlank(isLongPolling)) &#123;</span><br><span class="line">            <span class="comment">// 标记这是长轮询请求（实际由 ConfigServletInner 处理）</span></span><br><span class="line">            inner.doPollingConfig(request, response);</span><br><span class="line">        &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">            <span class="comment">// 普通拉取</span></span><br><span class="line">            inner.doGetConfig(request, response);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// ★ 2. 发布配置</span></span><br><span class="line">    <span class="meta">@PostMapping(&quot;/configs&quot;)</span></span><br><span class="line">    <span class="keyword">public</span> Boolean <span class="title function_">publishConfig</span><span class="params">(HttpServletRequest request)</span> &#123;</span><br><span class="line">        <span class="type">String</span> <span class="variable">dataId</span> <span class="operator">=</span> request.getParameter(<span class="string">&quot;dataId&quot;</span>);</span><br><span class="line">        <span class="type">String</span> <span class="variable">group</span> <span class="operator">=</span> request.getParameter(<span class="string">&quot;group&quot;</span>);</span><br><span class="line">        <span class="type">String</span> <span class="variable">content</span> <span class="operator">=</span> request.getParameter(<span class="string">&quot;content&quot;</span>);</span><br><span class="line"></span><br><span class="line">        <span class="comment">// ★ 发布到持久化存储 + 集群同步</span></span><br><span class="line">        <span class="keyword">return</span> persistService.insertOrUpdate(</span><br><span class="line">            configInfo, srcIp, srcUser, time, configAdvanceInfo, notify);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// ★ 3. 删除配置</span></span><br><span class="line">    <span class="meta">@DeleteMapping(&quot;/configs&quot;)</span></span><br><span class="line">    <span class="keyword">public</span> Boolean <span class="title function_">deleteConfig</span><span class="params">(HttpServletRequest request)</span> &#123;</span><br><span class="line">        <span class="keyword">return</span> persistService.removeConfigInfo(dataId, group, tenant);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// ============ 配置查询流程 ============</span></span><br><span class="line"></span><br><span class="line"><span class="comment">// ConfigServletInner.doGetConfig()</span></span><br><span class="line"><span class="keyword">public</span> String <span class="title function_">doGetConfig</span><span class="params">(HttpServletRequest request, ...)</span> &#123;</span><br><span class="line">    <span class="type">String</span> <span class="variable">dataId</span> <span class="operator">=</span> request.getParameter(<span class="string">&quot;dataId&quot;</span>);</span><br><span class="line">    <span class="type">String</span> <span class="variable">group</span> <span class="operator">=</span> request.getParameter(<span class="string">&quot;group&quot;</span>);</span><br><span class="line">    <span class="type">String</span> <span class="variable">tenant</span> <span class="operator">=</span> request.getParameter(<span class="string">&quot;tenant&quot;</span>);</span><br><span class="line"></span><br><span class="line">    <span class="comment">// ★ 1. 先查本地缓存（ConcurrentHashMap）</span></span><br><span class="line">    <span class="type">CacheItem</span> <span class="variable">cacheItem</span> <span class="operator">=</span> configCacheService.getCache(dataId, group, tenant);</span><br><span class="line">    <span class="keyword">if</span> (cacheItem != <span class="literal">null</span> &amp;&amp; !cacheItem.isExpired()) &#123;</span><br><span class="line">        <span class="keyword">return</span> cacheItem.getContent();</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// ★ 2. 缓存未命中，查数据库</span></span><br><span class="line">    <span class="type">ConfigInfo</span> <span class="variable">configInfo</span> <span class="operator">=</span> persistService.findConfigInfo(dataId, group, tenant);</span><br><span class="line">    <span class="keyword">if</span> (configInfo != <span class="literal">null</span>) &#123;</span><br><span class="line">        <span class="comment">// 更新缓存</span></span><br><span class="line">        configCacheService.updateCache(dataId, group, tenant, configInfo.getContent());</span><br><span class="line">        <span class="keyword">return</span> configInfo.getContent();</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> <span class="literal">null</span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// ============ 配置变更通知 ============</span></span><br><span class="line"></span><br><span class="line"><span class="comment">// ConfigChangePublisher —— 配置变更事件发布</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">ConfigChangePublisher</span> &#123;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title function_">notifyConfigChange</span><span class="params">(ConfigDataChangeEvent event)</span> &#123;</span><br><span class="line">        <span class="comment">// ★ 1. 集群内通知（Raft / Distro 同步到其他节点）</span></span><br><span class="line">        consistencyService.put(key, event);</span><br><span class="line"></span><br><span class="line">        <span class="comment">// ★ 2. 通知本地长轮询客户端</span></span><br><span class="line">        LongPollingService.notifyClients(event);</span><br><span class="line"></span><br><span class="line">        <span class="comment">// ★ 3. 通知本地监听器</span></span><br><span class="line">        NotifyCenter.publishEvent(event);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h5 id="10，长轮询机制源码"><a href="#10，长轮询机制源码" class="headerlink" title="10，长轮询机制源码"></a>10，长轮询机制源码</h5><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// ============ LongPollingService —— 长轮询服务 ============</span></span><br><span class="line"></span><br><span class="line"><span class="meta">@Service</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">LongPollingService</span> &#123;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// ★ 保存所有挂起的客户端长轮询请求</span></span><br><span class="line">    <span class="comment">//   key = 配置的 MD5，value = 等待该配置变更的客户端列表</span></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">final</span> ConcurrentHashMap&lt;String, Queue&lt;ClientLongPolling&gt;&gt; allSubs =</span><br><span class="line">        <span class="keyword">new</span> <span class="title class_">ConcurrentHashMap</span>&lt;&gt;();</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Scheduled(fixedDelay = 10000)</span>  <span class="comment">// 每 10 秒检查一次超时</span></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">executeLongPolling</span><span class="params">()</span> &#123;</span><br><span class="line">        <span class="keyword">for</span> (ClientLongPolling client : allSubs.values()) &#123;</span><br><span class="line">            <span class="keyword">if</span> (client.isTimeout()) &#123;</span><br><span class="line">                <span class="comment">// ★ 超时未变更，返回空，客户端重新发起请求</span></span><br><span class="line">                client.sendResponse(Collections.emptyList());</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// ★ 配置变更时立即通知</span></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">notify</span><span class="params">(String dataId, String group, String tenant, String md5)</span> &#123;</span><br><span class="line">        <span class="type">String</span> <span class="variable">key</span> <span class="operator">=</span> buildKey(dataId, group, tenant);</span><br><span class="line">        Queue&lt;ClientLongPolling&gt; clients = allSubs.get(key);</span><br><span class="line"></span><br><span class="line">        <span class="keyword">if</span> (clients != <span class="literal">null</span>) &#123;</span><br><span class="line">            ClientLongPolling client;</span><br><span class="line">            <span class="keyword">while</span> ((client = clients.poll()) != <span class="literal">null</span>) &#123;</span><br><span class="line">                <span class="comment">// ★ 立即返回变更信息</span></span><br><span class="line">                client.sendResponse(dataId + <span class="string">&quot;$&quot;</span> + md5);</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// ★ 添加客户端轮询请求</span></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">addLongPollingClient</span><span class="params">(HttpServletRequest req, HttpServletResponse resp,</span></span><br><span class="line"><span class="params">                                       String dataId, String group, String tenant,</span></span><br><span class="line"><span class="params">                                       String md5, <span class="type">int</span> delayTime)</span> &#123;</span><br><span class="line">        <span class="type">String</span> <span class="variable">key</span> <span class="operator">=</span> buildKey(dataId, group, tenant);</span><br><span class="line"></span><br><span class="line">        <span class="comment">// 1. 先检查 MD5 是否已变更</span></span><br><span class="line">        <span class="type">String</span> <span class="variable">currentMd5</span> <span class="operator">=</span> configService.getContentMd5(dataId, group, tenant);</span><br><span class="line">        <span class="keyword">if</span> (!currentMd5.equals(md5)) &#123;</span><br><span class="line">            <span class="comment">// ★ 已变更，立即返回</span></span><br><span class="line">            generateResponse(resp, dataId + <span class="string">&quot;$&quot;</span> + currentMd5);</span><br><span class="line">            <span class="keyword">return</span>;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="comment">// 2. 未变更，挂起请求</span></span><br><span class="line">        <span class="type">ClientLongPolling</span> <span class="variable">client</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">ClientLongPolling</span>(req, resp, dataId, group, tenant, md5);</span><br><span class="line">        client.setExpireTime(System.currentTimeMillis() + delayTime);</span><br><span class="line"></span><br><span class="line">        allSubs.computeIfAbsent(key, k -&gt; <span class="keyword">new</span> <span class="title class_">ConcurrentLinkedQueue</span>&lt;&gt;()).add(client);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h5 id="11，集群通信-gRPC"><a href="#11，集群通信-gRPC" class="headerlink" title="11，集群通信 gRPC"></a>11，集群通信 gRPC</h5><p>Nacos 2.x 在客户端与服务端之间、以及集群节点之间使用 gRPC 通信。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// ============ Nacos 2.x 的连接模型 ============</span></span><br><span class="line"></span><br><span class="line"><span class="comment">// 1. 客户端启动时与服务端建立 gRPC 双向流连接</span></span><br><span class="line"><span class="comment">// 2. 通过这条连接发送：</span></span><br><span class="line"><span class="comment">//    - 服务注册/注销请求</span></span><br><span class="line"><span class="comment">//    - 心跳（不再需要单独的 HTTP 心跳）</span></span><br><span class="line"><span class="comment">//    - 订阅服务变更</span></span><br><span class="line"><span class="comment">//    - 配置变更通知（服务端推送 → 客户端）</span></span><br><span class="line"><span class="comment">// 3. 连接断开 → 服务端自动摘除该客户端的所有实例</span></span><br><span class="line"></span><br><span class="line"><span class="comment">// ============ gRPC 服务端 ============</span></span><br><span class="line"></span><br><span class="line"><span class="comment">// BaseGrpcServer</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">BaseGrpcServer</span> &#123;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">private</span> Server server;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">start</span><span class="params">()</span> <span class="keyword">throws</span> Exception &#123;</span><br><span class="line">        <span class="built_in">this</span>.server = ServerBuilder.forPort(port)</span><br><span class="line">            .addService(<span class="keyword">new</span> <span class="title class_">RequestGrpc</span>())          <span class="comment">// 处理客户端请求</span></span><br><span class="line">            .addService(<span class="keyword">new</span> <span class="title class_">BiRequestStreamGrpc</span>())  <span class="comment">// 处理双向流</span></span><br><span class="line">            .build()</span><br><span class="line">            .start();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// RequestHandler —— 请求处理器（责任链模式）</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">RequestHandler</span> &#123;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 请求处理链</span></span><br><span class="line">    <span class="keyword">private</span> List&lt;RequestHandler&gt; handlers = <span class="keyword">new</span> <span class="title class_">ArrayList</span>&lt;&gt;();</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">handleRequest</span><span class="params">(RequestMeta requestMeta)</span> &#123;</span><br><span class="line">        <span class="keyword">for</span> (RequestHandler handler : handlers) &#123;</span><br><span class="line">            <span class="keyword">if</span> (handler.canHandle(requestMeta)) &#123;</span><br><span class="line">                handler.handle(requestMeta);</span><br><span class="line">                <span class="keyword">return</span>;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// InstanceRequestHandler —— 实例注册处理器</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">InstanceRequestHandler</span> <span class="keyword">extends</span> <span class="title class_">RequestHandler</span> &#123;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">handle</span><span class="params">(RequestMeta request)</span> &#123;</span><br><span class="line">        <span class="comment">// 从 gRPC 请求中解析注册信息</span></span><br><span class="line">        <span class="comment">// 调用 ServiceManager.registerInstance()</span></span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// ============ gRPC 相比 HTTP 1.x 的优势 ============</span></span><br><span class="line"><span class="comment">// 1. 连接复用：一个连接处理多个请求，减少握手开销</span></span><br><span class="line"><span class="comment">// 2. 服务端推送：无需客户端轮询</span></span><br><span class="line"><span class="comment">// 3. 心跳复用：业务请求本身就是心跳，无需单独心跳</span></span><br><span class="line"><span class="comment">// 4. 性能更高：Protocol Buffer 序列化比 JSON 快</span></span><br></pre></td></tr></table></figure>
+
+<h5 id="12，关键类速查"><a href="#12，关键类速查" class="headerlink" title="12，关键类速查"></a>12，关键类速查</h5><table>
+<thead>
+<tr>
+<th>类</th>
+<th>模块</th>
+<th>职责</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>Nacos</code></td>
+<td>console</td>
+<td>启动入口</td>
+</tr>
+<tr>
+<td><code>InstanceController</code></td>
+<td>naming</td>
+<td>服务注册 HTTP 入口</td>
+</tr>
+<tr>
+<td><code>ServiceManager</code></td>
+<td>naming</td>
+<td>服务注册表（内存）</td>
+</tr>
+<tr>
+<td><code>ClientManager</code></td>
+<td>naming</td>
+<td>客户端连接管理</td>
+</tr>
+<tr>
+<td><code>DistroProtocol</code></td>
+<td>naming</td>
+<td>Distro 协议（AP）</td>
+</tr>
+<tr>
+<td><code>RaftConsistencyServiceImpl</code></td>
+<td>consistency</td>
+<td>Raft 协议（CP）</td>
+</tr>
+<tr>
+<td><code>BeatReactor</code></td>
+<td>client</td>
+<td>客户端心跳发送</td>
+</tr>
+<tr>
+<td><code>ClientBeatCheckTask</code></td>
+<td>naming</td>
+<td>服务端心跳过期检查</td>
+</tr>
+<tr>
+<td><code>ConfigController</code></td>
+<td>config</td>
+<td>配置管理 HTTP 入口</td>
+</tr>
+<tr>
+<td><code>ConfigServletInner</code></td>
+<td>config</td>
+<td>配置拉取 / 长轮询分发</td>
+</tr>
+<tr>
+<td><code>LongPollingService</code></td>
+<td>config</td>
+<td>长轮询服务（挂起 + 通知）</td>
+</tr>
+<tr>
+<td><code>CacheConfigService</code></td>
+<td>config</td>
+<td>配置本地缓存</td>
+</tr>
+<tr>
+<td><code>PersistService</code></td>
+<td>config</td>
+<td>配置持久化（MySQL/Derby）</td>
+</tr>
+<tr>
+<td><code>NacosNamingService</code></td>
+<td>client</td>
+<td>客户端命名服务</td>
+</tr>
+<tr>
+<td><code>NacosConfigService</code></td>
+<td>client</td>
+<td>客户端配置服务</td>
+</tr>
+<tr>
+<td><code>NamingProxy</code></td>
+<td>client</td>
+<td>客户端 HTTP 通信代理</td>
+</tr>
+<tr>
+<td><code>ServerHttpAgent</code></td>
+<td>client</td>
+<td>客户端 HTTP 调用封装</td>
+</tr>
+<tr>
+<td><code>ServerRequestHandler</code> 实现类</td>
+<td>naming</td>
+<td>gRPC 请求处理</td>
+</tr>
+<tr>
+<td><code>DistroMapper</code></td>
+<td>naming</td>
+<td>Distro 一致性 Hash 路由</td>
+</tr>
+<tr>
+<td><code>MemberManager</code></td>
+<td>core</td>
+<td>集群成员管理</td>
+</tr>
+<tr>
+<td><code>NotifyCenter</code></td>
+<td>common</td>
+<td>事件通知中心</td>
+</tr>
+<tr>
+<td><code>EnvUtil</code></td>
+<td>sys</td>
+<td>环境工具（获取配置）</td>
+</tr>
+</tbody></table>
+<h5 id="13，源码调试指南"><a href="#13，源码调试指南" class="headerlink" title="13，源码调试指南"></a>13，源码调试指南</h5><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 1. Clone 源码</span></span><br><span class="line">git <span class="built_in">clone</span> https://github.com/alibaba/nacos.git</span><br><span class="line"><span class="built_in">cd</span> nacos</span><br><span class="line">git checkout 2.3.0          <span class="comment"># 切换到指定版本</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 2. IDEA 打开项目</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 3. 启动参数</span></span><br><span class="line"><span class="comment"># main class: com.alibaba.nacos.Nacos</span></span><br><span class="line"><span class="comment"># VM options: -Dnacos.standalone=true -Dnacos.home=/path/to/nacos-server</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 4. 关键断点位置</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># ============ 服务注册 ============</span></span><br><span class="line"><span class="comment"># InstanceController.register()</span></span><br><span class="line"><span class="comment">#   → ServiceManager.registerInstance()</span></span><br><span class="line"><span class="comment">#     → DistroConsistencyServiceImpl.put()</span></span><br><span class="line"><span class="comment">#     → NotifyCenter.publishEvent(ServiceChangeEvent)</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># ============ 心跳 ============</span></span><br><span class="line"><span class="comment"># (客户端) BeatReactor.BeatTask.run()</span></span><br><span class="line"><span class="comment"># (服务端) InstanceController.beat()</span></span><br><span class="line"><span class="comment"># (服务端) ClientBeatCheckTask.run()</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># ============ 配置拉取 ============</span></span><br><span class="line"><span class="comment"># ConfigController.getConfig()</span></span><br><span class="line"><span class="comment">#   → ConfigServletInner.doGetConfig()</span></span><br><span class="line"><span class="comment">#     → CacheConfigService.getCache()</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># ============ 长轮询 ============</span></span><br><span class="line"><span class="comment"># ConfigController.getConfig() (Long-Pulling-Timeout &gt; 0)</span></span><br><span class="line"><span class="comment">#   → ConfigServletInner.doPollingConfig()</span></span><br><span class="line"><span class="comment">#     → LongPollingService.addLongPollingClient()</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># ============ 配置变更推送 ============</span></span><br><span class="line"><span class="comment"># ConfigController.publishConfig()</span></span><br><span class="line"><span class="comment">#   → PersistService.insertOrUpdate()</span></span><br><span class="line"><span class="comment">#     → LongPollingService.notify()</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 5. 日志调试</span></span><br><span class="line"><span class="comment"># 在 application.properties 中设置：</span></span><br><span class="line"><span class="comment"># server.tomcat.accesslog.enabled=true</span></span><br><span class="line"><span class="comment"># 关注控制台的 CONDITIONS EVALUATION REPORT</span></span><br></pre></td></tr></table></figure>
+
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/blog/tags/java/" rel="tag"># java</a>
+              <a href="/blog/tags/%E6%BA%90%E7%A0%81/" rel="tag"># 源码</a>
+              <a href="/blog/tags/nacos/" rel="tag"># nacos</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/blog/2024/08/01/springcloud/nacos%E5%AD%A6%E4%B9%A0/" rel="prev" title="nacos学习">
+      <i class="fa fa-chevron-left"></i> nacos学习
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/blog/2024/08/10/springcloud/SpringCloudFeign%E4%BD%BF%E7%94%A8%E5%8F%8A%E6%BA%90%E7%A0%81%E5%AD%A6%E4%B9%A0/" rel="next" title="SpringCloudFeign使用及源码学习">
+      SpringCloudFeign使用及源码学习 <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-5"><a class="nav-link" href="#1%EF%BC%8CNacos-%E6%BA%90%E7%A0%81%E6%A8%A1%E5%9D%97%E6%80%BB%E8%A7%88"><span class="nav-number">1.</span> <span class="nav-text">1，Nacos 源码模块总览</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#2%EF%BC%8C%E6%95%B4%E4%BD%93%E6%9E%B6%E6%9E%84"><span class="nav-number">2.</span> <span class="nav-text">2，整体架构</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#3%EF%BC%8CSPI-%E6%9C%BA%E5%88%B6-%E2%80%94%E2%80%94-Nacos-%E7%9A%84%E6%89%A9%E5%B1%95%E5%9F%BA%E7%A1%80"><span class="nav-number">3.</span> <span class="nav-text">3，SPI 机制 —— Nacos 的扩展基础</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#4%EF%BC%8C%E5%90%AF%E5%8A%A8%E6%B5%81%E7%A8%8B%E6%BA%90%E7%A0%81"><span class="nav-number">4.</span> <span class="nav-text">4，启动流程源码</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#5%EF%BC%8C%E6%9C%8D%E5%8A%A1%E6%B3%A8%E5%86%8C%E6%BA%90%E7%A0%81%EF%BC%88Server-%E7%AB%AF%EF%BC%89"><span class="nav-number">5.</span> <span class="nav-text">5，服务注册源码（Server 端）</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#6%EF%BC%8C%E5%BF%83%E8%B7%B3%E5%A4%84%E7%90%86%E6%BA%90%E7%A0%81"><span class="nav-number">6.</span> <span class="nav-text">6，心跳处理源码</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#7%EF%BC%8CDistro-%E5%8D%8F%E8%AE%AE%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90%EF%BC%88AP-%E6%A8%A1%E5%BC%8F%EF%BC%89"><span class="nav-number">7.</span> <span class="nav-text">7，Distro 协议源码分析（AP 模式）</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#8%EF%BC%8CJRaft-%E5%8D%8F%E8%AE%AE%E6%BA%90%E7%A0%81%E9%80%9F%E8%A7%88%EF%BC%88CP-%E6%A8%A1%E5%BC%8F%EF%BC%89"><span class="nav-number">8.</span> <span class="nav-text">8，JRaft 协议源码速览（CP 模式）</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#9%EF%BC%8C%E9%85%8D%E7%BD%AE%E4%B8%AD%E5%BF%83%E6%A0%B8%E5%BF%83%E6%BA%90%E7%A0%81"><span class="nav-number">9.</span> <span class="nav-text">9，配置中心核心源码</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#10%EF%BC%8C%E9%95%BF%E8%BD%AE%E8%AF%A2%E6%9C%BA%E5%88%B6%E6%BA%90%E7%A0%81"><span class="nav-number">10.</span> <span class="nav-text">10，长轮询机制源码</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#11%EF%BC%8C%E9%9B%86%E7%BE%A4%E9%80%9A%E4%BF%A1-gRPC"><span class="nav-number">11.</span> <span class="nav-text">11，集群通信 gRPC</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#12%EF%BC%8C%E5%85%B3%E9%94%AE%E7%B1%BB%E9%80%9F%E6%9F%A5"><span class="nav-number">12.</span> <span class="nav-text">12，关键类速查</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#13%EF%BC%8C%E6%BA%90%E7%A0%81%E8%B0%83%E8%AF%95%E6%8C%87%E5%8D%97"><span class="nav-number">13.</span> <span class="nav-text">13，源码调试指南</span></a></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">ruoxi</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/blog/archives/">
+        
+          <span class="site-state-item-count">80</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/blog/categories/">
+          
+        <span class="site-state-item-count">17</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/blog/tags/">
+          
+        <span class="site-state-item-count">47</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2026</span>
+  <span class="with-love">
+    <i class="fa fa-code"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">ruoxi</span>
+</div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/blog/lib/anime.min.js"></script>
+  <script src="/blog/lib/velocity/velocity.min.js"></script>
+  <script src="/blog/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/blog/js/utils.js"></script>
+
+<script src="/blog/js/motion.js"></script>
+
+
+<script src="/blog/js/schemes/pisces.js"></script>
+
+
+<script src="/blog/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+</body>
+</html>

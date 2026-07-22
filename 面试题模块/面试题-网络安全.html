@@ -1,0 +1,585 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>面试题 - 网络安全</title>
+<style>
+body {
+    transition: margin-left .25s ease;
+    font-family: -apple-system, "Noto Sans SC", "Microsoft YaHei", sans-serif;
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 20px 24px 60px;
+    line-height: 1.8;
+    color: #333;
+    background: #fff;
+}
+h1 { border-bottom: 2px solid #eee; padding-bottom: 10px; color: #222; }
+h2 { color: #333; margin-top: 32px; }
+h3 { color: #555; }
+a { color: #0366d6; text-decoration: none; }
+a:hover { text-decoration: underline; }
+pre {
+    background: #f6f8fa;
+    border-radius: 6px;
+    padding: 16px;
+    overflow-x: auto;
+    font-size: 14px;
+    line-height: 1.45;
+}
+code {
+    background: #f0f2f4;
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-size: 14px;
+}
+pre code { background: none; padding: 0; }
+blockquote {
+    border-left: 4px solid #ddd;
+    margin: 0;
+    padding: 0 16px;
+    color: #666;
+}
+table {
+    border-collapse: collapse;
+    width: 100%;
+    margin: 16px 0;
+}
+th, td {
+    border: 1px solid #ddd;
+    padding: 8px 12px;
+    text-align: left;
+}
+th { background: #f6f8fa; }
+img { max-width: 100%; }
+.back-link {
+    margin-bottom: 20px;
+    display: block;
+    color: #666;
+}
+.back-link:hover { color: #0366d6; }
+
+.sidebar-toc {
+    transition: left .25s ease;
+    position: fixed;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    width: 220px;
+    background: #f8f9fa;
+    border-right: 1px solid #e9ecef;
+    padding: 20px 0;
+    overflow-y: auto;
+    font-size: 13px;
+    z-index: 100;
+}
+.sidebar-toc a {
+    display: block;
+    padding: 6px 16px;
+    color: #555;
+    text-decoration: none;
+    border-left: 3px solid transparent;
+    line-height: 1.5;
+}
+.sidebar-toc a:hover {
+    background: #e9ecef;
+    color: #0366d6;
+    border-left-color: #0366d6;
+}
+.sidebar-toc .toc-h3 { padding-left: 20px; font-size: 12px; }
+body { margin-left: 240px; }
+
+
+.copy-btn {
+    position: absolute; top: 6px; right: 6px;
+    background: #e9ecef; border: none;
+    border-radius: 4px; padding: 3px 10px;
+    font-size: 12px; color: #555; cursor: pointer;
+    opacity: 0; transition: opacity 0.2s;
+    z-index: 1;
+}
+pre:hover .copy-btn { opacity: 1; }
+.copy-btn:hover { background: #d0d7de; }
+.copy-btn.copied { opacity: 1; background: #2da44e; color: #fff; }
+.copy-btn{position:absolute;top:6px;right:6px;background:#e9ecef;border:none;border-radius:4px;padding:3px 10px;font-size:12px;color:#555;cursor:pointer;opacity:0;transition:opacity .2s;z-index:1}pre:hover .copy-btn{opacity:1}.copy-btn:hover{background:#d0d7de}.copy-btn.copied{opacity:1;background:#2da44e;color:#fff}
+.copy-btn{position:absolute;top:6px;right:6px;background:#e9ecef;border:none;border-radius:4px;padding:3px 10px;font-size:12px;color:#555;cursor:pointer;opacity:0;transition:opacity .2s;z-index:1}pre:hover .copy-btn{opacity:1}.copy-btn:hover{background:#d0d7de}.copy-btn.copied{opacity:1;background:#2da44e;color:#fff}
+.sidebar-toggle-btn {
+  position: fixed;
+  left: 220px;
+  top: 0;
+  width: 28px;
+  height: 40px;
+  background: #f8f9fa;
+  border: 1px solid #e9ecef;
+  border-left: none;
+  border-radius: 0 4px 4px 0;
+  cursor: pointer;
+  font-size: 16px;
+  color: #555;
+  z-index: 101;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: left .25s, background .2s;
+  padding: 0;
+  line-height: 1;
+}
+.sidebar-toggle-btn:hover { background: #e9ecef; color: #0366d6; }
+.sidebar-collapsed .sidebar-toc { left: -220px; }
+.sidebar-collapsed .sidebar-toggle-btn { left: 0; }
+.sidebar-collapsed body, body.sidebar-collapsed { margin-left: 28px; }
+.sidebar-overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,.3);
+  z-index: 99;
+}
+@media (max-width: 768px) {
+  .sidebar-collapsed .sidebar-overlay { display: none; }
+  .sidebar-toc { left: -220px; }
+  .sidebar-toggle-btn { left: 0; }
+  body { margin-left: 28px; }
+}
+
+</style>
+</head>
+</head>
+<body>
+<nav class="sidebar-toc"><a class="toc-h3" href="#1-sql">1. SQL 注入怎么防?</a><a class="toc-h3" href="#2-xss">2. XSS 是什么?怎么防?</a><a class="toc-h3" href="#3-csrf">3. CSRF 是什么?怎么防?</a><a class="toc-h3" href="#4">4. 三者对比速记</a><a class="toc-h3" href="#5-ssrf">5. SSRF(服务端请求伪造)是什么?怎么防御?</a><a class="toc-h3" href="#6">6. 密码应该如何安全存储?</a><a class="toc-h3" href="#7">7. 什么是越权漏洞?水平越权和垂直越权的区别?</a><a class="toc-h3" href="#8-jwt">8. 什么是 JWT?有什么安全问题?</a><a class="toc-h3" href="#9-jwt-vs-session">9. JWT vs Session 怎么选?各自适用什么场景?</a><a class="toc-h3" href="#10-sql">10. SQL 注入怎么防?参数化查询为什么能防住?</a><a class="toc-h3" href="#11">11. 接口限流怎么做?有哪些常见算法?</a><a class="toc-h3" href="#12-oauth-20">12. OAuth 2.0 的四种授权模式分别什么场景?</a><a class="toc-h3" href="#13-csrf-token">13. CSRF Token 的实现原理？</a></nav>
+<button class="sidebar-toggle-btn" onclick="toggleSidebar()" title="切换侧栏">☰</button>
+
+<div class="sidebar-overlay" onclick="toggleSidebar()"></div>
+
+<script>
+function toggleSidebar() {
+  document.body.classList.toggle('sidebar-collapsed');
+  try { localStorage.setItem('sidebarCollapsed', document.body.classList.contains('sidebar-collapsed')); } catch(e) {}
+}
+(function() {
+  try {
+    if (localStorage.getItem('sidebarCollapsed') === 'true') {
+      document.body.classList.add('sidebar-collapsed');
+    }
+  } catch(e) {}
+})();
+</script>
+<a class="back-link" href="/blog/2026/05/16/面试题/面试题/">← 返回面试题目录</a>
+<h1 id=page-title>网络安全</h1>
+<h3 id="1-sql">1. SQL 注入怎么防?</h3>
+<p>SQL 注入就是用户输入里塞了 SQL 代码,拼接后执行了不该执行的命令。比如登录时输入 <code>admin' OR '1'='1</code> 直接绕过验证。</p>
+<pre><code>危险写法(字符串拼接):
+&quot;SELECT * FROM users WHERE name='&quot; + userName + &quot;' AND pwd='&quot; + password + &quot;'&quot;
+
+用户输入:userName = &quot;admin' OR '1'='1&quot;
+拼接结果:
+SELECT * FROM users WHERE name='admin' OR '1'='1' AND pwd='xxx'
+                                   ↑
+                              OR '1'='1' 恒成立 → 绕过验证
+</code></pre>
+<p><strong>核心防御:预编译语句(PrepareStatement)</strong>。SQL 结构和数据彻底分离,数据永远不会被当成命令执行。</p>
+<pre><code class="language-java">// 预编译:? 是占位符,数据单独传入
+PreparedStatement stmt = conn.prepareStatement(
+    &quot;SELECT * FROM users WHERE name=? AND pwd=?&quot;
+);
+stmt.setString(1, userName);  // 数据原样传入,不是拼进 SQL
+stmt.setString(2, password);
+</code></pre>
+<p>MyBatis 用 <code>#{}</code> 就是预编译,用 <code>${}</code> 就是直接拼接(危险)。</p>
+<blockquote>
+<p><strong>扩展</strong>:只用预编译就够了吗?不够。如果业务需要动态表名(如按月份分表),<code>#{}</code> 不支持表名占位,只能用 <code>${}</code>。这时需要<strong>白名单校验</strong>--在 Java 代码里校验表名是否在允许列表中。</p>
+</blockquote>
+<h3 id="2-xss">2. XSS 是什么?怎么防?</h3>
+<p>跨站脚本攻击--攻击者在网页里插入恶意 JavaScript,其他用户访问时脚本自动执行(偷 Cookie、跳转钓鱼网站)。</p>
+<p><strong>三种类型</strong>:</p>
+<ul>
+<li><strong>反射型</strong>:恶意脚本藏在 URL 参数里,服务端直接返回。<code>/search?q=&lt;script&gt;alert(1)&lt;/script&gt;</code>,搜索结果页直接展示这个"搜索词"</li>
+<li><strong>存储型</strong>:恶意脚本存入数据库(评论/留言),所有访问者都触发。这是最危险的--一个人留言,所有人都中招</li>
+<li><strong>DOM 型</strong>:纯前端 JS 操作 DOM 触发,不经过服务端。如用 <code>innerHTML</code> 插入未过滤的内容</li>
+</ul>
+<pre><code>存储型 XSS 攻击链:
+攻击者 → 提交恶意评论:&quot;&lt;script&gt;偷Cookie&lt;/script&gt;&quot; → 存入数据库
+                                                         │
+正常用户 → 访问页面 → 加载评论 → 脚本执行 → Cookie 被偷
+</code></pre>
+<p><strong>防御</strong>:输出转义(<code>&lt;</code> → <code>&amp;lt;</code>)、CSP(Content-Security-Policy 限制可加载的脚本来源)、Cookie 设 HttpOnly(JS 读不了 Cookie)。</p>
+<blockquote>
+<p><strong>扩展</strong>:CSP 是最后一道防线--即使攻击者注入了脚本,CSP 头 <code>Content-Security-Policy: script-src 'self'</code> 会阻止浏览器执行非本站的脚本。设置 CSP 就像给你家大门加了把锁--就算小偷进来也拿不走东西。</p>
+</blockquote>
+<h3 id="3-csrf">3. CSRF 是什么?怎么防?</h3>
+<p>跨站请求伪造--黑客利用你已登录的身份(Cookie),冒充你发请求(转账、改密码)。</p>
+<p><strong>举例</strong>:你登录了银行网站,没退出就点开黑客发的链接。链接里藏着:</p>
+<pre><code class="language-html">&lt;img src=&quot;http://bank.com/transfer?to=黑客&amp;money=10000&quot;&gt;
+</code></pre>
+<p>浏览器自动带上你的 Cookie 发请求,银行以为是你操作。</p>
+<pre><code>攻击流程:
+你登录 bank.com → Cookie 存在浏览器
+     │
+你点开黑客的链接(在 evil.com 上)
+     │
+evil.com 的页面里有隐藏的请求 → bank.com/transfer?to=黑客
+     │
+浏览器自动带上 bank.com 的 Cookie → 银行以为是你本人操作 → 转账成功
+</code></pre>
+<p><strong>防御</strong>:CSRF Token(每个请求带随机 Token,攻击者拿不到)、SameSite Cookie(<code>SameSite=Strict</code> 跨站不发送 Cookie)、验证 Referer/Origin 头。</p>
+<blockquote>
+<p><strong>扩展</strong>:SameSite Cookie 是最省心的防御--HTTP 响应头设置 <code>Set-Cookie: session=xxx; SameSite=Lax</code>,浏览器就会在跨站请求时不发送这个 Cookie。Lax 模式日常浏览够用;Strict 模式最严,但点了外部链接跳转进来时 Cookie 也不会自动发,用户体验差。</p>
+</blockquote>
+<h3 id="4">4. 三者对比速记</h3>
+<table>
+<thead>
+<tr>
+<th></th>
+<th>SQL 注入</th>
+<th>XSS</th>
+<th>CSRF</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>攻击目标</td>
+<td>数据库</td>
+<td>用户浏览器</td>
+<td>用户身份</td>
+</tr>
+<tr>
+<td>核心原因</td>
+<td>SQL 拼接</td>
+<td>输出未转义</td>
+<td>Cookie 自动携带</td>
+</tr>
+<tr>
+<td>核心防御</td>
+<td>预编译</td>
+<td>转义 + CSP</td>
+<td>CSRF Token</td>
+</tr>
+</tbody>
+</table>
+<pre><code>攻击对比:
+
+SQL注入:  攻击者 → 数据库          (打服务器)
+XSS:     攻击者 → 网站 → 其他用户   (借刀杀人)
+CSRF:    攻击者 → 用户 → 网站      (冒充身份)
+</code></pre>
+<blockquote>
+<p><strong>扩展</strong>:这三种攻击经常组合使用--先 XSS 注入脚本偷到 Token,再用 CSRF 发伪造请求。所以防御不能只防一种,要<strong>纵深防御</strong>:输出转义 + CSP + CSRF Token + HttpOnly Cookie + 输入校验。</p>
+</blockquote>
+<h3 id="5-ssrf">5. SSRF(服务端请求伪造)是什么?怎么防御?</h3>
+<p>攻击者让<strong>服务器</strong>去访问不该访问的地址(内网服务、云元数据、文件系统),利用服务器的网络权限绕过防火墙。</p>
+<pre><code>正常请求:                          SSRF 攻击:
+
+用户 → 服务器 → 外部图片下载        用户 → 服务器 → 内网 Redis(127.0.0.1:6379)
+                                                       │
+                                              内网没有防火墙阻挡服务器自己的请求!
+</code></pre>
+<pre><code class="language-java">// 危险代码
+String imageUrl = request.getParameter(&quot;url&quot;);
+URL url = new URL(imageUrl);  // 用户传了 http://127.0.0.1:6379
+InputStream is = url.openStream();  // 服务器去请求内网 Redis!
+</code></pre>
+<p><strong>防御措施</strong>:
+1. <strong>白名单</strong>:只允许请求预定义的域名/IP
+2. <strong>禁用危险协议</strong>:禁止 <code>file://</code>、<code>gopher://</code>、<code>dict://</code> 等
+3. <strong>禁止内网 IP</strong>:过滤 <code>127.0.0.1</code>、<code>10.0.0.0/8</code>、<code>172.16.0.0/12</code>、<code>192.168.0.0/16</code>
+4. <strong>最小权限</strong>:限制服务器的网络访问权限</p>
+<blockquote>
+<p><strong>扩展</strong>:SSRF 是攻击云基础设施的常见手段--AWS/GCP/阿里云的元数据地址 <code>169.254.169.254</code> 上存着临时密钥,一旦通过 SSRF 请求这个地址就能拿到密钥。所以<strong>一定要禁止访问内网 IP 和云元数据地址</strong>。</p>
+</blockquote>
+<h3 id="6">6. 密码应该如何安全存储?</h3>
+<table>
+<thead>
+<tr>
+<th>做法</th>
+<th>安全性</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>明文存储</td>
+<td>❌ 灾难级</td>
+<td>数据库泄露 = 全部密码泄露</td>
+</tr>
+<tr>
+<td>MD5/SHA1</td>
+<td>❌ 不安全</td>
+<td>彩虹表可秒级反查</td>
+</tr>
+<tr>
+<td>MD5 + 固定盐</td>
+<td>❌ 还是不安全</td>
+<td>一个盐被破解,全表沦陷</td>
+</tr>
+<tr>
+<td><strong>bcrypt + 随机盐</strong></td>
+<td>✅ 推荐</td>
+<td>每个用户独立随机盐,计算慢(抗暴力)</td>
+</tr>
+</tbody>
+</table>
+<pre><code>bcrypt 的工作方式:
+
+密码 &quot;123456&quot; + 随机盐 &quot;a8f3&quot; → bcrypt → &quot;$2a$10$a8f3...(60 字符哈希值)&quot;
+                                                      ↑
+                                          10 = 计算轮次(越高越慢)
+
+验证:用户输入密码 → 取出盐重新算 → 比对哈希值
+</code></pre>
+<blockquote>
+<p><strong>扩展</strong>:为什么 bcrypt 比 MD5 安全?因为 bcrypt <strong>故意算得很慢</strong>--暴力破解时每试一个密码要几百毫秒,一秒只能试几次,字典攻击的成本大幅提高。<code>cost</code> 参数(轮次)建议设为 10~12,太低了防不住,太高了影响登录体验。</p>
+</blockquote>
+<h3 id="7">7. 什么是越权漏洞?水平越权和垂直越权的区别?</h3>
+<ul>
+<li>
+<p><strong>水平越权</strong>:A 用户访问了 B 用户的同级别数据。比如把 URL 里的 <code>userId=123</code> 改成 <code>userId=456</code>,看到了别人的订单。</p>
+</li>
+<li>
+<p><strong>垂直越权</strong>:低权限用户操作了高权限功能。比如普通用户访问了管理员的删除接口 <code>/admin/deleteUser</code>。</p>
+</li>
+</ul>
+<pre><code>水平越权:
+  GET /api/order?userId=123  → 返回用户 123 的订单
+  GET /api/order?userId=456  → 返回用户 456 的订单 ← 如果没校验就是漏洞!
+
+垂直越权:
+  POST /api/admin/deleteUser  → 只有 admin 角色能调
+  普通用户直接调这个接口 → 如果没校验角色就是漏洞!
+</code></pre>
+<p><strong>防御</strong>:从 Session/Token 中获取<strong>当前登录用户</strong>的 ID,不要信任前端传的用户 ID。所有接口校验当前用户是否有权限操作该数据。</p>
+<blockquote>
+<p><strong>扩展</strong>:越权漏洞的典型修复--后端从 JWT/Session 取用户 ID 做查询条件,而不是接收前端传来的 userId。<code>WHERE user_id = #{currentUserId}</code> 而不是 <code>WHERE user_id = #{requestUserId}</code>。权限校验要落在代码上而不是靠前端的"隐藏按钮"。</p>
+</blockquote>
+<hr />
+<h3 id="8-jwt">8. 什么是 JWT?有什么安全问题?</h3>
+<p>Header.Payload.Signature 三部分,Base64 编码(非加密!)。<strong>风险</strong>:alg=none 可绕过签名验证、密钥泄漏导致伪造、Payload 明文易泄露、无法主动吊销。<strong>实践</strong>:校验 alg 拒绝 none、用 RS256 非对称加密、短有效期 + Refresh ...</p>
+<hr />
+<h3 id="9-jwt-vs-session">9. JWT vs Session 怎么选?各自适用什么场景?</h3>
+<table>
+<thead>
+<tr>
+<th>维度</th>
+<th>Session(有状态)</th>
+<th>JWT(无状态)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>存储</strong></td>
+<td>服务端存 Session 数据(内存/Redis)</td>
+<td>客户端持有,服务端不存</td>
+</tr>
+<tr>
+<td><strong>扩展性</strong></td>
+<td>需要 Redis 共享 Session</td>
+<td>天然支持水平扩展</td>
+</tr>
+<tr>
+<td><strong>撤销</strong></td>
+<td>立即(删 Session 即可)</td>
+<td>困难(需黑名单 + 短有效期)</td>
+</tr>
+<tr>
+<td><strong>性能</strong></td>
+<td>每次请求查 Redis</td>
+<td>本地验签,不查存储</td>
+</tr>
+<tr>
+<td><strong>安全性</strong></td>
+<td>Session ID 被窃 = 被冒用</td>
+<td>Token 被窃 = 被冒用(都需 HTTPS)</td>
+</tr>
+<tr>
+<td><strong>跨域</strong></td>
+<td>受 Cookie 同源限制</td>
+<td>可跨域传递</td>
+</tr>
+</tbody>
+</table>
+<p><strong>选型决策</strong>:</p>
+<pre><code>用 Session 当:
+  - 传统 Web 应用(服务端渲染)
+  - 需要即时撤销权限(封号立即生效)
+  - 单机或已有 Redis 共享 Session 基础设施
+
+用 JWT 当:
+  - 前后端分离 / 移动 App
+  - 微服务架构(多个服务需独立验证身份)
+  - 需要跨域认证
+  - Serverless / API Gateway 场景
+
+最佳实践:JWT 存 HttpOnly Cookie(非 localStorage!),配合 CSRF Token
+</code></pre>
+<blockquote>
+<p><strong>扩展</strong>:JWT 不适合做 Session 的"替代品"--如果你把 JWT 存 localStorage,XSS 就能偷走;如果你用很长有效期的 JWT,权限变更无法即时生效。实际大厂做法是"JWT(短期 15min)+ Refresh Token(长期 7d)+ 服务端黑名单(Redis 存储已吊销的 JWT ID)"。</p>
+</blockquote>
+<hr />
+<h3 id="10-sql">10. SQL 注入怎么防?参数化查询为什么能防住?</h3>
+<p><strong>SQL 注入的本质</strong>:用户输入被当成 SQL 代码执行了。</p>
+<pre><code class="language-java">// 危险写法(字符串拼接)
+String sql = &quot;SELECT * FROM users WHERE name = '&quot; + userName + &quot;'&quot;;
+// 输入:' OR '1'='1' --
+// 变成:SELECT * FROM users WHERE name = '' OR '1'='1' --'
+// → 永远为真,查出所有用户!
+
+// 安全写法(参数化查询)
+PreparedStatement ps = conn.prepareStatement(&quot;SELECT * FROM users WHERE name = ?&quot;);
+ps.setString(1, userName);
+// 输入 ' OR '1'='1' -- 被当成普通字符串,不会执行
+</code></pre>
+<p><strong>参数化查询为什么安全?</strong></p>
+<p>SQL 引擎分两步处理:1 编译 SQL 模板为 AST 语法树;2 把参数作为<strong>纯数据</strong>绑定到 AST。参数走的是数据通道,永远不可能走代码通道--即使参数值是 <code>DROP TABLE users</code>,也只是个字符串。</p>
+<p><strong>其他防御层次</strong>:
+- ORM 框架(MyBatis 用 <code>#{}</code> 不用 <code>${}</code>)
+- 输入校验 + 白名单
+- 最小权限原则(应用账号没有 DROP TABLE 权限)
+- WAF(Web 应用防火墙)</p>
+<p><strong>MyBatis 中的坑</strong>:<code>${}</code> 是字符串拼接(危险),<code>#{}</code> 是参数化查询(安全)。排序字段 <code>ORDER BY ${column}</code> 必须用 <code>${}</code> 时,要对 column 做白名单校验。</p>
+<blockquote>
+<p><strong>扩展</strong>:ORM 不能 100% 防止 SQL 注入--原生 SQL 拼接、动态查询中的 <code>${}</code>、存储过程中拼接 SQL 都可能被注入。安全不是靠一个工具,而是靠"所有用户输入都不信任"的安全意识。</p>
+</blockquote>
+<h3 id="11">11. 接口限流怎么做?有哪些常见算法?</h3>
+<p><strong>核心结论</strong>:限流 = 保护系统不被流量打挂。大厂常用三种算法:</p>
+<pre><code>算法对比:
+
+计数器(固定窗口)  简单粗暴,有临界突刺问题
+  → 1秒100个请求,0.9s来了100个,0.95s又来100个 → 1秒内实际200个
+
+滑动窗口            平滑了窗口边界,但还是有瞬时突刺
+
+令牌桶(Token Bucket)  最常用!匀速生成令牌,桶有容量上限
+  → 适合:API 限流(允许短时突发,但平均速率受限)
+
+漏桶(Leaky Bucket)   严格匀速处理,完全削峰
+  → 适合:消息队列消费(不关心突发,只关心匀速处理)
+</code></pre>
+<pre><code class="language-java">// Sentinel 令牌桶限流示例
+@SentinelResource(value = &quot;orderApi&quot;, blockHandler = &quot;handleBlock&quot;)
+public Result createOrder(OrderDTO dto) {
+    return orderService.create(dto);
+}
+
+// 动态规则:QPS 100
+FlowRule rule = new FlowRule(&quot;orderApi&quot;).setCount(100)
+    .setGrade(RuleConstant.FLOW_GRADE_QPS);
+FlowRuleManager.loadRules(Collections.singletonList(rule));
+</code></pre>
+<blockquote>
+<p><strong>面试话术</strong>:"令牌桶是最常用方案,因为它允许合理突发--比如用户连续点两下按钮,令牌桶可以放行;但恶意刷接口,令牌消耗完就被限流。Sentinel 支持动态规则推送,配合 Nacos 可以在不重启的情况下调整限流阈值。"</p>
+</blockquote>
+<h3 id="12-oauth-20">12. OAuth 2.0 的四种授权模式分别什么场景?</h3>
+<pre><code>四种授权模式:
+
+1. 授权码模式(Authorization Code)  最安全,最常用
+   → 微信登录、GitHub 登录
+   → 流程:用户→授权页→同意→回调带 code→后端用 code 换 token
+   → 前端拿不到 token,安全性最高
+
+2. 隐式模式(Implicit)  简单但不安全,已不推荐
+   → token 直接放在 URL fragment 里,前端可见
+   → 适合纯前端 SPA(现在也被 PKCE 替代)
+
+3. 密码模式(Resource Owner Password)  最简单,信任度最高
+   → 自己的第一方应用(如公司内部系统)
+   → 用户名密码直接给后端换 token
+
+4. 客户端凭证模式(Client Credentials)  无用户参与
+   → 服务间调用(如 M2M 通信)
+   → 用 appid + secret 直接换 token
+</code></pre>
+<p><strong>面试加分</strong>:提一下 <strong>PKCE</strong>(Proof Key for Code Exchange)--授权码模式的增强版,用 code_verifier + code_challenge 防止授权码被截获,是移动端和 SPA 的推荐方案。</p>
+<blockquote>
+<p><strong>面试话术</strong>:"OAuth 2.0 核心是'授权码模式'--第三方应用拿不到用户密码,只能拿到一个临时授权码,后端用授权码换 token。PKCE 是授权码模式的升级版,在移动端/Public Client 场景下防止授权码被拦截。"</p>
+</blockquote>
+<h3 id="13-csrf-token">13. CSRF Token 的实现原理？</h3>
+<p>CSRF（跨站请求伪造）：攻击者利用用户已登录的身份，诱导用户访问恶意页面，自动发送伪造请求。</p>
+<p><strong>防御核心</strong>：服务器生成随机 Token，表单/请求必须携带有效 Token：</p>
+<pre><code>CSRF 攻击流程：
+  用户登录 bank.com（Cookie: session_id=ABC）
+  ↓
+  用户访问 evil.com（恶意页面）
+  ↓
+  evil.com 自动发送：&lt;img src=&quot;bank.com/transfer?to=hacker&amp;amt=1000&quot;&gt;
+  ↓
+  浏览器自动带上 bank.com 的 Cookie
+  ↓
+  服务器误以为是用户操作，转账成功！
+</code></pre>
+<p><strong>Token 防御</strong>（Django 为例）：</p>
+<pre><code class="language-html">&lt;!-- 1. 模板中渲染 Token（服务端生成）--&gt;
+&lt;form method=&quot;POST&quot;&gt;
+    {% csrf_token %}
+    &lt;!-- 渲染为：&lt;input type=&quot;hidden&quot; name=&quot;csrfmiddlewaretoken&quot; value=&quot;abc123...&quot;&gt; --&gt;
+    &lt;input type=&quot;text&quot; name=&quot;amount&quot;&gt;
+&lt;/form&gt;
+
+&lt;!-- 2. 前端 AJAX 请求时手动携带 --&gt;
+fetch('/api/transfer', {
+    method: 'POST',
+    headers: {
+        'X-CSRFToken': document.cookie.match(/csrftoken=([^;]+)/)[1]
+    }
+})
+</code></pre>
+<p><strong>Cookie + Header 双提交</strong>（SPA 推荐）：</p>
+<pre><code class="language-java">// 服务器同时验证两个值相等
+// 优点：Cookie 不需要 HttpOnly（JS 可读），更灵活
+//      攻击者无法从不同域读取 Token
+</code></pre>
+<blockquote>
+<p><strong>扩展</strong>：SameSite Cookie（Chrome 76+ 默认 Lax）是更现代的 CSRF 防御；CORS 预检（OPTIONS）可阻止部分 CSRF；最佳实践：SameSite=Lax + CSRF Token + 自定义 Header（三重防护）。</p>
+</blockquote>
+
+<script>
+// Scroll spy — highlight active sidebar item
+window.addEventListener('scroll', function() {
+    var links = document.querySelectorAll('.sidebar-toc a');
+    var scrollY = window.scrollY + 120;
+    var current = '';
+    for (var i = links.length - 1; i >= 0; i--) {
+        var target = document.getElementById(links[i].getAttribute('href').slice(1));
+        if (target && target.offsetTop <= scrollY) {
+            current = links[i];
+            break;
+        }
+    }
+    links.forEach(function(a) { a.style.fontWeight = 'normal'; a.style.color = '#555'; });
+    if (current) { current.style.fontWeight = 'bold'; current.style.color = '#0366d6'; }
+});
+</script>
+
+
+<script>
+document.querySelectorAll('pre > code').forEach(function(codeBlock, i) {
+    var pre = codeBlock.parentNode;
+    pre.style.position = 'relative';
+    var btn = document.createElement('button');
+    btn.className = 'copy-btn';
+    btn.textContent = '复制';
+    pre.appendChild(btn);
+    btn.addEventListener('click', function() {
+        var text = codeBlock.textContent;
+        navigator.clipboard.writeText(text).then(function() {
+            btn.textContent = '已复制';
+            btn.classList.add('copied');
+            setTimeout(function() {
+                btn.textContent = '复制';
+                btn.classList.remove('copied');
+            }, 2000);
+        }).catch(function() {
+            // Fallback
+            var ta = document.createElement('textarea');
+            ta.value = text; ta.style.position = 'fixed'; ta.style.opacity = '0';
+            document.body.appendChild(ta); ta.select();
+            document.execCommand('copy'); document.body.removeChild(ta);
+            btn.textContent = '已复制'; btn.classList.add('copied');
+            setTimeout(function() { btn.textContent = '复制'; btn.classList.remove('copied'); }, 2000);
+        });
+    });
+});
+</script>
+
+<script>document.querySelectorAll("pre>code").forEach(function(c){var p=c.parentNode;p.style.position="relative";var b=document.createElement("button");b.className="copy-btn";b.textContent="复制";p.appendChild(b);b.addEventListener("click",function(){var t=c.textContent;navigator.clipboard.writeText(t).then(function(){b.textContent="已复制";b.classList.add("copied");setTimeout(function(){b.textContent="复制";b.classList.remove("copied")},2000)}).catch(function(){var a=document.createElement("textarea");a.value=t;a.style.position="fixed";a.style.opacity="0";document.body.appendChild(a);a.select();document.execCommand("copy");document.body.removeChild(a);b.textContent="已复制";b.classList.add("copied");setTimeout(function(){b.textContent="复制";b.classList.remove("copied")},2000)})})})</script>
+</body>
+</html>

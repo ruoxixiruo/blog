@@ -1,0 +1,773 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>面试题 - Django</title>
+<style>
+body {
+    transition: margin-left .25s ease;
+    font-family: -apple-system, "Noto Sans SC", "Microsoft YaHei", sans-serif;
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 20px 24px 60px;
+    line-height: 1.8;
+    color: #333;
+    background: #fff;
+}
+h1 { border-bottom: 2px solid #eee; padding-bottom: 10px; color: #222; }
+h2 { color: #333; margin-top: 32px; }
+h3 { color: #555; }
+a { color: #0366d6; text-decoration: none; }
+a:hover { text-decoration: underline; }
+pre {
+    background: #f6f8fa;
+    border-radius: 6px;
+    padding: 16px;
+    overflow-x: auto;
+    font-size: 14px;
+    line-height: 1.45;
+}
+code {
+    background: #f0f2f4;
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-size: 14px;
+}
+pre code { background: none; padding: 0; }
+blockquote {
+    border-left: 4px solid #ddd;
+    margin: 0;
+    padding: 0 16px;
+    color: #666;
+}
+table {
+    border-collapse: collapse;
+    width: 100%;
+    margin: 16px 0;
+}
+th, td {
+    border: 1px solid #ddd;
+    padding: 8px 12px;
+    text-align: left;
+}
+th { background: #f6f8fa; }
+img { max-width: 100%; }
+.back-link {
+    margin-bottom: 20px;
+    display: block;
+    color: #666;
+}
+.back-link:hover { color: #0366d6; }
+
+.sidebar-toc {
+    transition: left .25s ease;
+    position: fixed;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    width: 220px;
+    background: #f8f9fa;
+    border-right: 1px solid #e9ecef;
+    padding: 20px 0;
+    overflow-y: auto;
+    font-size: 13px;
+    z-index: 100;
+}
+.sidebar-toc a {
+    display: block;
+    padding: 6px 16px;
+    color: #555;
+    text-decoration: none;
+    border-left: 3px solid transparent;
+    line-height: 1.5;
+}
+.sidebar-toc a:hover {
+    background: #e9ecef;
+    color: #0366d6;
+    border-left-color: #0366d6;
+}
+.sidebar-toc .toc-h3 { padding-left: 20px; font-size: 12px; }
+body { margin-left: 240px; }
+
+
+.copy-btn {
+    position: absolute; top: 6px; right: 6px;
+    background: #e9ecef; border: none;
+    border-radius: 4px; padding: 3px 10px;
+    font-size: 12px; color: #555; cursor: pointer;
+    opacity: 0; transition: opacity 0.2s;
+    z-index: 1;
+}
+pre:hover .copy-btn { opacity: 1; }
+.copy-btn:hover { background: #d0d7de; }
+.copy-btn.copied { opacity: 1; background: #2da44e; color: #fff; }
+.copy-btn{position:absolute;top:6px;right:6px;background:#e9ecef;border:none;border-radius:4px;padding:3px 10px;font-size:12px;color:#555;cursor:pointer;opacity:0;transition:opacity .2s;z-index:1}pre:hover .copy-btn{opacity:1}.copy-btn:hover{background:#d0d7de}.copy-btn.copied{opacity:1;background:#2da44e;color:#fff}
+.copy-btn{position:absolute;top:6px;right:6px;background:#e9ecef;border:none;border-radius:4px;padding:3px 10px;font-size:12px;color:#555;cursor:pointer;opacity:0;transition:opacity .2s;z-index:1}pre:hover .copy-btn{opacity:1}.copy-btn:hover{background:#d0d7de}.copy-btn.copied{opacity:1;background:#2da44e;color:#fff}
+.copy-btn{position:absolute;top:6px;right:6px;background:#e9ecef;border:none;border-radius:4px;padding:3px 10px;font-size:12px;color:#555;cursor:pointer;opacity:0;transition:opacity .2s;z-index:1}pre:hover .copy-btn{opacity:1}.copy-btn:hover{background:#d0d7de}.copy-btn.copied{opacity:1;background:#2da44e;color:#fff}
+.sidebar-toggle-btn {
+  position: fixed;
+  left: 220px;
+  top: 0;
+  width: 28px;
+  height: 40px;
+  background: #f8f9fa;
+  border: 1px solid #e9ecef;
+  border-left: none;
+  border-radius: 0 4px 4px 0;
+  cursor: pointer;
+  font-size: 16px;
+  color: #555;
+  z-index: 101;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: left .25s, background .2s;
+  padding: 0;
+  line-height: 1;
+}
+.sidebar-toggle-btn:hover { background: #e9ecef; color: #0366d6; }
+.sidebar-collapsed .sidebar-toc { left: -220px; }
+.sidebar-collapsed .sidebar-toggle-btn { left: 0; }
+.sidebar-collapsed body, body.sidebar-collapsed { margin-left: 28px; }
+.sidebar-overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,.3);
+  z-index: 99;
+}
+@media (max-width: 768px) {
+  .sidebar-collapsed .sidebar-overlay { display: none; }
+  .sidebar-toc { left: -220px; }
+  .sidebar-toggle-btn { left: 0; }
+  body { margin-left: 28px; }
+}
+
+</style>
+</head>
+</head>
+<body>
+<nav class="sidebar-toc"><a class="toc-h3" href="#1-django">1. Django 的请求生命周期?</a><a class="toc-h3" href="#2-django">2. Django 中间件的执行顺序?</a><a class="toc-h3" href="#3-orm-select_related-prefetch_related">3. ORM 中 select_related 和 prefetch_related 的区别?</a><a class="toc-h3" href="#4-django_1">4. Django 的认证系统原理?</a><a class="toc-h3" href="#5-cbv-fbv">5. CBV 和 FBV 的对比?</a><a class="toc-h3" href="#6-django">6. Django 的信号是什么?</a><a class="toc-h3" href="#7-queryset">7. QuerySet 的惰性求值是什么意思?</a><a class="toc-h3" href="#8-values-values_list">8. values() 和 values_list() 的区别?</a><a class="toc-h3" href="#9-django-n1">9. 如何优化 Django 的 N+1 查询?</a><a class="toc-h3" href="#10-f-q">10. F 对象和 Q 对象的作用?</a><a class="toc-h3" href="#11-django">11. Django 的缓存机制?</a><a class="toc-h3" href="#12-foreignkey-on_delete">12. ForeignKey 的 on_delete 参数有哪些?</a><a class="toc-h3" href="#13-django-rest-frameworkdrf">13. 什么是 Django REST Framework(DRF)?</a><a class="toc-h3" href="#14-uwsgi-gunicorn">14. uWSGI 和 Gunicorn 是什么?</a><a class="toc-h3" href="#15-django">15. Django 中如何自定义用户模型?</a><a class="toc-h3" href="#16-drf">16. DRF 的请求生命周期?</a><a class="toc-h3" href="#17-serializer-modelserializer">17. Serializer 和 ModelSerializer 的区别?</a><a class="toc-h3" href="#18">18. 认证和权限的区别?</a><a class="toc-h3" href="#19">19. 多个认证类的调用顺序是怎样的?(高频)</a><a class="toc-h3" href="#20-jwt">20. 如何实现 JWT 认证?</a><a class="toc-h3" href="#21-viewset-generic-view">21. ViewSet 和 Generic View 的区别?</a><a class="toc-h3" href="#22-drf">22. DRF 如何做接口分页?</a><a class="toc-h3" href="#23-drf">23. 如何优化 DRF 接口性能?</a><a class="toc-h3" href="#24-serializer">24. Serializer 的校验顺序?</a><a class="toc-h3" href="#25-drf-action">25. DRF 中 @action 装饰器的用法?</a><a class="toc-h3" href="#26">26. 如何实现搜索和过滤?</a><a class="toc-h3" href="#27-drf-renderer">27. DRF 的渲染器(Renderer)是什么?</a><a class="toc-h3" href="#28-drf">28. DRF 如何处理异常和限流?</a><a class="toc-h3" href="#29-django-orm-n1">29. Django ORM 如何处理 N+1 查询问题?</a><a class="toc-h3" href="#30-django">30. Django 中如何实现乐观锁?</a><a class="toc-h3" href="#31-django">31. Django 如何实现高并发？生产环境怎么部署？</a></nav>
+<button class="sidebar-toggle-btn" onclick="toggleSidebar()" title="切换侧栏">☰</button>
+
+<div class="sidebar-overlay" onclick="toggleSidebar()"></div>
+
+<script>
+function toggleSidebar() {
+  document.body.classList.toggle('sidebar-collapsed');
+  try { localStorage.setItem('sidebarCollapsed', document.body.classList.contains('sidebar-collapsed')); } catch(e) {}
+}
+(function() {
+  try {
+    if (localStorage.getItem('sidebarCollapsed') === 'true') {
+      document.body.classList.add('sidebar-collapsed');
+    }
+  } catch(e) {}
+})();
+</script>
+<a class="back-link" href="/blog/2026/05/16/面试题/面试题/">← 返回面试题目录</a>
+<h1 id=page-title>Django</h1>
+<h3 id="1-django">1. Django 的请求生命周期?</h3>
+<pre><code>浏览器
+  ↓
+Nginx / uWSGI(接待--HTTP → WSGI 协议转换)
+  ↓
+Middleware(请求阶段--安检排队)
+  ↓  process_request() 按注册顺序执行
+URL Router(找到对应窗口)
+  ↓
+View(处理业务逻辑)
+  ↓  ORM 查数据库 / 模板渲染 / 调外部 API
+Middleware(响应阶段--出门盖章)
+  ↓  process_response() 按注册逆序执行
+浏览器 ← 响应
+</code></pre>
+<blockquote>
+<p><strong>扩展</strong>:<code>django-debug-toolbar</code> 可视化各阶段耗时;4.0+ 异步视图需 <code>sync_to_async</code> 包装 ORM。</p>
+</blockquote>
+<h3 id="2-django">2. Django 中间件的执行顺序?</h3>
+<p>中间件是洋葱模型:请求从外到内,响应从内到外。</p>
+<pre><code>请求 →
+  1 SecurityMiddleware     ← 最先处理请求,最后处理响应
+  2 SessionMiddleware
+  3 AuthenticationMiddleware  ← 请求最后到,响应最先出
+  ... View 处理业务 ...
+  3 AuthenticationMiddleware(处理响应)
+  2 SessionMiddleware
+  1 SecurityMiddleware     ← 最后处理响应
+响应 ←
+</code></pre>
+<pre><code class="language-python">MIDDLEWARE = [
+    '安全中间件',     # 1 请求先过我这,响应最后过
+    'Session中间件',  # 2
+    '认证中间件',     # 3 请求最后到我这,响应先过
+]
+</code></pre>
+<blockquote>
+<p><strong>扩展</strong>:自定义中间件实现 <code>process_request</code>/<code>process_response</code> 等;<code>process_exception</code> 做全局异常兜底;勿滥用以免拖慢性能。</p>
+</blockquote>
+<h3 id="3-orm-select_related-prefetch_related">3. ORM 中 <code>select_related</code> 和 <code>prefetch_related</code> 的区别?</h3>
+<pre><code>select_related:  SQL JOIN,一次查询全部带出
+prefetch_related:多条 SQL,Python 层面手动关联
+</code></pre>
+<table>
+<thead>
+<tr>
+<th></th>
+<th>select_related</th>
+<th>prefetch_related</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>实现方式</td>
+<td>SQL JOIN</td>
+<td>多条 SQL + Python 关联</td>
+</tr>
+<tr>
+<td>适用关系</td>
+<td>一对一、外键(多对一)</td>
+<td>多对多、反向外键</td>
+</tr>
+<tr>
+<td>SQL 次数</td>
+<td>1 条</td>
+<td>2 条(N+1 → 2)</td>
+</tr>
+<tr>
+<td>数据量</td>
+<td>JOIN 太多表反而慢</td>
+<td>每个关联独立查询</td>
+</tr>
+</tbody>
+</table>
+<ul>
+<li><code>select_related</code>:用 <strong>SQL JOIN</strong> 一次查询把所有关联数据都拿出来。适合一对一、多对一(外键在你这边)。但 JOIN 太多表反而慢</li>
+<li><code>prefetch_related</code>:发<strong>两条 SQL</strong>,Python 里手动关联。适合多对多、反向外键</li>
+</ul>
+<p>简单记:<code>select_related</code> 是"一锅出",<code>prefetch_related</code> 是"分开炒然后拼盘"。</p>
+<blockquote>
+<p><strong>扩展</strong>:<code>Prefetch()</code> 对象可以自定义预取查询的过滤和排序。<code>django-debug-toolbar</code> 的 SQL 面板能直观看到每种方案发了多少条 SQL,是排查 N+1 的神器。</p>
+</blockquote>
+<h3 id="4-django_1">4. Django 的认证系统原理?</h3>
+<p>Django 自带用户认证体系:</p>
+<pre><code>authenticate(username, password)
+    ↓ 验证通过
+login(request, user) → 写入 session
+    ↓
+AuthenticationMiddleware → 每次请求查 session → request.user
+    ↓
+{% if user.is_authenticated %} / @login_required
+</code></pre>
+<ul>
+<li><code>authenticate()</code> 验证用户名密码对不对</li>
+<li><code>login()</code> 在 session 里标记"这个人登录了"</li>
+<li>中间件 <code>AuthenticationMiddleware</code> 每次请求自动把 user 对象挂到 <code>request.user</code> 上</li>
+<li>模板里直接用 <code>{% if user.is_authenticated %}</code> 判断登录状态</li>
+</ul>
+<p>就像商场会员系统:进门刷卡(authenticate)→ 发个手环(session)→ 每次路过商店扫手环就知道你是谁(中间件查 session)。</p>
+<blockquote>
+<p><strong>扩展</strong>:实际项目建议第一时间自定义 User 模型(<code>AbstractUser</code> 或 <code>AbstractBaseUser</code>),后期改成本极高。Django 的 <code>Permission</code> 和 <code>Group</code> 模型可以做细粒度权限控制。JWT 认证适合前后端分离项目,可以用 <code>djangorestframework-simplejwt</code> 集成。</p>
+</blockquote>
+<h3 id="5-cbv-fbv">5. CBV 和 FBV 的对比?</h3>
+<table>
+<thead>
+<tr>
+<th></th>
+<th>FBV</th>
+<th>CBV</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>代码量</td>
+<td>简单接口少</td>
+<td>通用 CRUD 少(复用)</td>
+</tr>
+<tr>
+<td>灵活性</td>
+<td>高,随意写</td>
+<td>受限于类结构</td>
+</tr>
+<tr>
+<td>复用性</td>
+<td>差,靠装饰器</td>
+<td>好,靠继承/Mixin</td>
+</tr>
+<tr>
+<td>学习曲线</td>
+<td>低</td>
+<td>中</td>
+</tr>
+</tbody>
+</table>
+<ul>
+<li>FBV(函数视图):简单直接,适合小接口</li>
+<li>CBV(类视图):不同HTTP方法对应不同方法(<code>get()</code>/<code>post()</code>),可继承复用</li>
+</ul>
+<blockquote>
+<p><strong>扩展</strong>:通用CBV覆盖80%场景;Mixin组合行为比装饰器更灵活。</p>
+</blockquote>
+<h3 id="6-django">6. Django 的信号是什么?</h3>
+<p>信号是事件广播系统：模型保存/删除时自动通知注册的接收者。同步执行，影响性能，重要逻辑勿放信号中。</p>
+<pre><code>模型保存 → pre_save 信号发出 → 接收者收到
+         → post_save 信号发出 → ...
+</code></pre>
+<blockquote>
+<p><strong>扩展</strong>:复杂逻辑放signals.py难追踪，替代方案在Model的<code>save()</code>中显式调用hook。</p>
+</blockquote>
+<h3 id="7-queryset">7. QuerySet 的惰性求值是什么意思?</h3>
+<p>QuerySet 创建时不执行SQL，只在真正需要数据时才查询。支持链式追加条件，最后一次性高效执行。</p>
+<pre><code class="language-python"># 触发执行的时刻:
+list(qs) / qs[0] / len(qs) / bool(qs) / qs.get()
+</code></pre>
+<blockquote>
+<p><strong>扩展</strong>:<code>explain()</code>查看执行计划;<code>iterator()</code>分批获取;<code>exists()</code>比<code>len(qs)&gt;0</code>更高效。</p>
+</blockquote>
+<h3 id="8-values-values_list">8. <code>values()</code> 和 <code>values_list()</code> 的区别?</h3>
+<pre><code>Model.objects.all()        → [&lt;User: 张三&gt;, &lt;User: 李四&gt;]  完整对象,最重
+Model.objects.values()     → [{'name':'张三','age':25}, ...] 字典列表
+Model.objects.values_list()→ [('张三', 25), ...]             元组列表,最轻
+values_list('name', flat=True) → ['张三', '李四']             扁平列表
+</code></pre>
+<ul>
+<li><code>values()</code>:返回字典列表</li>
+<li><code>values_list()</code>:返回元组列表,<code>flat=True</code>取单列返回扁平列表</li>
+</ul>
+<blockquote>
+<p><strong>扩展</strong>:返回ValuesQuerySet,不能调用模型方法;<code>only()</code>/<code>defer()</code>是折中方案。</p>
+</blockquote>
+<h3 id="9-django-n1">9. 如何优化 Django 的 N+1 查询?</h3>
+<p>N+1问题：循环中每次访问关联对象都触发一次SQL。用<code>select_related()</code>/<code>prefetch_related()</code>预取关联数据。</p>
+<pre><code># 修复
+users = User.objects.prefetch_related('post_set')  # 2条SQL搞定
+</code></pre>
+<blockquote>
+<p><strong>扩展</strong>:模板中关联属性访问也会触发N+1;用<code>django-debug-toolbar</code>排查。</p>
+</blockquote>
+<h3 id="10-f-q">10. F 对象和 Q 对象的作用?</h3>
+<ul>
+<li>F对象:数据库层原子操作,<code>F('age')+1</code>直接在SQL中计算,防竞态</li>
+<li>Q对象:构建复杂查询条件,支持<code>&amp;</code>/<code>|</code>/<code>~</code>组合AND/OR/NOT</li>
+</ul>
+<pre><code>F 对象: UPDATE user SET age = age + 1   ← 数据库层原子操作
+Q 对象: WHERE name LIKE '%张%' OR email LIKE '%zhang%'  ← 动态拼条件
+</code></pre>
+<p>F是原子操作(防竞态),Q是条件工厂(拼AND/OR/NOT)。</p>
+<blockquote>
+<p><strong>扩展</strong>:F支持算术和跨表引用;<code>~Q()</code>取反;搭配<code>annotate()</code>/<code>aggregate()</code>做复杂统计。</p>
+</blockquote>
+<h3 id="11-django">11. Django 的缓存机制?</h3>
+<p>Django 缓存分四个层级,从粗到细:</p>
+<pre><code>全站缓存(最粗)
+  ↓
+视图缓存 @cache_page(60)
+  ↓
+模板片段缓存 {% cache 60 sidebar %}
+  ↓
+底层 API cache.set(key, value, 60)(最细)
+</code></pre>
+<ul>
+<li>全站缓存:<code>UpdateCacheMiddleware</code> + <code>FetchFromCacheMiddleware</code>,整站套一层</li>
+<li>视图缓存:<code>@cache_page(60)</code>,缓存整个视图 60 秒</li>
+<li>模板片段:<code>{% cache 60 sidebar %}</code>,只缓存侧边栏</li>
+<li>底层 API:<code>cache.set('key', value, 60)</code>,手动控制</li>
+</ul>
+<p>后端支持 Redis、Memcached、数据库、文件系统等。生产环境优先用 Redis。</p>
+<blockquote>
+<p><strong>扩展</strong>:缓存 key 的设计很重要--建议用 <code>业务:实体:ID</code> 的命名规范(如 <code>user:123:profile</code>)。缓存更新策略:旁路缓存(查询时缓存,更新时删缓存)是最常用的。<code>django-cacheops</code> 提供了自动缓存失效的 QuerySet。</p>
+</blockquote>
+<h3 id="12-foreignkey-on_delete">12. <code>ForeignKey</code> 的 <code>on_delete</code> 参数有哪些?</h3>
+<p>外键关联的对象被删了,该级联的数据怎么办:</p>
+<table>
+<thead>
+<tr>
+<th>选项</th>
+<th>效果</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>CASCADE(默认)</td>
+<td>一起删</td>
+</tr>
+<tr>
+<td>PROTECT</td>
+<td>抛异常阻止删除</td>
+</tr>
+<tr>
+<td>SET_NULL</td>
+<td>外键设null(需<code>null=True</code>)</td>
+</tr>
+<tr>
+<td>SET_DEFAULT</td>
+<td>外键设默认值</td>
+</tr>
+<tr>
+<td>SET()</td>
+<td>外键设指定值</td>
+</tr>
+<tr>
+<td>DO_NOTHING</td>
+<td>让数据库报错</td>
+</tr>
+</tbody>
+</table>
+<blockquote>
+<p><strong>扩展</strong>:2.0+强制指定<code>on_delete</code>;业务上PROTECT最安全;软删除是更好的方案。</p>
+</blockquote>
+<h3 id="13-django-rest-frameworkdrf">13. 什么是 Django REST Framework(DRF)?</h3>
+<p>DRF核心三板斧：Serializer(对象↔JSON+校验)、ViewSet(CRUD封装)、Router(自动生成URL)。附带认证、权限、限流、分页等。</p>
+<blockquote>
+<p><strong>扩展</strong>:<code>ModelSerializer</code>自动生成字段;<code>ModelViewSet</code>一行实现CRUD;<code>BasePermission</code>自定义权限。</p>
+</blockquote>
+<h3 id="14-uwsgi-gunicorn">14. <code>uWSGI</code> 和 <code>Gunicorn</code> 是什么?</h3>
+<p>两者都是WSGI应用服务器，负责HTTP→WSGI协议转换。uWSGI(C实现，性能高但配置复杂) vs Gunicorn(Python实现，pre-fork模型，简单好用)。</p>
+<blockquote>
+<p><strong>扩展</strong>:Gunicorn worker数=<code>(2*CPU核数)+1</code>;3.0+支持ASGI搭配Uvicorn/Daphne;用supervisord/systemd管理进程。</p>
+</blockquote>
+<hr />
+<h3 id="15-django">15. Django 中如何自定义用户模型?</h3>
+<p>Django 推荐用 AbstractUser 扩展用户模型。在 settings.py 设置 AUTH_USER_MODEL。</p>
+<pre><code class="language-python">from django.contrib.auth.models import AbstractUser
+class User(AbstractUser):
+    phone = models.CharField(max_length=11, unique=True)
+</code></pre>
+<p>需在第一次迁移前配置。用邮箱登录时继承 AbstractBaseUser + BaseUserManager。</p>
+<h3 id="16-drf">16. DRF 的请求生命周期?</h3>
+<pre><code>HTTP 请求
+  → Django 中间件
+  → URL 路由匹配
+  → 认证 (Authentication) - &quot;你是谁?&quot;
+  → 权限 (Permission) - &quot;你能做什么?&quot;
+  → 限流 (Throttling) - &quot;请求太频繁了吗?&quot;
+  → 视图 (View/ViewSet)
+    → 获取数据 (get_queryset)
+    → 序列化 (Serializer) - 模型对象 → JSON
+    → 数据校验 (validate) - 字段级 → 对象级
+    → 保存/返回 (create/update)
+  → 渲染 (Renderer) - JSON/HTML/XML
+  → HTTP 响应
+</code></pre>
+<p>就像机场安检:先看护照(认证)→ 看舱位等级(权限)→ 排队长了限流(限流)→ 进入候机厅(视图处理业务)。</p>
+<blockquote>
+<p><strong>面试话术</strong>:"DRF 的请求先经过 Django 中间件,路由匹配后依次执行认证、权限、限流三道安检,然后进入视图层--获取查询集、序列化、校验、持久化,最后渲染为客户端期望的格式返回。"</p>
+</blockquote>
+<h3 id="17-serializer-modelserializer">17. Serializer 和 ModelSerializer 的区别?</h3>
+<table>
+<thead>
+<tr>
+<th>类型</th>
+<th>字段定义</th>
+<th>create/update</th>
+<th>适用场景</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Serializer</strong></td>
+<td>手动逐个定义字段</td>
+<td>需自己实现</td>
+<td>复杂逻辑、非 Model 数据</td>
+</tr>
+<tr>
+<td><strong>ModelSerializer</strong></td>
+<td>根据 Model 自动生成</td>
+<td>自动实现</td>
+<td>标准 CRUD、快速开发</td>
+</tr>
+</tbody>
+</table>
+<p>选择建议:能用 ModelSerializer 就用它,省代码;复杂业务逻辑(多表嵌套、非 Model 数据源)用 Serializer。</p>
+<h3 id="18">18. 认证和权限的区别?</h3>
+<pre><code>认证(Authentication):确认&quot;你是谁&quot;
+  → 返回 (user, auth) 元组 → request.user 设置
+  → 失败 → 401 Unauthorized
+
+权限(Permission):确认&quot;你能做什么&quot;
+  → 在认证之后执行
+  → 失败 → 403 Forbidden
+
+记忆: 认证在前,权限在后。先验身份再查权限。
+</code></pre>
+<h3 id="19">19. 多个认证类的调用顺序是怎样的?(高频)</h3>
+<p>DRF 按 <code>authentication_classes</code> 列表<strong>顺序</strong>依次调用每个类的 <code>authenticate()</code> 方法:</p>
+<pre><code>JWT 认证 → Session 认证 → Basic 认证
+   │            │            │
+   ▼            ▼            ▼
+返回(user,auth) 返回 None  抛出异常
+   │            │            │
+   ▼            ▼            ▼
+认证成功!    继续下一个  认证失败!
+立即停止      直到找到      返回 401
+</code></pre>
+<p>三种返回结果:
+- 返回 <code>(user, auth)</code> → <strong>认证成功,立即停止</strong>遍历后续类
+- 返回 <code>None</code> → 该认证类不适用,<strong>继续尝试</strong>下一个
+- 抛出 <code>AuthenticationFailed</code> → <strong>认证失败,立即返回 401</strong></p>
+<p>配置建议:把最常用、最快的认证方式放前面(如 JWT 放首位)。</p>
+<h3 id="20-jwt">20. 如何实现 JWT 认证?</h3>
+<pre><code>JWT 认证流程:
+
+  1 登录 → 验证用户名密码
+  2 服务端生成 access_token(短期,如 30min)+ refresh_token(长期,如 7天)
+  3 客户端存储 token
+  4 后续请求带 Authorization: Bearer &lt;access_token&gt;
+  5 access_token 过期 → 用 refresh_token 换新的 access_token
+  6 refresh_token 也过期 → 重新登录
+</code></pre>
+<p>使用 <code>djangorestframework-simplejwt</code> 实现,提供 <code>/api/token/</code> 获取 token,<code>/api/token/refresh/</code> 刷新。</p>
+<h3 id="21-viewset-generic-view">21. ViewSet 和 Generic View 的区别?</h3>
+<pre><code>代码量对比:
+
+Generic View(每个操作一个类):
+  class ArticleList(ListCreateAPIView):    # 列表+创建
+  class ArticleDetail(RetrieveUpdateDestroyAPIView): # 详情+更新+删除
+  → 两个类,手动写 URL 映射
+
+ViewSet(一个类搞定所有):
+  class ArticleViewSet(ModelViewSet):     # 全部 CRUD
+  → 一个类 + Router 自动生成 URL
+  → 额外操作用 @action 装饰器
+</code></pre>
+<p>ViewSet 更简洁,配合 Router 自动生成 URL;Generic View 更灵活,每个视图独立配置。常规 CRUD 用 ViewSet,复杂定制用 Generic View。</p>
+<h3 id="22-drf">22. DRF 如何做接口分页?</h3>
+<table>
+<thead>
+<tr>
+<th>分页方式</th>
+<th>原理</th>
+<th>SQL</th>
+<th>适用场景</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>PageNumberPagination</strong></td>
+<td>页码 + 每页条数</td>
+<td><code>LIMIT N OFFSET M</code></td>
+<td>简单直观,小数据量</td>
+</tr>
+<tr>
+<td><strong>LimitOffsetPagination</strong></td>
+<td>偏移量 + 条数</td>
+<td><code>LIMIT N OFFSET M</code></td>
+<td>灵活翻页</td>
+</tr>
+<tr>
+<td><strong>CursorPagination</strong></td>
+<td>游标 ID</td>
+<td><code>WHERE id &gt; N LIMIT M</code></td>
+<td>大数据量,无 COUNT 查询</td>
+</tr>
+</tbody>
+</table>
+<p>面试亮点:CursorPagination 不需要 <code>SELECT COUNT(*)</code>,数据量越大优势越明显,但只能前后翻页不能跳页。</p>
+<h3 id="23-drf">23. 如何优化 DRF 接口性能?</h3>
+<pre><code>优化金字塔(从下到上):
+
+  5 缓存层: Django cache / Redis 缓存热点数据
+  4 序列化层: 按场景用不同 Serializer,避免字段过多
+  3 分页层: 大数据量用 CursorPagination(免 COUNT)
+  2 字段层: only()/defer() 控制 SELECT 字段
+  1 数据库层: select_related() 解决 FK N+1, prefetch_related() 解决 M2M N+1
+</code></pre>
+<blockquote>
+<p><strong>面试话术</strong>:"DRF 性能优化从数据库层开始--用 select_related 做 JOIN 预取外键,prefetch_related 预取多对多;再到序列化层,按场景精简字段;最后到缓存层,热点数据走 Redis。核心是减少 SQL 查询次数和查询数据量。"</p>
+</blockquote>
+<h3 id="24-serializer">24. Serializer 的校验顺序?</h3>
+<pre><code>数据进入 Serializer → 四层校验流水线:
+
+  1 字段类型校验      CharField 的 max_length、IntegerField 的 min_value
+        ↓ 通过继续
+  2 字段 validators 列表  字段定义时传入的 validator 函数
+        ↓ 通过继续
+  3 validate_&lt;field&gt;()   字段级别自定义校验(如 validate_email)
+        ↓ 通过继续
+  4 validate()           对象级别校验(跨字段联合校验,如 开始时间&lt;结束时间)
+        ↓ 通过
+  数据存入 validated_data,返回给视图
+</code></pre>
+<blockquote>
+<p><strong>面试话术</strong>:"校验从宽到严、从通用到具体。字段类型校验最基础,validate() 做跨字段联合校验。面试中常被问到--'密码和确认密码一致在哪校验?'答:在 validate() 做跨字段校验。"</p>
+</blockquote>
+<h3 id="25-drf-action">25. DRF 中 <code>@action</code> 装饰器的用法?</h3>
+<pre><code class="language-python"># detail=True: 操作单个对象,URL 含 pk → /api/articles/{pk}/publish/
+@action(detail=True, methods=['post'], url_path='publish')
+def publish(self, request, pk=None):
+    article = self.get_object()
+    article.status = 'published'
+    article.save()
+    return Response({'status': 'published'})
+
+# detail=False: 操作集合,URL 不含 pk → /api/articles/stats/
+@action(detail=False, methods=['get'], url_path='stats')
+def stats(self, request):
+    total = self.get_queryset().count()
+    return Response({'total': total})
+</code></pre>
+<p>参数说明:<code>detail=True</code> 含 pk(单个对象),<code>False</code> 不含 pk(集合);<code>methods</code> 允许的 HTTP 方法;<code>url_path</code> 自定义 URL 路径;<code>permission_classes</code> 可单独设置权限。</p>
+<h3 id="26">26. 如何实现搜索和过滤?</h3>
+<pre><code class="language-python">class ArticleViewSet(ModelViewSet):
+    queryset = Article.objects.all()
+    serializer_class = ArticleSerializer
+
+    filterset_fields = ['category', 'status']       # 精确过滤
+    search_fields = ['title', 'content']             # 模糊搜索 (icontains)
+    ordering_fields = ['created_at', 'views']        # 排序
+
+# GET /articles/?category=tech&amp;search=django&amp;ordering=-views
+# → 先筛 category=tech → 再搜标题含django → 按浏览量倒序
+</code></pre>
+<p>需要 <code>django-filter</code> 包支持。<code>search_fields</code> 可加前缀精确控制:<code>^field</code> 前缀匹配、<code>=field</code> 精确匹配、<code>@field</code> 全文搜索。</p>
+<h3 id="27-drf-renderer">27. DRF 的渲染器(Renderer)是什么?</h3>
+<p>渲染器负责将响应数据序列化为客户端期望的格式。DRF 通过请求的 <code>Accept</code> 头自动选择渲染器:</p>
+<pre><code>Accept: application/json → JSONRenderer(返回 JSON)
+Accept: text/html → BrowsableAPIRenderer(浏览器可视化界面)
+</code></pre>
+<p>生产环境通常只保留 JSONRenderer,关闭 BrowsableAPIRenderer 以减小暴露面。</p>
+<h3 id="28-drf">28. DRF 如何处理异常和限流?</h3>
+<p>异常处理:DRF 自带 <code>exception_handler</code> 处理 <code>APIException</code> 及子类。可自定义 <code>EXCEPTION_HANDLER</code> 统一格式化异常响应。</p>
+<pre><code>1. 核心机制：APIView → exception_handler
+
+def custom_exception_handler(exc, context):
+    # 1. 先调用 DRF 默认处理
+    response = exception_handler(exc, context)
+
+    # 2. 自定义额外处理
+    if isinstance(exc, IntegrityError):
+        return Response(
+            {&quot;error&quot;: &quot;数据冲突&quot;, &quot;detail&quot;: str(exc)},
+            status=status.HTTP_409_CONFLICT
+        )
+
+    # 3. 未处理的异常统一包装
+    if response is None:
+        return Response(
+            {&quot;error&quot;: &quot;服务器内部错误&quot;},
+            status=status.HTTP_500_INTERNAL_SERVER_ERROR
+        )
+
+    return response
+
+
+# 注册到 settings
+REST_FRAMEWORK = {
+    'EXCEPTION_HANDLER': 'myapp.utils.custom_exception_handler',
+}
+
+</code></pre>
+<p>限流配置:</p>
+<pre><code class="language-python">REST_FRAMEWORK = {
+    'DEFAULT_THROTTLE_CLASSES': [
+        'rest_framework.throttling.AnonRateThrottle',  # 匿名用户
+        'rest_framework.throttling.UserRateThrottle',  # 认证用户
+    ],
+    'DEFAULT_THROTTLE_RATES': {
+        'anon': '100/day',    # 匿名用户每天 100 次
+        'user': '1000/day',   # 认证用户每天 1000 次
+    }
+}
+</code></pre>
+<p>限流支持:AnonRateThrottle(按 IP)、UserRateThrottle(按用户)、ScopedRateThrottle(按 API 视图)。</p>
+<h3 id="29-django-orm-n1">29. Django ORM 如何处理 N+1 查询问题?</h3>
+<p>N+1 问题:查询 100 条订单时,先查 orders(1 条 SQL),再逐条查关联 user(100 条 SQL),共 101 条。</p>
+<pre><code class="language-python"># 错误:触发 N+1
+orders = Order.objects.all()
+for order in orders:
+    print(order.user.name)  # 每次循环都查一次 user 表!
+
+# 正确:select_related 预取外键(1 条 SQL JOIN)
+orders = Order.objects.select_related('user').all()
+for order in orders:
+    print(order.user.name)  # 已预取,无额外查询
+</code></pre>
+<p>解决方案:一对一/外键用 <code>select_related</code>(JOIN),多对多用 <code>prefetch_related</code>(IN 查询+Python 关联)。</p>
+<blockquote>
+<p><strong>扩展</strong>:django-debug-toolbar 可直观展示 SQL 数量;<code>prefetch_related(Prefetch('items', queryset=Item.objects.only('name')))</code> 可精确控制预取字段。</p>
+</blockquote>
+<h3 id="30-django">30. Django 中如何实现乐观锁?</h3>
+<p>乐观锁假设冲突较少,更新时检查数据是否被他人修改。Django 用 F 表达式+WHERE 条件实现。</p>
+<pre><code class="language-python">from django.db.models import F
+
+# 扣减库存(乐观锁):库存&gt;0才更新,返回影响行数
+rows = Product.objects.filter(
+    id=product_id,
+    stock__gt=0  # WHERE stock &gt; 0
+).update(stock=F('stock') - 1)
+
+if rows == 0:
+    raise Exception('库存不足或商品不存在')
+</code></pre>
+<p>对比悲观锁(<code>select_for_update()</code> 间隙锁):乐观锁不锁行,高并发下性能更好。但需处理更新失败的重试逻辑。</p>
+<blockquote>
+<p><strong>扩展</strong>:秒杀场景推荐 Redis 预扣库存 + 异步落库;乐观锁适合中低冲突场景;悲观锁适合强一致要求如金融转账。</p>
+</blockquote>
+<h3 id="31-django">31. Django 如何实现高并发？生产环境怎么部署？</h3>
+<p><strong>Django 本身是同步的</strong>，高并发靠外部机制：</p>
+<pre><code>请求链路:
+  Nginx(反向代理+静态文件)
+    → Gunicorn/uWSGI(WSGI服务器，进程池)
+      → Django(业务逻辑)
+        → Gunicorn workers × N(每 worker 一个 Python 进程)
+</code></pre>
+<p><strong>每 worker 处理一个请求</strong>：Gunicorn 启动多个 worker 进程（如 <code>gunicorn wsgi:app -w 4</code>），每个 worker 独立处理请求，绕过 GIL 实现并发。</p>
+<p><strong>异步方案</strong>：Django 3.1+ 支持 ASGI（用 <code>uvicorn</code> 运行），可接入 <code>async def</code> 视图，性能接近 FastAPI。</p>
+<blockquote>
+<p><strong>扩展</strong>：Nginx + Gunicorn(4 workers) + Django 是经典组合；CPU 密集用多 worker，IO 密集用 gevent（协程补丁）或 ASGI；uWSGI 功能最全但配置复杂，Gunicorn 简单够用。</p>
+</blockquote>
+
+<script>
+// Scroll spy — highlight active sidebar item
+window.addEventListener('scroll', function() {
+    var links = document.querySelectorAll('.sidebar-toc a');
+    var scrollY = window.scrollY + 120;
+    var current = '';
+    for (var i = links.length - 1; i >= 0; i--) {
+        var target = document.getElementById(links[i].getAttribute('href').slice(1));
+        if (target && target.offsetTop <= scrollY) {
+            current = links[i];
+            break;
+        }
+    }
+    links.forEach(function(a) { a.style.fontWeight = 'normal'; a.style.color = '#555'; });
+    if (current) { current.style.fontWeight = 'bold'; current.style.color = '#0366d6'; }
+});
+</script>
+
+
+<script>
+document.querySelectorAll('pre > code').forEach(function(codeBlock, i) {
+    var pre = codeBlock.parentNode;
+    pre.style.position = 'relative';
+    var btn = document.createElement('button');
+    btn.className = 'copy-btn';
+    btn.textContent = '复制';
+    pre.appendChild(btn);
+    btn.addEventListener('click', function() {
+        var text = codeBlock.textContent;
+        navigator.clipboard.writeText(text).then(function() {
+            btn.textContent = '已复制';
+            btn.classList.add('copied');
+            setTimeout(function() {
+                btn.textContent = '复制';
+                btn.classList.remove('copied');
+            }, 2000);
+        }).catch(function() {
+            // Fallback
+            var ta = document.createElement('textarea');
+            ta.value = text; ta.style.position = 'fixed'; ta.style.opacity = '0';
+            document.body.appendChild(ta); ta.select();
+            document.execCommand('copy'); document.body.removeChild(ta);
+            btn.textContent = '已复制'; btn.classList.add('copied');
+            setTimeout(function() { btn.textContent = '复制'; btn.classList.remove('copied'); }, 2000);
+        });
+    });
+});
+</script>
+
+
+<script>document.querySelectorAll("pre>code").forEach(function(c){var p=c.parentNode;p.style.position="relative";var b=document.createElement("button");b.className="copy-btn";b.textContent="复制";p.appendChild(b);b.addEventListener("click",function(){var t=c.textContent;navigator.clipboard.writeText(t).then(function(){b.textContent="已复制";b.classList.add("copied");setTimeout(function(){b.textContent="复制";b.classList.remove("copied")},2000)}).catch(function(){var a=document.createElement("textarea");a.value=t;a.style.position="fixed";a.style.opacity="0";document.body.appendChild(a);a.select();document.execCommand("copy");document.body.removeChild(a);b.textContent="已复制";b.classList.add("copied");setTimeout(function(){b.textContent="复制";b.classList.remove("copied")},2000)})})})</script>
+</body>
+</html>

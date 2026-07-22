@@ -1,0 +1,496 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>面试题 - Git</title>
+<style>
+body {
+    transition: margin-left .25s ease;
+    font-family: -apple-system, "Noto Sans SC", "Microsoft YaHei", sans-serif;
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 20px 24px 60px;
+    line-height: 1.8;
+    color: #333;
+    background: #fff;
+}
+h1 { border-bottom: 2px solid #eee; padding-bottom: 10px; color: #222; }
+h2 { color: #333; margin-top: 32px; }
+h3 { color: #555; }
+a { color: #0366d6; text-decoration: none; }
+a:hover { text-decoration: underline; }
+pre {
+    background: #f6f8fa;
+    border-radius: 6px;
+    padding: 16px;
+    overflow-x: auto;
+    font-size: 14px;
+    line-height: 1.45;
+}
+code {
+    background: #f0f2f4;
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-size: 14px;
+}
+pre code { background: none; padding: 0; }
+blockquote {
+    border-left: 4px solid #ddd;
+    margin: 0;
+    padding: 0 16px;
+    color: #666;
+}
+table {
+    border-collapse: collapse;
+    width: 100%;
+    margin: 16px 0;
+}
+th, td {
+    border: 1px solid #ddd;
+    padding: 8px 12px;
+    text-align: left;
+}
+th { background: #f6f8fa; }
+img { max-width: 100%; }
+.back-link {
+    margin-bottom: 20px;
+    display: block;
+    color: #666;
+}
+.back-link:hover { color: #0366d6; }
+
+.sidebar-toc {
+    transition: left .25s ease;
+    position: fixed;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    width: 220px;
+    background: #f8f9fa;
+    border-right: 1px solid #e9ecef;
+    padding: 20px 0;
+    overflow-y: auto;
+    font-size: 13px;
+    z-index: 100;
+}
+.sidebar-toc a {
+    display: block;
+    padding: 6px 16px;
+    color: #555;
+    text-decoration: none;
+    border-left: 3px solid transparent;
+    line-height: 1.5;
+}
+.sidebar-toc a:hover {
+    background: #e9ecef;
+    color: #0366d6;
+    border-left-color: #0366d6;
+}
+.sidebar-toc .toc-h3 { padding-left: 20px; font-size: 12px; }
+body { margin-left: 240px; }
+
+
+.copy-btn {
+    position: absolute; top: 6px; right: 6px;
+    background: #e9ecef; border: none;
+    border-radius: 4px; padding: 3px 10px;
+    font-size: 12px; color: #555; cursor: pointer;
+    opacity: 0; transition: opacity 0.2s;
+    z-index: 1;
+}
+pre:hover .copy-btn { opacity: 1; }
+.copy-btn:hover { background: #d0d7de; }
+.copy-btn.copied { opacity: 1; background: #2da44e; color: #fff; }
+.copy-btn{position:absolute;top:6px;right:6px;background:#e9ecef;border:none;border-radius:4px;padding:3px 10px;font-size:12px;color:#555;cursor:pointer;opacity:0;transition:opacity .2s;z-index:1}pre:hover .copy-btn{opacity:1}.copy-btn:hover{background:#d0d7de}.copy-btn.copied{opacity:1;background:#2da44e;color:#fff}
+.copy-btn{position:absolute;top:6px;right:6px;background:#e9ecef;border:none;border-radius:4px;padding:3px 10px;font-size:12px;color:#555;cursor:pointer;opacity:0;transition:opacity .2s;z-index:1}pre:hover .copy-btn{opacity:1}.copy-btn:hover{background:#d0d7de}.copy-btn.copied{opacity:1;background:#2da44e;color:#fff}
+.copy-btn{position:absolute;top:6px;right:6px;background:#e9ecef;border:none;border-radius:4px;padding:3px 10px;font-size:12px;color:#555;cursor:pointer;opacity:0;transition:opacity .2s;z-index:1}pre:hover .copy-btn{opacity:1}.copy-btn:hover{background:#d0d7de}.copy-btn.copied{opacity:1;background:#2da44e;color:#fff}
+.sidebar-toggle-btn {
+  position: fixed;
+  left: 220px;
+  top: 0;
+  width: 28px;
+  height: 40px;
+  background: #f8f9fa;
+  border: 1px solid #e9ecef;
+  border-left: none;
+  border-radius: 0 4px 4px 0;
+  cursor: pointer;
+  font-size: 16px;
+  color: #555;
+  z-index: 101;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: left .25s, background .2s;
+  padding: 0;
+  line-height: 1;
+}
+.sidebar-toggle-btn:hover { background: #e9ecef; color: #0366d6; }
+.sidebar-collapsed .sidebar-toc { left: -220px; }
+.sidebar-collapsed .sidebar-toggle-btn { left: 0; }
+.sidebar-collapsed body, body.sidebar-collapsed { margin-left: 28px; }
+.sidebar-overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,.3);
+  z-index: 99;
+}
+@media (max-width: 768px) {
+  .sidebar-collapsed .sidebar-overlay { display: none; }
+  .sidebar-toc { left: -220px; }
+  .sidebar-toggle-btn { left: 0; }
+  body { margin-left: 28px; }
+}
+
+</style>
+</head>
+</head>
+<body>
+<nav class="sidebar-toc"><a class="toc-h3" href="#1-git-merge-git-rebase">1. git merge 和 git rebase 的区别?</a><a class="toc-h3" href="#2-git-reset-git-revert">2. git reset 和 git revert 的区别?</a><a class="toc-h3" href="#3-git">3. 常用 Git 命令速查</a><a class="toc-h3" href="#4">4. 代码冲突怎么处理?</a><a class="toc-h3" href="#5-git">5. Git 的三大核心区域(工作区、暂存区、版本库)?</a><a class="toc-h3" href="#6-git-fetch-git-pull">6. git fetch 和 git pull 的区别?</a><a class="toc-h3" href="#7-git-reflog">7. git reflog 的作用?</a><a class="toc-h3" href="#8-git-cherry-pick">8. git cherry-pick 的使用场景?</a><a class="toc-h3" href="#9-git">9. Git 分支的本质是什么?</a><a class="toc-h3" href="#10-commit">10. 如何撤销一个已推送的 commit?</a><a class="toc-h3" href="#11-git-stash-drop">11. git stash 的数据存在哪?drop 后能恢复吗?</a><a class="toc-h3" href="#12-git">12. 如何把一个文件从 Git 历史中彻底删除?(包含大文件清理)</a><a class="toc-h3" href="#13-git">13. .git 目录里都存了什么？</a></nav>
+<button class="sidebar-toggle-btn" onclick="toggleSidebar()" title="切换侧栏">☰</button>
+
+<div class="sidebar-overlay" onclick="toggleSidebar()"></div>
+
+<script>
+function toggleSidebar() {
+  document.body.classList.toggle('sidebar-collapsed');
+  try { localStorage.setItem('sidebarCollapsed', document.body.classList.contains('sidebar-collapsed')); } catch(e) {}
+}
+(function() {
+  try {
+    if (localStorage.getItem('sidebarCollapsed') === 'true') {
+      document.body.classList.add('sidebar-collapsed');
+    }
+  } catch(e) {}
+})();
+</script>
+<a class="back-link" href="/blog/2026/05/16/面试题/面试题/">← 返回面试题目录</a>
+<h1 id=page-title>Git</h1>
+<h3 id="1-git-merge-git-rebase">1. <code>git merge</code> 和 <code>git rebase</code> 的区别?</h3>
+<ul>
+<li><strong>merge</strong>:合并两个分支,产生一个新"合并提交"。保留完整历史,但提交线复杂。</li>
+<li><strong>rebase</strong>:把当前分支的提交"搬到"目标分支末尾,提交线干净直线。但<strong>改写了提交历史</strong>(commit hash 变了)。</li>
+</ul>
+<pre><code>merge:                         rebase:
+
+主:  A → B → C                 主:  A → B → C
+         ↗   ↘                            ↘
+特性:  D → E → M (合并提交)    特性:  D → E (被搬到 C 后面)
+                                            ↘
+                                        A → B → C → D' → E'
+                                                  (新 hash)
+</code></pre>
+<p>简单记:<strong>公开分支用 merge</strong>(不改历史),<strong>自己分支用 rebase</strong>(保持整洁)。</p>
+<blockquote>
+<p><strong>扩展</strong>:rebase 的黄金法则--<strong>永远不要 rebase 已经 push 到公共仓库的提交</strong>。因为 rebase 会改 commit hash,别人的分支基于旧的 hash,你 rebase 后 push force 会把别人基于旧提交的工作全毁掉。就像你把房子地基换了,别人在旧地基上建的墙全塌了。</p>
+</blockquote>
+<h3 id="2-git-reset-git-revert">2. <code>git reset</code> 和 <code>git revert</code> 的区别?</h3>
+<ul>
+<li><strong>reset</strong>:<strong>回退</strong>到某个 commit,删除之后的提交。<code>--soft</code>(保留暂存区)、<code>--mixed</code>(保留工作区)、<code>--hard</code>(全删)</li>
+<li><strong>revert</strong>:<strong>新增</strong>一个"反向 commit"来抵消之前的改动。历史不丢失,适合已经 push 的代码</li>
+</ul>
+<pre><code>reset:                         revert:
+
+A → B → C → D                  A → B → C → D → D-1
+         ↑ 删                            ↑ 新增反向提交
+     回到这里
+
+历史: A → B                   历史: A → B → C → D → D-1
+(D 消失了)                      (D 和&quot;撤销D&quot;都在记录里)
+</code></pre>
+<p>一句话:reset 是"时光倒流",revert 是"打个补丁抵消掉"。<strong>已推送到远程的用 revert</strong>。</p>
+<blockquote>
+<p><strong>扩展</strong>:<code>reset --soft</code> 的妙用--如果你 commit 完发现漏了一个文件,用 <code>git reset --soft HEAD~1</code> 把最近一次 commit 撤回到暂存区,补上文件再重新 commit。工作区的改动完好无损。</p>
+</blockquote>
+<h3 id="3-git">3. 常用 Git 命令速查</h3>
+<table>
+<thead>
+<tr>
+<th>场景</th>
+<th>命令</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>暂存当前工作(未完成切换任务)</td>
+<td><code>git stash</code></td>
+</tr>
+<tr>
+<td>恢复暂存</td>
+<td><code>git stash pop</code></td>
+</tr>
+<tr>
+<td>查看提交图</td>
+<td><code>git log --oneline --graph</code></td>
+</tr>
+<tr>
+<td>删除远程分支</td>
+<td><code>git push origin --delete feature/xx</code></td>
+</tr>
+<tr>
+<td>修改最近一次 commit 信息</td>
+<td><code>git commit --amend</code></td>
+</tr>
+<tr>
+<td>撤销工作区修改</td>
+<td><code>git checkout -- &lt;file&gt;</code> 或 <code>git restore &lt;file&gt;</code></td>
+</tr>
+<tr>
+<td>cherry-pick 一个提交</td>
+<td><code>git cherry-pick &lt;commit-hash&gt;</code></td>
+</tr>
+</tbody>
+</table>
+<blockquote>
+<p><strong>扩展</strong>:<code>git stash</code> 不仅能暂存工作区,还能暂存特定文件(<code>git stash push &lt;file&gt;</code>)、加备注(<code>git stash save "WIP: 修复中"</code>)、查看 stash 列表(<code>git stash list</code>)。stash 是一个栈结构--<code>pop</code> 弹出最顶上的,<code>apply</code> 用但不删除。</p>
+</blockquote>
+<h3 id="4">4. 代码冲突怎么处理?</h3>
+<p>两个分支改了同一个文件的同一行。解决步骤:
+1. 打开冲突文件,找到 <code>&lt;&lt;&lt;&lt;&lt;&lt;&lt;</code> / <code>=======</code> / <code>&gt;&gt;&gt;&gt;&gt;&gt;&gt;</code> 标记
+2. 决定保留哪一部分(或合并两者),删除标记
+3. <code>git add</code> 标记已解决,<code>git commit</code> 完成合并</p>
+<pre><code>&lt;&lt;&lt;&lt;&lt;&lt;&lt; HEAD         ← 当前分支的内容
+const name = &quot;张三&quot;
+=======              ← 分隔线
+const name = &quot;李四&quot;   ← 合并进来的分支内容
+&gt;&gt;&gt;&gt;&gt;&gt;&gt; feature-branch
+
+解决后保留其中一个(或合并两者),删除标记行。
+</code></pre>
+<blockquote>
+<p><strong>扩展</strong>:日常减少冲突的技巧--1 经常从主分支拉最新代码(别攒一个月才合并一次);2 小粒度提交、小粒度 PR;3 IDE 的三路合并工具(VS Code / IntelliJ 自带)比手动改标记高效得多。</p>
+</blockquote>
+<h3 id="5-git">5. Git 的三大核心区域(工作区、暂存区、版本库)?</h3>
+<p>Git 有三个区域,文件在不同区域之间流转:</p>
+<pre><code>工作区 (Working Directory)     暂存区 (Staging Area)      版本库 (Repository)
+  ┌──────────────┐          ┌──────────────┐          ┌──────────────┐
+  │  你正在编辑的  │ git add  │  准备提交的    │ git commit│  已提交的     │
+  │  文件         │ ────────▶│  文件快照     │ ────────▶│  历史记录     │
+  └──────────────┘          └──────────────┘          └──────────────┘
+         ▲                                                  │
+         └──────── git checkout / git restore ──────────────┘
+                    (从版本库恢复文件到工作区)
+</code></pre>
+<table>
+<thead>
+<tr>
+<th>区域</th>
+<th>作用</th>
+<th>查看命令</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>工作区</td>
+<td>你实际看到的文件,随便改</td>
+<td>直接看文件</td>
+</tr>
+<tr>
+<td>暂存区</td>
+<td><code>git add</code> 后、<code>git commit</code> 前的"待提交区"</td>
+<td><code>git diff --staged</code></td>
+</tr>
+<tr>
+<td>版本库</td>
+<td><code>git commit</code> 后的历史记录</td>
+<td><code>git log</code></td>
+</tr>
+</tbody>
+</table>
+<blockquote>
+<p><strong>扩展</strong>:<code>git diff</code> 看的是工作区和暂存区的差异;<code>git diff --staged</code> 看的是暂存区和版本库的差异。理解了三个区域,对 reset/checkout/revert 这些"穿梭"命令就不会搞混了。</p>
+</blockquote>
+<h3 id="6-git-fetch-git-pull">6. <code>git fetch</code> 和 <code>git pull</code> 的区别?</h3>
+<ul>
+<li><strong>fetch</strong>:只从远程<strong>下载</strong>最新数据到本地(更新 <code>origin/main</code> 指针),但<strong>不合并</strong>到你的工作分支。就像取快递--你把包裹拿到家门口了,但还没拆。</li>
+<li><strong>pull</strong> = fetch + merge:下载并<strong>自动合并</strong>到当前分支。就像取快递并直接拆开。</li>
+</ul>
+<pre><code>git fetch:
+  origin/main: A → B → C → D(新)
+  local/main:  A → B → C
+  结果:本地知道远程有新提交 D,但你的分支没变
+
+git pull:
+  origin/main: A → B → C → D(新)
+  local/main:  A → B → C → D(新)
+  结果:本地分支直接包含了 D
+</code></pre>
+<blockquote>
+<p><strong>扩展</strong>:推荐习惯:<strong>用 <code>git fetch</code> + <code>git merge</code> 而不是 <code>git pull</code></strong>。因为 pull 直接合并,出了问题你都不知道是谁改的。先 fetch 看远程有什么更新,再决定 merge 还是 rebase。</p>
+</blockquote>
+<h3 id="7-git-reflog">7. <code>git reflog</code> 的作用?</h3>
+<p><code>git reflog</code> 记录了 <strong>HEAD 的所有移动历史</strong>(包括被 reset 掉的、被 rebase 掉的、被 branch -D 删掉的)。只要 ref 还在 reflog 里(默认 90 天),就能找回来。</p>
+<pre><code class="language-bash"># 场景:git reset --hard 后发现搞错了,想回去
+$ git reflog
+a1b2c3d HEAD@{0}: reset: moving to HEAD~3
+e4f5g6h HEAD@{1}: commit: 重要的提交(被我误删了!)
+i7j8k9l HEAD@{2}: commit: 另一个提交
+
+$ git reset --hard e4f5g6h   # 回到&quot;被删掉&quot;的提交--完美恢复!
+</code></pre>
+<blockquote>
+<p><strong>扩展</strong>:reflog 救命的场景--误 reset --hard、误 rebase、误删分支。<code>git reflog expire --expire=now --all</code> 可以手动清空 reflog,但没事别执行。reflog 是<strong>本地</strong>的,不存在远程--所以你只能恢复本地误操作。</p>
+</blockquote>
+<h3 id="8-git-cherry-pick">8. <code>git cherry-pick</code> 的使用场景?</h3>
+<p>使用场景:你在 feature-A 分支上修了一个 bug(commit abc123),现在想把这个 bug fix 也应用到 master 上,但不想把 feature-A 的其他提交合并过来。</p>
+<pre><code class="language-bash">git checkout master
+git cherry-pick abc123   # 把 abc123 这个提交的改动复制到 master
+</code></pre>
+<pre><code>feature-A: A → B → C → D(bug修复)
+                        ↑
+                    cherry-pick
+                        ↓
+master:    E → F → D'(D 的复制,新 hash)
+</code></pre>
+<blockquote>
+<p><strong>扩展</strong>:cherry-pick 会产生新的 commit hash(因为父提交不同)。如果 cherry-pick 有冲突,解决后 <code>git cherry-pick --continue</code>;想取消 <code>git cherry-pick --abort</code>。虽然好用,但 cherry-pick 后两个分支有了相同内容的提交但不同 hash,后续合并可能重复冲突--少用为妙。</p>
+</blockquote>
+<h3 id="9-git">9. Git 分支的本质是什么?</h3>
+<p>Git 分支本质上是一个<strong>指向某个 commit 对象的可变指针</strong>(一个 41 字节的文件,里面写着一个 SHA-1 哈希值)。</p>
+<pre><code>HEAD → main → a1b2c3d (commit)
+                   ↑
+              feature → a1b2c3d (同一个 commit)
+</code></pre>
+<p>这就是为什么:
+- <strong>创建分支几乎是瞬间的</strong>(只创建了一个 41 字节的指针文件)
+- <strong>切换分支很快</strong>(只改 HEAD 指向和工作区文件)
+- Git 的分支可以随意创建删除,成本极低</p>
+<p>相比 SVN 的分支是完整目录拷贝(慢且重),Git 的分支轻量得多。</p>
+<blockquote>
+<p><strong>扩展</strong>:<code>HEAD</code> 是一个特殊的指针,指向当前你所在的分支。当 HEAD 直接指向某个 commit(而不是通过分支名),就是<strong>"detached HEAD"(游离状态)</strong>。在游离状态做的提交如果没有新建分支,切换走就丢了。</p>
+</blockquote>
+<hr />
+<h3 id="10-commit">10. 如何撤销一个已推送的 commit?</h3>
+<p>公共分支用 git revert HEAD 生成反向 commit(安全可追溯)。私有分支可用 git reset --hard HEAD~1 后 git push --force。revert 是企业标准做法。</p>
+<h3 id="11-git-stash-drop">11. <code>git stash</code> 的数据存在哪?drop 后能恢复吗?</h3>
+<p><code>git stash</code> 把改动存到 <code>.git/refs/stash</code> 和 Git 对象库中。<code>drop</code> 只是删了引用,对象还在(90 天内可通过 <code>git fsck --unreachable --no-reflogs</code> 找到 dangling commit 恢复)。<strong>结论:drop 后大概率能恢复,别慌。</strong></p>
+<pre><code class="language-bash"># 恢复被 drop 的 stash
+git fsck --unreachable --no-reflogs | grep commit
+# 找到 dangling commit 的 hash
+git stash apply &lt;hash&gt;
+</code></pre>
+<blockquote>
+<p><strong>面试话术</strong>:"stash 的底层就是一个特殊的 merge commit(工作区+暂存区的合并)。drop 只删引用不删对象,所以能恢复。但如果跑了 <code>git gc --prune=now</code>,对象就被真正回收了,彻底没救。"</p>
+</blockquote>
+<h3 id="12-git">12. 如何把一个文件从 Git 历史中彻底删除?(包含大文件清理)</h3>
+<p>用 <code>git filter-branch</code> 或 <code>git filter-repo</code>。<strong>推荐 <code>git filter-repo</code></strong>(更快更安全)。</p>
+<pre><code class="language-bash"># 从所有历史中删除某个文件
+git filter-repo --path data/large_file.zip --invert-paths
+
+# 清理所有历史中超过 10MB 的文件
+git filter-repo --strip-blobs-bigger-than 10M
+
+# 之后必须 force push
+git push --force --all
+</code></pre>
+<p><strong>注意</strong>:改写历史后所有人的 commit hash 都变了,需要通知团队成员 <code>git pull --rebase</code>。如果是公开仓库(如 GitHub),建议先用 <code>gh repo delete</code> 删旧仓库再重新 push。</p>
+<h3 id="13-git">13. <code>.git</code> 目录里都存了什么？</h3>
+<pre><code>.git/
+├── HEAD              # 当前指向的分支（ref: refs/heads/main）
+├── config            # 本仓库配置
+├── refs/
+│   ├── heads/        # 本地分支（每个分支一个文件）
+│   └── remotes/      # 远程分支引用
+├── objects/           # 所有 git 对象（blob/tree/commit/tag）
+│   ├── pack/         # 打包后的对象（节省空间）
+│   └── info/         # 包的辅助信息
+├── index             # 暂存区（staging area）的二进制索引
+├── logs/             # 所有 ref 的变更历史
+├── hooks/            # 客户端/服务端钩子脚本
+├── description       # 仓库描述（给 GitWeb 用）
+└── info/             # exclude 等配置
+</code></pre>
+<p><strong>objects 目录四种对象</strong>：</p>
+<table>
+<thead>
+<tr>
+<th>对象类型</th>
+<th>内容</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>blob</td>
+<td>文件内容（无文件名，无权限）</td>
+</tr>
+<tr>
+<td>tree</td>
+<td>目录快照（文件名 + 权限 + blob/tree 指针）</td>
+</tr>
+<tr>
+<td>commit</td>
+<td>快照引用 + 作者 + 提交信息 + 父 commit</td>
+</tr>
+<tr>
+<td>tag</td>
+<td>指向某个 commit 的别名</td>
+</tr>
+</tbody>
+</table>
+<pre><code class="language-bash"># 查看对象内容
+git cat-file -t &lt;hash&gt;  # 类型
+git cat-file -p &lt;hash&gt;   # 内容
+
+# 理解 Git 的本质
+# Git 不是存差异，是存每个提交时刻的完整快照
+# 对象去重：相同内容的文件只存一份 blob
+</code></pre>
+<blockquote>
+<p><strong>扩展</strong>：<code>git reflog</code> 记录所有 HEAD 移动历史，可恢复"丢失"的 commit；<code>git fsck --lost-found</code> 找到 dangling 对象；<code>.git/objects/pack</code> 是 packfile（压缩后的对象集合），比松散对象省 60-80% 空间。</p>
+</blockquote>
+
+<script>
+// Scroll spy — highlight active sidebar item
+window.addEventListener('scroll', function() {
+    var links = document.querySelectorAll('.sidebar-toc a');
+    var scrollY = window.scrollY + 120;
+    var current = '';
+    for (var i = links.length - 1; i >= 0; i--) {
+        var target = document.getElementById(links[i].getAttribute('href').slice(1));
+        if (target && target.offsetTop <= scrollY) {
+            current = links[i];
+            break;
+        }
+    }
+    links.forEach(function(a) { a.style.fontWeight = 'normal'; a.style.color = '#555'; });
+    if (current) { current.style.fontWeight = 'bold'; current.style.color = '#0366d6'; }
+});
+</script>
+
+
+<script>
+document.querySelectorAll('pre > code').forEach(function(codeBlock, i) {
+    var pre = codeBlock.parentNode;
+    pre.style.position = 'relative';
+    var btn = document.createElement('button');
+    btn.className = 'copy-btn';
+    btn.textContent = '复制';
+    pre.appendChild(btn);
+    btn.addEventListener('click', function() {
+        var text = codeBlock.textContent;
+        navigator.clipboard.writeText(text).then(function() {
+            btn.textContent = '已复制';
+            btn.classList.add('copied');
+            setTimeout(function() {
+                btn.textContent = '复制';
+                btn.classList.remove('copied');
+            }, 2000);
+        }).catch(function() {
+            // Fallback
+            var ta = document.createElement('textarea');
+            ta.value = text; ta.style.position = 'fixed'; ta.style.opacity = '0';
+            document.body.appendChild(ta); ta.select();
+            document.execCommand('copy'); document.body.removeChild(ta);
+            btn.textContent = '已复制'; btn.classList.add('copied');
+            setTimeout(function() { btn.textContent = '复制'; btn.classList.remove('copied'); }, 2000);
+        });
+    });
+});
+</script>
+
+
+<script>document.querySelectorAll("pre>code").forEach(function(c){var p=c.parentNode;p.style.position="relative";var b=document.createElement("button");b.className="copy-btn";b.textContent="复制";p.appendChild(b);b.addEventListener("click",function(){var t=c.textContent;navigator.clipboard.writeText(t).then(function(){b.textContent="已复制";b.classList.add("copied");setTimeout(function(){b.textContent="复制";b.classList.remove("copied")},2000)}).catch(function(){var a=document.createElement("textarea");a.value=t;a.style.position="fixed";a.style.opacity="0";document.body.appendChild(a);a.select();document.execCommand("copy");document.body.removeChild(a);b.textContent="已复制";b.classList.add("copied");setTimeout(function(){b.textContent="复制";b.classList.remove("copied")},2000)})})})</script>
+</body>
+</html>

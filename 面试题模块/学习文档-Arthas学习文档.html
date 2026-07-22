@@ -1,0 +1,929 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Arthas学习文档</title>
+<style>
+body {
+    transition: margin-left .25s ease;
+    font-family: -apple-system, "Noto Sans SC", "Microsoft YaHei", sans-serif;
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 20px 24px 60px;
+    line-height: 1.8;
+    color: #333;
+    background: #fff;
+}
+h1 { border-bottom: 2px solid #eee; padding-bottom: 10px; color: #222; }
+h2 { color: #333; margin-top: 32px; }
+h3 { color: #555; }
+a { color: #0366d6; text-decoration: none; }
+a:hover { text-decoration: underline; }
+pre {
+    background: #f6f8fa;
+    border-radius: 6px;
+    padding: 16px;
+    overflow-x: auto;
+    font-size: 14px;
+    line-height: 1.45;
+}
+code {
+    background: #f0f2f4;
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-size: 14px;
+}
+pre code { background: none; padding: 0; }
+blockquote {
+    border-left: 4px solid #ddd;
+    margin: 0;
+    padding: 0 16px;
+    color: #666;
+}
+table {
+    border-collapse: collapse;
+    width: 100%;
+    margin: 16px 0;
+}
+th, td {
+    border: 1px solid #ddd;
+    padding: 8px 12px;
+    text-align: left;
+}
+th { background: #f6f8fa; }
+img { max-width: 100%; }
+.back-link {
+    margin-bottom: 20px;
+    display: block;
+    color: #666;
+}
+.back-link:hover { color: #0366d6; }
+
+.sidebar-toc {
+    transition: left .25s ease;
+    position: fixed;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    width: 220px;
+    background: #f8f9fa;
+    border-right: 1px solid #e9ecef;
+    padding: 20px 0;
+    overflow-y: auto;
+    font-size: 13px;
+    z-index: 100;
+}
+.sidebar-toc a {
+    display: block;
+    padding: 6px 16px;
+    color: #555;
+    text-decoration: none;
+    border-left: 3px solid transparent;
+    line-height: 1.5;
+}
+.sidebar-toc a:hover {
+    background: #e9ecef;
+    color: #0366d6;
+    border-left-color: #0366d6;
+}
+.sidebar-toc .toc-h2 { padding-left: 16px; font-weight: 500; }
+.sidebar-toc .toc-h3 { padding-left: 32px; font-size: 12px; }
+body { margin-left: 240px; }
+
+
+.copy-btn {
+    position: absolute; top: 6px; right: 6px;
+    background: #e9ecef; border: none;
+    border-radius: 4px; padding: 3px 10px;
+    font-size: 12px; color: #555; cursor: pointer;
+    opacity: 0; transition: opacity 0.2s;
+    z-index: 1;
+}
+pre:hover .copy-btn { opacity: 1; }
+.copy-btn:hover { background: #d0d7de; }
+.copy-btn.copied { opacity: 1; background: #2da44e; color: #fff; }
+.sidebar-toggle-btn {
+  position: fixed;
+  left: 220px;
+  top: 0;
+  width: 28px;
+  height: 40px;
+  background: #f8f9fa;
+  border: 1px solid #e9ecef;
+  border-left: none;
+  border-radius: 0 4px 4px 0;
+  cursor: pointer;
+  font-size: 16px;
+  color: #555;
+  z-index: 101;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: left .25s, background .2s;
+  padding: 0;
+  line-height: 1;
+}
+.sidebar-toggle-btn:hover { background: #e9ecef; color: #0366d6; }
+.sidebar-collapsed .sidebar-toc { left: -220px; }
+.sidebar-collapsed .sidebar-toggle-btn { left: 0; }
+.sidebar-collapsed body, body.sidebar-collapsed { margin-left: 28px; }
+.sidebar-overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,.3);
+  z-index: 99;
+}
+@media (max-width: 768px) {
+  .sidebar-collapsed .sidebar-overlay { display: none; }
+  .sidebar-toc { left: -220px; }
+  .sidebar-toggle-btn { left: 0; }
+  body { margin-left: 28px; }
+}
+
+</style>
+</head>
+<body>
+<nav class="sidebar-toc"><a class="toc-h2" href="#1">1. Arthas 概述</a><a class="toc-h3" href="#11">1.1 是什么</a><a class="toc-h3" href="#12">1.2 核心优势</a><a class="toc-h3" href="#13">1.3 适用场景</a><a class="toc-h2" href="#2">2. 安装与启动</a><a class="toc-h3" href="#21">2.1 快速安装</a><a class="toc-h3" href="#22">2.2 启动方式</a><a class="toc-h3" href="#23">2.3 退出 Arthas</a><a class="toc-h2" href="#3">3. 基础命令</a><a class="toc-h3" href="#31-dashboard">3.1 dashboard（仪表盘）</a><a class="toc-h3" href="#32-thread">3.2 thread（线程）</a><a class="toc-h3" href="#33-jad">3.3 jad（反编译）</a><a class="toc-h3" href="#34-sc-sm">3.4 sc / sm（类/方法搜索）</a><a class="toc-h3" href="#35-ognl">3.5 ognl（表达式执行）</a><a class="toc-h2" href="#4">4. 诊断命令</a><a class="toc-h3" href="#41-watch">4.1 watch（方法观察）</a><a class="toc-h3" href="#42-trace">4.2 trace（方法追踪）</a><a class="toc-h3" href="#43-stack">4.3 stack（调用栈）</a><a class="toc-h3" href="#44-monitor">4.4 monitor（监控统计）</a><a class="toc-h3" href="#45-tt">4.5 tt（时空隧道）</a><a class="toc-h2" href="#5">5. 高级命令</a><a class="toc-h3" href="#51-profiler">5.1 profiler（火焰图）</a><a class="toc-h3" href="#52-vmtool">5.2 vmtool</a><a class="toc-h3" href="#53-heapdump">5.3 heapdump</a><a class="toc-h3" href="#54-mc-redefine-retransform">5.4 mc / redefine / retransform</a><a class="toc-h2" href="#6">6. 排查实战</a><a class="toc-h3" href="#61-cpu">6.1 CPU 飙高排查</a><a class="toc-h3" href="#62-oom">6.2 OOM 排查</a><a class="toc-h3" href="#63">6.3 慢接口定位</a><a class="toc-h3" href="#64">6.4 死锁检测</a><a class="toc-h2" href="#7">7. 热修复</a><a class="toc-h3" href="#71">7.1 什么是热修复</a><a class="toc-h3" href="#72">7.2 操作流程</a><a class="toc-h2" href="#8">8. 原理与架构</a><a class="toc-h3" href="#81">8.1 工作原理</a><a class="toc-h3" href="#82">8.2 架构设计</a><a class="toc-h2" href="#9">9. Arthas vs 其他工具</a><a class="toc-h3" href="#91">9.1 对比表格</a><a class="toc-h2" href="#10_1">10. 高频面试题</a><a class="toc-h3" href="#q1-arthas">Q1：Arthas 是什么？解决了什么问题？</a><a class="toc-h3" href="#q2-arthas-">Q2：Arthas 和 jstack / jmap / jstat 有什么区别？</a><a class="toc-h3" href="#q3-arthas">Q3：Arthas 的工作原理？</a><a class="toc-h3" href="#q4-arthas-watch-trace">Q4：watch 和 trace 的区别？</a><a class="toc-h3" href="#q5-arthas">Q5：Arthas 如何实现热修复？</a><a class="toc-h3" href="#q6-arthas-cpu">Q6：用 Arthas 排查 CPU 飙高的步骤？</a><a class="toc-h3" href="#q7-arthas-ognl">Q7：ognl 命令能做什么？</a><a class="toc-h3" href="#q8-arthas">Q8：Arthas 安全性如何？</a><a class="toc-h2" href="#_2">附录：命令速查表</a></nav>
+<button class="sidebar-toggle-btn" onclick="toggleSidebar()" title="切换侧栏">☰</button>
+
+<div class="sidebar-overlay" onclick="toggleSidebar()"></div>
+
+<script>
+function toggleSidebar() {
+  document.body.classList.toggle('sidebar-collapsed');
+  try { localStorage.setItem('sidebarCollapsed', document.body.classList.contains('sidebar-collapsed')); } catch(e) {}
+}
+(function() {
+  try {
+    if (localStorage.getItem('sidebarCollapsed') === 'true') {
+      document.body.classList.add('sidebar-collapsed');
+    }
+  } catch(e) {}
+})();
+</script>
+<a class="back-link" href="/blog/2026/05/16/面试题/面试题/">← 返回面试题目录</a>
+<h1 id=page-title>Arthas 面试学习文档</h1>
+<blockquote>
+<p>📅 整理日期：2026-06-27 | 🎯 目标：系统掌握 Arthas 诊断原理、核心命令与线上排查实战</p>
+</blockquote>
+<hr />
+
+<h2 id="1">1. Arthas 概述</h2>
+<h3 id="11">1.1 是什么</h3>
+<p><strong>Arthas</strong>（阿尔萨斯）是阿里巴巴开源的 <strong>Java 在线诊断工具</strong>。它允许开发者在不重启、不修改代码、不打断点的情况下，实时诊断生产环境中的 Java 应用问题。</p>
+<blockquote>
+<p><strong>面试话术</strong>：Arthas 最大的价值在于 <strong>动态诊断</strong>——生产环境通常无法远程 debug、无法加日志重新发布。Arthas 通过 Java Instrumentation + ASM 字节码增强，运行时注入诊断代码，用完即卸载，对业务零侵入。</p>
+</blockquote>
+
+<h3 id="12">1.2 核心优势</h3>
+<table>
+<thead>
+<tr>
+<th>特性</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>零侵入</strong></td>
+<td>不需要修改代码、不需要重启应用、不需要额外配置</td>
+</tr>
+<tr>
+<td><strong>实时生效</strong></td>
+<td>Attach 到目标 JVM 后立即开始诊断</td>
+</tr>
+<tr>
+<td><strong>命令丰富</strong></td>
+<td>涵盖线程、内存、类加载、方法调用、JVM 参数等</td>
+</tr>
+<tr>
+<td><strong>安全可控</strong></td>
+<td>支持权限控制、不持久化改动、用完即卸载</td>
+</tr>
+<tr>
+<td><strong>热修复</strong></td>
+<td>支持在线修改字节码并重新加载（临时应急）</td>
+</tr>
+<tr>
+<td><strong>开源免费</strong></td>
+<td>Apache 2.0 许可，社区活跃</td>
+</tr>
+</tbody>
+</table>
+
+<h3 id="13">1.3 适用场景</h3>
+<pre><code>┌─────────────────────────────────────────────────────┐
+│                Arthas 适用场景                        │
+├─────────────────────────────────────────────────────┤
+│ 1. CPU 飙高 → 找到最耗 CPU 的线程和方法              │
+│ 2. 内存泄漏 → dump 堆分析、查看对象统计               │
+│ 3. 接口慢 → trace 追踪方法调用耗时                     │
+│ 4. 参数验证 → watch 方法入参和返回值                    │
+│ 5. 死锁检测 → thread -b 一键查找                     │
+│ 6. 热修复 → 修改字节码并 redefine                     │
+│ 7. 查看配置 → ognl 获取运行时配置值                   │
+│ 8. 类冲突 → sc 查看类加载器                            │
+│ 9. 调用栈 → stack 查看方法被谁调用了                  │
+└─────────────────────────────────────────────────────┘
+</code></pre>
+<hr />
+
+<h2 id="2">2. 安装与启动</h2>
+<h3 id="21">2.1 快速安装</h3>
+<pre><code class="language-bash"># 方式一：一键安装（推荐）
+curl -O https://arthas.aliyun.com/arthas-boot.jar
+java -jar arthas-boot.jar
+
+# 方式二：下载完整包
+curl -O https://arthas.aliyun.com/arthas-packaging.tar.gz
+tar -xzf arthas-packaging.tar.gz
+cd arthas
+./as.sh
+
+# 方式三：从 IDE 插件启动（不推荐生产用）
+# IntelliJ IDEA → Plugins → Arthas 插件
+</code></pre>
+
+<h3 id="22">2.2 启动方式</h3>
+<pre><code class="language-bash"># 1. 交互式启动
+java -jar arthas-boot.jar
+# 会列出所有 Java 进程，输入编号选择目标进程
+
+# 2. 直接指定 PID
+java -jar arthas-boot.jar &lt;pid&gt;
+
+# 3. 非交互模式（脚本化）
+java -jar arthas-boot.jar &lt;pid&gt; -c "dashboard -n 1"
+
+# 4. Web Console（远程诊断）
+# 启动后默认在 http://127.0.0.1:8563 提供 Web 端
+# 配合 Tunnel Server 可实现远程诊断
+
+# 5. 以 agent 形式启动（开机自启）
+java -javaagent:arthas-agent.jar \
+     -Darthas.tunnelServer=ws://tunnel-server:7777/ws \
+     -jar application.jar
+</code></pre>
+
+<h3 id="23">2.3 退出 Arthas</h3>
+<pre><code class="language-bash"># 退出当前会话（Arthas 仍在后台运行）
+exit  # 或 quit
+
+# 完全停止 Arthas
+stop
+
+# 停止后原有业务不受影响，已注入的字节码恢复
+</code></pre>
+<hr />
+
+<h2 id="3">3. 基础命令</h2>
+<h3 id="31-dashboard">3.1 dashboard（仪表盘）</h3>
+<pre><code>实时查看 JVM 整体状态，相当于"JVM 的 top"：
+
+$ dashboard
++----------------------------------------------------+
+| ID    NAME                      GROUP    CPU%       |
+| 1     main                      main     0.5       |
+| 122   arthas-Netty-HTTP-01      system   0.2       |
+| ...                                                  |
++----------------------------------------------------+
+| Memory                     used    total    max     |
+| heap                       2.1G    4.0G     4.0G   |
+| eden                       800M    1.2G     1.2G   |
+| old                        1.3G    2.8G     2.8G   |
+| metaspace                  180M    256M     256M   |
++----------------------------------------------------+
+| GC                           YGC    YGCT    FGC     |
+|                             120    1.234s   2       |
++----------------------------------------------------+
+| Runtime: OS / CPU / Load / Uptime                    |
++----------------------------------------------------+
+
+常用选项:
+  dashboard -n 3       # 执行 3 次后退出
+  dashboard -i 2000    # 每 2 秒刷新一次
+</code></pre>
+
+<h3 id="32-thread">3.2 thread（线程）</h3>
+<pre><code class="language-bash"># 查看所有线程
+thread
+
+# 查看最忙的 N 个线程（CPU 飙高排查首选）
+thread -n 3
+
+# 查看某个线程的堆栈
+thread &lt;tid&gt;
+
+# 查看线程 CPU 时间
+thread --state WAITING
+
+# 检测死锁
+thread -b
+
+# 示例输出
+$ thread -n 3
+"http-nio-8080-exec-4" Id=42 cpuUsage=23% TIMED_WAITING
+    at java.lang.Thread.sleep(Native Method)
+    at com.example.UserService.getUser(UserService.java:25)
+
+"http-nio-8080-exec-2" Id=40 cpuUsage=15% RUNNABLE
+    at com.example.OrderService.calculate(OrderService.java:78)
+</code></pre>
+
+<h3 id="33-jad">3.3 jad（反编译）</h3>
+<pre><code class="language-bash"># 反编译已加载的类（确认线上运行的是不是最新代码）
+jad com.example.UserService
+
+# 反编译具体方法
+jad com.example.UserService getUser
+
+# 反编译并显示 ClassLoader
+jad --source-only com.example.UserService
+
+# 示例输出
+$ jad com.example.UserService
+ClassLoader:
++-sun.misc.Launcher$AppClassLoader@3d4eac69
+  +-sun.misc.Launcher$ExtClassLoader@3a71f4dd
+
+Location:
+/APP/user-service.jar
+
+/*
+ * Decompiled with CFR.
+ */
+package com.example;
+public class UserService {
+    public User getUser(Long id) {
+        // 注意：这里有一行可疑的日志
+        return userMapper.selectById(id);
+    }
+}
+</code></pre>
+
+<h3 id="34-sc-sm">3.4 sc / sm（类/方法搜索）</h3>
+<pre><code class="language-bash"># 搜索已加载的类
+sc -d com.example.UserService      # 查看类详情（加载器、jar 路径）
+sc *.UserService                    # 通配符搜索
+
+# 搜索方法
+sm com.example.UserService          # 列出所有方法
+sm -d com.example.UserService getUser  # 查看方法详情
+</code></pre>
+
+<h3 id="35-ognl">3.5 ognl（表达式执行）</h3>
+<pre><code class="language-bash"># 获取静态字段
+ognl '@com.example.Config@TIMEOUT'
+
+# 调用静态方法
+ognl '@java.lang.System@getProperty("java.version")'
+
+# 获取 Spring Bean
+ognl '#context=@com.example.SpringContext@applicationContext, #context.getBean("userService")'
+
+# 修改运行时配置（应急用）
+ognl '@com.example.Config@TIMEOUT=5000'
+
+# 执行对象方法
+ognl '@com.example.Config@getInstance().setEnabled(false)'
+</code></pre>
+<hr />
+
+<h2 id="4">4. 诊断命令</h2>
+<h3 id="41-watch">4.1 watch（方法观察）</h3>
+<p>实际场景中最常用的命令，观察方法调用时的入参、返回值、异常。</p>
+<pre><code class="language-bash"># 观察方法入参和返回值
+watch com.example.UserService getUser '{params,returnObj}' -x 2
+
+# 观察异常
+watch com.example.OrderService createOrder '{params,throwExp}' -e
+
+# 条件过滤：只观察特定入参
+watch com.example.UserService getUser '{params,returnObj}' 'params[0] &gt; 100'
+
+# 观察方法执行耗时
+watch com.example.UserService getUser '#cost &gt; 1000'
+
+# 输出详解:
+#  -x 2   展开结果深度
+#  -e     观察异常场景
+#  params[0] &gt; 100  条件过滤
+#  #cost &gt; 1000  耗时 &gt; 1000ms 才输出
+
+$ watch com.example.UserService getUser '{params,returnObj}' -x 2
+Press Q or Ctrl+C to abort.
+Affect(class count: 1, method count: 1) cost in 65 ms, listenerId: 1
+method=com.example.UserService.getUser
+ts=2026-06-27 10:00:00 [cost=2.34ms]
+params=[
+    id=1001L
+]
+returnObj=User{id=1001, name='张三', age=25}
+</code></pre>
+
+<h3 id="42-trace">4.2 trace（方法追踪）</h3>
+<p><strong>追踪方法内部调用链路</strong>，找出哪一步最慢。性能诊断的明星命令。</p>
+<pre><code class="language-bash"># 追踪方法调用树
+trace com.example.OrderService createOrder
+
+# 只显示耗时超过阈值的节点
+trace com.example.OrderService createOrder '#cost &gt; 50'
+
+# 跳过 JDK 方法
+trace --skipJDKMethod false com.example.OrderService createOrder
+
+$ trace com.example.OrderService createOrder
+`---[cost=235.45ms] com.example.OrderService.createOrder()
+    +---[cost=1.23ms] com.example.OrderMapper.insert()
+    +---[cost=200.45ms] com.example.PaymentService.pay()   ← 耗时点！
+    |   `---[cost=198.21ms] com.example.PaymentClient.call()
+    +---[cost=2.11ms] com.example.MessageService.notify()
+    `---[cost=1.05ms] com.example.OrderService.afterCreate()
+</code></pre>
+
+<blockquote>
+<p><strong>面试话术</strong>：trace 是"慢接口排查的第一武器"。200ms 的接口，trace 一下就知道哪一步花了 180ms——可能是 Redis 慢查询、DB 连接池等待、第三方调用超时。不用猜，直接看数据。</p>
+</blockquote>
+
+<h3 id="43-stack">4.3 stack（调用栈）</h3>
+<pre><code class="language-bash"># 查看方法被谁调用了（反向查找调用者）
+stack com.example.UserService getUser
+
+$ stack com.example.UserService getUser
+ts=2026-06-27 10:00:00
+`---[cost=1.23ms] com.example.UserService.getUser()
+    +---[0.32ms] com.example.OrderService.getUserInfo()    ← 谁在调用
+    +---[0.15ms] com.example.UserController.getUser()
+</code></pre>
+
+<h3 id="44-monitor">4.4 monitor（监控统计）</h3>
+<pre><code class="language-bash"># 统计方法调用次数、成功/失败、耗时
+monitor com.example.UserService getUser -c 10
+
+$ monitor com.example.UserService getUser -c 10
+timestamp            class           method   total  success  fail  avg-ms  fail-rate
+2026-06-27 10:00:00  UserService     getUser   120    118      2     12.34   1.67%
+</code></pre>
+
+<h3 id="45-tt">4.5 tt（时空隧道）</h3>
+<pre><code class="language-bash"># 记录方法调用，回放请求（类似"录像机"）
+tt -t com.example.UserService getUser
+
+# 查看记录
+tt -l
+
+# 回放某次调用（重放入参，观察结果）
+tt -i 1001 -p
+
+# 适用场景：复现偶发 bug，记录当时的入参和环境，反复重放验证
+</code></pre>
+<hr />
+
+<h2 id="5">5. 高级命令</h2>
+<h3 id="51-profiler">5.1 profiler（火焰图）</h3>
+<pre><code class="language-bash"># 启动 CPU 采样（Arthas 3.6+）
+profiler start
+
+# 采样一段时间后停止并生成火焰图
+profiler stop --format html
+
+# 采样 30 秒
+profiler start --duration 30
+
+# 输出火焰图（SVG/HTML）
+profiler stop --file /tmp/flamegraph.svg
+
+# 内存采样
+profiler start --event alloc
+profiler stop --format html
+
+# 火焰图解读:
+#   - X 轴: 按字母排序，不代表时间轴
+#   - Y 轴: 调用栈深度
+#   - 宽度: 占用 CPU 时间比例
+#   - 越宽的方法越有可能是性能瓶颈
+</code></pre>
+
+<h3 id="52-vmtool">5.2 vmtool</h3>
+<pre><code class="language-bash"># 强制 GC
+vmtool --action forceGc
+
+# 获取 Spring Bean 实例（无需 ognl 绕来绕去）
+vmtool --action getInstances \
+  --className org.springframework.context.ApplicationContext \
+  --express '#instances[0]'
+</code></pre>
+
+<h3 id="53-heapdump">5.3 heapdump</h3>
+<pre><code class="language-bash"># 生成堆转储文件（类似 jmap -dump）
+heapdump /tmp/dump.hprof
+
+# 只 dump 存活对象
+heapdump --live /tmp/dump-live.hprof
+
+# 注意：大堆 dump 会触发 STW，建议在低峰期执行
+# 或开启 -XX:+HeapDumpOnOutOfMemoryError 自动 dump
+</code></pre>
+
+<h3 id="54-mc-redefine-retransform">5.4 mc / redefine / retransform</h3>
+<pre><code class="language-bash"># 热修复三步走
+
+# 1. 反编译要修改的类
+jad --source-only com.example.UserService &gt; /tmp/UserService.java
+
+# 2. 修改源码（vim），然后编译
+mc /tmp/UserService.java -d /tmp
+
+# 3. 重新加载字节码
+redefine /tmp/com/example/UserService.class
+
+# 或使用 retransform（推荐，更安全）
+retransform /tmp/com/example/UserService.class
+
+# retransform vs redefine:
+#   - redefine: 直接替换，不支持新增字段/方法
+#   - retransform: 支持回退（retransform --deleteAll），更安全
+</code></pre>
+<hr />
+
+<h2 id="6">6. 排查实战</h2>
+<h3 id="61-cpu">6.1 CPU 飙高排查</h3>
+<pre><code>CPU 飙高 -> Arthas 排查流程:
+
+  1. thread -n 3           # 找出 CPU 占用最高的 3 个线程
+  2. thread &lt;tid&gt;          # 查看该线程的堆栈，定位到具体代码行
+  3. trace 相关方法         # 追踪方法内部调用，确认耗时代码
+  4. watch 入参/返回值       # 检查是否有异常数据导致死循环
+  5. profiler start + stop  # 生成火焰图，全局视角
+
+  常见原因:
+    - 死循环 / while(true) 未 break
+    - 频繁 GC（GC 线程占 CPU）
+    - 正则回溯（ReDoS）
+    - 序列化/反序列化大对象
+    - 无限创建线程
+</code></pre>
+
+<h3 id="62-oom">6.2 OOM 排查</h3>
+<pre><code>OOM -> Arthas 排查流程:
+
+  1. dashboard              # 查看堆/非堆内存使用情况
+  2. heapdump /tmp/dump.hprof  # dump 堆快照
+  3. 用 MAT 分析 dump 文件  # Leak Suspects → 找到泄漏嫌疑人
+
+  或者用 Arthas 在线分析:
+  4. ognl 获取大对象统计     # 查看特定集合大小
+  5. vmtool 获取实例数       # 查看某个类有多少实例
+
+  OOM 常见原因:
+    - 集合类未释放（static List/LruCache 只增不减）
+    - ThreadLocal 未 remove（线程池中复用）
+    - 连接/流未关闭（DB/IO/NIO ByteBuffer）
+    - 大对象频繁分配（超大数组、大文件读入内存）
+</code></pre>
+
+<h3 id="63">6.3 慢接口定位</h3>
+<pre><code>接口响应慢 -> Arthas 排查流程:
+
+  1. trace &lt;Controller&gt; &lt;method&gt; '#cost &gt; 1000'
+     # 看整个接口的调用树，哪一步耗时最长
+
+  2. 根据 trace 结果深入
+     - 慢在 SQL:  检查索引、数据量、连接池
+     - 慢在 Redis: 检查 bigkey、慢查询
+     - 慢在 RPC:  检查下游服务、网络、超时配置
+     - 慢在计算:  检查算法复杂度、循环逻辑
+
+  3. stack &lt;service&gt; &lt;method&gt;
+     # 反向查谁在调用，确认调用链路是否合理
+
+  4. monitor &lt;service&gt; &lt;method&gt; -c 60
+     # 持续监控一分钟，看平均耗时和成功率
+
+  $ trace UserController getUser '#cost &gt; 1000'
+  `---[cost=2345ms] UserController.getUser()
+      +---[cost=3ms] AuthService.check()
+      +---[cost=2200ms] UserService.getUserDetail()  ← 这里慢
+      |   +---[cost=1800ms] OrderService.getOrders()  ← SQL 慢
+      |   +---[cost=350ms]  CouponService.getCoupons()
+      +---[cost=5ms]  UserService.formatResult()
+</code></pre>
+
+<h3 id="64">6.4 死锁检测</h3>
+<pre><code class="language-bash"># 一键检测死锁
+thread -b
+
+$ thread -b
+"http-nio-8080-exec-10" Id=42 BLOCKED on java.lang.String@1a2b3c4d
+    at com.example.UserService.updateUser(UserService.java:45)
+    - waiting to lock &lt;String@1a2b3c4d&gt; (a java.lang.String)
+    at com.example.OrderService.updateOrder(OrderService.java:30)
+    - locked &lt;String@4d5e6f7a&gt; (a java.lang.String)
+
+"http-nio-8080-exec-11" Id=43 BLOCKED on java.lang.String@4d5e6f7a
+    at com.example.OrderService.updateOrder(OrderService.java:35)
+    - waiting to lock &lt;String@4d5e6f7a&gt; (a java.lang.String)
+    at com.example.UserService.updateUser(UserService.java:50)
+    - locked &lt;String@1a2b3c4d&gt; (a java.lang.String)
+
+Found 1 dead lock.
+</code></pre>
+<hr />
+
+<h2 id="7">7. 热修复</h2>
+<h3 id="71">7.1 什么是热修复</h3>
+<p>线上遇到紧急 bug（如 NPE、if 条件反了），改代码 → 编译 → 发版 → 重启 需要十几分钟甚至更久。Arthas 的热修复允许直接替换内存中的字节码，<strong>秒级修复</strong>。</p>
+<blockquote>
+<p><strong>重要</strong>：热修复是<strong>临时止血手段</strong>，仅用于争分夺秒的生产故障。修复后仍需走正常流程发布修复版本。重启后热修复失效。</p>
+</blockquote>
+
+<h3 id="72">7.2 操作流程</h3>
+<pre><code class="language-bash"># ─── 热修复完整流程 ───
+
+# 1. 启动 Arthas 并 attach 到目标进程
+java -jar arthas-boot.jar &lt;pid&gt;
+
+# 2. 反编译有问题的类
+jad --source-only com.example.XXXService &gt; /tmp/XXXService.java
+
+# 3. 修改源码
+vim /tmp/XXXService.java
+# 比如: 将 if (user == null) return null 改为 return User.defaultUser()
+
+# 4. 编译修改后的源码
+mc /tmp/XXXService.java -d /tmp
+
+# 5. 重新加载类
+retransform /tmp/com/example/XXXService.class
+
+# 6. 验证修复效果
+watch com.example.XXXService methodX '{params,returnObj}'
+
+# 7. 提交修复代码到 Git，走正常发布流程
+</code></pre>
+<hr />
+
+<h2 id="8">8. 原理与架构</h2>
+<h3 id="81">8.1 工作原理</h3>
+<pre><code>Arthas 底层技术栈:
+
+  +----------------------------------------------------+
+  |                   Arthas 客户端                       |
+  |  (CLI / Web Console / HTTP API)                     |
+  +------------------------+---------------------------+
+                           |
+  +------------------------v---------------------------+
+  |              Java Attach API                        |
+  |  VirtualMachine.attach(pid)  → 连接目标 JVM        |
+  |  VirtualMachine.loadAgent(agent.jar)  → 加载 Agent |
+  +------------------------+---------------------------+
+                           |
+  +------------------------v---------------------------+
+  |              Instrumentation API                    |
+  |  ClassFileTransformer.transform()                   |
+  |  → 当类被加载/重定义时，拦截字节码                   |
+  +------------------------+---------------------------+
+                           |
+  +------------------------v---------------------------+
+  |              ASM 字节码框架                          |
+  |  直接操作字节码，插入诊断逻辑（不修改源文件）         |
+  |  - watch: insert System.currentTimeMillis()         |
+  |  - trace: insert 方法进入/退出埋点                   |
+  |  - jad:   读取常量池中的字节码反编译                 |
+  +------------------------+---------------------------+
+                           |
+  +------------------------v---------------------------+
+  |           目标 JVM 中的用户代码                       |
+  |  字节码被增强处插入 Arthas 的 Instrumentation         |
+  |  诊断结束 → restore 恢复原始字节码                   |
+  +----------------------------------------------------+
+
+关键点:
+  - attach: Arthas 通过 Attach API "挂载"到目标 JVM
+  - transform: 利用 Instrumentation 在类加载时拦截
+  - ASM: 直接操作字节码，比反射更底层、更快
+  - 无侵入: 不改源文件，不改 classpath，不持久化
+</code></pre>
+
+<h3 id="82">8.2 架构设计</h3>
+<pre><code>Arthas 整体架构:
+
++---------------+     +----------------+     +-------------+
+|   Arthas CLI  |     |  Tunnel Server  |     | Web Console |
+|  (arthas-boot)|     |  (远程管理)      |     | (浏览器)    |
++-------+-------+     +-------+--------+     +------+------+
+        |                     |                      |
+        +----------+----------+----------+-----------+
+                   |                     |
+          +--------v--------+   +--------v--------+
+          | Arthas Server   |   | Tunnel Client   |
+          | (目标 JVM 内)    |   | (反向连接)       |
+          |                 |   |                 |
+          | instrumentation |   | 支持远程诊断     |
+          | ASM 字节码增强  |   | 跨越防火墙       |
+          | 诊断结果收集     |   | 集中管理         |
+          +-----------------+   +-----------------+
+
+部署模式:
+  1. 直连模式: CLI → Attach → 目标 JVM（最常用）
+  2. Tunnel 模式: 目标 JVM + Tunnel Client → Tunnel Server → Web UI
+  3. Agent 模式: 启动时 -javaagent 自动加载
+</code></pre>
+<hr />
+
+<h2 id="9">9. Arthas vs 其他工具</h2>
+<h3 id="91">9.1 对比表格</h3>
+<table>
+<thead>
+<tr>
+<th>对比项</th>
+<th>Arthas</th>
+<th>JDK 内置工具</th>
+<th>JMX / JConsole</th>
+<th>APM（SkyWalking/Pinpoint）</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>安装</strong></td>
+<td>下载 jar 执行</td>
+<td>JDK 自带</td>
+<td>JDK 自带</td>
+<td>需部署 Agent 和 Server</td>
+</tr>
+<tr>
+<td><strong>侵入性</strong></td>
+<td>运行时 attach 卸载</td>
+<td>运行时 attach</td>
+<td>低</td>
+<td>需启动时挂载 Agent</td>
+</tr>
+<tr>
+<td><strong>方法级追踪</strong></td>
+<td>✅ trace/watch 精准</td>
+<td>❌ 不支持</td>
+<td>❌ 不支持</td>
+<td>✅ 但需要提前配置</td>
+</tr>
+<tr>
+<td><strong>反编译</strong></td>
+<td>✅ jad 在线反编译</td>
+<td>❌</td>
+<td>❌</td>
+<td>❌</td>
+</tr>
+<tr>
+<td><strong>热修复</strong></td>
+<td>✅ redefine/retransform</td>
+<td>❌</td>
+<td>❌</td>
+<td>❌</td>
+</tr>
+<tr>
+<td><strong>火焰图</strong></td>
+<td>✅ profiler 命令</td>
+<td>需要 -XX:+PreserveFramePointer</td>
+<td>❌</td>
+<td>✅ 部分支持</td>
+</tr>
+<tr>
+<td><strong>远程诊断</strong></td>
+<td>✅ Tunnel Server</td>
+<td>jstatd/jmxremote</td>
+<td>✅</td>
+<td>✅ 天生支持</td>
+</tr>
+<tr>
+<td><strong>持续监控</strong></td>
+<td>⚠️ 短时诊断为主</td>
+<td>jstat 可持续</td>
+<td>✅</td>
+<td>✅ 7×24</td>
+</tr>
+<tr>
+<td><strong>使用难度</strong></td>
+<td>低（命令简洁）</td>
+<td>中（参数复杂）</td>
+<td>低（GUI）</td>
+<td>中</td>
+</tr>
+</tbody>
+</table>
+<hr />
+
+<h2 id="10_1">10. 高频面试题</h2>
+
+<h3 id="q1-arthas">Q1：Arthas 是什么？解决了什么问题？</h3>
+<p>Arthas（阿尔萨斯）是阿里开源的 Java 在线诊断工具。它解决了生产环境<strong>无法 debug、无法加日志、无法重启</strong>的痛点——可以在不重启、不修改代码的情况下，实时查看方法调用、参数、返回值、耗时、内存状态等。</p>
+
+<h3 id="q2-arthas-">Q2：Arthas 和 jstack / jmap / jstat 有什么区别？</h3>
+<p>JDK 内置工具（jstack/jmap/jstat）能力分散且需要分别执行不同命令，Arthas 将线程、内存、GC、方法追踪等所有能力集成到一个命令行中。更重要的是 Arthas 能<strong>追踪方法级调用</strong>（watch/trace），这是 JDK 工具做不到的。另外 Arthas 的交互式命令行体验更好。</p>
+
+<h3 id="q3-arthas">Q3：Arthas 的工作原理？</h3>
+<p>底层基于 <strong>Java Attach API + Instrumentation API + ASM 字节码框架</strong>。Attach API 连接到目标 JVM 并加载 Agent；Instrumentation API 拦截类加载过程；ASM 直接修改字节码，在目标方法前后插入诊断逻辑。诊断完成后卸载增强，恢复原始字节码，对业务零侵入。</p>
+
+<h3 id="q4-arthas-watch-trace">Q4：watch 和 trace 的区别？</h3>
+<table>
+<thead>
+<tr>
+<th>对比项</th>
+<th>watch</th>
+<th>trace</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>输出</td>
+<td>入参/返回值/异常</td>
+<td>方法内部调用树 + 每步耗时</td>
+</tr>
+<tr>
+<td>关注点</td>
+<td>方法层面的数据</td>
+<td>调用链路的性能</td>
+</tr>
+<tr>
+<td>典型场景</td>
+<td>参数校验、异常数据定位</td>
+<td>慢接口瓶颈分析</td>
+</tr>
+<tr>
+<td>条件过滤</td>
+<td>支持按入参/耗时过滤</td>
+<td>支持按耗时过滤</td>
+</tr>
+</tbody>
+</table>
+
+<h3 id="q5-arthas">Q5：Arthas 如何实现热修复？</h3>
+<p><strong>jad 反编译 → 修改源码 → mc 编译 → retransform 重新加载</strong>。先用 <code>jad</code> 反编译目标类，修改后 <code>mc</code> 编译，<code>retransform</code> 将新字节码注入 JVM。retransform 比 redefine 更安全（支持回退）。注意：热修复仅限临时应急，不能新增字段/方法，重启后失效。</p>
+
+<h3 id="q6-arthas-cpu">Q6：用 Arthas 排查 CPU 飙高的步骤？</h3>
+<pre><code>1. thread -n 3          → 找到 CPU 最高的 3 个线程
+2. thread &lt;tid&gt;         → 查看线程堆栈，定位代码
+3. trace 目标方法        → 确认耗时代码路径
+4. watch 入参/返回值     → 检查是否异常数据导致死循环
+5. profiler start/stop   → 火焰图全局视角
+</code></pre>
+
+<h3 id="q7-arthas-ognl">Q7：ognl 命令能做什么？</h3>
+<p>ognl 可以在线执行任意 Java 表达式——读取/修改静态字段、调用静态方法、获取 Spring Bean、修改运行时配置。典型场景：紧急关闭某个功能、切换降级开关、查看配置中心的值是否生效。不需要发版即可修改内存状态。</p>
+
+<h3 id="q8-arthas">Q8：Arthas 安全性如何？</h3>
+<p>Arthas 有安全机制：支持 IP 白名单（<code>arthas.ip.whitelist</code>）限制连接来源；<code>--tunnelServer</code> 模式下支持认证；操作可审计；默认只绑定 127.0.0.1 不暴露外网。但本质上 Arthas 是<strong>强诊断工具</strong>（类似 root 权限），生产环境应限制使用权限，避免滥用 ognl 修改线上数据。</p>
+<hr />
+
+<blockquote>
+<p><strong>学习建议</strong>：Arthas 是"实践出真知"的工具——<strong>不用背命令，用几次就熟了</strong>。建议先在自己电脑上启动一个 Spring Boot 应用，练习 dashboard/thread/trace/watch/jad/ognl 这 6 个最常用的命令。面试时重点说 <strong>watch/trace 的区别</strong>、<strong>CPU 飙高的排查流程</strong> 和 <strong>热修复流程</strong> 即可。</p>
+</blockquote>
+
+<script>
+// Scroll spy — highlight active sidebar item
+window.addEventListener('scroll', function() {
+    var links = document.querySelectorAll('.sidebar-toc a');
+    var scrollY = window.scrollY + 120;
+    var current = '';
+    for (var i = links.length - 1; i >= 0; i--) {
+        var target = document.getElementById(links[i].getAttribute('href').slice(1));
+        if (target && target.offsetTop <= scrollY) {
+            current = links[i];
+            break;
+        }
+    }
+    links.forEach(function(a) { a.style.fontWeight = 'normal'; a.style.color = '#555'; });
+    if (current) { current.style.fontWeight = 'bold'; current.style.color = '#0366d6'; }
+});
+</script>
+
+<script>
+document.querySelectorAll('pre > code').forEach(function(codeBlock, i) {
+    var pre = codeBlock.parentNode;
+    pre.style.position = 'relative';
+    var btn = document.createElement('button');
+    btn.className = 'copy-btn';
+    btn.textContent = '复制';
+    pre.appendChild(btn);
+    btn.addEventListener('click', function() {
+        var text = codeBlock.textContent;
+        navigator.clipboard.writeText(text).then(function() {
+            btn.textContent = '已复制';
+            btn.classList.add('copied');
+            setTimeout(function() {
+                btn.textContent = '复制';
+                btn.classList.remove('copied');
+            }, 2000);
+        }).catch(function() {
+            var ta = document.createElement('textarea');
+            ta.value = text; ta.style.position = 'fixed'; ta.style.opacity = '0';
+            document.body.appendChild(ta); ta.select();
+            document.execCommand('copy'); document.body.removeChild(ta);
+            btn.textContent = '已复制'; btn.classList.add('copied');
+            setTimeout(function() { btn.textContent = '复制'; btn.classList.remove('copied'); }, 2000);
+        });
+    });
+});
+</script>
+</body>
+</html>

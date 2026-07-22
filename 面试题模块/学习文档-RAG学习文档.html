@@ -1,0 +1,1143 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>RAG学习文档</title>
+<style>
+body {
+    transition: margin-left .25s ease;
+    font-family: -apple-system, "Noto Sans SC", "Microsoft YaHei", sans-serif;
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 20px 24px 60px;
+    line-height: 1.8;
+    color: #333;
+    background: #fff;
+}
+h1 { border-bottom: 2px solid #eee; padding-bottom: 10px; color: #222; }
+h2 { color: #333; margin-top: 32px; }
+h3 { color: #555; }
+a { color: #0366d6; text-decoration: none; }
+a:hover { text-decoration: underline; }
+pre {
+    background: #f6f8fa;
+    border-radius: 6px;
+    padding: 16px;
+    overflow-x: auto;
+    font-size: 14px;
+    line-height: 1.45;
+}
+code {
+    background: #f0f2f4;
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-size: 14px;
+}
+pre code { background: none; padding: 0; }
+blockquote {
+    border-left: 4px solid #ddd;
+    margin: 0;
+    padding: 0 16px;
+    color: #666;
+}
+table {
+    border-collapse: collapse;
+    width: 100%;
+    margin: 16px 0;
+}
+th, td {
+    border: 1px solid #ddd;
+    padding: 8px 12px;
+    text-align: left;
+}
+th { background: #f6f8fa; }
+img { max-width: 100%; }
+.back-link {
+    margin-bottom: 20px;
+    display: block;
+    color: #666;
+}
+.back-link:hover { color: #0366d6; }
+
+.sidebar-toc {
+    transition: left .25s ease;
+    position: fixed;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    width: 220px;
+    background: #f8f9fa;
+    border-right: 1px solid #e9ecef;
+    padding: 20px 0;
+    overflow-y: auto;
+    font-size: 13px;
+    z-index: 100;
+}
+.sidebar-toc a {
+    display: block;
+    padding: 6px 16px;
+    color: #555;
+    text-decoration: none;
+    border-left: 3px solid transparent;
+    line-height: 1.5;
+}
+.sidebar-toc a:hover {
+    background: #e9ecef;
+    color: #0366d6;
+    border-left-color: #0366d6;
+}
+.sidebar-toc .toc-h2 { padding-left: 16px; font-weight: 500; }
+.sidebar-toc .toc-h3 { padding-left: 32px; font-size: 12px; }
+body { margin-left: 240px; }
+
+
+.copy-btn {
+    position: absolute; top: 6px; right: 6px;
+    background: #e9ecef; border: none;
+    border-radius: 4px; padding: 3px 10px;
+    font-size: 12px; color: #555; cursor: pointer;
+    opacity: 0; transition: opacity 0.2s;
+    z-index: 1;
+}
+pre:hover .copy-btn { opacity: 1; }
+.copy-btn:hover { background: #d0d7de; }
+.copy-btn.copied { opacity: 1; background: #2da44e; color: #fff; }
+.copy-btn{position:absolute;top:6px;right:6px;background:#e9ecef;border:none;border-radius:4px;padding:3px 10px;font-size:12px;color:#555;cursor:pointer;opacity:0;transition:opacity .2s;z-index:1}pre:hover .copy-btn{opacity:1}.copy-btn:hover{background:#d0d7de}.copy-btn.copied{opacity:1;background:#2da44e;color:#fff}
+.copy-btn{position:absolute;top:6px;right:6px;background:#e9ecef;border:none;border-radius:4px;padding:3px 10px;font-size:12px;color:#555;cursor:pointer;opacity:0;transition:opacity .2s;z-index:1}pre:hover .copy-btn{opacity:1}.copy-btn:hover{background:#d0d7de}.copy-btn.copied{opacity:1;background:#2da44e;color:#fff}
+.copy-btn{position:absolute;top:6px;right:6px;background:#e9ecef;border:none;border-radius:4px;padding:3px 10px;font-size:12px;color:#555;cursor:pointer;opacity:0;transition:opacity .2s;z-index:1}pre:hover .copy-btn{opacity:1}.copy-btn:hover{background:#d0d7de}.copy-btn.copied{opacity:1;background:#2da44e;color:#fff}
+.sidebar-toggle-btn {
+  position: fixed;
+  left: 220px;
+  top: 0;
+  width: 28px;
+  height: 40px;
+  background: #f8f9fa;
+  border: 1px solid #e9ecef;
+  border-left: none;
+  border-radius: 0 4px 4px 0;
+  cursor: pointer;
+  font-size: 16px;
+  color: #555;
+  z-index: 101;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: left .25s, background .2s;
+  padding: 0;
+  line-height: 1;
+}
+.sidebar-toggle-btn:hover { background: #e9ecef; color: #0366d6; }
+.sidebar-collapsed .sidebar-toc { left: -220px; }
+.sidebar-collapsed .sidebar-toggle-btn { left: 0; }
+.sidebar-collapsed body, body.sidebar-collapsed { margin-left: 28px; }
+.sidebar-overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,.3);
+  z-index: 99;
+}
+@media (max-width: 768px) {
+  .sidebar-collapsed .sidebar-overlay { display: none; }
+  .sidebar-toc { left: -220px; }
+  .sidebar-toggle-btn { left: 0; }
+  body { margin-left: 28px; }
+}
+
+</style>
+</head>
+</head>
+<body>
+<nav class="sidebar-toc"><a class="toc-h2" href="#1-rag">1. 先搞懂：RAG 到底是什么？</a><a class="toc-h3" href="#vs">打个比方：一个超级学霸 vs 一个带小抄的考生 🎒</a><a class="toc-h3" href="#_2">大白话定义</a><a class="toc-h3" href="#ragllm">为什么非要用 RAG？LLM 有什么毛病？</a><a class="toc-h3" href="#_3">一张图看懂区别</a><a class="toc-h2" href="#2-rag">2. 一张图看懂 RAG 怎么跑起来</a><a class="toc-h3" href="#rag_2">大白话：RAG 就像"图书馆 + 研究员" 📖</a><a class="toc-h3" href="#rag_3">RAG 完整流程图</a><a class="toc-h3" href="#prompt-llm">Prompt 怎么写？（把锅甩给 LLM 的正确姿势）</a><a class="toc-h2" href="#3">3. 第一步：把文档"切碎"（文档处理与分块）</a><a class="toc-h3" href="#_4">打个比方：一本书怎么搜最快？ 🗂️</a><a class="toc-h3" href="#_5">文档加载（支持各种格式）</a><a class="toc-h3" href="#_6">分块策略怎么选？</a><a class="toc-h3" href="#_7">参数调优经验（面试官可能会问！）</a><a class="toc-h2" href="#4">4. 第二步：给碎片找个"大脑"（向量数据库）</a><a class="toc-h3" href="#_8">打个比方：图书馆的分类系统 📚</a><a class="toc-h3" href="#_9">主流向量数据库怎么选？</a><a class="toc-h3" href="#_10">向量检索是怎么找到"最像的文档"的？</a><a class="toc-h3" href="#embedding">Embedding 模型怎么选？</a><a class="toc-h2" href="#5">5. 第三步：怎么搜得准？（检索策略）</a><a class="toc-h3" href="#_11">打个比方：点外卖的三个境界 🍜</a><a class="toc-h3" href="#_12">基础检索</a><a class="toc-h3" href="#mmr">MMR（最大边际相关性）—— 既要相关，又要多样</a><a class="toc-h3" href="#_13">混合检索 —— 取长补短，效果最佳</a><a class="toc-h3" href="#query">Query 改写：用户问得不好，我们帮他"翻译"一下</a><a class="toc-h2" href="#6-llm">6. 最后一步：让 LLM"组词造句"（生成阶段）</a><a class="toc-h3" href="#_14">打个比方：大厨拿到精确配方 👨‍🍳</a><a class="toc-h3" href="#langchain">用 LangChain 搭一条生成链</a><a class="toc-h3" href="#_15">四种生成链类型，什么时候用哪个？</a><a class="toc-h3" href="#_16">防幻觉三板斧（面试重点！）</a><a class="toc-h2" href="#7-rag">7. 这套东西好不好？怎么给它打分？（RAG 评估）</a><a class="toc-h3" href="#_17">大白话：两个维度打分</a><a class="toc-h3" href="#_18">检索指标速查</a><a class="toc-h3" href="#_19">生成指标速查</a><a class="toc-h3" href="#ragas">RAGAS：一键评估的"体检套餐"</a><a class="toc-h2" href="#8-60-90-advanced-rag">8. 从 60 分到 90 分：Advanced RAG</a><a class="toc-h3" href="#rag_4">大白话：RAG 三板斧用过之后，效果还不行怎么办？</a><a class="toc-h3" href="#_20">预处理阶段：从"粗切"到"精加工"</a><a class="toc-h3" href="#_21">检索阶段：从"一次搜完"到"反复推敲"</a><a class="toc-h3" href="#_22">生成阶段：从"能答"到"答得漂亮"</a><a class="toc-h2" href="#9-rag-vs">9. RAG vs 微调：到底选哪个？</a><a class="toc-h3" href="#_23">打个比方：两种不同的"补习"方式 📚</a><a class="toc-h3" href="#_24">核心区别一览</a><a class="toc-h3" href="#_25">选型指南：什么时候用哪个？</a><a class="toc-h2" href="#10">10. 用什么工具搭？（主流框架速览）</a><a class="toc-h3" href="#_26">框架选型一句话</a><a class="toc-h3" href="#llamaindex-3">LlamaIndex 3 行代码跑起来</a><a class="toc-h3" href="#langchain_1">LangChain 完整流程（最经典）</a><a class="toc-h2" href="#11-6">11. 面试官最爱问的 6 个问题</a><a class="toc-h3" href="#q1rag">Q1：RAG 的核心原理是什么？用大白话能说清楚吗？</a><a class="toc-h3" href="#q2rag">Q2：RAG 效果不好，从哪下手排查？</a><a class="toc-h3" href="#q3-rag">Q3：怎么让 RAG 搜得更全？（提升召回率）</a><a class="toc-h3" href="#q4rag">Q4：RAG 和微调怎么选？</a><a class="toc-h3" href="#q5rag">Q5：RAG 有什么局限性？（面试官想听你说"我知道坑在哪"）</a><a class="toc-h3" href="#q6-rag">Q6：你怎么评估你的 RAG 系统好不好用？</a></nav>
+<button class="sidebar-toggle-btn" onclick="toggleSidebar()" title="切换侧栏">☰</button>
+
+<div class="sidebar-overlay" onclick="toggleSidebar()"></div>
+
+<script>
+function toggleSidebar() {
+  document.body.classList.toggle('sidebar-collapsed');
+  try { localStorage.setItem('sidebarCollapsed', document.body.classList.contains('sidebar-collapsed')); } catch(e) {}
+}
+(function() {
+  try {
+    if (localStorage.getItem('sidebarCollapsed') === 'true') {
+      document.body.classList.add('sidebar-collapsed');
+    }
+  } catch(e) {}
+})();
+</script>
+<a class="back-link" href="/blog/2026/05/16/面试题/面试题/">← 返回面试题目录</a>
+<h1 id=page-title>RAG 面试学习文档</h1>
+<blockquote>
+<p>让大模型学会"翻书"——检索增强生成从入门到面试通关</p>
+<p>整理于 2026-06-14 | 目标：彻底搞懂 RAG，面试能讲、项目会用</p>
+</blockquote>
+<hr />
+
+<h2 id="1-rag">1. RAG 到底是什么？</h2>
+
+<h3 id="vs">大白话定义</h3>
+
+<p><strong>RAG = Retrieval-Augmented Generation（检索增强生成）</strong>：把搜索引擎和大语言模型撮合到一起——先搜文档，再把文档喂给 LLM，让它基于真实资料回答。</p>
+
+<p>类比：普通 LLM 是靠记忆答题的学霸（知识截止到训练那天）；RAG 是给学霸发了一本随时更新的"小抄本"，考试时先翻小抄找到相关内容，再结合理解给出答案。答案又准又有出处。</p>
+
+<pre><code>RAG 核心架构：Query → Retrieve → Generate
+=============================================
+
+   用户提问 (Query)
+        │
+        ▼
+ ┌──────────────┐
+ │  1. 向量化     │  问题 → Embedding 模型 → 向量
+ └──────┬───────┘
+        │
+        ▼
+ ┌──────────────┐
+ │  2. 语义检索   │  在向量数据库搜 Top-K 相关文档
+ │  (Retrieve)   │  混合检索 = 向量检索 + BM25 关键词
+ └──────┬───────┘
+        │
+        ▼
+ ┌──────────────┐
+ │  3. 增强 Prompt │  用户问题 + 检索文档 → 组装 Prompt
+ └──────┬───────┘
+        │
+        ▼
+ ┌──────────────┐
+ │  4. LLM 生成   │  基于参考资料生成答案 + 引用来源
+ │  (Generate)   │
+ └──────┬───────┘
+        │
+        ▼
+    最终回答 + 出处引用
+
+对比：没用 RAG
+  用户 → LLM → 可能瞎编（幻觉）
+
+用了 RAG
+  用户 → 检索 → 文档 → LLM → 有据可查的回答
+</code></pre>
+
+<h3 id="ragllm">为什么用 RAG？LLM 的痛点</h3>
+
+<table>
+<thead>
+<tr>
+<th>LLM 的毛病</th>
+<th>RAG 怎么治</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>知识过时：训练完就定格</td>
+<td>知识库随时更新</td>
+</tr>
+<tr>
+<td>幻觉：自信地胡说八道</td>
+<td>答案必须基于搜到的真实文档</td>
+</tr>
+<tr>
+<td>碰不到私有数据</td>
+<td>公司文档建库，想搜就搜</td>
+</tr>
+<tr>
+<td>长尾知识盲区</td>
+<td>专业知识文档往里灌</td>
+</tr>
+<tr>
+<td>说不清出处</td>
+<td>每个回答标引用来源</td>
+</tr>
+</tbody>
+</table>
+
+<blockquote>
+<p>面试话术："RAG 解决大模型三大痛点：知识过时、幻觉、私有数据不可达。核心是让模型在推理时动态获取外部知识，而非把知识全记在参数里。"</p>
+</blockquote>
+
+<hr />
+<h2 id="2-rag">2. RAG 完整工作流程</h2>
+
+<h3 id="rag_2">离线 + 在线两阶段</h3>
+
+<p><strong>离线索引（提前准备）：</strong>文档加载 → 分块 → 向量化 → 存入向量数据库。</p>
+<p><strong>在线查询（用户提问时触发）：</strong>问题向量化 → 语义检索 → 组装 Prompt → LLM 生成答案。</p>
+
+<h3 id="rag_3">RAG 完整流程图</h3>
+
+<pre><code>
+┌─────────────────────────────────────────────────────────────────┐
+│                      RAG 全流程架构                              │
+│                                                                 │
+│  ╔═══════════════════════════════════════════════════════════╗  │
+│  ║         离线阶段（Indexing）—— 提前跑                     ║  │
+│  ╠═══════════════════════════════════════════════════════════╣  │
+│  ║  📄 原始文档                                              ║  │
+│  ║   │  PDF / Word / HTML / Markdown / TXT                  ║  │
+│  ║   ▼                                                      ║  │
+│  ║  ✂️  文档分块 (Chunking)                                  ║  │
+│  ║   │  chunk_size=500, overlap=50                          ║  │
+│  ║   ▼                                                      ║  │
+│  ║  🔢 向量化 (Embedding)                                    ║  │
+│  ║   │  文本 → Embedding Model → 高维向量                    ║  │
+│  ║   ▼                                                      ║  │
+│  ║  💾 向量数据库 (Vector Store)                             ║  │
+│  ║     Chroma / Milvus / Qdrant / Pinecone                 ║  │
+│  ╚═══════════════════════════════════════════════════════════╝  │
+│                              │                                   │
+│                              ▼                                   │
+│  ╔═══════════════════════════════════════════════════════════╗  │
+│  ║         在线阶段（Querying）—— 用户提问时触发             ║  │
+│  ╠═══════════════════════════════════════════════════════════╣  │
+│  ║  ❓ 用户问题                                              ║  │
+│  ║   │                                                      ║  │
+│  ║   ├─→ Query 改写（可选）HyDE / Step-back / Re-phrasing   ║  │
+│  ║   │                                                      ║  │
+│  ║   ▼                                                      ║  │
+│  ║  🔢 问题向量化                                            ║  │
+│  ║   │                                                      ║  │
+│  ║   ▼                                                      ║  │
+│  ║  🔍 语义检索 + BM25 关键词（混合检索）                     ║  │
+│  ║   │  海选 Top-50 → Rerank 精排 → Top-5                   ║  │
+│  ║   ▼                                                      ║  │
+│  ║  📋 组装 Prompt：用户问题 + 检索文档 + 指令约束            ║  │
+│  ║   │                                                      ║  │
+│  ║   ▼                                                      ║  │
+│  ║  🤖 LLM 生成                                              ║  │
+│  ║   │  GPT-4 / Claude / 本地模型                           ║  │
+│  ║   │  temperature=0, System Prompt 约束                    ║  │
+│  ║   ▼                                                      ║  │
+│  ║  📝 答案 + 🔗 引用来源                                     ║  │
+│  ║      + 可选：Self-RAG 后处理校验                          ║  │
+│  ╚═══════════════════════════════════════════════════════════╝  │
+│                                                                 │
+│  数据流: Query → Embed → Retrieve → Rerank → Prompt → Generate │
+└─────────────────────────────────────────────────────────────────┘
+</code></pre>
+
+<h3 id="prompt-llm">Prompt 怎么写？</h3>
+
+<pre><code class="language-python"># RAG 增强 Prompt——告诉 LLM："别瞎编，照着我给你的材料回答"
+RAG_PROMPT = """
+你是一个专业的 AI 助手。请根据以下参考资料回答用户的问题。
+
+参考资料：
+{context}
+
+用户问题：{question}
+
+要求：
+1. 只根据参考资料回答，不要编造信息
+2. 如果参考资料中没有相关信息，请如实说明
+3. 在回答中引用参考资料来源
+4. 回答要准确、简洁、有条理
+
+回答：
+"""
+
+def build_rag_prompt(question: str, retrieved_docs: list) -> str:
+    context = "\n\n".join([
+        f"[来源 {i+1}: {doc.metadata.get('source', '未知')}]\n{doc.content}"
+        for i, doc in enumerate(retrieved_docs)
+    ])
+    return RAG_PROMPT.format(question=question, context=context)
+</code></pre>
+
+<blockquote>
+<p>面试话术："RAG 分离线和在线两阶段。离线做文档向量化建库，在线做检索 + Prompt 增强生成。Prompt 必须显式约束 LLM 不编造、要引用来源。"</p>
+</blockquote>
+
+<hr />
+<h2 id="3">3. 文档处理与分块（Chunking）</h2>
+
+<h3 id="_4">为什么要分块？</h3>
+
+<p>1000 页的书不能整本扔给 LLM——它读不完，有效信息被淹没。分块的核心矛盾：<strong>块太大检索不精准，块太小上下文不完整，得找一个平衡点。</strong></p>
+
+<h3 id="_6">分块策略全景</h3>
+
+<pre><code>
+分块策略决策流程
+==================
+
+  原始文档
+     │
+     ├─→ 有自然边界？（标题、段落、章节）
+     │     ├─ 是 → 语义分块 / 按段落切（推荐）
+     │     └─ 否 → 固定大小切 / 递归分块
+     │
+     ▼
+  ┌──────────────────────────────────────────────────────────────┐
+  │ 策略              │ 块大小         │ 适用场景                │
+  ├──────────────────────────────────────────────────────────────┤
+  │ 固定大小切         │ 500-1000 字符  │ 通用场景（新手默认）    │
+  │ 按句子切           │ 1-3 句         │ 简单问答                │
+  │ 按段落切           │ 1-3 段         │ 文档理解                │
+  │ 递归分块(推荐)     │ 自适应         │ 结构复杂文档            │
+  │ 语义分块           │ 按语义边界     │ 高质量要求              │
+  │ Agent 分块         │ AI 判断        │ 特殊格式                │
+  └──────────────────────────────────────────────────────────────┘
+     │
+     ▼
+  chunk_overlap = chunk_size × 10%~20%
+  防止一句话被切在两块之间
+
+  示例（chunk_size=500, overlap=50）:
+    块1: [0 ───────────────── 500]
+    块2:             [450 ──────────────── 950]
+    块3:                         [900 ──────────────── 1400]
+</code></pre>
+
+<h3 id="_5">文档加载</h3>
+
+<pre><code class="language-python">from langchain.document_loaders import (
+    PDFLoader, UnstructuredHTMLLoader, CSVLoader,
+    DocxLoader, UnstructuredMarkdownLoader, TextLoader, WebBaseLoader,
+)
+
+loader = PDFLoader("document.pdf")
+docs = loader.load()
+
+loader = WebBaseLoader(["https://example.com/article"])
+docs = loader.load()
+</code></pre>
+
+<h3 id="_7">分块代码 & 参数调优</h3>
+
+<pre><code class="language-python">from langchain.text_splitter import (
+    RecursiveCharacterTextSplitter,
+    CharacterTextSplitter,
+    TokenTextSplitter,
+)
+
+# 递归字符分块（最常用，推荐！）
+text_splitter = RecursiveCharacterTextSplitter(
+    chunk_size=500,         # 每块 500 个字符
+    chunk_overlap=50,       # 块间重叠 50 字符（防信息被切断）
+    separators=["\n\n", "\n", "。", "！", "？", " "],  # 优先在自然断点切
+)
+
+# 按 Token 分块（对 LLM 计费更精确）
+token_splitter = TokenTextSplitter(chunk_size=500, chunk_overlap=50)
+
+chunks = text_splitter.split_documents(docs)
+</code></pre>
+
+<pre><code>chunk_size 经验值：
+  - 100-300：简单问答、提取人名地名
+  - 500-1000：文档摘要、代码生成（⭐ 最常用区间）
+  - 1000-2000：复杂推理、跨段落理解
+  - >2000：读长文档全文
+
+chunk_overlap：设为 chunk_size 的 10%-20%
+</code></pre>
+
+<blockquote>
+<p>面试话术："分块策略直接影响检索质量。我一般用 recursive character splitter，chunk_size 500-800，overlap 10%-15%。中文场景注意用句号和换行作为分隔符优先级。如果效果不好，第一反应就是调分块参数。"</p>
+</blockquote>
+
+<hr />
+<h2 id="4">4. 向量数据库与 Embedding</h2>
+
+<h3 id="_8">为什么用向量数据库？</h3>
+
+<p>传统数据库做精确匹配（"关键词 = 关键词"），向量数据库做语义匹配（"意思最接近"）。把文本变成高维向量坐标，用余弦相似度算距离——距离越近，语义越近。</p>
+
+<h3 id="_9">主流向量数据库</h3>
+
+<table>
+<thead>
+<tr>
+<th>数据库</th>
+<th>一句话</th>
+<th>什么时候用</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Chroma</strong></td>
+<td>最轻量，pip install 就用</td>
+<td>Demo、快速验证</td>
+</tr>
+<tr>
+<td><strong>Pinecone</strong></td>
+<td>全托管，省心但花钱</td>
+<td>有预算、不想运维</td>
+</tr>
+<tr>
+<td><strong>Milvus</strong></td>
+<td>开源最强，功能最全</td>
+<td>大规模生产环境</td>
+</tr>
+<tr>
+<td><strong>Qdrant</strong></td>
+<td>Rust 写，性能怪兽</td>
+<td>高并发、低延迟</td>
+</tr>
+<tr>
+<td><strong>Weaviate</strong></td>
+<td>原生混合搜索</td>
+<td>既要语义又要关键词</td>
+</tr>
+<tr>
+<td><strong>Faiss</strong></td>
+<td>Facebook 出品，离线王者</td>
+<td>离线批量检索</td>
+</tr>
+<tr>
+<td><strong>PGvector</strong></td>
+<td>PostgreSQL 插件</td>
+<td>已有 PG，不想引入新库</td>
+</tr>
+</tbody>
+</table>
+
+<blockquote>
+<p>新手建议：先用 Chroma 上手，生产用 Milvus 或 Qdrant。</p>
+</blockquote>
+
+<h3 id="_10">向量检索原理</h3>
+
+<pre><code>相似度算法：
+  - 余弦相似度：看向量夹角，角度越小越像（最常用）
+  - 欧氏距离：看直线距离，距离越短越像
+  - 点积：相乘结果越大越像
+
+加速索引（百万级向量不可能逐个比）：
+  - HNSW（默认首选）：多层图，上层粗定位、下层精搜索，O(log N)
+  - IVF：先聚类，只搜最近的几个类
+  - PQ：向量压缩编码，省内存
+
+精确检索 O(N)  vs  近似检索 ANN O(log N)
+</code></pre>
+
+<h3 id="embedding">Embedding 模型怎么选？</h3>
+
+<pre><code class="language-python">from langchain.embeddings import OpenAIEmbeddings, HuggingFaceEmbeddings
+
+# 方案A：OpenAI（效果好但要钱 + 数据出网）
+embeddings = OpenAIEmbeddings(
+    model="text-embedding-ada-002"  # 或 text-embedding-3-small/3-large
+)
+
+# 方案B：开源本地部署（免费 + 数据不出网）
+embeddings = HuggingFaceEmbeddings(
+    model_name="sentence-transformers/all-MiniLM-L6-v2",  # 轻量快速
+    # model_name="BAAI/bge-large-zh-v1.5",  # ⭐ 中文强推！
+    model_kwargs={"device": "cuda"},
+)
+
+# 中文 Embedding 推荐（按效果排序）:
+# 1. BAAI/bge-large-zh-v1.5（智源，中文效果 Top）
+# 2. moka-ai/m3e-base（中文社区人气王）
+# 3. shibing624/text2vec-base-chinese（轻量好用）
+</code></pre>
+
+<blockquote>
+<p>面试话术："Embedding 选择考虑语言、领域、成本三维。中文场景优先用 BAAI/bge 系列本地部署，保障数据安全。向量库选型：原型 Chroma，百万级 Qdrant，千万级以上 Milvus。"</p>
+</blockquote>
+
+<hr />
+<h2 id="5">5. 检索策略</h2>
+
+<h3 id="_11">三种检索层次</h3>
+
+<ul>
+<li><strong>基础检索</strong>：向量相似度搜 Top-K（最简单，但容易漏专有名词）</li>
+<li><strong>MMR</strong>：既相关又多样，避免全是同类型结果</li>
+<li><strong>混合检索</strong>：向量语义 + BM25 关键词双管齐下（效果最佳）</li>
+</ul>
+
+<h3 id="_12">基础检索</h3>
+
+<pre><code class="language-python">retriever = vectorstore.as_retriever(
+    search_type="similarity",  # similarity / similarity_score_threshold / mmr
+    search_kwargs={
+        "k": 5,                        # 返回 Top-5
+        "score_threshold": 0.8,        # 相似度低于 0.8 的不要
+    }
+)
+
+results = retriever.get_relevant_documents("用户问题")
+</code></pre>
+
+<h3 id="mmr">MMR（最大边际相关性）</h3>
+
+<pre><code class="language-python"># 不用 MMR：可能返回 5 个都说优点，缺点一个没提
+# 用 MMR：优缺点都覆盖，信息更全面
+
+retriever = vectorstore.as_retriever(
+    search_type="mmr",
+    search_kwargs={
+        "k": 5,
+        "fetch_k": 20,              # 先从库拿 20 条候选
+        "lambda_mult": 0.5,         # 0=只要多样，1=只要相关（推荐 0.5）
+    }
+)
+</code></pre>
+
+<h3 id="_13">混合检索</h3>
+
+<pre><code class="language-python"># 向量检索懂语义但漏专名，BM25 精准命中专名但不懂同义词
+# 两者结合 = 双保险
+
+from langchain.retrievers import EnsembleRetriever
+
+vector_retriever = vectorstore.as_retriever(search_kwargs={"k": 5})
+bm25_retriever = BM25Retriever.from_documents(chunks)
+
+# RRF 融合排序
+ensemble_retriever = EnsembleRetriever(
+    retrievers=[bm25_retriever, vector_retriever],
+    weights=[0.3, 0.7]  # BM25 30%, 向量 70%
+)
+</code></pre>
+
+<h3 id="query">Query 改写</h3>
+
+<pre><code class="language-python"># 用户问题可能很口语、很模糊，需要"翻译"再搜
+
+# HyDE：让 LLM 先假装写一个"假设答案"，用答案去搜
+#   原理：答案和文档的语言风格更接近，比直接用问题搜效果好
+from langchain.chains import HyDE
+
+# Query Decomposition：复杂问题拆成子问题分别搜
+# Step-back Prompting：先问更大的背景问题，再问原问题
+# Re-phrasing：把口语化问题改写成规范表述
+</code></pre>
+
+<blockquote>
+<p>面试话术："单一向量检索对专有名词召回差。实际项目用混合检索：向量做语义召回，BM25 做关键词召回，RRF 融合排序。加上 query rewriting 和 rerank 两层，检索准确率提升 20-30%。"</p>
+</blockquote>
+
+<hr />
+<h2 id="6-llm">6. 生成阶段</h2>
+
+<h3 id="_14">核心：控制幻觉</h3>
+
+<p>前几步找到了"最新鲜的食材"（相关文档），现在交给"大厨"（LLM）。但大厨有个坏毛病——一不留神就自己往里加料（幻觉）。你得盯着他，反复强调："照菜谱来，别瞎加！"</p>
+
+<h3 id="langchain">用 LangChain 搭生成链</h3>
+
+<pre><code class="language-python">from langchain.chat_models import ChatOpenAI
+from langchain.chains import RetrievalQA
+
+qa_chain = RetrievalQA.from_chain_type(
+    llm=ChatOpenAI(model="gpt-4", temperature=0),  # temperature=0 = 不要创意
+    chain_type="stuff",
+    retriever=retriever,
+    return_source_documents=True,  # 返回引用来源
+)
+
+result = qa_chain({"query": "用户问题"})
+print(result["result"])            # 答案
+print(result["source_documents"])  # 引用
+</code></pre>
+
+<h3 id="_15">四种生成链类型</h3>
+
+<table>
+<thead>
+<tr>
+<th>链类型</th>
+<th>行为</th>
+<th>适用</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Stuff</strong></td>
+<td>所有文档塞进一个 Prompt</td>
+<td>文档少（<5），要速度</td>
+</tr>
+<tr>
+<td><strong>Map Reduce</strong></td>
+<td>每篇单独小结，再汇总</td>
+<td>文档多，各自独立</td>
+</tr>
+<tr>
+<td><strong>Refine</strong></td>
+<td>第一篇出初稿，后续逐篇润色</td>
+<td>需要答案连贯流畅</td>
+</tr>
+<tr>
+<td><strong>Map Rerank</strong></td>
+<td>每篇打分，挑最高分用</td>
+<td>追求最佳答案</td>
+</tr>
+</tbody>
+</table>
+
+<h3 id="_16">防幻觉三板斧</h3>
+
+<pre><code class="language-python"># 第 1 板斧：System Prompt 严加约束
+SYSTEM_PROMPT = """
+你是一个严谨的 AI 助手。回答时必须遵循以下规则：
+1. 只根据参考资料回答，不要编造
+2. 如果参考资料中没有相关信息，明确说"参考资料中未提及"
+3. 对不确定的信息，不要猜测
+4. 引用你使用的参考资料来源
+"""
+
+# 第 2 板斧：限制回答范围
+USER_PROMPT = """
+用户问题：{question}
+参考资料：{context}
+请只根据以上参考资料回答，末尾标注引用来源。
+"""
+
+# 第 3 板斧：后处理校验（Self-RAG / Corrective RAG）
+# 生成答案后，再让 LLM 检查：答案和参考资料是否一致
+</code></pre>
+
+<blockquote>
+<p>面试话术："生成阶段核心是控制幻觉。三个关键：System Prompt 约束、temperature=0、后处理校验。return_source_documents=True 是必选项，回答带引用才有说服力。"</p>
+</blockquote>
+
+<hr />
+<h2 id="7-rag">7. RAG 评估</h2>
+
+<h3 id="_17">两个维度</h3>
+
+<ul>
+<li><strong>检索质量</strong>：搜回来的东西，有没有正确答案？排第几？</li>
+<li><strong>生成质量</strong>：LLM 有没有瞎编？回答和问题对得上吗？</li>
+</ul>
+
+<h3 id="_18">检索指标</h3>
+
+<table>
+<thead>
+<tr>
+<th>指标</th>
+<th>解释</th>
+<th>公式</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Hit Rate</strong></td>
+<td>Top-K 里答案命中了没</td>
+<td>HR@K = 命中查询数 / 总查询数</td>
+</tr>
+<tr>
+<td><strong>MRR</strong></td>
+<td>正确答案首次出现排第几</td>
+<td>MRR = 所有查询 (1/排名) 的平均值</td>
+</tr>
+<tr>
+<td><strong>NDCG</strong></td>
+<td>兼顾有没有 + 排序好不好</td>
+<td>NDCG@K = DCG@K / IDCG@K</td>
+</tr>
+</tbody>
+</table>
+
+<h3 id="_19">生成指标</h3>
+
+<table>
+<thead>
+<tr>
+<th>指标</th>
+<th>解释</th>
+<th>怎么评</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Faithfulness（忠实度）</strong></td>
+<td>答案是否全来自参考资料</td>
+<td>LLM 自动评估</td>
+</tr>
+<tr>
+<td><strong>Answer Relevance</strong></td>
+<td>答跟问是不是一回事</td>
+<td>LLM 自动评估</td>
+</tr>
+<tr>
+<td><strong>Context Precision</strong></td>
+<td>搜回来的文档有用的占多少</td>
+<td>LLM 自动评估</td>
+</tr>
+<tr>
+<td><strong>Context Recall</strong></td>
+<td>该搜到的都搜到了吗</td>
+<td>跟标准答案对比</td>
+</tr>
+</tbody>
+</table>
+
+<h3 id="ragas">RAGAS：一键评估</h3>
+
+<pre><code class="language-python">from ragas import evaluate
+from ragas.metrics import (
+    faithfulness, answer_relevancy,
+    context_precision, context_recall,
+)
+
+result = evaluate(
+    dataset=test_dataset,  # question, answer, contexts, ground_truth
+    metrics=[
+        faithfulness,       # 忠实度
+        answer_relevancy,   # 相关性
+        context_precision,  # 精确率
+        context_recall,     # 召回率
+    ],
+)
+
+df = result.to_pandas()
+print(df)
+</code></pre>
+
+<blockquote>
+<p>面试话术："评估分两层：检索层看 Hit Rate 和 MRR，生成层看 Faithfulness 和 Answer Relevance。用 RAGAS 做自动化评估，重点关注 Faithfulness——低于 0.8 说明幻觉严重。"</p>
+</blockquote>
+
+<hr />
+<h2 id="8-60-90-advanced-rag">8. Advanced RAG：从 60 分到 90 分</h2>
+
+<h3 id="rag_4">三层优化概述</h3>
+
+<p>基础 RAG 能跑通但效果 60 分。进阶在三阶段叠加优化：</p>
+
+<h3 id="_20">预处理优化</h3>
+
+<pre><code>
+预处理优化清单
+================
+📄 文档解析：
+   ✅ PDF 表格、Word 层级标题精准提取
+   ✅ 保留文档结构（标题层级）—— 对理解很有帮助
+   ✅ 每块贴标签（来源、时间、类型）—— 方便过滤
+   ✅ OCR 提取图片文字，图表描述不丢
+
+✂️ 分块升级：
+   ✅ 按语义边界切（段落、标题），不暴力按字数
+   ✅ Small-to-Big：先搜小块，找到后扩展到完整章节
+   ✅ 元数据过滤 + 向量检索一起用
+
+🔢 Embedding 升级：
+   ✅ Fine-tune Embedding：让向量"更懂"你的领域
+   ✅ ColBERT：比普通向量更精细的交互方式
+</code></pre>
+
+<h3 id="_21">检索优化</h3>
+
+<pre><code>
+检索优化清单
+=============
+❓ Query 改写：
+   ✅ HyDE：先写假答案，用假答案搜（效果出奇好）
+   ✅ Step-back：先问更大背景问题，再问原问题
+   ✅ 问题分解：复杂问题拆成 2-3 个子问题分别搜
+
+🔍 检索升级：
+   ✅ 混合检索（向量 + BM25）← 标配
+   ✅ 迭代检索：第一次搜完，让 LLM 说还需要啥，再搜
+   ✅ Rerank（重排序）：先粗搜 50 条，用 Cross-Encoder 精排 5 条
+
+⭐ Rerank 为什么重要？
+   向量检索快但不精确 → 先召回 Top-50（海选）
+   Cross-Encoder 精确但慢 → 对 50 条精排（复赛 → 决赛）
+   性价比最高的优化：加一个 Cross-Encoder 带来 10-15% 提升
+</code></pre>
+
+<pre><code class="language-python"># Rerank 示例：让 Cohere 帮你精挑细选
+from langchain.retrievers import ContextualCompressionRetriever
+from langchain.retrievers.document_compressors import CohereRerank
+
+compressor = CohereRerank(cohere_api_key=api_key, top_n=5)
+
+compression_retriever = ContextualCompressionRetriever(
+    base_compressor=compressor,
+    base_retriever=base_retriever,
+)
+</code></pre>
+
+<h3 id="_22">生成优化</h3>
+
+<pre><code>
+生成优化清单
+=============
+📝 Prompt 工程：
+   ✅ Few-shot Examples：给 LLM 看两三个例子
+   ✅ Chain of Thought：引导"一步步思考"
+   ✅ Self-RAG：LLM 自己判断"检索结果够不够，要不要再搜"
+   ✅ Corrective RAG：生成后自检，不对就修正
+
+📤 输出规范：
+   ✅ 每条引用标注出处（哪个文档第几段）
+   ✅ 结构化输出（JSON / 表格），方便下游用
+   ✅ 不确定时说"不确定"，别硬编（降级策略）
+
+🤖 模型选型：
+   ✅ 小模型微调：成本低 + 懂行话（高频场景）
+   ✅ GPT-4 / Claude：质量最好（高要求场景）
+</code></pre>
+
+<blockquote>
+<p>面试话术："进阶优化三刀：预处理做好文档解析和元数据，检索加混合搜索和 Rerank，生成加 Few-shot + CoT。Rerank 是性价比最高的优化，加一个 Cross-Encoder 精排能带来 10-15% 的效果提升。"</p>
+</blockquote>
+
+<hr />
+<h2 id="9-rag-vs">9. RAG vs 微调</h2>
+
+<h3 id="_23">一句话类比</h3>
+
+<ul>
+<li><strong>RAG</strong>：考试时允许翻书。书可以随时换，最新知识都有。翻书需要时间。</li>
+<li><strong>Fine-tuning</strong>：考前把知识"灌进脑子"。答题飞快，但知识固定。</li>
+</ul>
+
+<p><strong>最佳策略：两者结合。</strong>微调让模型学会"怎么答题"，RAG 注入"最新内容"。</p>
+
+<h3 id="_24">核心区别</h3>
+
+<table>
+<thead>
+<tr>
+<th>对比项</th>
+<th>RAG</th>
+<th>Fine-tuning</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>知识更新</td>
+<td>随时更新，立等可用</td>
+<td>需重新训练，耗时烧钱</td>
+</tr>
+<tr>
+<td>可解释性</td>
+<td>答案带引用，有据可查</td>
+<td>答案藏在参数里</td>
+</tr>
+<tr>
+<td>幻觉控制</td>
+<td>基于真实文档</td>
+<td>仍可能编造</td>
+</tr>
+<tr>
+<td>训练成本</td>
+<td>几乎为零</td>
+<td>GPU 跑几天</td>
+</tr>
+<tr>
+<td>推理成本</td>
+<td>多一次检索，稍慢</td>
+<td>纯推理，快</td>
+</tr>
+<tr>
+<td>领域适配</td>
+<td>取决于文档质量</td>
+<td>可深度适配行业术语</td>
+</tr>
+<tr>
+<td>时效性</td>
+<td>新闻级</td>
+<td>截止到训练前一天</td>
+</tr>
+</tbody>
+</table>
+
+<h3 id="_25">选型指南</h3>
+
+<pre><code>选 RAG：
+  → 知识库经常变（产品手册、新闻、政策）
+  → 答案必须能追踪出处
+  → 想马上用起来，不想花钱训练
+
+选 Fine-tuning：
+  → 需要固定风格（客服话术、品牌文案）
+  → 推理速度是首要因素
+  → 领域极度专业，通用模型听不懂术语
+
+最佳实践：RAG + Fine-tuning 组合
+  → Fine-tuning 学风格、学行话、学推理模式
+  → RAG 注入最新事实、私有数据
+  → 结果：有深度 + 有实效 + 有据可查
+</code></pre>
+
+<blockquote>
+<p>面试话术："RAG 和微调不是互斥的，是互补的。大部分企业场景先上 RAG 快速验证，效果 OK 就省了微调的钱。风格或推理不够好，再加精调 + RAG 双打。分期投入，风险可控。"</p>
+</blockquote>
+
+<hr />
+<h2 id="10">10. 主流框架速览</h2>
+
+<h3 id="_26">框架选型</h3>
+
+<table>
+<thead>
+<tr>
+<th>框架</th>
+<th>一句话</th>
+<th>适合谁</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>LangChain</strong></td>
+<td>瑞士军刀，啥都能干</td>
+<td>快速原型、复杂编排</td>
+</tr>
+<tr>
+<td><strong>LlamaIndex</strong></td>
+<td>RAG 专业户，开箱即用</td>
+<td>纯 RAG 场景首选</td>
+</tr>
+<tr>
+<td><strong>Haystack</strong></td>
+<td>模块化，企业级</td>
+<td>要上生产环境</td>
+</tr>
+<tr>
+<td><strong>AutoGen</strong></td>
+<td>多 Agent 协作</td>
+<td>复杂多步骤对话</td>
+</tr>
+<tr>
+<td><strong>Dify</strong></td>
+<td>低代码，中文友好</td>
+<td>不想写代码的产品/运营</td>
+</tr>
+<tr>
+<td><strong>RAGFlow</strong></td>
+<td>深度文档理解（OCR、表格解析）</td>
+<td>复杂 PDF/扫描件多</td>
+</tr>
+</tbody>
+</table>
+
+<h3 id="llamaindex-3">LlamaIndex 3 行跑起来</h3>
+
+<pre><code class="language-python">from llama_index import VectorStoreIndex, SimpleDirectoryReader
+from llama_index.llms import OpenAI
+
+documents = SimpleDirectoryReader("./data").load_data()
+index = VectorStoreIndex.from_documents(documents)
+query_engine = index.as_query_engine(llm=OpenAI(model="gpt-4"))
+
+response = query_engine.query("用户问题")
+print(response)
+print(response.source_nodes)  # 查看引用来源
+</code></pre>
+
+<h3 id="langchain_1">LangChain 完整流程</h3>
+
+<pre><code class="language-python">from langchain.document_loaders import TextLoader
+from langchain.text_splitter import RecursiveCharacterTextSplitter
+from langchain.embeddings import OpenAIEmbeddings
+from langchain.vectorstores import Chroma
+from langchain.chat_models import ChatOpenAI
+from langchain.chains import RetrievalQA
+
+# 1. 加载
+docs = TextLoader("document.txt", encoding="utf-8").load()
+
+# 2. 切块
+splitter = RecursiveCharacterTextSplitter(chunk_size=500, chunk_overlap=50)
+chunks = splitter.split_documents(docs)
+
+# 3. 向量化 + 存库
+vectorstore = Chroma.from_documents(chunks, OpenAIEmbeddings())
+
+# 4. 搭 QA 链
+qa_chain = RetrievalQA.from_chain_type(
+    llm=ChatOpenAI(model="gpt-4", temperature=0),
+    chain_type="stuff",
+    retriever=vectorstore.as_retriever(),
+    return_source_documents=True,
+)
+
+# 5. 开问
+result = qa_chain({"query": "用户问题"})
+</code></pre>
+
+<hr />
+<h2 id="11-6">11. 面试 6 连问</h2>
+
+<h3 id="q1rag">Q1：RAG 的核心原理？</h3>
+
+<p>三个环节环环相扣：离线建向量索引 + 在线语义检索 + 增强 Prompt 生成。本质是把外部知识"动态注入"到 LLM 的生成过程中，让模型先查资料再回答，而不是凭记忆瞎猜。</p>
+
+<h3 id="q2rag">Q2：RAG 效果不好，怎么排查？</h3>
+
+<p><strong>检索环节：</strong>Embedding 模型对吗？中文用了英文模型 = 自废武功。分块大小合理吗？Top-K 合适吗？</p>
+<p><strong>生成环节：</strong>Prompt 有没有约束"不准瞎编"？LLM 碰到不知道的会说"不知道"还是乱说？要不要加后处理校验？</p>
+<p><strong>基建环节：</strong>PDF 解析对了吗？表格提取出来了吗？元数据够不够丰富？</p>
+
+<h3 id="q3-rag">Q3：怎么提升召回率？</h3>
+
+<ol>
+<li>Query 改写：把口语化问题翻译成规范表述</li>
+<li>混合检索：向量 + BM25 双管齐下</li>
+<li>元数据过滤：先按时间/类型缩小范围，再向量检索</li>
+<li>Rerank 精排：粗搜 50 条，Cross-Encoder 精挑 5 条</li>
+<li>迭代检索：搜一次 → LLM 说还缺什么 → 再搜一次补全</li>
+</ol>
+
+<h3 id="q4rag">Q4：RAG 和微调怎么选？</h3>
+
+<pre><code>知识经常变吗？ → 是 → RAG
+需要解释来源吗？ → 是 → RAG
+追求推理速度吗？ → 是 → 微调
+要固定风格/语气吗？ → 是 → 微调
+预算充足想两全其美？ → RAG + 微调组合拳
+
+推荐路线：先上 RAG 快速出 MVP → 验证效果 → 不够好再加微调 → 双剑合璧
+</code></pre>
+
+<h3 id="q5rag">Q5：RAG 有什么局限性？</h3>
+
+<ol>
+<li>检索是天花板：Embedding 和分块没调好，后面全白搭</li>
+<li>上下文长度有限：超长文档得特殊处理</li>
+<li>多跳推理吃力："A 公司 CEO 多大了？"需要先搜 CEO 是谁，再搜年龄</li>
+<li>多一次检索 = 多一份延迟 + 多一份成本</li>
+<li>数学计算、复杂逻辑推理：纯 RAG 不行，得上 Agent + 工具调用</li>
+</ol>
+
+<h3 id="q6-rag">Q6：怎么评估 RAG 系统好不好用？</h3>
+
+<p><strong>两把尺子：</strong></p>
+<ul>
+<li>检索尺：Hit Rate（搜到没）、MRR（对的排第几）、NDCG（排序好不好）</li>
+<li>生成尺：Faithfulness（有没有瞎说）、Answer Relevance（有没有离题）</li>
+</ul>
+<p><strong>实操：</strong>用 RAGAS 一键跑评估，重点关注 Faithfulness——低于 0.8 说明幻觉严重，得回改 Prompt 或加校验。</p>
+<p>另外：<strong>线上看用户反馈更真实</strong>——点"踩"比例、是否追问、引用点击率，这些才是最终指标。</p>
+
+<hr />
+<blockquote>
+<p>学习心法：RAG 面试就三个关键词——<strong>检索怎么搜得准</strong>（Embedding / 向量数据库 / 混合检索）、<strong>生成怎么不乱说</strong>（Prompt / 幻觉控制）、<strong>优化怎么做</strong>（Rerank / HyDE / Small-to-Big）。吃透完整流程，再深入向量检索原理，最后用 Advanced RAG 的优化思路拔高。</p>
+<p>考察关系：RAG 主要出现在 AI 应用 / 大模型 / 后端方向面试中，常和以下知识点一起考察：LLM 基础、向量数据库选型、Embedding 模型、Prompt Engineering、LangChain/LlamaIndex 框架。AI 应用开发岗几乎必问。</p>
+</blockquote>
+
+
+<script>
+// Scroll spy — highlight active sidebar item
+window.addEventListener('scroll', function() {
+    var links = document.querySelectorAll('.sidebar-toc a');
+    var scrollY = window.scrollY + 120;
+    var current = '';
+    for (var i = links.length - 1; i >= 0; i--) {
+        var target = document.getElementById(links[i].getAttribute('href').slice(1));
+        if (target && target.offsetTop <= scrollY) {
+            current = links[i];
+            break;
+        }
+    }
+    links.forEach(function(a) { a.style.fontWeight = 'normal'; a.style.color = '#555'; });
+    if (current) { current.style.fontWeight = 'bold'; current.style.color = '#0366d6'; }
+});
+</script>
+
+
+<script>
+document.querySelectorAll("pre>code").forEach(function(c){var p=c.parentNode;p.style.position="relative";var b=document.createElement("button");b.className="copy-btn";b.textContent="复制";p.appendChild(b);b.addEventListener("click",function(){var t=c.textContent;navigator.clipboard.writeText(t).then(function(){b.textContent="已复制";b.classList.add("copied");setTimeout(function(){b.textContent="复制";b.classList.remove("copied")},2000)}).catch(function(){var a=document.createElement("textarea");a.value=t;a.style.position="fixed";a.style.opacity="0";document.body.appendChild(a);a.select();document.execCommand("copy");document.body.removeChild(a);b.textContent="已复制";b.classList.add("copied");setTimeout(function(){b.textContent="复制";b.classList.remove("copied")},2000)})})})
+</script>
+</body>
+</html>

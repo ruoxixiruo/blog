@@ -1,0 +1,567 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>面试题 - Python基础</title>
+<style>
+body {
+    transition: margin-left .25s ease;
+    font-family: -apple-system, "Noto Sans SC", "Microsoft YaHei", sans-serif;
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 20px 24px 60px;
+    line-height: 1.8;
+    color: #333;
+    background: #fff;
+}
+h1 { border-bottom: 2px solid #eee; padding-bottom: 10px; color: #222; }
+h2 { color: #333; margin-top: 32px; }
+h3 { color: #555; }
+a { color: #0366d6; text-decoration: none; }
+a:hover { text-decoration: underline; }
+pre {
+    background: #f6f8fa;
+    border-radius: 6px;
+    padding: 16px;
+    overflow-x: auto;
+    font-size: 14px;
+    line-height: 1.45;
+}
+code {
+    background: #f0f2f4;
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-size: 14px;
+}
+pre code { background: none; padding: 0; }
+blockquote {
+    border-left: 4px solid #ddd;
+    margin: 0;
+    padding: 0 16px;
+    color: #666;
+}
+table {
+    border-collapse: collapse;
+    width: 100%;
+    margin: 16px 0;
+}
+th, td {
+    border: 1px solid #ddd;
+    padding: 8px 12px;
+    text-align: left;
+}
+th { background: #f6f8fa; }
+img { max-width: 100%; }
+.back-link {
+    margin-bottom: 20px;
+    display: block;
+    color: #666;
+}
+.back-link:hover { color: #0366d6; }
+
+.sidebar-toc {
+    transition: left .25s ease;
+    position: fixed;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    width: 220px;
+    background: #f8f9fa;
+    border-right: 1px solid #e9ecef;
+    padding: 20px 0;
+    overflow-y: auto;
+    font-size: 13px;
+    z-index: 100;
+}
+.sidebar-toc a {
+    display: block;
+    padding: 6px 16px;
+    color: #555;
+    text-decoration: none;
+    border-left: 3px solid transparent;
+    line-height: 1.5;
+}
+.sidebar-toc a:hover {
+    background: #e9ecef;
+    color: #0366d6;
+    border-left-color: #0366d6;
+}
+.sidebar-toc .toc-h3 { padding-left: 20px; font-size: 12px; }
+body { margin-left: 240px; }
+
+
+.copy-btn {
+    position: absolute; top: 6px; right: 6px;
+    background: #e9ecef; border: none;
+    border-radius: 4px; padding: 3px 10px;
+    font-size: 12px; color: #555; cursor: pointer;
+    opacity: 0; transition: opacity 0.2s;
+    z-index: 1;
+}
+pre:hover .copy-btn { opacity: 1; }
+.copy-btn:hover { background: #d0d7de; }
+.copy-btn.copied { opacity: 1; background: #2da44e; color: #fff; }
+.copy-btn{position:absolute;top:6px;right:6px;background:#e9ecef;border:none;border-radius:4px;padding:3px 10px;font-size:12px;color:#555;cursor:pointer;opacity:0;transition:opacity .2s;z-index:1}pre:hover .copy-btn{opacity:1}.copy-btn:hover{background:#d0d7de}.copy-btn.copied{opacity:1;background:#2da44e;color:#fff}
+.copy-btn{position:absolute;top:6px;right:6px;background:#e9ecef;border:none;border-radius:4px;padding:3px 10px;font-size:12px;color:#555;cursor:pointer;opacity:0;transition:opacity .2s;z-index:1}pre:hover .copy-btn{opacity:1}.copy-btn:hover{background:#d0d7de}.copy-btn.copied{opacity:1;background:#2da44e;color:#fff}
+.copy-btn{position:absolute;top:6px;right:6px;background:#e9ecef;border:none;border-radius:4px;padding:3px 10px;font-size:12px;color:#555;cursor:pointer;opacity:0;transition:opacity .2s;z-index:1}pre:hover .copy-btn{opacity:1}.copy-btn:hover{background:#d0d7de}.copy-btn.copied{opacity:1;background:#2da44e;color:#fff}
+.sidebar-toggle-btn {
+  position: fixed;
+  left: 220px;
+  top: 0;
+  width: 28px;
+  height: 40px;
+  background: #f8f9fa;
+  border: 1px solid #e9ecef;
+  border-left: none;
+  border-radius: 0 4px 4px 0;
+  cursor: pointer;
+  font-size: 16px;
+  color: #555;
+  z-index: 101;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: left .25s, background .2s;
+  padding: 0;
+  line-height: 1;
+}
+.sidebar-toggle-btn:hover { background: #e9ecef; color: #0366d6; }
+.sidebar-collapsed .sidebar-toc { left: -220px; }
+.sidebar-collapsed .sidebar-toggle-btn { left: 0; }
+.sidebar-collapsed body, body.sidebar-collapsed { margin-left: 28px; }
+.sidebar-overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,.3);
+  z-index: 99;
+}
+@media (max-width: 768px) {
+  .sidebar-collapsed .sidebar-overlay { display: none; }
+  .sidebar-toc { left: -220px; }
+  .sidebar-toggle-btn { left: 0; }
+  body { margin-left: 28px; }
+}
+
+</style>
+</head>
+</head>
+<body>
+<nav class="sidebar-toc"><a class="toc-h3" href="#1-python-gil">1. Python 的 GIL 是什么?如何规避?</a><a class="toc-h3" href="#2-args-kwargs">2. *args 和 **kwargs 的区别?</a><a class="toc-h3" href="#3">3. 装饰器的原理与使用场景?</a><a class="toc-h3" href="#4">4. 生成器与迭代器的区别?</a><a class="toc-h3" href="#5-python">5. Python 的垃圾回收机制?</a><a class="toc-h3" href="#6-is">6. is 和 == 的区别?</a><a class="toc-h3" href="#7">7. 深拷贝与浅拷贝?</a><a class="toc-h3" href="#8">8. 列表与元组的区别?</a><a class="toc-h3" href="#9-python">9. Python 中的多线程、多进程、协程?</a><a class="toc-h3" href="#10-with">10. with 语句的原理?</a><a class="toc-h3" href="#11-__new__-__init__">11. __new__ 和 __init__ 的区别?</a><a class="toc-h3" href="#12-metaclass">12. 什么是元类(metaclass)?</a><a class="toc-h3" href="#13-__slots__">13. __slots__ 的作用?</a><a class="toc-h3" href="#14-lambda-def">14. lambda 函数是什么?与 def 的区别?</a><a class="toc-h3" href="#15-python-mro">15. Python 的 MRO(方法解析顺序)?</a><a class="toc-h3" href="#16-finally-return-try-return">16. finally 中的 return 会覆盖 try 中的 return 吗?</a><a class="toc-h3" href="#17-python-typing">17. Python 的 typing 模块(类型注解)有什么用?</a><a class="toc-h3" href="#18-python-dict">18. Python dict 的底层实现是什么?</a><a class="toc-h3" href="#19-python">19. Python 的元类能解决什么实际问题?</a><a class="toc-h3" href="#20-python-__slots__">20. Python 内存管理中 __slots__ 的作用?</a><a class="toc-h3" href="#21-python-functoolslru_cache">21. Python 的 functools.lru_cache 原理?</a><a class="toc-h3" href="#22-asyncio">22. asyncio 的事件循环是怎么实现的？</a></nav>
+<button class="sidebar-toggle-btn" onclick="toggleSidebar()" title="切换侧栏">☰</button>
+
+<div class="sidebar-overlay" onclick="toggleSidebar()"></div>
+
+<script>
+function toggleSidebar() {
+  document.body.classList.toggle('sidebar-collapsed');
+  try { localStorage.setItem('sidebarCollapsed', document.body.classList.contains('sidebar-collapsed')); } catch(e) {}
+}
+(function() {
+  try {
+    if (localStorage.getItem('sidebarCollapsed') === 'true') {
+      document.body.classList.add('sidebar-collapsed');
+    }
+  } catch(e) {}
+})();
+</script>
+<a class="back-link" href="/blog/2026/05/16/面试题/面试题/">← 返回面试题目录</a>
+<h1 id=page-title>Python</h1>
+<h3 id="1-python-gil">1. Python 的 GIL 是什么?如何规避?</h3>
+<p>GIL 是全局解释器锁,同一时刻只允许一个线程执行 Python 字节码。CPU 密集型多线程无法并行,IO 密集型在等待时自动释放 GIL 可并发。</p>
+<pre><code>CPU 密集:开多进程
+IO 密集:多线程 / 协程即可
+绕开 GIL:用 C 扩展 / Jython / 子进程
+</code></pre>
+<ul>
+<li>CPU 密集任务 → 多进程</li>
+<li>IO 密集任务 → 多线程/协程</li>
+<li>C 扩展可绕开 GIL</li>
+<li>Jython 无 GIL,PyPy 有优化计划</li>
+</ul>
+<blockquote>
+<p><strong>扩展</strong>:Python 3.13 <a href="https://peps.python.org/pep-0703/">PEP 703</a> 计划逐步移除 GIL;NumPy 等 C 扩展内部释放 GIL 可实现真正并行。</p>
+</blockquote>
+<h3 id="2-args-kwargs">2. <code>*args</code> 和 <code>**kwargs</code> 的区别?</h3>
+<p><code>*args</code> 接收位置参数打包为元组,<code>**kwargs</code> 接收关键字参数打包为字典。</p>
+<pre><code class="language-python">def order(main, *sides, **extras):
+    print(f&quot;主食: {main}&quot;)     # 必须的
+    print(f&quot;小菜: {sides}&quot;)    # 多余的没名字参数
+    print(f&quot;加料: {extras}&quot;)   # 有名字的参数
+# order(&quot;拉面&quot;, &quot;煎蛋&quot;, &quot;小菜&quot;, 加辣=True, 多加葱=True)
+</code></pre>
+<blockquote>
+<p><strong>扩展</strong>:<code>*</code> 可用于解包赋值 <code>a, *mid, c = [1,2,3,4,5]</code>;<code>**</code> 可合并字典 <code>{**d1, **d2}</code>。</p>
+</blockquote>
+<h3 id="3">3. 装饰器的原理与使用场景?</h3>
+<p>装饰器是接收函数、返回新函数的高阶函数,不修改原函数代码即可增强功能。</p>
+<pre><code>用户请求 → 装饰器(校验权限)→ 原函数(业务逻辑)→ 返回结果
+</code></pre>
+<p>场景:日志记录、权限检查、计时(<code>@timer</code>)、缓存(<code>@lru_cache</code>)、路由注册(<code>@app.get("/")</code>)。</p>
+<blockquote>
+<p><strong>扩展</strong>:带参数装饰器本质是柯里化;<code>functools.wraps</code> 保留原函数元信息,写装饰器必加。</p>
+</blockquote>
+<h3 id="4">4. 生成器与迭代器的区别?</h3>
+<p>迭代器实现 <code>__iter__</code> 和 <code>__next__</code>,只能向前逐个访问。生成器是用 <code>yield</code> 的函数,自动成为迭代器,按需惰性求值,内存占用恒定。</p>
+<pre><code>生成器数据流:
+yield → 暂停,返回数据 → 外部处理 → next() 唤醒 → 继续从 yield 后执行
+</code></pre>
+<blockquote>
+<p><strong>扩展</strong>:<code>yield from</code> 委托子生成器;3.6+ 支持异步生成器 <code>async def</code> + <code>yield</code>。</p>
+</blockquote>
+<h3 id="5-python">5. Python 的垃圾回收机制?</h3>
+<p>Python GC 分三层:</p>
+<pre><code>引用计数(主力,立刻回收)
+    ↓ 解决不了的循环引用
+标记清除(定期扫描,找出循环引用垃圾)
+    ↓ 优化性能
+分代回收(新对象扫得勤,老对象扫得少,省力)
+</code></pre>
+<ul>
+<li>引用计数:引用归零立即回收,无法处理循环引用</li>
+<li>标记清除:定期扫描标记存活对象,清除不可达对象</li>
+<li>分代回收:第0代扫最频,第1代次之,第2代最少</li>
+</ul>
+<p>核心:新生对象频繁扫描,老对象少扫描,节省开销。</p>
+<blockquote>
+<p><strong>扩展</strong>:<code>gc.collect()</code> 手动触发,<code>gc.disable()</code> 关闭自动GC;<code>tracemalloc</code> 追踪内存分配,<code>objgraph</code> 可视化引用关系。</p>
+</blockquote>
+<h3 id="6-is">6. <code>is</code> 和 <code>==</code> 的区别?</h3>
+<ul>
+<li><code>is</code>:比较对象身份(内存地址是否相同)</li>
+<li><code>==</code>:比较对象值是否相等</li>
+</ul>
+<p>注意:小整数(-5~256)和短字符串有缓存,<code>a=100; b=100</code> 时 <code>a is b</code> 为 True,但不应依赖此优化。</p>
+<blockquote>
+<p><strong>扩展</strong>:与 <code>None</code> 比较永远用 <code>is</code>(O(1)地址比较,不会被重载);<code>id()</code> 可查看对象地址。</p>
+</blockquote>
+<h3 id="7">7. 深拷贝与浅拷贝?</h3>
+<p>浅拷贝只复制第一层,内层对象仍共享引用;深拷贝递归复制所有层级,新旧对象完全独立。</p>
+<pre><code>浅拷贝:  [外层新容器] → [同内层对象]
+深拷贝:  [外层新容器] → [新内层对象]
+</code></pre>
+<pre><code class="language-python">import copy
+a = [1, [2, 3]]
+b = copy.copy(a)      # 浅拷贝:b[1] 和 a[1] 指向同一个列表
+c = copy.deepcopy(a)  # 深拷贝:c 完全独立
+</code></pre>
+<blockquote>
+<p><strong>扩展</strong>:<code>a[:]</code>/<code>list(a)</code>/<code>a.copy()</code> 均为浅拷贝;自定义类可实现 <code>__copy__</code>/<code>__deepcopy__</code> 控制行为。</p>
+</blockquote>
+<h3 id="8">8. 列表与元组的区别?</h3>
+<pre><code>列表:可增删改,动态扩容,有预留空间 → 频繁修改用
+元组:创建后锁定,无预留空间,内存更小 → 只读数据、dict key 用
+</code></pre>
+<p>元组不可变,可作字典key,省内存且创建更快。</p>
+<blockquote>
+<p><strong>扩展</strong>:<code>namedtuple</code> 支持字段名访问;3.9+ 支持 <code>list[int]</code> 类型标注。</p>
+</blockquote>
+<h3 id="9-python">9. Python 中的多线程、多进程、协程?</h3>
+<table>
+<thead>
+<tr>
+<th>并发方式</th>
+<th>适用场景</th>
+<th>GIL 影响</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>多进程</td>
+<td>CPU 密集(计算)</td>
+<td>不受影响</td>
+</tr>
+<tr>
+<td>多线程</td>
+<td>IO 密集(网络/文件)</td>
+<td>受影响</td>
+</tr>
+<tr>
+<td>协程</td>
+<td>高并发 IO</td>
+<td>单线程不受影响</td>
+</tr>
+</tbody>
+</table>
+<pre><code>多进程:多核并行,内存独立,进程间通信成本高
+多线程:共享内存,切换快,GIL 限制并行
+协程: 用户态切换,几乎零开销,需要 await 配合
+</code></pre>
+<blockquote>
+<p><strong>扩展</strong>:<code>concurrent.futures</code> 统一线程池/进程池API;<code>asyncio</code> + <code>aiohttp</code> 做异步网络;3.11+ <code>TaskGroup</code> 更安全。</p>
+</blockquote>
+<h3 id="10-with">10. with 语句的原理?</h3>
+<p><code>with</code> 确保资源用完自动释放,即使抛异常也会执行 <code>__exit__</code>。</p>
+<pre><code>with obj:
+  进入 → obj.__enter__()
+  执行 → 代码块
+  退出 → obj.__exit__()  ← 即使抛异常也会执行
+</code></pre>
+<pre><code class="language-python">with open(&quot;file.txt&quot;) as f:  # 自动调 __enter__
+    data = f.read()
+# 离开 with 块自动调 __exit__,文件关了,不管上面报没报错
+</code></pre>
+<blockquote>
+<p><strong>扩展</strong>:<code>contextlib.contextmanager</code> 用生成器写上下文管理器;3.7+ <code>asynccontextmanager</code>;3.14 <code>with(a,b,c):</code> 多上下文简写。</p>
+</blockquote>
+<h3 id="11-__new__-__init__">11. <code>__new__</code> 和 <code>__init__</code> 的区别?</h3>
+<pre><code>__new__(cls)  →  创建实例(分配内存,返回 self)
+__init__(self) →  初始化实例(给属性赋值)
+</code></pre>
+<p>先 <code>__new__</code> 创建对象,再 <code>__init__</code> 初始化属性。自定义 <code>__new__</code> 主要用于单例模式。</p>
+<blockquote>
+<p><strong>扩展</strong>:<code>__new__</code> 返回非当前类实例则 <code>__init__</code> 不调用;单例替代方案:模块级全局变量或依赖注入。</p>
+</blockquote>
+<h3 id="12-metaclass">12. 什么是元类(metaclass)?</h3>
+<p>元类是<strong>类的类</strong>--类定义了一个对象怎么创建,元类定义了一个类怎么创建。</p>
+<pre><code>元类(type) → 创建 → 类(Class) → 创建 → 实例(instance)
+</code></pre>
+<p>通俗比喻:工厂生产产品(类 → 对象),那工厂本身是谁造的?元类就是"造工厂的工厂"。</p>
+<p>普通开发基本不需要写元类。什么时候用?ORM(自动把类属性映射成数据库字段)、API 自动注册、框架底层才用得上。</p>
+<blockquote>
+<p><strong>扩展</strong>:Python 底层就是用 <code>type()</code> 作为默认元类:<code>type('MyClass', (Base,), {'x': 1})</code> 等价于 <code>class MyClass(Base): x = 1</code>。<code>__init_subclass__</code> 钩子是比元类更轻量的定制方案--子类被创建时自动调用,Django ORM 大量使用了它。</p>
+</blockquote>
+<h3 id="13-__slots__">13. <code>__slots__</code> 的作用?</h3>
+<p>普通 Python 对象背后有个 <code>__dict__</code> 字典存所有属性,灵活但占地方。加了 <code>__slots__</code> 之后,属性就是固定槽位,不能随便加新属性,但<strong>省内存</strong>。</p>
+<pre><code>__dict__ 方式:  obj → __dict__ → {key: value}  (灵活,内存大)
+__slots__ 方式: obj → [slot0, slot1, slot2]   (固定,内存小 40-50%)
+</code></pre>
+<p>就像:<code>__dict__</code> 是随便租的仓库(灵活但贵),<code>__slots__</code> 是固定储物柜(只能放规定的但便宜)。大量创建对象时(百万级),省的内存很可观。</p>
+<blockquote>
+<p><strong>扩展</strong>:<code>__slots__</code> 定义的类默认没有 <code>__dict__</code> 和 <code>__weakref__</code>,除非显式加上。用了 <code>__slots__</code> 后不能再动态添加属性。对 ORM 模型、dataclass 等大量实例化的场景特别有用。</p>
+</blockquote>
+<h3 id="14-lambda-def">14. lambda 函数是什么?与 def 的区别?</h3>
+<p>lambda 是<strong>一次性函数</strong>--没名字,只能写一行表达式,用完就扔。</p>
+<pre><code>def:   def func(x): return x*2   → 有名字,可以有 docstring、多行逻辑
+lambda: lambda x: x*2            → 没名字,只能一行表达式,用完就扔
+</code></pre>
+<p>lambda 适合简单场景如 <code>sorted(lst, key=lambda x: x.score)</code>,不能写多行逻辑。</p>
+<blockquote>
+<p><strong>扩展</strong>:不要 <code>f = lambda x: x*2</code>,应直接 <code>def</code>;复杂逻辑用生成器表达式或列表推导。</p>
+</blockquote>
+<h3 id="15-python-mro">15. Python 的 MRO(方法解析顺序)?</h3>
+<p>MRO 是多继承时方法查找的顺序,Python 3 用 C3 算法保证子类优先、从左到右、每类只出现一次。</p>
+<pre><code>钻石继承问题(Diamond Problem):
+      A
+     / \
+    B   C
+     \ /
+      D
+
+D 的 MRO:D → B → C → A → object
+(子类优先,从左到右,每个类只出现一次)
+</code></pre>
+<p>用 <code>类名.__mro__</code> 查看顺序。</p>
+<blockquote>
+<p><strong>扩展</strong>:<code>super()</code> 按 MRO 找下一个类,非直接父类;Mixin 靠 MRO 实现功能组合。</p>
+</blockquote>
+<h3 id="16-finally-return-try-return">16. <code>finally</code> 中的 return 会覆盖 try 中的 return 吗?</h3>
+<p><strong>会的</strong>。<code>finally</code> 的 return 会覆盖 try 中的返回值。</p>
+<pre><code class="language-python">def demo():
+    try:
+        return &quot;try 的 return&quot;
+    finally:
+        return &quot;finally 的 return&quot;  # 最终返回这个!
+</code></pre>
+<p>禁止在 finally 中写 return,只做清理操作。</p>
+<blockquote>
+<p><strong>扩展</strong>:3.8+ <code>except*</code> 捕获 ExceptionGroup;<code>with</code> 的 <code>__exit__</code> 比 <code>finally</code> 更安全。</p>
+</blockquote>
+<hr />
+<h3 id="17-python-typing">17. Python 的 typing 模块(类型注解)有什么用?</h3>
+<p>类型注解提升可读性,配合 MyPy/Pyright 在编码阶段发现类型错误。</p>
+<pre><code class="language-python">def greet(name: str, age: int = 18) -&gt; str:
+    return f&quot;Hello {name}, you are {age}&quot;
+</code></pre>
+<p>3.10+ 支持 <code>X | Y</code> 代替 <code>Union</code>,3.11+ 支持 <code>Self</code> 类型。</p>
+<hr />
+<h3 id="18-python-dict">18. Python dict 的底层实现是什么?</h3>
+<p>dict 底层是哈希表,通过 <code>hash(key)</code> 映射到数组位置,O(1) 查找。</p>
+<p><strong>3.6 前(稀疏表)</strong>:一个数组存 <code>(hash, key, value)</code>,空槽位也占空间,负载因子≈2/3。</p>
+<p><strong>3.6+(紧凑字典,省内存25-30%)</strong>:</p>
+<pre><code>indices(稀疏索引表):[3] [-] [1] [-] [0] [-] [2] [-]
+entries(紧凑数据表):[e0] [e1] [e2] [e3]  ← 按插入顺序
+</code></pre>
+<p>3.7+ dict 天然有序。</p>
+<p><strong>key 必须不可变</strong>:key 变则 hash 变,原位置找不到。list/dict/set 不可作 key,int/str/tuple 可以。</p>
+<p><strong>哈希冲突:开放寻址法</strong>,冲突时探测下一个空位:</p>
+<pre><code class="language-python">perturb = hash_value
+index = perturb &amp; mask
+while slot_is_occupied(index):
+    perturb &gt;&gt;= 5
+    index = (5 * index + perturb + 1) &amp; mask
+</code></pre>
+<p><strong>扩容</strong>:负载因子&gt;2/3 触发,新容量为下一个2的幂,rehash O(n) 摊还 O(1)。</p>
+<p><strong>各操作时间复杂度</strong>:</p>
+<table>
+<thead>
+<tr>
+<th>操作</th>
+<th>平均</th>
+<th>最坏(全冲突)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>查找 <code>d[key]</code></td>
+<td>O(1)</td>
+<td>O(n)</td>
+</tr>
+<tr>
+<td>插入</td>
+<td>O(1)</td>
+<td>O(n)</td>
+</tr>
+<tr>
+<td>删除</td>
+<td>O(1)</td>
+<td>O(n)</td>
+</tr>
+<tr>
+<td><code>key in d</code></td>
+<td>O(1)</td>
+<td>O(n)</td>
+</tr>
+</tbody>
+</table>
+<p><strong>OrderedDict vs dict</strong>:3.7+ dict 已有序,但 OrderedDict 有 <code>move_to_end()</code>、<code>popitem(last=False)</code>、顺序敏感的相等比较。</p>
+<blockquote>
+<p><strong>扩展</strong>:set 底层也是哈希表(只存key),frozenset 是其不可变版。</p>
+</blockquote>
+<h3 id="19-python">19. Python 的元类能解决什么实际问题?</h3>
+<p>元类是"创建类的类"。<code>type</code> 是 Python 内置的元类,所有 <code>class</code> 都是 <code>type</code> 的实例。自定义元类可以在类创建时注入方法、修改属性、注册类。</p>
+<pre><code class="language-python"># 元类自动注册所有子类到 registry
+class PluginMeta(type):
+    registry = {}
+    def __new__(mcs, name, bases, namespace):
+        cls = super().__new__(name, bases, namespace)
+        if name != 'Plugin':  # 跳过基类
+            mcs.registry[name.lower()] = cls
+        return cls
+
+class Plugin(metaclass=PluginMeta):
+    pass
+
+class AuthPlugin(Plugin):  # 自动注册到 registry
+    pass
+
+print(PluginMeta.registry)  # {'authplugin': &lt;class 'AuthPlugin'&gt;}
+</code></pre>
+<p>典型应用:ORM 映射注册(Django Model)、插件系统、自动接口实现。不要为了炫技而用元类,优先考虑装饰器或 <code>__init_subclass__</code>。</p>
+<blockquote>
+<p><strong>扩展</strong>:Python 3.6+ 用 <code>__init_subclass__</code> 替代简单元类场景;Django ORM 用元类将类属性转为数据库字段描述符。</p>
+</blockquote>
+<h3 id="20-python-__slots__">20. Python 内存管理中 <code>__slots__</code> 的作用?</h3>
+<p><code>__slots__</code> 限制实例属性,用固定数组替代动态字典 <code>__dict__</code>,省内存 40%-60%。</p>
+<pre><code class="language-python"># 不用 __slots__:每个实例一个 __dict__
+class Normal:
+    def __init__(self, x, y):
+        self.x = x
+        self.y = y
+
+# 用 __slots__:固定属性槽位,无 __dict__
+class Optimized:
+    __slots__ = ('x', 'y')
+    def __init__(self, x, y):
+        self.x = x
+        self.y = y
+
+# 内存对比(10万实例):
+# Normal:     ~16 MB
+# Optimized:  ~6 MB  (省 60%)
+</code></pre>
+<p>代价:无法动态添加属性、不支持多继承混用 <code>__slots__</code>。适用于大量小对象的场景(如游戏角色、ORM 模型)。</p>
+<blockquote>
+<p><strong>扩展</strong>:Django Model 默认用 <code>__slots__</code>;dataclass 的 <code>__slots__=True</code>(Python 3.10+)也能获得此优化。</p>
+</blockquote>
+<h3 id="21-python-functoolslru_cache">21. Python 的 <code>functools.lru_cache</code> 原理?</h3>
+<p><code>lru_cache</code> 用字典+双向链表实现 LRU(最近最少使用)缓存,自动淘汰老数据。</p>
+<pre><code class="language-python">from functools import lru_cache
+
+@lru_cache(maxsize=128)
+def fib(n):
+    if n &lt; 2: return n
+    return fib(n-1) + fib(n-2)
+
+# 不缓存:fib(40) 递归调用 2亿次+
+# 缓存后:fib(40) 仅调用 41 次
+</code></pre>
+<p>核心数据结构:字典存缓存(key→value),双向链表维护访问顺序。命中时移到链表头部,满时淘汰尾部。O(1) 查找和更新。</p>
+<blockquote>
+<p><strong>扩展</strong>:Python 3.9+ <code>@cache</code> 是无界版本;<code>@lru_cache</code> 参数 <code>maxsize=None</code> 同样无界但不推荐生产用;注意参数必须可哈希。</p>
+</blockquote>
+<h3 id="22-asyncio">22. asyncio 的事件循环是怎么实现的？</h3>
+<p>事件循环是 asyncio 的核心——它不断从队列取协程/任务，按顺序调度执行，直到队列空。</p>
+<pre><code>任务入队:
+  async def fetch(): ...
+  asyncio.create_task(fetch())  → 放入任务队列
+
+事件循环逻辑(简化):
+  while True:
+    1. 检查 IO 就绪事件(如 socket 可读)
+    2. 从队列取待执行协程
+    3. 执行到下一个 await(暂停点)
+    4. 将 IO 请求注册到 selector/epoll
+    5. 阻塞等待，直到有事件就绪
+    6. 唤醒对应协程，继续执行
+</code></pre>
+<p><strong>底层依赖</strong>：Linux 用 <code>epoll</code>，macOS 用 <code>kqueue</code>，Windows 用 <code>select</code>（效率最低）。</p>
+<p><strong>关键点</strong>：<code>await</code> 是暂停点，暂停时释放 GIL，事件循环自动切换。协程不是线程，不占用 OS 栈，由 Python 自己调度。</p>
+<blockquote>
+<p><strong>扩展</strong>：<code>asyncio.run()</code> 会新建事件循环；生产环境中 uvloop（C 扩展实现的超快事件循环，性能接近 libuv）可将 asyncio 吞吐量提升 2-4 倍。<code>asyncio.gather()</code> 并发执行多个协程，<code>asyncio.wait()</code> 更灵活（可控制超时）。</p>
+</blockquote>
+
+<script>
+// Scroll spy — highlight active sidebar item
+window.addEventListener('scroll', function() {
+    var links = document.querySelectorAll('.sidebar-toc a');
+    var scrollY = window.scrollY + 120;
+    var current = '';
+    for (var i = links.length - 1; i >= 0; i--) {
+        var target = document.getElementById(links[i].getAttribute('href').slice(1));
+        if (target && target.offsetTop <= scrollY) {
+            current = links[i];
+            break;
+        }
+    }
+    links.forEach(function(a) { a.style.fontWeight = 'normal'; a.style.color = '#555'; });
+    if (current) { current.style.fontWeight = 'bold'; current.style.color = '#0366d6'; }
+});
+</script>
+
+
+<script>
+document.querySelectorAll('pre > code').forEach(function(codeBlock, i) {
+    var pre = codeBlock.parentNode;
+    pre.style.position = 'relative';
+    var btn = document.createElement('button');
+    btn.className = 'copy-btn';
+    btn.textContent = '复制';
+    pre.appendChild(btn);
+    btn.addEventListener('click', function() {
+        var text = codeBlock.textContent;
+        navigator.clipboard.writeText(text).then(function() {
+            btn.textContent = '已复制';
+            btn.classList.add('copied');
+            setTimeout(function() {
+                btn.textContent = '复制';
+                btn.classList.remove('copied');
+            }, 2000);
+        }).catch(function() {
+            // Fallback
+            var ta = document.createElement('textarea');
+            ta.value = text; ta.style.position = 'fixed'; ta.style.opacity = '0';
+            document.body.appendChild(ta); ta.select();
+            document.execCommand('copy'); document.body.removeChild(ta);
+            btn.textContent = '已复制'; btn.classList.add('copied');
+            setTimeout(function() { btn.textContent = '复制'; btn.classList.remove('copied'); }, 2000);
+        });
+    });
+});
+</script>
+
+
+<script>document.querySelectorAll("pre>code").forEach(function(c){var p=c.parentNode;p.style.position="relative";var b=document.createElement("button");b.className="copy-btn";b.textContent="复制";p.appendChild(b);b.addEventListener("click",function(){var t=c.textContent;navigator.clipboard.writeText(t).then(function(){b.textContent="已复制";b.classList.add("copied");setTimeout(function(){b.textContent="复制";b.classList.remove("copied")},2000)}).catch(function(){var a=document.createElement("textarea");a.value=t;a.style.position="fixed";a.style.opacity="0";document.body.appendChild(a);a.select();document.execCommand("copy");document.body.removeChild(a);b.textContent="已复制";b.classList.add("copied");setTimeout(function(){b.textContent="复制";b.classList.remove("copied")},2000)})})})</script>
+</body>
+</html>

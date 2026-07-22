@@ -1,0 +1,595 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 5.4.2">
+  <link rel="apple-touch-icon" sizes="180x180" href="/blog/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/blog/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/blog/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/blog/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/blog/css/main.css">
+
+
+<link rel="stylesheet" href="/blog/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"ruoxixiruo.github.io","root":"/blog/","scheme":"Gemini","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":true,"show_result":true,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":true},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}};
+  </script>
+
+  <meta name="description" content="1，Vim 简介Vim（Vi IMproved）是 Vi 编辑器的增强版，由 Bram Moolenaar 于 1991 年发布。它是绝大多数 Linux&#x2F;Unix 系统的默认终端编辑器，以模式化编辑、强大的键盘操作和高度可定制而著称。 核心特点：  模式化编辑：不同模式下的按键有不同含义 全键盘操作：无需鼠标，双手不离开键盘 高度可扩展：丰富的插件生态 跨平台：Linux&#x2F;macOS&#x2F;Windo">
+<meta property="og:type" content="article">
+<meta property="og:title" content="vim学习">
+<meta property="og:url" content="https://ruoxixiruo.github.io/blog/2024/06/25/linux/vim%E5%AD%A6%E4%B9%A0/index.html">
+<meta property="og:site_name" content="RUOXI-BLOG">
+<meta property="og:description" content="1，Vim 简介Vim（Vi IMproved）是 Vi 编辑器的增强版，由 Bram Moolenaar 于 1991 年发布。它是绝大多数 Linux&#x2F;Unix 系统的默认终端编辑器，以模式化编辑、强大的键盘操作和高度可定制而著称。 核心特点：  模式化编辑：不同模式下的按键有不同含义 全键盘操作：无需鼠标，双手不离开键盘 高度可扩展：丰富的插件生态 跨平台：Linux&#x2F;macOS&#x2F;Windo">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2024-06-25T15:00:00.000Z">
+<meta property="article:modified_time" content="2026-07-22T02:51:55.000Z">
+<meta property="article:author" content="ruoxi">
+<meta property="article:tag" content="linux">
+<meta property="article:tag" content="vim">
+<meta name="twitter:card" content="summary">
+
+<link rel="canonical" href="https://ruoxixiruo.github.io/blog/2024/06/25/linux/vim%E5%AD%A6%E4%B9%A0/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+
+  <title>vim学习 | RUOXI-BLOG</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/blog/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">RUOXI-BLOG</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/blog/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/blog/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/blog/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/blog/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a>
+
+  </li>
+        <li class="menu-item menu-item-posts">
+
+    <a href="/blog/posts/" rel="section"><i class="fa fa-rss fa-fw"></i>posts</a>
+
+  </li>
+  </ul>
+</nav>
+
+
+
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+  <div class="reading-progress-bar"></div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://ruoxixiruo.github.io/blog/2024/06/25/linux/vim%E5%AD%A6%E4%B9%A0/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/blog/images/avatar.gif">
+      <meta itemprop="name" content="ruoxi">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="RUOXI-BLOG">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          vim学习
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2024-06-25 15:00:00" itemprop="dateCreated datePublished" datetime="2024-06-25T15:00:00+00:00">2024-06-25</time>
+            </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/blog/categories/linux/" itemprop="url" rel="index"><span itemprop="name">linux</span></a>
+                </span>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <h5 id="1，Vim-简介"><a href="#1，Vim-简介" class="headerlink" title="1，Vim 简介"></a>1，Vim 简介</h5><p>Vim（Vi IMproved）是 Vi 编辑器的增强版，由 Bram Moolenaar 于 1991 年发布。它是绝大多数 Linux/Unix 系统的默认终端编辑器，以模式化编辑、强大的键盘操作和高度可定制而著称。</p>
+<p>核心特点：</p>
+<ul>
+<li><strong>模式化编辑</strong>：不同模式下的按键有不同含义</li>
+<li><strong>全键盘操作</strong>：无需鼠标，双手不离开键盘</li>
+<li><strong>高度可扩展</strong>：丰富的插件生态</li>
+<li><strong>跨平台</strong>：Linux/macOS/Windows 均可使用</li>
+<li><strong>轻量快速</strong>：启动毫秒级，无需 GUI</li>
+</ul>
+<span id="more"></span>
+
+<h5 id="2，四种核心模式"><a href="#2，四种核心模式" class="headerlink" title="2，四种核心模式"></a>2，四种核心模式</h5><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># Vim 的四种模式以及切换方式：</span></span><br><span class="line"></span><br><span class="line">┌─────────────┐    i/a/o/O/I/A    ┌──────────────┐</span><br><span class="line">│  正常模式    │ ─────────────────→ │  插入模式     │</span><br><span class="line">│  (Normal)   │ ←───────────────── │  (Insert)    │</span><br><span class="line">└─────┬───────┘   Esc / Ctrl+[     └──────────────┘</span><br><span class="line">      │</span><br><span class="line">      │  :  /  /</span><br><span class="line">      ↓</span><br><span class="line">┌─────────────┐    v/V/Ctrl+v     ┌──────────────┐</span><br><span class="line">│  命令模式    │                   │  可视模式     │</span><br><span class="line">│  (Command)  │                   │  (Visual)    │</span><br><span class="line">└─────────────┘                   └──────────────┘</span><br><span class="line"></span><br><span class="line"><span class="comment"># 正常模式（Normal Mode）</span></span><br><span class="line"><span class="comment">#   进入 Vim 后的默认模式</span></span><br><span class="line"><span class="comment">#   用于导航、删除、复制粘贴、撤销等操作</span></span><br><span class="line"><span class="comment">#   所有单字符按键都是命令</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 插入模式（Insert Mode）</span></span><br><span class="line"><span class="comment">#   输入文本</span></span><br><span class="line"><span class="comment">#   按 Esc 或 Ctrl+[ 回到正常模式</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 命令模式（Command Mode）</span></span><br><span class="line"><span class="comment">#   输入 : 进入，执行保存、退出、搜索替换等操作</span></span><br><span class="line"><span class="comment">#   输入 / 或 ? 进行搜索</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 可视模式（Visual Mode）</span></span><br><span class="line"><span class="comment">#   文本选中模式，选中后可进行复制、删除、缩进等操作</span></span><br></pre></td></tr></table></figure>
+
+<h5 id="3，基本操作"><a href="#3，基本操作" class="headerlink" title="3，基本操作"></a>3，基本操作</h5><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># ============ 启动与退出 ============</span></span><br><span class="line"></span><br><span class="line">vim file.txt                    <span class="comment"># 打开文件</span></span><br><span class="line">vim +10 file.txt                <span class="comment"># 打开并跳到第 10 行</span></span><br><span class="line">vim +/pattern file.txt          <span class="comment"># 打开并跳到第一个匹配</span></span><br><span class="line">vim -O file1 file2              <span class="comment"># 垂直分屏打开两个文件</span></span><br><span class="line">vim -o file1 file2              <span class="comment"># 水平分屏</span></span><br><span class="line">vim -R file.txt                 <span class="comment"># 只读模式</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 退出（命令模式）</span></span><br><span class="line">:w                              <span class="comment"># 保存</span></span><br><span class="line">:w filename                     <span class="comment"># 另存为</span></span><br><span class="line">:q                              <span class="comment"># 退出</span></span><br><span class="line">:q!                             <span class="comment"># 强制退出（不保存）</span></span><br><span class="line">:wq                             <span class="comment"># 保存并退出</span></span><br><span class="line">:x                              <span class="comment"># 同 :wq（有修改才写入）</span></span><br><span class="line">ZZ                              <span class="comment"># 保存并退出（正常模式，无需按:）</span></span><br><span class="line">ZQ                              <span class="comment"># 不保存退出（正常模式）</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># ============ 帮助 ============</span></span><br><span class="line"></span><br><span class="line">:<span class="built_in">help</span>                           <span class="comment"># 打开帮助</span></span><br><span class="line">:<span class="built_in">help</span> &lt;topic&gt;                   <span class="comment"># 查看特定主题（如 :help w）</span></span><br><span class="line">:<span class="built_in">help</span> tutor                     <span class="comment"># 打开 30 分钟教程（vimtutor）</span></span><br></pre></td></tr></table></figure>
+
+<h5 id="4，光标移动（正常模式）"><a href="#4，光标移动（正常模式）" class="headerlink" title="4，光标移动（正常模式）"></a>4，光标移动（正常模式）</h5><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># ============ 基础移动 ============</span></span><br><span class="line"></span><br><span class="line">h   j   k   l                   <span class="comment"># ←  ↓  ↑  →（推荐替代方向键）</span></span><br><span class="line">                                <span class="comment"># 可用数字前缀：5j 向下 5 行</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># ============ 单词间移动 ============</span></span><br><span class="line"></span><br><span class="line">w                               <span class="comment"># 下一个单词开头</span></span><br><span class="line">W                               <span class="comment"># 下一个空格分隔的单词</span></span><br><span class="line">b                               <span class="comment"># 上一个单词开头</span></span><br><span class="line">B                               <span class="comment"># 上一个空格分隔的单词</span></span><br><span class="line">e                               <span class="comment"># 当前单词末尾</span></span><br><span class="line">E                               <span class="comment"># 当前空格分隔单词末尾</span></span><br><span class="line">ge                              <span class="comment"># 上一个单词末尾</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># ============ 行内移动 ============</span></span><br><span class="line"></span><br><span class="line">0                               <span class="comment"># 行首（第一个字符）</span></span><br><span class="line">^                               <span class="comment"># 行首第一个非空白字符</span></span><br><span class="line">$                               <span class="comment"># 行尾</span></span><br><span class="line">g_                              <span class="comment"># 行尾最后一个非空白字符</span></span><br><span class="line">f&lt;char&gt;                         <span class="comment"># 跳到当前行下一个 &lt;char&gt; 上（如 f( 到左括号）</span></span><br><span class="line">F&lt;char&gt;                         <span class="comment"># 跳到当前行上一个 &lt;char&gt; 上</span></span><br><span class="line">t&lt;char&gt;                         <span class="comment"># 跳到当前行下一个 &lt;char&gt; 前面</span></span><br><span class="line">T&lt;char&gt;                         <span class="comment"># 跳到当前行上一个 &lt;char&gt; 后面</span></span><br><span class="line">;                               <span class="comment"># 重复上一次 f/t/F/T 查找</span></span><br><span class="line">,                               <span class="comment"># 反向重复</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># ============ 页面移动 ============</span></span><br><span class="line"></span><br><span class="line">Ctrl+f                          <span class="comment"># 下一页（Forward）</span></span><br><span class="line">Ctrl+b                          <span class="comment"># 上一页（Back）</span></span><br><span class="line">Ctrl+d                          <span class="comment"># 向下翻半页</span></span><br><span class="line">Ctrl+u                          <span class="comment"># 向上翻半页</span></span><br><span class="line">Ctrl+e                          <span class="comment"># 向下滚动一行（光标不动）</span></span><br><span class="line">Ctrl+y                          <span class="comment"># 向上滚动一行（光标不动）</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># ============ 跳转 ============</span></span><br><span class="line"></span><br><span class="line">gg                              <span class="comment"># 文件开头</span></span><br><span class="line">G                               <span class="comment"># 文件末尾</span></span><br><span class="line">&lt;number&gt;G                       <span class="comment"># 跳到指定行（如 42G → 第 42 行）</span></span><br><span class="line">:&lt;number&gt;                       <span class="comment"># 同上（如 :42）</span></span><br><span class="line">H                               <span class="comment"># 屏幕顶部（High）</span></span><br><span class="line">M                               <span class="comment"># 屏幕中间（Middle）</span></span><br><span class="line">L                               <span class="comment"># 屏幕底部（Low）</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># ============ 括号/段落间移动 ============</span></span><br><span class="line"></span><br><span class="line">%                               <span class="comment"># 跳转到匹配的括号</span></span><br><span class="line">&#123;                               <span class="comment"># 上一段落开头</span></span><br><span class="line">&#125;                               <span class="comment"># 下一段落开头</span></span><br><span class="line">[[                              <span class="comment"># 上一个函数/类定义</span></span><br><span class="line">]]                              <span class="comment"># 下一个函数/类定义</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># ============ 标记与返回 ============</span></span><br><span class="line"></span><br><span class="line">m&lt;a-z&gt;                          <span class="comment"># 设置文件内标记（如 ma）</span></span><br><span class="line">m&lt;A-Z&gt;                          <span class="comment"># 设置跨文件标记</span></span><br><span class="line">`&lt;mark&gt;                         <span class="comment"># 跳转到标记的精确位置</span></span><br><span class="line"><span class="string">&#x27;&lt;mark&gt;                         # 跳转到标记的行首</span></span><br><span class="line"><span class="string">``                              # 跳回上次跳转前的位置</span></span><br><span class="line"><span class="string">&#x27;</span><span class="string">&#x27;                              # 跳回上次跳转前的行首</span></span><br><span class="line"><span class="string">`.                              # 跳到最后一次编辑的位置</span></span><br><span class="line"><span class="string">Ctrl+o                          # 跳转到上一个位置（回退）</span></span><br><span class="line"><span class="string">Ctrl+i                          # 跳转到下一个位置（前进）</span></span><br></pre></td></tr></table></figure>
+
+<h5 id="5，编辑操作（正常模式）"><a href="#5，编辑操作（正常模式）" class="headerlink" title="5，编辑操作（正常模式）"></a>5，编辑操作（正常模式）</h5><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># ============ 进入插入模式 ============</span></span><br><span class="line"></span><br><span class="line">i                               <span class="comment"># 光标前插入（insert）</span></span><br><span class="line">I                               <span class="comment"># 行首插入</span></span><br><span class="line">a                               <span class="comment"># 光标后插入（append）</span></span><br><span class="line">A                               <span class="comment"># 行尾插入</span></span><br><span class="line">o                               <span class="comment"># 下一行插入（open）</span></span><br><span class="line">O                               <span class="comment"># 上一行插入</span></span><br><span class="line">s                               <span class="comment"># 删除当前字符并插入（substitute）</span></span><br><span class="line">S                               <span class="comment"># 删除整行并插入</span></span><br><span class="line">cw                              <span class="comment"># 删除从光标到单词尾并插入（change word）</span></span><br><span class="line">C                               <span class="comment"># 删除光标到行尾并插入</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># ============ 删除 ============</span></span><br><span class="line"></span><br><span class="line">x                               <span class="comment"># 删除光标处字符</span></span><br><span class="line">X                               <span class="comment"># 删除光标前字符</span></span><br><span class="line"><span class="built_in">dd</span>                              <span class="comment"># 删除当前行</span></span><br><span class="line">dw                              <span class="comment"># 删除到当前单词尾</span></span><br><span class="line">db                              <span class="comment"># 删除到当前单词首</span></span><br><span class="line">d$ 或 D                         <span class="comment"># 删除到行尾</span></span><br><span class="line">d0                              <span class="comment"># 删除到行首</span></span><br><span class="line">dG                              <span class="comment"># 删除到文件尾</span></span><br><span class="line">dgg                             <span class="comment"># 删除到文件头</span></span><br><span class="line">d%                              <span class="comment"># 删除匹配括号间的内容</span></span><br><span class="line">diw                             <span class="comment"># Delete Inner Word（删除光标所在的单词）</span></span><br><span class="line">di(                             <span class="comment"># 删除括号内内容</span></span><br><span class="line">di<span class="string">&quot;                             # 删除双引号内内容</span></span><br><span class="line"><span class="string">da(                             # 删除包括括号</span></span><br><span class="line"><span class="string">dt&lt;char&gt;                        # 删除直到 &lt;char&gt; 之前</span></span><br><span class="line"><span class="string">df&lt;char&gt;                        # 删除直到 &lt;char&gt;（包括）</span></span><br><span class="line"><span class="string"></span></span><br><span class="line"><span class="string"># ============ 复制（Yank）============</span></span><br><span class="line"><span class="string"></span></span><br><span class="line"><span class="string">yy 或 Y                         # 复制当前行</span></span><br><span class="line"><span class="string">yw                              # 复制到单词尾</span></span><br><span class="line"><span class="string">y$                              # 复制到行尾</span></span><br><span class="line"><span class="string">y0                              # 复制到行首</span></span><br><span class="line"><span class="string">yiw                             # 复制光标所在单词</span></span><br><span class="line"><span class="string">yG                              # 复制到文件尾</span></span><br><span class="line"><span class="string"></span></span><br><span class="line"><span class="string"># ============ 粘贴 ============</span></span><br><span class="line"><span class="string"></span></span><br><span class="line"><span class="string">p                               # 光标后粘贴</span></span><br><span class="line"><span class="string">P                               # 光标前粘贴</span></span><br><span class="line"><span class="string">gp                              # 光标后粘贴并移动光标到末尾</span></span><br><span class="line"><span class="string">gP                              # 光标前粘贴并移动光标到末尾</span></span><br><span class="line"><span class="string"></span></span><br><span class="line"><span class="string"># 连接寄存器（存储复制或删除的内容）</span></span><br><span class="line"><span class="string"># &quot;</span><span class="string">&quot;  默认寄存器（最近的复制或删除）</span></span><br><span class="line"><span class="string"># &quot;</span>0  复制专用寄存器（y 命令专用）</span><br><span class="line"><span class="comment"># &quot;1-&quot;9  最近 9 次删除（d/c/s/x）</span></span><br><span class="line"><span class="comment"># &quot;+  系统剪贴板（与 Ctrl+C/Ctrl+V 互通）</span></span><br><span class="line"><span class="comment"># &quot;*  选择缓冲区（鼠标选中）</span></span><br><span class="line"></span><br><span class="line"><span class="string">&quot;+yy                            # 复制到系统剪贴板</span></span><br><span class="line"><span class="string">&quot;</span>+p                             <span class="comment"># 从系统剪贴板粘贴</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># ============ 撤销与重做 ============</span></span><br><span class="line"></span><br><span class="line">u                               <span class="comment"># 撤销</span></span><br><span class="line">Ctrl+r                          <span class="comment"># 重做</span></span><br><span class="line">U                               <span class="comment"># 撤销当前行的所有修改</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># ============ 变更大小写 ============</span></span><br><span class="line"></span><br><span class="line">~                               <span class="comment"># 切换光标处字符大小写</span></span><br><span class="line">gUw                             <span class="comment"># 单词转大写</span></span><br><span class="line">guw                             <span class="comment"># 单词转小写</span></span><br><span class="line">gUU                             <span class="comment"># 当前行转大写</span></span><br><span class="line">guu                             <span class="comment"># 当前行转小写</span></span><br><span class="line">Vu                              <span class="comment"># 同 guu（可视模式）</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># ============ 数字前缀（操作重复）============</span></span><br><span class="line"></span><br><span class="line">5dd                             <span class="comment"># 删除 5 行</span></span><br><span class="line">3yy                             <span class="comment"># 复制 3 行</span></span><br><span class="line">10x                             <span class="comment"># 删除 10 个字符</span></span><br><span class="line">4p                              <span class="comment"># 粘贴 4 次</span></span><br><span class="line">3dw                             <span class="comment"># 删除 3 个单词</span></span><br></pre></td></tr></table></figure>
+
+<h5 id="6，搜索与替换"><a href="#6，搜索与替换" class="headerlink" title="6，搜索与替换"></a>6，搜索与替换</h5><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># ============ 搜索 ============</span></span><br><span class="line"></span><br><span class="line">/keyword                        <span class="comment"># 向后搜索</span></span><br><span class="line">?keyword                        <span class="comment"># 向前搜索</span></span><br><span class="line">n                               <span class="comment"># 下一个匹配</span></span><br><span class="line">N                               <span class="comment"># 上一个匹配</span></span><br><span class="line">*                               <span class="comment"># 向后搜索光标所在的单词（全词匹配）</span></span><br><span class="line"><span class="comment">#                               # 向前搜索光标所在的单词</span></span><br><span class="line">g*                              <span class="comment"># 向后搜索光标所在的单词（部分匹配）</span></span><br><span class="line">g#                              <span class="comment"># 向前搜索光标所在的单词（部分匹配）</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 搜索选项</span></span><br><span class="line">:<span class="built_in">set</span> ignorecase                 <span class="comment"># 忽略大小写</span></span><br><span class="line">:<span class="built_in">set</span> smartcase                  <span class="comment"># 有大写时区分，全小写时不区分</span></span><br><span class="line">:<span class="built_in">set</span> hlsearch                   <span class="comment"># 高亮搜索结果</span></span><br><span class="line">:nohlsearch                     <span class="comment"># 取消高亮</span></span><br><span class="line">:<span class="built_in">set</span> incsearch                  <span class="comment"># 增量搜索（输入时实时跳转）</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># ============ 替换 ============</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 基本语法：:[range]s/&#123;pattern&#125;/&#123;replacement&#125;/[flags]</span></span><br><span class="line"></span><br><span class="line">:s/old/new                      <span class="comment"># 替换当前行第一个</span></span><br><span class="line">:s/old/new/g                    <span class="comment"># 替换当前行所有</span></span><br><span class="line">:s/old/new/gc                   <span class="comment"># 替换当前行所有（逐个确认）</span></span><br><span class="line"></span><br><span class="line">:%s/old/new/g                   <span class="comment"># 全文替换</span></span><br><span class="line">:%s/old/new/gc                  <span class="comment"># 全文替换（确认）</span></span><br><span class="line">:%s/old/new/gi                  <span class="comment"># 全文替换（忽略大小写）</span></span><br><span class="line"></span><br><span class="line">:3,10s/old/new/g                <span class="comment"># 第 3-10 行替换</span></span><br><span class="line">:.,<span class="variable">$s</span>/old/new/g                 <span class="comment"># 当前行到末尾</span></span><br><span class="line">:<span class="string">&#x27;a,&#x27;</span>bs/old/new/g               <span class="comment"># 标记 a 到标记 b 之间替换</span></span><br><span class="line"></span><br><span class="line">:%s/\s\+$//g                    <span class="comment"># 删除行尾空格</span></span><br><span class="line">:%s/^\s\+//g                    <span class="comment"># 删除行首空格</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 正则替换</span></span><br><span class="line">:%s/\&lt;word\&gt;/WORD/g             <span class="comment"># 全词匹配替换</span></span><br><span class="line">:%s/\(.*\):\(.*\)/\2:\1/g       <span class="comment"># 交换冒号前后内容</span></span><br><span class="line">:%s#/usr/local#/opt#g          <span class="comment"># 用 # 作分隔符（避免转义 /）</span></span><br></pre></td></tr></table></figure>
+
+<h5 id="7，可视模式"><a href="#7，可视模式" class="headerlink" title="7，可视模式"></a>7，可视模式</h5><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># ============ 三种可视模式 ============</span></span><br><span class="line"></span><br><span class="line">v                               <span class="comment"># 字符可视模式（逐字符选择）</span></span><br><span class="line">V                               <span class="comment"># 行可视模式（逐行选择）</span></span><br><span class="line">Ctrl+v                          <span class="comment"># 块可视模式（矩形选择）</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># ============ 可视模式下的操作 ============</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 选中后可执行的操作：</span></span><br><span class="line">d / x                           <span class="comment"># 删除选中</span></span><br><span class="line">y                               <span class="comment"># 复制选中</span></span><br><span class="line">c                               <span class="comment"># 修改选中</span></span><br><span class="line">&gt;                               <span class="comment"># 增加缩进</span></span><br><span class="line">&lt;                               <span class="comment"># 减少缩进</span></span><br><span class="line">u / U                           <span class="comment"># 转小写 / 转大写</span></span><br><span class="line">~                               <span class="comment"># 切换大小写</span></span><br><span class="line">J                               <span class="comment"># 合并选中行</span></span><br><span class="line">=                               <span class="comment"># 自动格式化缩进</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 块模式（Ctrl+v）特殊操作</span></span><br><span class="line"><span class="comment"># 选中多行的同一位置后：</span></span><br><span class="line">I                               <span class="comment"># 在选中区域前同时插入（多行批量添加）</span></span><br><span class="line">A                               <span class="comment"># 在选中区域后同时插入</span></span><br><span class="line">r&lt;char&gt;                         <span class="comment"># 将选中字符替换为 &lt;char&gt;</span></span><br><span class="line">c                               <span class="comment"># 修改选中区域</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># ============ 示例 ============</span></span><br><span class="line"><span class="comment"># 多行注释：Ctrl+v → 选中行 → Shift+i → 输入 # → Esc</span></span><br><span class="line"><span class="comment"># 多行取消注释：Ctrl+v → 选中 # → x</span></span><br></pre></td></tr></table></figure>
+
+<h5 id="8，窗口与分屏"><a href="#8，窗口与分屏" class="headerlink" title="8，窗口与分屏"></a>8，窗口与分屏</h5><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># ============ 分屏 ============</span></span><br><span class="line"></span><br><span class="line">:<span class="built_in">split</span> 或 :sp                    <span class="comment"># 水平分屏</span></span><br><span class="line">:<span class="built_in">split</span> file.txt                 <span class="comment"># 水平分屏打开另一个文件</span></span><br><span class="line">:vsplit 或 :vs                  <span class="comment"># 垂直分屏</span></span><br><span class="line">:vsplit file.txt                <span class="comment"># 垂直分屏打开另一个文件</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 分屏导航</span></span><br><span class="line">Ctrl+w h    或 Ctrl+w ←          <span class="comment"># 左窗</span></span><br><span class="line">Ctrl+w j    或 Ctrl+w ↓          <span class="comment"># 下窗</span></span><br><span class="line">Ctrl+w k    或 Ctrl+w ↑          <span class="comment"># 上窗</span></span><br><span class="line">Ctrl+w l    或 Ctrl+w →          <span class="comment"># 右窗</span></span><br><span class="line">Ctrl+w w                         <span class="comment"># 循环切换</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 调整分屏大小</span></span><br><span class="line">Ctrl+w =                         <span class="comment"># 均等分屏</span></span><br><span class="line">Ctrl+w +                         <span class="comment"># 增加高度</span></span><br><span class="line">Ctrl+w -                         <span class="comment"># 减少高度</span></span><br><span class="line">Ctrl+w &gt;                         <span class="comment"># 增加宽度</span></span><br><span class="line">Ctrl+w &lt;                         <span class="comment"># 减少宽度</span></span><br><span class="line">Ctrl+w _                         <span class="comment"># 最大化高度</span></span><br><span class="line">Ctrl+w |                         <span class="comment"># 最大化宽度</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 关闭与移动</span></span><br><span class="line">Ctrl+w c                         <span class="comment"># 关闭当前窗</span></span><br><span class="line">Ctrl+w o                         <span class="comment"># 关闭其他窗（Only）</span></span><br><span class="line">Ctrl+w r                         <span class="comment"># 旋转窗口位置</span></span><br><span class="line">Ctrl+w T                         <span class="comment"># 将窗口移到新 Tab 页</span></span><br></pre></td></tr></table></figure>
+
+<h5 id="9，标签页（Tabs）"><a href="#9，标签页（Tabs）" class="headerlink" title="9，标签页（Tabs）"></a>9，标签页（Tabs）</h5><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">:tabe file.txt                  <span class="comment"># 新标签页打开文件</span></span><br><span class="line">:tabnew file.txt                <span class="comment"># 同上</span></span><br><span class="line">:tabs                           <span class="comment"># 列出所有标签页</span></span><br><span class="line">gt                              <span class="comment"># 下一个标签页</span></span><br><span class="line">gT                              <span class="comment"># 上一个标签页</span></span><br><span class="line">:tabn 或 :tabnext              <span class="comment"># 下一个标签页</span></span><br><span class="line">:tabp 或 :tabprevious          <span class="comment"># 上一个标签页</span></span><br><span class="line">:tabfirst                       <span class="comment"># 第一个</span></span><br><span class="line">:tablast                        <span class="comment"># 最后一个</span></span><br><span class="line">:tabclose                       <span class="comment"># 关闭当前标签页</span></span><br><span class="line">:tabonly                        <span class="comment"># 关闭其他标签页</span></span><br><span class="line">:tabm 0                         <span class="comment"># 移动到最前</span></span><br><span class="line">:tabm 2                         <span class="comment"># 移动到第 3 个位置</span></span><br></pre></td></tr></table></figure>
+
+<h5 id="10，寄存器与宏"><a href="#10，寄存器与宏" class="headerlink" title="10，寄存器与宏"></a>10，寄存器与宏</h5><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># ============ 寄存器 ============</span></span><br><span class="line"><span class="comment"># 查看所有寄存器内容</span></span><br><span class="line">:registers 或 :reg</span><br><span class="line"></span><br><span class="line"><span class="comment"># 寄存器类型：</span></span><br><span class="line"><span class="comment"># &quot;&quot;  默认寄存器</span></span><br><span class="line"><span class="comment"># &quot;0  最近 yank（复制）的内容</span></span><br><span class="line"><span class="comment"># &quot;1- 最近删除的内容（1=最新，逐级推移）</span></span><br><span class="line"><span class="comment"># &quot;+  系统剪贴板</span></span><br><span class="line"><span class="comment"># &quot;*  鼠标选中缓冲区</span></span><br><span class="line"><span class="comment"># &quot;a-&quot;z  命名寄存器（a-z 共 26 个）</span></span><br><span class="line"><span class="comment"># &quot;A-&quot;Z  追加到命名寄存器</span></span><br><span class="line"><span class="comment"># &quot;%  当前文件名</span></span><br><span class="line"><span class="comment"># &quot;.  最后插入的文本</span></span><br><span class="line"><span class="comment"># &quot;:  最后执行的命令</span></span><br><span class="line"><span class="comment"># &quot;/  最后搜索的模式</span></span><br><span class="line"><span class="comment"># &quot;-  小删除（少于一行的）</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 使用寄存器</span></span><br><span class="line"><span class="string">&quot;ayy                            # 复制到寄存器 a</span></span><br><span class="line"><span class="string">&quot;</span>ap                             <span class="comment"># 从寄存器 a 粘贴</span></span><br><span class="line"><span class="string">&quot;Ayy                            # 追加到寄存器 a</span></span><br><span class="line"><span class="string"></span></span><br><span class="line"><span class="string"># ============ 宏（录制与重放）============</span></span><br><span class="line"><span class="string"></span></span><br><span class="line"><span class="string">q&lt;a-z&gt;                          # 开始录制宏到指定的寄存器（如 qa）</span></span><br><span class="line"><span class="string"># 执行操作...</span></span><br><span class="line"><span class="string">q                               # 停止录制</span></span><br><span class="line"><span class="string"></span></span><br><span class="line"><span class="string">@&lt;a-z&gt;                          # 执行宏（如 @a）</span></span><br><span class="line"><span class="string">@@                              # 重复上一个宏</span></span><br><span class="line"><span class="string">5@a                             # 执行宏 5 次</span></span><br><span class="line"><span class="string"></span></span><br><span class="line"><span class="string"># 示例：给 100 行添加行号</span></span><br><span class="line"><span class="string"># qa → I → &quot;</span>数字.<span class="string">&quot; → Esc → j → q</span></span><br><span class="line"><span class="string"># 然后在第一行：100@a</span></span><br></pre></td></tr></table></figure>
+
+<h5 id="11，文件操作"><a href="#11，文件操作" class="headerlink" title="11，文件操作"></a>11，文件操作</h5><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># ============ 打开与浏览 ============</span></span><br><span class="line"></span><br><span class="line">:e file.txt                     <span class="comment"># 打开文件</span></span><br><span class="line">:e .                            <span class="comment"># 打开文件浏览器（netrw）</span></span><br><span class="line">:E                              <span class="comment"># 同上</span></span><br><span class="line">:e!                             <span class="comment"># 重新加载（丢弃修改）</span></span><br><span class="line">:Explore                        <span class="comment"># 打开目录浏览器</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># netrw 浏览器快捷键</span></span><br><span class="line"><span class="comment"># &lt;Enter&gt;   进入目录/打开文件</span></span><br><span class="line"><span class="comment"># -          返回上级目录</span></span><br><span class="line"><span class="comment"># D          创建目录</span></span><br><span class="line"><span class="comment"># R          重命名</span></span><br><span class="line"><span class="comment"># d          创建目录</span></span><br><span class="line"><span class="comment"># %          创建新文件</span></span><br><span class="line"><span class="comment"># i          切换显示格式（列表/树）</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># ============ 缓存区（Buffer）============</span></span><br><span class="line"></span><br><span class="line">:<span class="built_in">ls</span> 或 :buffers                 <span class="comment"># 列出所有缓冲区</span></span><br><span class="line">:b &lt;n&gt;                          <span class="comment"># 切换到第 n 号缓冲区</span></span><br><span class="line">:bnext 或 :bn                   <span class="comment"># 下一个</span></span><br><span class="line">:bprevious 或 :bp               <span class="comment"># 上一个</span></span><br><span class="line">:bfirst                         <span class="comment"># 第一个</span></span><br><span class="line">:blast                          <span class="comment"># 最后一个</span></span><br><span class="line">:bd                             <span class="comment"># 删除当前缓冲区</span></span><br><span class="line">:bd &lt;n&gt;                         <span class="comment"># 删除指定缓冲区</span></span><br><span class="line">:bufdo &lt;<span class="built_in">command</span>&gt;                <span class="comment"># 对所有缓冲区执行命令</span></span><br></pre></td></tr></table></figure>
+
+<h5 id="12，代码与文本格式化"><a href="#12，代码与文本格式化" class="headerlink" title="12，代码与文本格式化"></a>12，代码与文本格式化</h5><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># ============ 缩进 ============</span></span><br><span class="line"></span><br><span class="line">&gt;&gt;                              <span class="comment"># 当前行增加缩进</span></span><br><span class="line">&lt;&lt;                              <span class="comment"># 当前行减少缩进</span></span><br><span class="line">&gt;G                              <span class="comment"># 当前行到末尾增加缩进</span></span><br><span class="line">&gt;%                              <span class="comment"># 括号内内容增加缩进</span></span><br><span class="line">3&gt;&gt;                             <span class="comment"># 3 行增加缩进</span></span><br><span class="line">=G                              <span class="comment"># 当前行到末尾自动格式化</span></span><br><span class="line">==                              <span class="comment"># 当前行自动格式化</span></span><br><span class="line">gg=G                            <span class="comment"># 整个文件自动格式化</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># ============ 大小写转换 ============</span></span><br><span class="line"></span><br><span class="line">gUw                             <span class="comment"># 单词大写</span></span><br><span class="line">guw                             <span class="comment"># 单词小写</span></span><br><span class="line">g~~                             <span class="comment"># 当前行大小写反转</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># ============ 折叠 ============</span></span><br><span class="line"></span><br><span class="line">zf                              <span class="comment"># 创建折叠（需先选中或配合 motion）</span></span><br><span class="line">zo                              <span class="comment"># 打开折叠</span></span><br><span class="line">zc                              <span class="comment"># 关闭折叠</span></span><br><span class="line">za                              <span class="comment"># 切换折叠状态</span></span><br><span class="line">zR                              <span class="comment"># 打开所有折叠</span></span><br><span class="line">zM                              <span class="comment"># 关闭所有折叠</span></span><br><span class="line">zd                              <span class="comment"># 删除折叠</span></span><br><span class="line">zj                              <span class="comment"># 下一个折叠</span></span><br><span class="line">zk                              <span class="comment"># 上一个折叠</span></span><br></pre></td></tr></table></figure>
+
+<h5 id="13，常用技巧与组合"><a href="#13，常用技巧与组合" class="headerlink" title="13，常用技巧与组合"></a>13，常用技巧与组合</h5><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># ============ 场景：批量添加注释 ============</span></span><br><span class="line"><span class="comment"># 方法一（块模式）：</span></span><br><span class="line"><span class="comment"># Ctrl+v → 选中行 → I → # → Esc</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 方法二（替换）：</span></span><br><span class="line"><span class="comment"># :10,20s/^/# /g             第 10-20 行行首加 #</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 方法三（普通模式）：</span></span><br><span class="line"><span class="comment"># 0 → Ctrl+v → G → I → # → Esc   整个文件行首加 #</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># ============ 场景：删除空行 ============</span></span><br><span class="line">:g/^$/d                        <span class="comment"># 删除所有空行</span></span><br><span class="line">:g/^\s*$/d                     <span class="comment"># 删除所有空行或纯空格行</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># ============ 场景：排序 ============</span></span><br><span class="line">:<span class="built_in">sort</span>                          <span class="comment"># 按字母排序</span></span><br><span class="line">:<span class="built_in">sort</span> n                        <span class="comment"># 按数字排序</span></span><br><span class="line">:<span class="built_in">sort</span> u                        <span class="comment"># 排序并去重</span></span><br><span class="line">:3,20sort                      <span class="comment"># 3-20 行排序</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># ============ 场景：批量缩进 ============</span></span><br><span class="line">&gt;G                             <span class="comment"># 从当前行到末尾缩进</span></span><br><span class="line">5&gt;&gt;                            <span class="comment"># 当前行及以下4行缩进</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># ============ 场景：在每行末尾追加 ============</span></span><br><span class="line">:%s/$/;/</span><br><span class="line"></span><br><span class="line"><span class="comment"># ============ 场景：统计匹配数 ============</span></span><br><span class="line">:%s/pattern//gn                <span class="comment"># 统计匹配次数（不替换）</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># ============ 场景：外部命令 ============</span></span><br><span class="line">:!<span class="built_in">ls</span> -la                       <span class="comment"># 执行 shell 命令并显示结果</span></span><br><span class="line">:r !<span class="built_in">ls</span>                         <span class="comment"># 执行命令并将输出插入到光标位置</span></span><br><span class="line">:r !curl -s https://example.com  <span class="comment"># 插入 curl 结果</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># ============ 场景：过滤选中行 ============</span></span><br><span class="line"><span class="comment"># 选中后按 ! 然后输入命令</span></span><br><span class="line">!&#125;<span class="built_in">sort</span>                         <span class="comment"># 从当前位置到段落尾排序</span></span><br><span class="line">!Gawk <span class="string">&#x27;&#123;print $1&#125;&#x27;</span>             <span class="comment"># 用 awk 处理</span></span><br></pre></td></tr></table></figure>
+
+<h5 id="14，配置（-vimrc）"><a href="#14，配置（-vimrc）" class="headerlink" title="14，配置（~/.vimrc）"></a>14，配置（~/.vimrc）</h5><figure class="highlight vim"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">&quot; ============ 基础设置 ============</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">set</span> <span class="keyword">number</span>                      <span class="comment">&quot; 显示行号</span></span><br><span class="line"><span class="keyword">set</span> relativenumber              <span class="comment">&quot; 相对行号（当前行为绝对行号）</span></span><br><span class="line"><span class="keyword">set</span> cursorline                  <span class="comment">&quot; 高亮当前行</span></span><br><span class="line"><span class="keyword">set</span> tabstop=<span class="number">4</span>                   <span class="comment">&quot; Tab 显示为 4 个空格</span></span><br><span class="line"><span class="keyword">set</span> <span class="built_in">shiftwidth</span>=<span class="number">4</span>                <span class="comment">&quot; 缩进宽度为 4</span></span><br><span class="line"><span class="keyword">set</span> expandtab                   <span class="comment">&quot; Tab 转为空格</span></span><br><span class="line"><span class="keyword">set</span> smarttab                    <span class="comment">&quot; 智能 Tab</span></span><br><span class="line"><span class="keyword">set</span> autoindent                  <span class="comment">&quot; 自动缩进</span></span><br><span class="line"><span class="keyword">set</span> smartindent                 <span class="comment">&quot; 智能缩进</span></span><br><span class="line"><span class="keyword">set</span> showmatch                   <span class="comment">&quot; 高亮匹配括号</span></span><br><span class="line"><span class="keyword">set</span> hlsearch                    <span class="comment">&quot; 搜索高亮</span></span><br><span class="line"><span class="keyword">set</span> incsearch                   <span class="comment">&quot; 增量搜索</span></span><br><span class="line"><span class="keyword">set</span> ignorecase                  <span class="comment">&quot; 搜索忽略大小写</span></span><br><span class="line"><span class="keyword">set</span> smartcase                   <span class="comment">&quot; 有大写字母时区分大小写</span></span><br><span class="line"><span class="keyword">set</span> encoding=utf-<span class="number">8</span>              <span class="comment">&quot; 编码</span></span><br><span class="line"><span class="keyword">set</span> fileencodings=utf-<span class="number">8</span>,gbk     <span class="comment">&quot; 文件编码尝试顺序</span></span><br><span class="line"><span class="keyword">set</span> mouse=<span class="keyword">a</span>                     <span class="comment">&quot; 启用鼠标</span></span><br><span class="line"><span class="keyword">set</span> clipboard=unnamed,unnamedplus  <span class="comment">&quot; 系统剪贴板互通</span></span><br><span class="line"><span class="keyword">set</span> backspace=<span class="built_in">indent</span>,eol,start  <span class="comment">&quot; 正常退格</span></span><br><span class="line"><span class="keyword">set</span> <span class="keyword">history</span>=<span class="number">1000</span>                <span class="comment">&quot; 历史记录数</span></span><br><span class="line"><span class="keyword">set</span> scrolloff=<span class="number">5</span>                 <span class="comment">&quot; 光标距顶/底 5 行时滚动</span></span><br><span class="line"><span class="keyword">set</span> sidescrolloff=<span class="number">5</span>             <span class="comment">&quot; 光标距左/右 5 列时滚动</span></span><br><span class="line"><span class="keyword">set</span> hidden                      <span class="comment">&quot; 允许隐藏未保存的 buffer</span></span><br><span class="line"><span class="keyword">set</span> splitright                  <span class="comment">&quot; 垂直分屏在右侧</span></span><br><span class="line"><span class="keyword">set</span> splitbelow                  # 水平分屏在下侧</span><br><span class="line"><span class="keyword">set</span> termguicolors               # 真彩色支持</span><br><span class="line"><span class="keyword">set</span> signcolumn=yes              # 始终显示标记列（避免闪烁）</span><br><span class="line"></span><br><span class="line"><span class="comment">&quot; ============ 键位映射 ============</span></span><br><span class="line"></span><br><span class="line"><span class="comment">&quot; 领导键（可选）</span></span><br><span class="line"><span class="keyword">let</span> mapleader = <span class="string">&quot; &quot;</span>             <span class="comment">&quot; 将空格设为 Leader 键</span></span><br><span class="line"></span><br><span class="line"><span class="comment">&quot; 保存与退出</span></span><br><span class="line"><span class="keyword">nnoremap</span> <span class="symbol">&lt;C-s&gt;</span> :<span class="keyword">w</span><span class="symbol">&lt;CR&gt;</span></span><br><span class="line"></span><br><span class="line"><span class="comment">&quot; 窗口导航</span></span><br><span class="line"><span class="keyword">nnoremap</span> <span class="symbol">&lt;C-h&gt;</span> <span class="symbol">&lt;C-w&gt;</span>h</span><br><span class="line"><span class="keyword">nnoremap</span> <span class="symbol">&lt;C-j&gt;</span> <span class="symbol">&lt;C-w&gt;</span><span class="keyword">j</span></span><br><span class="line"><span class="keyword">nnoremap</span> <span class="symbol">&lt;C-k&gt;</span> <span class="symbol">&lt;C-w&gt;</span><span class="keyword">k</span></span><br><span class="line"><span class="keyword">nnoremap</span> <span class="symbol">&lt;C-l&gt;</span> <span class="symbol">&lt;C-w&gt;</span><span class="keyword">l</span></span><br><span class="line"></span><br><span class="line"><span class="comment">&quot; 取消高亮</span></span><br><span class="line"><span class="keyword">nnoremap</span> <span class="symbol">&lt;Esc&gt;</span><span class="symbol">&lt;Esc&gt;</span> :<span class="keyword">nohlsearch</span><span class="symbol">&lt;CR&gt;</span></span><br><span class="line"></span><br><span class="line"><span class="comment">&quot; 缩进保持选中</span></span><br><span class="line"><span class="keyword">vnoremap</span> &lt; &lt;<span class="keyword">gv</span></span><br><span class="line"><span class="keyword">vnoremap</span> &gt; &gt;<span class="keyword">gv</span></span><br><span class="line"></span><br><span class="line"><span class="comment">&quot; ============ 自动命令 ============</span></span><br><span class="line"></span><br><span class="line"><span class="comment">&quot; 保存时自动删除行尾空格</span></span><br><span class="line"><span class="keyword">autocmd</span> BufWritePre * :%s/\s\+$//<span class="keyword">e</span></span><br><span class="line"></span><br><span class="line"><span class="comment">&quot; 回到上次编辑的位置</span></span><br><span class="line"><span class="keyword">autocmd</span> BufReadPost *</span><br><span class="line">    \ <span class="keyword">if</span> <span class="built_in">line</span>(<span class="string">&quot;&#x27;\&quot;&quot;</span>) &gt; <span class="number">1</span> &amp;&amp; <span class="built_in">line</span>(<span class="string">&quot;&#x27;\&quot;&quot;</span>) &lt;= <span class="built_in">line</span>(<span class="string">&quot;$&quot;</span>) |</span><br><span class="line">    \   <span class="keyword">exe</span> <span class="string">&quot;normal! g&#x27;\&quot;&quot;</span> |</span><br><span class="line">    \ <span class="keyword">endif</span></span><br></pre></td></tr></table></figure>
+
+<h5 id="15，命令速查表"><a href="#15，命令速查表" class="headerlink" title="15，命令速查表"></a>15，命令速查表</h5><table>
+<thead>
+<tr>
+<th>操作</th>
+<th>命令</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>保存退出</td>
+<td><code>:wq</code> / <code>ZZ</code></td>
+<td>保存并退出</td>
+</tr>
+<tr>
+<td>强制退出</td>
+<td><code>:q!</code> / <code>ZQ</code></td>
+<td>不保存退出</td>
+</tr>
+<tr>
+<td>移动-字</td>
+<td><code>w/b/e/ge</code></td>
+<td>单词前后/末尾</td>
+</tr>
+<tr>
+<td>移动-行</td>
+<td><code>0/^/$</code></td>
+<td>行首/非空行首/行尾</td>
+</tr>
+<tr>
+<td>移动-页</td>
+<td><code>Ctrl+f/b/d/u</code></td>
+<td>翻页/半页</td>
+</tr>
+<tr>
+<td>移动-文件</td>
+<td><code>gg/G</code></td>
+<td>文件头/尾</td>
+</tr>
+<tr>
+<td>匹配括号</td>
+<td><code>%</code></td>
+<td>跳转</td>
+</tr>
+<tr>
+<td>插入</td>
+<td><code>i/I/a/A/o/O</code></td>
+<td>各种位置</td>
+</tr>
+<tr>
+<td>删除字</td>
+<td><code>x/X/dw/de/db</code></td>
+<td>字符/单词</td>
+</tr>
+<tr>
+<td>删除行</td>
+<td><code>dd/D</code></td>
+<td>整行/到行尾</td>
+</tr>
+<tr>
+<td>删除块</td>
+<td><code>di( /di&quot; /da&#123;</code></td>
+<td>括号内外</td>
+</tr>
+<tr>
+<td>复制</td>
+<td><code>yy/yw/y$/yiw</code></td>
+<td>行/单词/到行尾/光标单词</td>
+</tr>
+<tr>
+<td>粘贴</td>
+<td><code>p/P</code></td>
+<td>后/前</td>
+</tr>
+<tr>
+<td>撤销/重做</td>
+<td><code>u/Ctrl+r</code></td>
+<td></td>
+</tr>
+<tr>
+<td>替换</td>
+<td><code>:%s/old/new/g</code></td>
+<td>全文替换</td>
+</tr>
+<tr>
+<td>搜索</td>
+<td><code>/keyword ?keyword</code></td>
+<td>向后/向前</td>
+</tr>
+<tr>
+<td>下一个</td>
+<td><code>n/N</code></td>
+<td>下/上一个搜索结果</td>
+</tr>
+<tr>
+<td>缩进</td>
+<td><code>&gt;&gt;/&lt;&lt;</code></td>
+<td>增加/减少</td>
+</tr>
+<tr>
+<td>格式化</td>
+<td><code>=G</code></td>
+<td>从当前行到末尾</td>
+</tr>
+<tr>
+<td>可视</td>
+<td><code>v/V/Ctrl+v</code></td>
+<td>字符/行/块</td>
+</tr>
+<tr>
+<td>标记</td>
+<td><code>ma/&#39;a/\</code>a`</td>
+<td>设置/跳行首/跳精确</td>
+</tr>
+<tr>
+<td>宏</td>
+<td><code>qa / q / @a</code></td>
+<td>录制/停止/播放</td>
+</tr>
+<tr>
+<td>分屏</td>
+<td><code>:sp/:vs</code></td>
+<td>水平/垂直</td>
+</tr>
+<tr>
+<td>翻屏导航</td>
+<td><code>Ctrl+w h/j/k/l</code></td>
+<td></td>
+</tr>
+<tr>
+<td>全选</td>
+<td><code>ggVG</code></td>
+<td></td>
+</tr>
+<tr>
+<td>外部命令</td>
+<td><code>:!ls</code></td>
+<td>执行 shell</td>
+</tr>
+<tr>
+<td>插入结果</td>
+<td><code>:r !date</code></td>
+<td>插入命令输出</td>
+</tr>
+</tbody></table>
+
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/blog/tags/linux/" rel="tag"># linux</a>
+              <a href="/blog/tags/vim/" rel="tag"># vim</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/blog/2024/06/20/java/jvm%E5%AD%A6%E4%B9%A0/" rel="prev" title="jvm学习">
+      <i class="fa fa-chevron-left"></i> jvm学习
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/blog/2024/07/10/springboot/SpringBoot%E5%AD%A6%E4%B9%A0/" rel="next" title="SpringBoot学习">
+      SpringBoot学习 <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-5"><a class="nav-link" href="#1%EF%BC%8CVim-%E7%AE%80%E4%BB%8B"><span class="nav-number">1.</span> <span class="nav-text">1，Vim 简介</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#2%EF%BC%8C%E5%9B%9B%E7%A7%8D%E6%A0%B8%E5%BF%83%E6%A8%A1%E5%BC%8F"><span class="nav-number">2.</span> <span class="nav-text">2，四种核心模式</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#3%EF%BC%8C%E5%9F%BA%E6%9C%AC%E6%93%8D%E4%BD%9C"><span class="nav-number">3.</span> <span class="nav-text">3，基本操作</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#4%EF%BC%8C%E5%85%89%E6%A0%87%E7%A7%BB%E5%8A%A8%EF%BC%88%E6%AD%A3%E5%B8%B8%E6%A8%A1%E5%BC%8F%EF%BC%89"><span class="nav-number">4.</span> <span class="nav-text">4，光标移动（正常模式）</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#5%EF%BC%8C%E7%BC%96%E8%BE%91%E6%93%8D%E4%BD%9C%EF%BC%88%E6%AD%A3%E5%B8%B8%E6%A8%A1%E5%BC%8F%EF%BC%89"><span class="nav-number">5.</span> <span class="nav-text">5，编辑操作（正常模式）</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#6%EF%BC%8C%E6%90%9C%E7%B4%A2%E4%B8%8E%E6%9B%BF%E6%8D%A2"><span class="nav-number">6.</span> <span class="nav-text">6，搜索与替换</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#7%EF%BC%8C%E5%8F%AF%E8%A7%86%E6%A8%A1%E5%BC%8F"><span class="nav-number">7.</span> <span class="nav-text">7，可视模式</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#8%EF%BC%8C%E7%AA%97%E5%8F%A3%E4%B8%8E%E5%88%86%E5%B1%8F"><span class="nav-number">8.</span> <span class="nav-text">8，窗口与分屏</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#9%EF%BC%8C%E6%A0%87%E7%AD%BE%E9%A1%B5%EF%BC%88Tabs%EF%BC%89"><span class="nav-number">9.</span> <span class="nav-text">9，标签页（Tabs）</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#10%EF%BC%8C%E5%AF%84%E5%AD%98%E5%99%A8%E4%B8%8E%E5%AE%8F"><span class="nav-number">10.</span> <span class="nav-text">10，寄存器与宏</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#11%EF%BC%8C%E6%96%87%E4%BB%B6%E6%93%8D%E4%BD%9C"><span class="nav-number">11.</span> <span class="nav-text">11，文件操作</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#12%EF%BC%8C%E4%BB%A3%E7%A0%81%E4%B8%8E%E6%96%87%E6%9C%AC%E6%A0%BC%E5%BC%8F%E5%8C%96"><span class="nav-number">12.</span> <span class="nav-text">12，代码与文本格式化</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#13%EF%BC%8C%E5%B8%B8%E7%94%A8%E6%8A%80%E5%B7%A7%E4%B8%8E%E7%BB%84%E5%90%88"><span class="nav-number">13.</span> <span class="nav-text">13，常用技巧与组合</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#14%EF%BC%8C%E9%85%8D%E7%BD%AE%EF%BC%88-vimrc%EF%BC%89"><span class="nav-number">14.</span> <span class="nav-text">14，配置（~&#x2F;.vimrc）</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#15%EF%BC%8C%E5%91%BD%E4%BB%A4%E9%80%9F%E6%9F%A5%E8%A1%A8"><span class="nav-number">15.</span> <span class="nav-text">15，命令速查表</span></a></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">ruoxi</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/blog/archives/">
+        
+          <span class="site-state-item-count">80</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/blog/categories/">
+          
+        <span class="site-state-item-count">17</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/blog/tags/">
+          
+        <span class="site-state-item-count">47</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2026</span>
+  <span class="with-love">
+    <i class="fa fa-code"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">ruoxi</span>
+</div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/blog/lib/anime.min.js"></script>
+  <script src="/blog/lib/velocity/velocity.min.js"></script>
+  <script src="/blog/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/blog/js/utils.js"></script>
+
+<script src="/blog/js/motion.js"></script>
+
+
+<script src="/blog/js/schemes/pisces.js"></script>
+
+
+<script src="/blog/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+</body>
+</html>

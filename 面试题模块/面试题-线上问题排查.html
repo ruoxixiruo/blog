@@ -1,0 +1,843 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>面试题 - 线上问题排查</title>
+<style>
+body {
+    transition: margin-left .25s ease;
+    font-family: -apple-system, "Noto Sans SC", "Microsoft YaHei", sans-serif;
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 20px 24px 60px;
+    line-height: 1.8;
+    color: #333;
+    background: #fff;
+}
+h1 { border-bottom: 2px solid #eee; padding-bottom: 10px; color: #222; }
+h2 { color: #333; margin-top: 32px; }
+h3 { color: #555; }
+a { color: #0366d6; text-decoration: none; }
+a:hover { text-decoration: underline; }
+pre {
+    background: #f6f8fa;
+    border-radius: 6px;
+    padding: 16px;
+    overflow-x: auto;
+    font-size: 14px;
+    line-height: 1.45;
+}
+code {
+    background: #f0f2f4;
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-size: 14px;
+}
+pre code { background: none; padding: 0; }
+blockquote {
+    border-left: 4px solid #ddd;
+    margin: 0;
+    padding: 0 16px;
+    color: #666;
+}
+table {
+    border-collapse: collapse;
+    width: 100%;
+    margin: 16px 0;
+}
+th, td {
+    border: 1px solid #ddd;
+    padding: 8px 12px;
+    text-align: left;
+}
+th { background: #f6f8fa; }
+img { max-width: 100%; }
+.back-link {
+    margin-bottom: 20px;
+    display: block;
+    color: #666;
+}
+.back-link:hover { color: #0366d6; }
+
+.sidebar-toc {
+    transition: left .25s ease;
+    position: fixed;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    width: 220px;
+    background: #f8f9fa;
+    border-right: 1px solid #e9ecef;
+    padding: 20px 0;
+    overflow-y: auto;
+    font-size: 13px;
+    z-index: 100;
+}
+.sidebar-toc a {
+    display: block;
+    padding: 6px 16px;
+    color: #555;
+    text-decoration: none;
+    border-left: 3px solid transparent;
+    line-height: 1.5;
+}
+.sidebar-toc a:hover {
+    background: #e9ecef;
+    color: #0366d6;
+    border-left-color: #0366d6;
+}
+.sidebar-toc .toc-h3 { padding-left: 20px; font-size: 12px; }
+body { margin-left: 240px; }
+
+
+.copy-btn {
+    position: absolute; top: 6px; right: 6px;
+    background: #e9ecef; border: none;
+    border-radius: 4px; padding: 3px 10px;
+    font-size: 12px; color: #555; cursor: pointer;
+    opacity: 0; transition: opacity 0.2s;
+    z-index: 1;
+}
+pre:hover .copy-btn { opacity: 1; }
+.copy-btn:hover { background: #d0d7de; }
+.copy-btn.copied { opacity: 1; background: #2da44e; color: #fff; }
+.copy-btn{position:absolute;top:6px;right:6px;background:#e9ecef;border:none;border-radius:4px;padding:3px 10px;font-size:12px;color:#555;cursor:pointer;opacity:0;transition:opacity .2s;z-index:1}pre:hover .copy-btn{opacity:1}.copy-btn:hover{background:#d0d7de}.copy-btn.copied{opacity:1;background:#2da44e;color:#fff}
+.copy-btn{position:absolute;top:6px;right:6px;background:#e9ecef;border:none;border-radius:4px;padding:3px 10px;font-size:12px;color:#555;cursor:pointer;opacity:0;transition:opacity .2s;z-index:1}pre:hover .copy-btn{opacity:1}.copy-btn:hover{background:#d0d7de}.copy-btn.copied{opacity:1;background:#2da44e;color:#fff}
+.sidebar-toggle-btn {
+  position: fixed;
+  left: 220px;
+  top: 0;
+  width: 28px;
+  height: 40px;
+  background: #f8f9fa;
+  border: 1px solid #e9ecef;
+  border-left: none;
+  border-radius: 0 4px 4px 0;
+  cursor: pointer;
+  font-size: 16px;
+  color: #555;
+  z-index: 101;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: left .25s, background .2s;
+  padding: 0;
+  line-height: 1;
+}
+.sidebar-toggle-btn:hover { background: #e9ecef; color: #0366d6; }
+.sidebar-collapsed .sidebar-toc { left: -220px; }
+.sidebar-collapsed .sidebar-toggle-btn { left: 0; }
+.sidebar-collapsed body, body.sidebar-collapsed { margin-left: 28px; }
+.sidebar-overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,.3);
+  z-index: 99;
+}
+@media (max-width: 768px) {
+  .sidebar-collapsed .sidebar-overlay { display: none; }
+  .sidebar-toc { left: -220px; }
+  .sidebar-toggle-btn { left: 0; }
+  body { margin-left: 28px; }
+}
+
+</style>
+</head>
+</head>
+<body>
+<nav class="sidebar-toc"><a class="toc-h3" href="#1-cpu">1. CPU 飙高怎么排查?</a><a class="toc-h3" href="#2">2. 内存泄漏怎么排查?</a><a class="toc-h3" href="#3">3. 数据库连接池耗尽怎么排查?</a><a class="toc-h3" href="#4">4. 死锁怎么排查?</a><a class="toc-h3" href="#5-50ms-3s">5. 接口响应突然从 50ms 涨到 3s,怎么排查?</a><a class="toc-h3" href="#6">6. 常用线上排查工具速查</a><a class="toc-h3" href="#7-oom">7. OOM 有哪些类型?分别怎么排查?</a><a class="toc-h3" href="#8-arthas">8. Arthas 常用的诊断命令?</a><a class="toc-h3" href="#9-sql">9. 慢 SQL 怎么排查?</a><a class="toc-h3" href="#10">10. 磁盘空间满了怎么排查?</a><a class="toc-h3" href="#11-cpu">11. CPU/内存正常但响应变慢,怎么排查?</a><a class="toc-h3" href="#12">12. 内存泄漏有哪些常见场景?如何避免?</a><a class="toc-h3" href="#13">13. 线上接口偶发超时报错,但重试又正常,怎么排查?</a><a class="toc-h3" href="#14-500">14. 线上服务突然开始返回 500,但代码没发布,怎么排查?</a><a class="toc-h3" href="#15">15. 如何做线上故障的应急止血和回滚?</a><a class="toc-h3" href="#16-arthas">16. 如何用 Arthas 在生产环境做在线热修复？</a></nav>
+<button class="sidebar-toggle-btn" onclick="toggleSidebar()" title="切换侧栏">☰</button>
+
+<div class="sidebar-overlay" onclick="toggleSidebar()"></div>
+
+<script>
+function toggleSidebar() {
+  document.body.classList.toggle('sidebar-collapsed');
+  try { localStorage.setItem('sidebarCollapsed', document.body.classList.contains('sidebar-collapsed')); } catch(e) {}
+}
+(function() {
+  try {
+    if (localStorage.getItem('sidebarCollapsed') === 'true') {
+      document.body.classList.add('sidebar-collapsed');
+    }
+  } catch(e) {}
+})();
+</script>
+<a class="back-link" href="/blog/2026/05/16/面试题/面试题/">← 返回面试题目录</a>
+<h1 id=page-title>线上问题排查</h1>
+<h3 id="1-cpu">1. CPU 飙高怎么排查?</h3>
+<pre><code class="language-bash"># 1. 找到 CPU 最高的 Java 进程
+top -c
+# 2. 找到该进程中 CPU 最高的线程(TID)
+top -Hp &lt;pid&gt;
+# 3. 线程 ID 转 16 进制
+printf &quot;%x\n&quot; &lt;tid&gt;
+# 4. 打印线程堆栈,根据 nid= 匹配定位代码行
+jstack &lt;pid&gt; | grep -A 30 &lt;hex_tid&gt;
+</code></pre>
+<p><strong>定位思路</strong>:多次 jstack 对比,看哪个方法一直在执行,基本就能定位到问题代码。</p>
+<pre><code>排查链路:
+
+top -c → 找到 Java 进程 (PID=12345)
+         │
+         ▼
+top -Hp 12345 → 找到线程 (TID=12388, CPU=95%)
+         │
+         ▼
+printf &quot;%x\n&quot; 12388 → 0x3064
+         │
+         ▼
+jstack 12345 | grep -A 30 0x3064 → 定位到具体代码行
+</code></pre>
+<p><strong>常见原因与修复</strong>:</p>
+<table>
+<thead>
+<tr>
+<th>原因</th>
+<th>现象</th>
+<th>修复</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>死循环</td>
+<td>某个线程 CPU 一直 100%</td>
+<td>修代码</td>
+</tr>
+<tr>
+<td>频繁 GC</td>
+<td><code>jstat -gcutil</code> 显示 Full GC 频繁</td>
+<td>查内存泄漏或调大堆</td>
+</tr>
+<tr>
+<td>正则回溯</td>
+<td>复杂正则 + 恶性输入</td>
+<td>简化正则或加超时</td>
+</tr>
+<tr>
+<td>JSON 序列化</td>
+<td>大对象频繁序列化</td>
+<td>优化对象或用更快库</td>
+</tr>
+<tr>
+<td>批量运算</td>
+<td>大量计算未异步化</td>
+<td>拆分或异步</td>
+</tr>
+</tbody>
+</table>
+<p><strong>即时止损</strong>:限流、重启、回滚。<strong>根治</strong>:定位代码优化算法。</p>
+<blockquote>
+<p><strong>扩展</strong>:<code>top -Hp</code> 看到的是<strong>内核级线程</strong>,Java 线程和内核线程是一一对应的(Thread::start → native → pthread_create)。另外推荐 <strong>arthas</strong> 的 <code>thread -n 3</code> 命令--一键找出 CPU 最高的 3 个线程并打印堆栈,比手动 jstack 方便得多。</p>
+</blockquote>
+<h3 id="2">2. 内存泄漏怎么排查?</h3>
+<ol>
+<li><code>jmap -dump:live,format=b,file=heap.bin PID</code> 导出堆转储</li>
+<li>用 MAT / JProfiler 分析 heap dump</li>
+<li>看 <strong>Histogram</strong>(按类统计对象数),找数量异常多的对象</li>
+<li>追踪 <strong>GC Root 路径</strong>,找到谁持有引用导致无法回收</li>
+</ol>
+<pre><code>排查思路:
+
+堆内存持续增长 → Full GC 后也不降
+         │
+         ▼
+jmap dump 堆文件
+         │
+         ▼
+MAT 分析:
+  ├── Leak Suspects(自动检测泄漏嫌疑)
+  ├── Histogram(看哪个类对象数异常多)
+  └── Merge Shortest Paths to GC Roots(找到谁在持有引用)
+</code></pre>
+<p><strong>常见原因</strong>:ThreadLocal 没 remove、静态集合一直 add 不清、连接/流没关。</p>
+<blockquote>
+<p><strong>扩展</strong>:生产环境 <code>jmap -dump</code> 会触发 STW(Stop The World),大堆可能停顿几十秒。建议加 <code>-XX:+HeapDumpOnOutOfMemoryError</code> 参数,OOM 时自动 dump,不额外影响线上。另 arthas 的 <code>heapdump</code> 命令也一样能 dump。分析时先用 MAT 的 Leak Suspects 自动报表,它能直接告诉你"可能是 XXX 类泄漏了"。</p>
+</blockquote>
+<h3 id="3">3. 数据库连接池耗尽怎么排查?</h3>
+<ol>
+<li>看连接池监控(Druid/HikariCP 都自带),当前活跃连接数是否打满</li>
+<li>查慢 SQL 日志,有没有 SQL 执行时间过长阻塞了连接</li>
+<li>jstack 看线程状态,大量线程 <strong>WAITING</strong> 在拿连接 → 连接池不够</li>
+<li>检查事务是否有没提交/没回滚的(连接没释放)</li>
+</ol>
+<pre><code>连接池耗尽排查链:
+
+现象:接口报错 &quot;Cannot get connection&quot;
+         │
+         ▼
+看连接池监控 → 活跃连接 = 最大连接数(打满)
+         │
+         ▼
+为什么连接不释放?
+  ├── 慢 SQL 阻塞?(看慢查询日志)
+  ├── 事务忘了提交/回滚?(查代码 + DB processlist)
+  ├── 连接池配置太小?(对比平时 QPS 和连接数)
+  └── 流量突然暴涨?(看 QPS 监控)
+</code></pre>
+<blockquote>
+<p><strong>扩展</strong>:HikariCP 的连接池监控可以通过 <code>/actuator/health</code> 查看(配合 Spring Boot Actuator),也可以直接开启 HikariCP 的 JMX 监控。Druid 自带内置监控页面,<code>/druid/datasource.html</code> 可以实时看到活跃连接数、等待线程数、SQL 执行统计。</p>
+</blockquote>
+<h3 id="4">4. 死锁怎么排查?</h3>
+<p><strong>MySQL 死锁</strong>:</p>
+<pre><code class="language-sql">SHOW ENGINE INNODB STATUS;
+</code></pre>
+<p>看 <code>LATEST DETECTED DEADLOCK</code> 部分,它会画出事务 1 等什么锁、事务 2 等什么锁。</p>
+<pre><code>死锁示意图:
+
+事务 A:拿锁1 → 等锁2                  事务 B:拿锁2 → 等锁1
+                  │                                    │
+                  └──────── 互相等待 ← 死锁 ────────────┘
+</code></pre>
+<p><strong>Java 死锁</strong>:</p>
+<pre><code class="language-bash">jstack PID | grep &quot;deadlock&quot;
+</code></pre>
+<p><code>jstack</code> 能自动检测死锁,输出中会明确标注 <code>Found one Java-level deadlock</code>。</p>
+<blockquote>
+<p><strong>扩展</strong>:MySQL 死锁无法完全避免(InnoDB 自动检测并回滚一个事务来打破死锁),关键是<strong>业务能重试</strong>。另外减小事务范围(锁持有时间短)、固定加锁顺序(所有事务都按 A→B 的顺序加锁)能大幅降低死锁概率。</p>
+</blockquote>
+<h3 id="5-50ms-3s">5. 接口响应突然从 50ms 涨到 3s,怎么排查?</h3>
+<p><strong>分层排查--从外到内定位边界</strong>:</p>
+<ol>
+<li><strong>网络层</strong>:<code>ping</code> / <code>curl -w</code> 测试网络延迟和 DNS 解析时间</li>
+<li><strong>Nginx/网关层</strong>:access log 看 <code>$request_time</code> 和 <code>$upstream_response_time</code>,确认是上游慢还是网关慢</li>
+<li><strong>应用层</strong>:APM(SkyWalking/Pinpoint)看调用链路,找到耗时最高的 span;打日志记录每个步骤耗时</li>
+<li><strong>中间件层</strong>:</li>
+<li>数据库:<code>SHOW PROCESSLIST</code> 看是否有慢查询、锁等待;<code>EXPLAIN</code> 分析当前 SQL</li>
+<li>Redis:<code>slowlog get 100</code> 查看慢命令,检查是否有 big key(<code>hgetall</code> 几万条)</li>
+<li>MQ:是否积压导致消费延迟</li>
+<li>下游服务:是否有耗时异常</li>
+<li><strong>排查 JVM</strong>:<code>jstat -gcutil</code> 看是否 Full GC 导致 STW 停顿</li>
+</ol>
+<pre><code>分层排查思路:
+
+慢在哪?
+    │
+    ├── 网络慢? → ping / traceroute / curl -w
+    │
+    ├── Nginx 慢? → access log 对比 request_time vs upstream_response_time
+    │
+    ├── 应用慢? → APM 链路追踪 / 日志打点
+    │       │
+    │       ├── CPU 飙高? → 转&quot;CPU 飙高排查&quot;
+    │       ├── 内存满? → GC 日志 / jstat
+    │       └── 线程阻塞? → jstack
+    │
+    ├── DB 慢? → 慢查询日志 / EXPLAIN / processlist
+    │
+    ├── Redis 慢? → slowlog / big key 扫描
+    │
+    └── 下游慢? → APM 看下游调用耗时
+</code></pre>
+<blockquote>
+<p><strong>扩展</strong>:SkyWalking 这类 APM 工具是查接口变慢的利器--它能把一次请求经过的所有服务、数据库、Redis、MQ 的耗时画成调用链,一眼看到<strong>是谁拖了后腿</strong>。如果没有 APM,在代码的关键步骤打耗时日志(<code>long start = System.currentTimeMillis()</code>),然后 <code>grep</code> 每条步骤的时间差,虽然土但管用。</p>
+</blockquote>
+<p><strong>常见元凶</strong>:SQL 突然不走索引(统计信息变化导致选错计划)、大事务持锁阻塞、Redis big key 阻塞、第三方接口超时、Full GC 停顿。</p>
+<h3 id="6">6. 常用线上排查工具速查</h3>
+<table>
+<thead>
+<tr>
+<th>工具</th>
+<th>用途</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>jps</td>
+<td>查看 Java 进程</td>
+</tr>
+<tr>
+<td>jstat</td>
+<td>查看 GC 统计(<code>jstat -gcutil PID 1000</code>)</td>
+</tr>
+<tr>
+<td>jstack</td>
+<td>线程堆栈,检测死锁</td>
+</tr>
+<tr>
+<td>jmap</td>
+<td>堆内存快照</td>
+</tr>
+<tr>
+<td>Arthas</td>
+<td>阿里开源在线诊断(watch/trace/thread/dashboard)</td>
+</tr>
+<tr>
+<td>top/htop</td>
+<td>系统监控</td>
+</tr>
+<tr>
+<td>free -h / df -h</td>
+<td>内存/磁盘</td>
+</tr>
+<tr>
+<td>lsof</td>
+<td>查看打开的文件/连接</td>
+</tr>
+</tbody>
+</table>
+<h3 id="7-oom">7. OOM 有哪些类型?分别怎么排查?</h3>
+<table>
+<thead>
+<tr>
+<th>类型</th>
+<th>报错信息</th>
+<th>原因</th>
+<th>排查思路</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>堆溢出</strong></td>
+<td><code>java.lang.OutOfMemoryError: Java heap space</code></td>
+<td>对象太多,堆不够用</td>
+<td><code>jmap -dump</code> + MAT 分析</td>
+</tr>
+<tr>
+<td><strong>元空间溢出</strong></td>
+<td><code>OOM: Metaspace</code></td>
+<td>动态生成的类太多(如 CGLIB 代理)</td>
+<td>调大 <code>-XX:MaxMetaspaceSize</code></td>
+</tr>
+<tr>
+<td><strong>直接内存溢出</strong></td>
+<td><code>OOM: Direct buffer memory</code></td>
+<td>NIO 堆外内存没释放</td>
+<td>检查 ByteBuffer 是否忘调 <code>Cleaner.clean()</code></td>
+</tr>
+<tr>
+<td><strong>线程过多</strong></td>
+<td><code>OOM: unable to create new native thread</code></td>
+<td>线程数超 OS 限制</td>
+<td><code>ulimit -u</code> + 排查线程池</td>
+</tr>
+</tbody>
+</table>
+<pre><code>堆溢出最常见:
+
+1. jmap -dump → MAT 分析 → Histogram 看什么类对象数异常
+2. 找到创建这些对象的代码路径
+3. 判断是&quot;需要这么多&quot;(堆配置太小)还是&quot;不该这么多&quot;(内存泄漏)
+
+关键:`-XX:+HeapDumpOnOutOfMemoryError` 参数在 OOM 时自动 dump
+</code></pre>
+<blockquote>
+<p><strong>扩展</strong>:元空间溢出的典型场景--大量使用动态代理(CGLIB、动态生成类)、Groovy 脚本热加载未缓存。JDK 8 默认元空间不设上限(用多少占多少),生产环境<strong>必须设 <code>-XX:MaxMetaspaceSize=256m</code></strong>。</p>
+</blockquote>
+<h3 id="8-arthas">8. Arthas 常用的诊断命令?</h3>
+<table>
+<thead>
+<tr>
+<th>命令</th>
+<th>作用</th>
+<th>示例</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>dashboard</strong></td>
+<td>实时面板(CPU、内存、GC、线程)</td>
+<td>一目了然看系统状态</td>
+</tr>
+<tr>
+<td><strong>thread</strong></td>
+<td>查看线程堆栈</td>
+<td><code>thread -n 3</code>(CPU 最高的 3 个线程)</td>
+</tr>
+<tr>
+<td><strong>watch</strong></td>
+<td>观察方法调用的入参和返回值</td>
+<td><code>watch com.xxx.UserService getUser '{params,returnObj}'</code></td>
+</tr>
+<tr>
+<td><strong>trace</strong></td>
+<td>追踪方法内部调用,统计每步耗时</td>
+<td><code>trace com.xxx.UserService getUser</code></td>
+</tr>
+<tr>
+<td><strong>jad</strong></td>
+<td>反编译类源码</td>
+<td><code>jad --source-only com.xxx.UserService</code></td>
+</tr>
+<tr>
+<td><strong>stack</strong></td>
+<td>输出方法的调用路径</td>
+<td><code>stack com.xxx.UserService getUser</code></td>
+</tr>
+<tr>
+<td><strong>logger</strong></td>
+<td>动态修改日志级别(不需重启!)</td>
+<td><code>logger --name com.xxx --level debug</code></td>
+</tr>
+</tbody>
+</table>
+<pre><code>trace 命令示例--揪出慢在哪:
+
+$ trace com.xxx.OrderService createOrder
++---[100.5ms] OrderService:createOrder()
+    +---[80.3ms] checkStock()          ← 主要耗时在这里
+    +---[15.2ms] insertOrder()
+    +---[3.1ms] sendNotify()
+    └---[1.9ms] return
+</code></pre>
+<blockquote>
+<p><strong>扩展</strong>:Arthas 最大的优势是<strong>不重启、不修改代码、不打断点</strong>就能诊断线上问题。<code>watch</code> 可以加条件过滤(如只观察特定用户 ID 的调用),<code>trace</code> 会高亮显示耗时超过阈值的方法。Arthas 的底层原理是 Java Instrumentation API + ASM 字节码增强--运行时动态注入代码,用完就卸载。</p>
+</blockquote>
+<h3 id="9-sql">9. 慢 SQL 怎么排查?</h3>
+<p><strong>第一步:找到慢 SQL</strong></p>
+<pre><code class="language-sql">-- MySQL 慢查询日志
+-- my.cnf: slow_query_log=1, long_query_time=1
+-- 或在 Druid 监控页面直接看
+</code></pre>
+<p><strong>第二步:分析执行计划</strong></p>
+<pre><code class="language-sql">EXPLAIN SELECT * FROM orders WHERE user_id = 100 AND status = 'paid';
+
+-- 关键字段:
+-- type: ALL(全表扫描)→index→range→ref→const(最快)
+-- key: 用到的索引名(NULL = 没走索引)
+-- rows: 预估扫描行数
+-- Extra: Using filesort(需排序) / Using temporary(需临时表) → 需要优化
+</code></pre>
+<p><strong>第三步:判断并修复</strong></p>
+<pre><code>type=ALL, rows 很大 → 没走索引 → 加索引
+key 有值但 type=ALL → 索引失效了 → 检查失效原因(函数/隐式转换/OR等)
+Extra=Using filesort → 排序字段没索引 → 加复合索引覆盖排序字段
+</code></pre>
+<blockquote>
+<p><strong>扩展</strong>:慢查询不一定是 SQL 的问题--也可能是<strong>统计信息过期</strong>导致 MySQL 选错了执行计划。<code>ANALYZE TABLE</code> 更新统计信息。大表加索引时注意用 <code>pt-online-schema-change</code>(Percona Toolkit)在线加,避免锁表。</p>
+</blockquote>
+<h3 id="10">10. 磁盘空间满了怎么排查?</h3>
+<pre><code class="language-bash"># 1 确认:哪个分区满了?
+df -h
+# /dev/sda1  use% 95%  ← 找出满的分区
+
+# 2 定位:哪个目录占用最多?
+du -sh /* 2&gt;/dev/null | sort -rh | head -10
+# 一层层往下钻:du -sh /var/* → du -sh /var/log/*
+
+# 3 特殊:删了大文件但空间没释放
+lsof | grep deleted    # 找到被进程持有的已删除文件
+# 原因:进程还拿着文件句柄,空间没真正释放
+# 解决:重启对应进程 或 echo &quot;&quot; &gt; /proc/PID/fd/N
+</code></pre>
+<pre><code>排查链路:
+
+df -h 看哪个分区满了
+    │
+    ├── du -sh /* 逐层定位大目录
+    │       │
+    │       └── 找到大文件/大目录
+    │           要么清理,要么确认是否需要
+    │
+    └── lsof | grep deleted → 已删除但未释放
+        重启进程释放空间
+</code></pre>
+<blockquote>
+<p><strong>扩展</strong>:最常见的磁盘杀手--1 <strong>日志文件</strong>(没做 logrotate,一个日志文件几十 GB);2 <strong>Docker 镜像/Volume</strong>(<code>docker system prune -a</code> 清理);3 <strong>Core Dump 文件</strong>(JVM 崩溃留下的 dump 文件)。生产环境配置 logrotate 和监控告警(磁盘使用率 &gt; 80% 告警)是基本功。</p>
+</blockquote>
+<h3 id="11-cpu">11. CPU/内存正常但响应变慢,怎么排查?</h3>
+<p>IO 瓶颈(iostat)、网络带宽(sar -n DEV)、锁竞争(jstack)、连接池耗尽、外部依赖超时、GC STW。推荐自上而下排查法。</p>
+<p><strong>自上而下排查法(就像查不响的电视机--从电源开始一层层排查)</strong>:</p>
+<pre><code>1 看网络层
+   ping / telnet 目标端口 → 网络通不通?
+   不通 → 防火墙/安全组/路由问题
+
+2 看依赖层
+   数据库连接池有没有耗尽?(HikariCP 的 active 指标)
+   Redis 响应超时?(慢查询日志 SLOWLOG GET 10)
+   下游服务是否超时?(看调用链中的耗时分布)
+
+3 看应用层
+   jstack 看线程都在干什么 → 大量线程 BLOCKED?→ 锁竞争
+   数据库连接池 Active=Max?→ 连接池不够或慢 SQL 占用
+   GC 日志 → STW 时间是否过长?
+
+4 看操作系统层
+   iostat -x 1 → await 很高?→ 磁盘 IO 瓶颈
+   sar -n DEV 1 → 网络带宽打满?
+</code></pre>
+<p><strong>常见非 CPU/内存瓶颈及特征</strong>:</p>
+<table>
+<thead>
+<tr>
+<th>原因</th>
+<th>特征</th>
+<th>排查命令</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>数据库连接池耗尽</strong></td>
+<td>线程全在等数据库连接</td>
+<td>jstack 看到 <code>HikariPool$PoolEntryCreator</code></td>
+</tr>
+<tr>
+<td><strong>Redis 慢查询</strong></td>
+<td>请求耗时尖刺</td>
+<td><code>SLOWLOG GET 10</code></td>
+</tr>
+<tr>
+<td><strong>下游服务超时</strong></td>
+<td>调用链中某下游 P99 很高</td>
+<td>SkyWalking/Pinpoint 链路追踪</td>
+</tr>
+<tr>
+<td><strong>锁竞争</strong></td>
+<td>大量线程 BLOCKED</td>
+<td>jstack | grep BLOCKED</td>
+</tr>
+<tr>
+<td><strong>GC STW</strong></td>
+<td>周期性的所有请求变慢</td>
+<td><code>jstat -gcutil</code> 看 GC pauses</td>
+</tr>
+<tr>
+<td><strong>磁盘 IO 瓶颈</strong></td>
+<td>await 很高(&gt;10ms)</td>
+<td><code>iostat -x 1</code></td>
+</tr>
+<tr>
+<td><strong>网络带宽打满</strong></td>
+<td>流量峰值错峰</td>
+<td><code>sar -n DEV 1</code></td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h3 id="12">12. 内存泄漏有哪些常见场景?如何避免?</h3>
+<p>内存泄漏 = <strong>不用的东西占着抽屉不扔</strong>--对象已经不用了,但 GC Roots 还间接引用着它,GC 无法回收。时间长了内存慢慢涨,最终 OOM。</p>
+<p><strong>Java 7 大内存泄漏场景(按出现频率排序)</strong>:</p>
+<pre><code>1 静态集合类(罪魁祸首 No.1)
+   static Map&lt;String, Object&gt; cache = new ConcurrentHashMap&lt;&gt;();
+   cache.put(key, data);  // 一直往里塞,从来不删
+
+   为什么泄漏:static 变量是 GC Root → 它引用的所有东西永不被回收
+   解决:
+   - 缓存要有上限(Guava Cache / Caffeine,设 maxSize + TTL)
+   - 不用缓存了手动 clear()
+   - 或者用 WeakHashMap(key 没外部引用时自动清除)
+
+2 ThreadLocal 没 remove(线程池场景)
+   public static ThreadLocal&lt;UserInfo&gt; userHolder = new ThreadLocal&lt;&gt;();
+   userHolder.set(userInfo);
+   // 用完了没调 remove()!
+
+   为什么泄漏:线程池的线程是复用的,
+              ThreadLocalMap 的 key 是弱引用但 value 是强引用
+              线程不死 → ThreadLocalMap 不回收 → value 一直在
+   解决:finally { userHolder.remove(); }
+
+3 连接没关(数据库连接、HttpClient、文件流)
+   解决:Java 7+ try-with-resources 自动关闭
+   try (Connection conn = dataSource.getConnection()) { ... }
+
+4 监听器/回调没注销
+   eventBus.register(listener);  // 注册了
+   // 对象不用了,但没调 eventBus.unregister(listener);
+   解决:组件销毁时(@PreDestroy / destroy() )反注册
+
+5 单例持有短生命周期对象
+   @Service
+   public class OrderService {
+       private User currentUser;  // 单例持有 request 级别的对象!
+   }
+   解决:用 ThreadLocal 传递 request 级别的数据,不要存为单例的成员变量
+
+6 内部类(匿名类/非静态内部类)持有外部类引用
+   class Outer {
+       void doSomething() {
+           new Thread(() -&gt; { ... }).start();  // 匿名内部类隐式持有 Outer.this
+       }
+   }
+   解决:如果不需要外部引用,声明为 static 内部类
+
+7 本地缓存无上限
+   ConcurrentHashMap&lt;String, byte[]&gt; cache = new ConcurrentHashMap&lt;&gt;();
+   // 疯狂 put,从不 evict → 最终 OOM
+   解决:用 Caffeine(Window TinyLFU 算法)+ 设 maxSize
+</code></pre>
+<p><strong>Python 4 大内存泄漏场景</strong>:</p>
+<pre><code class="language-python"># 1 循环引用(虽然有 GC,但引用计数归零才立即回收)
+class Node:
+    def __init__(self):
+        self.ref = None
+a = Node(); b = Node()
+a.ref = b; b.ref = a  # 循环引用!靠标记清除定期回收
+# 解决:用 weakref.ref 创建弱引用
+
+# 2 全局变量/类变量不停增长
+cache = {}  # 模块级别,永远不删除
+cache[key] = value  # 一直加 → 泄漏
+
+# 3 闭包持有大对象
+def outer():
+    big_data = [0] * 10000000
+    def inner():
+        return big_data[0]  # big_data 整个被 inner 持有,即使只用一个元素
+    return inner
+
+# 4 C 扩展内存泄漏
+# 某些 C 扩展库手动管理内存,忘记释放 → 泄漏
+</code></pre>
+<blockquote>
+<p><strong>扩展</strong>:面试中如何说得"不像背的"?--最好结合一个你实际踩过的坑。比如:"我们项目里有个静态 Map 做本地缓存,运营活动期间访问量暴增,Map 里的 key 从几千涨到几百万--内存飙到 95%,触发了告警。后来改成 Caffeine 设了 maxSize + TTL 自动淘汰,内存才稳住了。"如果你没真实经历,至少理解六种场景并准备一两个"能讲出细节"的例子。</p>
+</blockquote>
+<h3 id="13">13. 线上接口偶发超时报错,但重试又正常,怎么排查?</h3>
+<p><strong>核心结论</strong>:偶发性超时 = 瞬时瓶颈或资源竞争。排查三板斧:</p>
+<pre><code class="language-bash"># 1. 看是否有瞬时连接池满
+watch -n 1 'netstat -an | grep ESTABLISHED | wc -l'
+
+# 2. 看 TCP 重传率(网络瞬时抖动)
+sar -n EDEV 1 5  # 看 %retrans
+
+# 3. 看 GC 是否偶发长 STW
+jstat -gcutil &lt;pid&gt; 1000  # 观察 FGCT/FCTG 是否偶发跳高
+</code></pre>
+<p><strong>最常见原因</strong>:(1)下游数据库偶发慢查询导致连接池等待超时;(2)GC 偶发长 STW 暂停应用;(3)网络瞬时抖动丢包重传。<strong>根治:加链路追踪(SkyWalking/Zipkin)定位具体是哪层慢,再对症下药。</strong></p>
+<h3 id="14-500">14. 线上服务突然开始返回 500,但代码没发布,怎么排查?</h3>
+<p><strong>核心结论</strong>:代码没变但出 500 = 外部因素变化。按概率排序排查:</p>
+<pre><code>排查优先级:
+1. 下游服务挂了/超时 → 看日志里的feign超时/连接拒绝
+2. 数据库连接异常 → 看Druid/HikariCP监控面板
+3. 配置中心(Nacos)配置被改 → diff 最新配置
+4. Redis/MQ 不可达 → 看连接池状态
+5. 磁盘满导致写日志失败 → df -h
+6. 证书过期(JWT/HTTPS) → 看证书有效时间
+</code></pre>
+<pre><code class="language-bash"># 快速定位500错误
+# 1. 看错误日志最近10行
+tail -100 /app/logs/error.log | grep -A 5 'Exception'
+# 2. 统计最近1小时各类型异常数量
+grep 'Exception' /app/logs/error.log | awk '{print $NF}' | sort | uniq -c | sort -rn | head
+</code></pre>
+<blockquote>
+<p><strong>面试话术</strong>:"线上500第一时间不是看代码,而是看日志里有没有下游超时、连接拒绝这类外部依赖问题。我遇到过一次,线上突然大量500,最后发现是Nacos上有个配置被同事在线上环境改了,Redis连接地址写错了。从此以后,所有配置变更必须走CR+审批流程。"</p>
+</blockquote>
+<h3 id="15">15. 如何做线上故障的应急止血和回滚?</h3>
+<p><strong>应急止血三板斧</strong>:</p>
+<pre><code>优先级从高到低:
+1. 限流/熔断 → Sentinel 热配置降级(不断服务,只降非核心)
+2. 配置降级 → Nacos 动态关闭故障功能开关
+3. 版本回滚 → Jenkins/K8s rollback(最彻底但影响最大)
+</code></pre>
+<p><strong>生产回滚规范</strong>:</p>
+<pre><code class="language-bash"># K8s 滚动回滚
+kubectl rollout undo deployment/app-service
+
+# 如果是蓝绿部署,直接切流量
+kubectl patch service app-service -p '{&quot;spec&quot;:{&quot;selector&quot;:{&quot;version&quot;:&quot;v1.0-stable&quot;}}}'
+
+# Docker Compose 回滚
+ docker-compose up -d app-service:v1.0-stable
+</code></pre>
+<blockquote>
+<p><strong>面试话术</strong>:"止血讲究'快而不慌'。我的原则是:先限流保核心链路,再降级非核心功能,最后才考虑回滚。回滚是最后手段,因为会丢失回滚期间的数据。每次故障必须写复盘报告(5W2H),从流程上防止二次发生。"</p>
+</blockquote>
+<h3 id="16-arthas">16. 如何用 Arthas 在生产环境做在线热修复？</h3>
+<p>Arthas 热修复三步走：<strong>定位 → 修改 → 验证</strong>：</p>
+<pre><code class="language-bash"># 1. 启动 Arthas
+java -jar arthas-boot.jar
+
+# 2. 定位问题：trace 跟踪方法耗时
+trace com.example.OrderService createOrder '#cost &gt; 100' --skipJDKMethod
+
+# 3. 重新定义方法（热修复）
+redefine /path/to/fixed/OrderService.class
+
+# 或者用 jad + mc + redefine 组合：
+# Step A: 反编译当前代码
+jad --source-only com.example.OrderService &gt; /tmp/OrderService.java
+# Step B: 修改后编译
+mc /tmp/OrderService.java -d /tmp/
+# Step C: 热加载
+redefine /tmp/com/example/OrderService.class
+</code></pre>
+<p><strong>生产热修复注意事项</strong>：</p>
+<table>
+<thead>
+<tr>
+<th>场景</th>
+<th>建议</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>方法签名变化</td>
+<td>❌ 不支持热修，需重启</td>
+</tr>
+<tr>
+<td>静态变量修改</td>
+<td>⚠️ 需谨慎，可能导致不一致</td>
+</tr>
+<tr>
+<td>新增方法</td>
+<td>[OK] 支持</td>
+</tr>
+<tr>
+<td>删除方法</td>
+<td>❌ 不支持，需重启</td>
+</tr>
+<tr>
+<td>构造函数修改</td>
+<td>⚠️ 受限</td>
+</tr>
+</tbody>
+</table>
+<blockquote>
+<p><strong>扩展</strong>：<code>ognl</code> 命令可直接修改内存中的对象值（无需发版紧急修配置）；<code>heapdump</code> 生成堆转储文件分析内存；Arthas 3.6+ 支持在线生成火焰图（<code>profiler</code> 命令）。</p>
+</blockquote>
+
+<script>
+// Scroll spy — highlight active sidebar item
+window.addEventListener('scroll', function() {
+    var links = document.querySelectorAll('.sidebar-toc a');
+    var scrollY = window.scrollY + 120;
+    var current = '';
+    for (var i = links.length - 1; i >= 0; i--) {
+        var target = document.getElementById(links[i].getAttribute('href').slice(1));
+        if (target && target.offsetTop <= scrollY) {
+            current = links[i];
+            break;
+        }
+    }
+    links.forEach(function(a) { a.style.fontWeight = 'normal'; a.style.color = '#555'; });
+    if (current) { current.style.fontWeight = 'bold'; current.style.color = '#0366d6'; }
+});
+</script>
+
+
+<script>
+document.querySelectorAll('pre > code').forEach(function(codeBlock, i) {
+    var pre = codeBlock.parentNode;
+    pre.style.position = 'relative';
+    var btn = document.createElement('button');
+    btn.className = 'copy-btn';
+    btn.textContent = '复制';
+    pre.appendChild(btn);
+    btn.addEventListener('click', function() {
+        var text = codeBlock.textContent;
+        navigator.clipboard.writeText(text).then(function() {
+            btn.textContent = '已复制';
+            btn.classList.add('copied');
+            setTimeout(function() {
+                btn.textContent = '复制';
+                btn.classList.remove('copied');
+            }, 2000);
+        }).catch(function() {
+            // Fallback
+            var ta = document.createElement('textarea');
+            ta.value = text; ta.style.position = 'fixed'; ta.style.opacity = '0';
+            document.body.appendChild(ta); ta.select();
+            document.execCommand('copy'); document.body.removeChild(ta);
+            btn.textContent = '已复制'; btn.classList.add('copied');
+            setTimeout(function() { btn.textContent = '复制'; btn.classList.remove('copied'); }, 2000);
+        });
+    });
+});
+</script>
+
+<script>document.querySelectorAll("pre>code").forEach(function(c){var p=c.parentNode;p.style.position="relative";var b=document.createElement("button");b.className="copy-btn";b.textContent="复制";p.appendChild(b);b.addEventListener("click",function(){var t=c.textContent;navigator.clipboard.writeText(t).then(function(){b.textContent="已复制";b.classList.add("copied");setTimeout(function(){b.textContent="复制";b.classList.remove("copied")},2000)}).catch(function(){var a=document.createElement("textarea");a.value=t;a.style.position="fixed";a.style.opacity="0";document.body.appendChild(a);a.select();document.execCommand("copy");document.body.removeChild(a);b.textContent="已复制";b.classList.add("copied");setTimeout(function(){b.textContent="复制";b.classList.remove("copied")},2000)})})})</script>
+</body>
+</html>

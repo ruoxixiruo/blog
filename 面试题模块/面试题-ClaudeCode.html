@@ -1,0 +1,518 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>面试题 - ClaudeCode</title>
+<style>
+body {
+    transition: margin-left .25s ease;
+    font-family: -apple-system, "Noto Sans SC", "Microsoft YaHei", sans-serif;
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 20px 24px 60px;
+    line-height: 1.8;
+    color: #333;
+    background: #fff;
+}
+h1 { border-bottom: 2px solid #eee; padding-bottom: 10px; color: #222; }
+h2 { color: #333; margin-top: 32px; }
+h3 { color: #555; }
+a { color: #0366d6; text-decoration: none; }
+a:hover { text-decoration: underline; }
+pre {
+    background: #f6f8fa;
+    border-radius: 6px;
+    padding: 16px;
+    overflow-x: auto;
+    font-size: 14px;
+    line-height: 1.45;
+}
+code {
+    background: #f0f2f4;
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-size: 14px;
+}
+pre code { background: none; padding: 0; }
+blockquote {
+    border-left: 4px solid #ddd;
+    margin: 0;
+    padding: 0 16px;
+    color: #666;
+}
+table {
+    border-collapse: collapse;
+    width: 100%;
+    margin: 16px 0;
+}
+th, td {
+    border: 1px solid #ddd;
+    padding: 8px 12px;
+    text-align: left;
+}
+th { background: #f6f8fa; }
+img { max-width: 100%; }
+.back-link {
+    margin-bottom: 20px;
+    display: block;
+    color: #666;
+}
+.back-link:hover { color: #0366d6; }
+
+.sidebar-toc {
+    position: fixed;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    width: 220px;
+    background: #f8f9fa;
+    border-right: 1px solid #e9ecef;
+    padding: 20px 0;
+    overflow-y: auto;
+    font-size: 13px;
+    z-index: 100;
+    transition: left .25s ease;
+}
+.sidebar-toc a {
+    display: block;
+    padding: 6px 16px;
+    color: #555;
+    text-decoration: none;
+    border-left: 3px solid transparent;
+    line-height: 1.5;
+}
+.sidebar-toc a:hover {
+    background: #e9ecef;
+    color: #0366d6;
+    border-left-color: #0366d6;
+}
+.sidebar-toc .toc-h3 { padding-left: 20px; font-size: 12px; }
+body { margin-left: 240px; }
+
+
+.copy-btn {
+    position: absolute; top: 6px; right: 6px;
+    background: #e9ecef; border: none;
+    border-radius: 4px; padding: 3px 10px;
+    font-size: 12px; color: #555; cursor: pointer;
+    opacity: 0; transition: opacity 0.2s;
+    z-index: 1;
+}
+pre:hover .copy-btn { opacity: 1; }
+.copy-btn:hover { background: #d0d7de; }
+.copy-btn.copied { opacity: 1; background: #2da44e; color: #fff; }
+.copy-btn{position:absolute;top:6px;right:6px;background:#e9ecef;border:none;border-radius:4px;padding:3px 10px;font-size:12px;color:#555;cursor:pointer;opacity:0;transition:opacity .2s;z-index:1}pre:hover .copy-btn{opacity:1}.copy-btn:hover{background:#d0d7de}.copy-btn.copied{opacity:1;background:#2da44e;color:#fff}
+.copy-btn{position:absolute;top:6px;right:6px;background:#e9ecef;border:none;border-radius:4px;padding:3px 10px;font-size:12px;color:#555;cursor:pointer;opacity:0;transition:opacity .2s;z-index:1}pre:hover .copy-btn{opacity:1}.copy-btn:hover{background:#d0d7de}.copy-btn.copied{opacity:1;background:#2da44e;color:#fff}
+.copy-btn{position:absolute;top:6px;right:6px;background:#e9ecef;border:none;border-radius:4px;padding:3px 10px;font-size:12px;color:#555;cursor:pointer;opacity:0;transition:opacity .2s;z-index:1}pre:hover .copy-btn{opacity:1}.copy-btn:hover{background:#d0d7de}.copy-btn.copied{opacity:1;background:#2da44e;color:#fff}
+.sidebar-toggle-btn {
+  position: fixed;
+  left: 220px;
+  top: 0;
+  width: 28px;
+  height: 40px;
+  background: #f8f9fa;
+  border: 1px solid #e9ecef;
+  border-left: none;
+  border-radius: 0 4px 4px 0;
+  cursor: pointer;
+  font-size: 16px;
+  color: #555;
+  z-index: 101;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: left .25s, background .2s;
+  padding: 0;
+  line-height: 1;
+}
+.sidebar-toggle-btn:hover { background: #e9ecef; color: #0366d6; }
+.sidebar-collapsed .sidebar-toc { left: -220px; }
+.sidebar-collapsed .sidebar-toggle-btn { left: 0; }
+.sidebar-collapsed body, body.sidebar-collapsed { margin-left: 28px; }
+.sidebar-overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,.3);
+  z-index: 99;
+}
+@media (max-width: 768px) {
+  .sidebar-collapsed .sidebar-overlay { display: none; }
+  .sidebar-toc { left: -220px; }
+  .sidebar-toggle-btn { left: 0; }
+  body { margin-left: 28px; }
+}
+
+</style>
+</head>
+</head>
+<body>
+<nav class="sidebar-toc"><a class="toc-h3" href="#1-claude-code-copilot">1. Claude Code 的定位是什么?与 Copilot 有什么区别?</a><a class="toc-h3" href="#2-claude-code">2. Claude Code 的安全机制是如何设计的?</a><a class="toc-h3" href="#3-claude-code">3. Claude Code 如何管理长会话的上下文?</a><a class="toc-h3" href="#4-claude-code">4. Claude Code 的工具调用原理是什么?</a><a class="toc-h3" href="#5-claude-code">5. Claude Code 适合哪些场景?不适合哪些场景?</a><a class="toc-h3" href="#6-vibe-codingclaude-code-vibe-coding">6. 什么是 Vibe Coding?Claude Code 为什么是 Vibe Coding 的最佳工具?</a><a class="toc-h3" href="#7-claude-code">7. Claude Code 在大型项目中怎么管理上下文?会不会失焦?</a><a class="toc-h3" href="#8-ai">8. AI 编程工具的安全风险有哪些?企业如何管控?</a><a class="toc-h3" href="#9-claude-code">9. Claude Code 如何做代码审查和安全审计？</a></nav>
+<button class="sidebar-toggle-btn" onclick="toggleSidebar()" title="切换侧栏">☰</button>
+
+<div class="sidebar-overlay" onclick="toggleSidebar()"></div>
+
+<script>
+function toggleSidebar() {
+  document.body.classList.toggle('sidebar-collapsed');
+  try { localStorage.setItem('sidebarCollapsed', document.body.classList.contains('sidebar-collapsed')); } catch(e) {}
+}
+(function() {
+  try {
+    if (localStorage.getItem('sidebarCollapsed') === 'true') {
+      document.body.classList.add('sidebar-collapsed');
+    }
+  } catch(e) {}
+})();
+</script>
+<a class="back-link" href="/blog/2026/05/16/面试题/面试题/">← 返回面试题目录</a>
+<h1 id=page-title>AI 编程工具（Claude Code）</h1>
+<h1 id="page-title">面试题</h1>
+<blockquote>
+<p>Claude Code 是 Anthropic 官方的 AI 编程 Agent CLI。它可以读文件、改文件、跑命令、提交 git、搜网页--是一个真正能"干活"的 AI 编程助手。</p>
+</blockquote>
+<h3 id="1-claude-code-copilot">1. Claude Code 的定位是什么?与 Copilot 有什么区别?</h3>
+<pre><code>AI 编程工具三层金字塔(从低到高):
+
+  ┌───────────────────────────────────────────────────────┐
+  │                  Level 3: Agent CLI                   │
+  │                  Claude Code                           │
+  │                                                        │
+  │  能力: 自主执行任务(创建/编辑/运行/安装)                  │
+  │  特点: 持久化上下文、多步骤任务、有记忆                   │
+  │  比喻: 像一个拿工资的初级工程师,你交代任务就行            │
+  │  范围: 全项目级(理解文件结构、Git 历史)                 │
+  ├───────────────────────────────────────────────────────┤
+  │              Level 2: IDE Chat                         │
+  │              Cursor Chat / Copilot Chat                 │
+  │                                                        │
+  │  能力: 当前文件/项目内的对话                             │
+  │  特点: 可以修改文件,但仍以建议为主                       │
+  │  比喻: 像一个坐在旁边跟你聊天的结对编程伙伴               │
+  │  范围: 多文件级(当前项目上下文)                        │
+  ├───────────────────────────────────────────────────────┤
+  │            Level 1: 代码补全                            │
+  │            GitHub Copilot                               │
+  │                                                        │
+  │  能力: 输入时补全代码片段                               │
+  │  特点: 无持久上下文,每次交互独立                       │
+  │  比喻: 像一个&quot;智能输入法&quot;                               │
+  │  范围: 单行/单函数级                                    │
+  └───────────────────────────────────────────────────────┘
+</code></pre>
+<p>核心区别一句话:<strong>Copilot 帮你写一行,Cursor/Copilot Chat 帮你写一个功能,Claude Code 帮你干完整个项目。</strong> 面试重点突出三个关键词:<strong>Agent 定位</strong>、<strong>持久化上下文</strong>、<strong>安全权限体系</strong>。</p>
+<blockquote>
+<p><strong>面试话术</strong>:"Claude Code 和 Copilot 不是同类产品。Copilot 是 IDE 里的代码补全插件,Claude Code 是终端里的 Agent--它能理解项目全貌、记住上下文、真正执行操作。定位差异就像导航助手提示前方测速 vs 自动驾驶帮你开一段路。"</p>
+</blockquote>
+<h3 id="2-claude-code">2. Claude Code 的安全机制是如何设计的?</h3>
+<pre><code>Claude Code 三层安全防御体系:
+
+  用户请求 &quot;帮我重构这个 API 模块&quot;
+      │
+      ▼
+  ┌─────────────────────────────────────────────────────┐
+  │  第 1 层:ask 模式(默认启用)                          │
+  │                                                       │
+  │  每次执行危险操作前,弹出请求等用户审批                   │
+  │  ┌─────────────────────────────┐                     │
+  │  │  🔒 Claude wants to:        │                     │
+  │  │  $ rm -rf node_modules/     │                     │
+  │  │  [Allow] [Deny] [Always]   │                     │
+  │  └─────────────────────────────┘                     │
+  │  → 用户必须点 Allow 才执行,事事汇报                    │
+  ├─────────────────────────────────────────────────────┤
+  │  第 2 层:Pattern 权限控制(细粒度白名单/黑名单)         │
+  │                                                       │
+  │  /allow &quot;npm install *&quot;     ← 允许装依赖              │
+  │  /deny &quot;rm -rf *&quot;           ← 禁止删除命令             │
+  │  /deny &quot;git push --force&quot;   ← 禁止强制推送             │
+  │                                                       │
+  │  → 精确到命令模式,不用担心 AI &quot;发疯&quot;                   │
+  ├─────────────────────────────────────────────────────┤
+  │  第 3 层:工作目录限制                                  │
+  │                                                       │
+  │  Claude 默认只能操作当前项目目录 ~/my-project/          │
+  │  不能访问 ~/.ssh/、/etc/passwd 等系统敏感路径           │
+  │  → 法外之地去不了                                     │
+  └─────────────────────────────────────────────────────┘
+
+  核心设计原则: 默认最小权限 + 用户可见 + 操作透明
+  → AI 能干但不会乱来,你始终是决策者
+</code></pre>
+<blockquote>
+<p><strong>面试话术</strong>:"Claude Code 的安全设计遵循零信任原则--默认不信任 AI,每个危险操作都需要人类确认。三层防护:默认 ask 模式事事汇报、Pattern 权限精细控制、工作目录限制隔离风险。这个设计理念和 Docker 容器隔离、K8s RBAC 一脉相承。"</p>
+</blockquote>
+<h3 id="3-claude-code">3. Claude Code 如何管理长会话的上下文?</h3>
+<pre><code>Claude Code 上下文管理四机制:
+
+  对话开始 ──→ 50K tokens ──→ 100K tokens ──→ 200K+ tokens
+     │              │              │               │
+     │         ┌────▼────┐   ┌─────▼──────┐  ┌─────▼──────┐
+     │         │自动压缩   │   │ 自动压缩   │   │ 手动压缩   │
+     │         │保关键信息  │   │ 保核心决策  │   │ /compact   │
+     │         └─────────┘   └────────────┘  └────────────┘
+     │
+     └── 全程: 文件上下文保留(已读文件不丢)
+         会话持久化: 本地保存,--resume 恢复(换天接着干)
+
+  关键平衡:
+    压缩太激进 → 丢失关键上下文,AI &quot;失忆&quot;
+    压缩太保守 → token 爆表,API 费用飙升
+    → Claude Code 自动找最优压缩点
+</code></pre>
+<p>四种机制:
+- <strong>自动压缩</strong>:token 超过阈值时自动压缩,保留关键信息和决策,丢掉冗余细节
+- <strong>手动压缩</strong>:<code>/compact</code> 命令主动触发,适合"聊了很多,要进入下一阶段"时
+- <strong>会话持久化</strong>:对话存本地,<code>claude --resume</code> 恢复,换天接着干
+- <strong>文件上下文保留</strong>:已读取的文件不丢,即使对话很长</p>
+<blockquote>
+<p><strong>面试话术</strong>:"Agent 的上下文管理是工程难题--太长费钱且模型容易'迷失在中间',太短丢失信息。Claude Code 的解决方案是自动检测 + 智能压缩 + 持久化恢复。面试时可以提一句这和 LangChain 的 Checkpointer 思路类似,都是解决'有记性'的问题。"</p>
+</blockquote>
+<h3 id="4-claude-code">4. Claude Code 的工具调用原理是什么?</h3>
+<pre><code>Tool Use 协议 -- &quot;大脑 + 身体&quot; 分离设计:
+
+  ┌──────────────────────────────────────────────────────┐
+  │                    用户终端                            │
+  │                                                       │
+  │  用户: &quot;帮我创建一个 React 登录组件&quot;                     │
+  │     │                                                 │
+  │     ▼                                                 │
+  │  ┌────────────────────────────────────────┐          │
+  │  │         Claude Code CLI (身体)           │          │
+  │  │                                          │          │
+  │  │  1 接收用户指令 → 发送给 Claude 模型      │          │
+  │  │  2 接收模型决策 → 执行工具调用            │          │
+  │  │     ├── Read:  读取现有代码              │          │
+  │  │     ├── Write: 创建 Login.tsx           │          │
+  │  │     ├── Bash:  npm install react-hook-form│       │
+  │  │     ├── Edit:  修改 App.tsx 加路由      │          │
+  │  │     └── Git:   git add + commit          │          │
+  │  │  3 将执行结果返回给模型                   │          │
+  │  │  4 循环 23 直到任务完成                  │          │
+  │  └──────────────┬─────────────────────────┘          │
+  │                 │ API 调用                             │
+  │                 ▼                                     │
+  │  ┌────────────────────────────────────────┐          │
+  │  │      Claude 模型 (大脑)                  │          │
+  │  │      分析意图 → 决策用哪些工具 →          │          │
+  │  │      看执行结果 → 决定下一步             │          │
+  │  └────────────────────────────────────────┘          │
+  └──────────────────────────────────────────────────────┘
+
+  关键: 模型本身不能操作文件 -- 它通过 Tool Use 协议 &quot;指挥&quot; CLI 去操作
+  → 就像你闭着眼睛,有人帮你描述环境,你指挥他行动
+</code></pre>
+<blockquote>
+<p><strong>面试话术</strong>:"Claude Code 的核心架构是脑体分离--Claude 模型负责思考和决策,CLI 负责执行文件读写和命令。模型本身没有文件系统的访问权限,所有操作通过 Tool Use 协议代理执行。这个设计和 Function Calling 是同一种模式,区别在于 Claude Code 的工具集更偏向工程实践(Git/Shell/文件系统)。"</p>
+</blockquote>
+<h3 id="5-claude-code">5. Claude Code 适合哪些场景?不适合哪些场景?</h3>
+<pre><code>Claude Code 适用场景光谱:
+
+  非常不适合  ←──────────────────────────→ 极其适合
+
+  安全加密代码  ★★★★  ★★★(重构)  ★★★(测试)  ★★★(CRUD)  ★★★(POC)
+  数学证明    ★★★★  ★★★(调试)  ★★★(调研)  ★★★(API)  ★★★(脚本)
+  深度业务逻辑  ★★★★
+
+  ┌────────────────────────────────────────────────────┐
+  │  ✅ 极其适合:                                        │
+  │  · CRUD/API/组件开发 -- 体力活,AI 又快又好          │
+  │  · 代码重构 -- 能理解项目全貌,大规模重构不手抖       │
+  │  · 调试排查 -- 分析日志比人快 10 倍                  │
+  │  · 技术验证 POC -- 快速试错,半天出原型              │
+  │  · 测试编写 -- 单元测试/集成测试,覆盖率提升利器      │
+  │                                                     │
+  │  ❌ 非常不适合:                                      │
+  │  · 安全敏感代码(加密/支付) -- 须人工审核,AI 生成的     │
+  │    加密逻辑你敢直接用吗?                            │
+  │  · 复杂算法(需要数学证明) -- 超出 LLM 能力边界        │
+  │  · 深度业务逻辑 -- AI 不了解你的公司内部规则           │
+  │  · 超长项目(上下文膨胀) -- 对话过长后质量下降          │
+  └────────────────────────────────────────────────────┘
+
+  用好 Claude Code 的黄金法则:
+  1 人定方向,AI 执行 -- 你决策架构,AI 写代码
+  2 小步快跑,及时回顾 -- 每次提交一个小功能,审查后再继续
+  3 AI 写的代码 = 实习生写的代码 -- 必须 Code Review
+</code></pre>
+<h3 id="6-vibe-codingclaude-code-vibe-coding">6. 什么是 Vibe Coding?Claude Code 为什么是 Vibe Coding 的最佳工具?</h3>
+<p><strong>Vibe Coding</strong> 是一种新的编程范式:你只管描述你想要的"感觉"和效果,AI 负责把代码写出来。你更像产品经理,而不是码农。</p>
+<pre><code>传统编程 vs Vibe Coding:
+
+  传统编程:               Vibe Coding:
+  想清楚架构             描述想要的效果
+    → 写代码              &quot;我需要一个带验证的登录页面,
+    → 调试                    支持手机号和邮箱两种方式&quot;
+    → 重构                      ↓
+    → 完成                Claude Code 自动:
+                            → 分析需求
+                            → 创建文件结构
+                            → 写 React 组件 + 表单验证
+                            → 配置路由
+                            → 写 CSS 样式
+                            → 跑起来
+                         你只需要 Review 结果,不满意就改描述
+</code></pre>
+<p>Claude Code 的四大绝活让 Vibe Coding 落地:
+1. <strong>真正的 Agent 能力</strong>:不是一问一答,一个任务全程搞定
+2. <strong>持久化上下文</strong>:理解项目全貌,能记住之前的修改和决策
+3. <strong>安全可控</strong>:危险操作需要你点头,像开车有副刹车
+4. <strong>开发友好工具集</strong>:深度集成文件系统、Shell、Git,啥都能干</p>
+<h3 id="7-claude-code">7. Claude Code 在大型项目中怎么管理上下文?会不会失焦?</h3>
+<p><strong>核心结论</strong>:Claude Code 的上下文管理是最大优势也是最大挑战。<strong>大项目容易失焦</strong>--文件太多、信息太多,LLM 会"注意力稀释"。</p>
+<pre><code>上下文管理策略:
+
+1. CLAUDE.md 项目指南文件
+   → 在项目根目录放 CLAUDE.md,写明项目架构、技术栈、编码规范
+   → Claude Code 启动时自动读取,相当于&quot;项目说明书&quot;
+
+2. 任务分解,逐步执行
+   → 不要一次说&quot;重构整个用户模块&quot;
+   → 拆成:先改 User 实体 → 再改 Service → 再改 Controller → 最后改测试
+
+3. 用 /compact 压缩上下文
+   → 对话太长时手动压缩,保留关键决策,丢弃细节日志
+
+4. 善用 Git Commit 作为检查点
+   → 每个小功能完成后让 Claude Code 提交
+   → 出问题可以 git reset 到上一个检查点
+</code></pre>
+<blockquote>
+<p><strong>面试话术</strong>:"Claude Code 在大项目中最重要的技巧是'任务分解 + CLAUDE.md'。CLAUDE.md 让 AI 一上来就理解项目全貌,不用你反复解释架构。任务分解防止 AI 在大改动中迷失方向。这和带新人的道理一样--先给文档,再给小任务,逐步放大。"</p>
+</blockquote>
+<h3 id="8-ai">8. AI 编程工具的安全风险有哪些?企业如何管控?</h3>
+<p><strong>核心结论</strong>:AI 编程工具的核心风险是<strong>代码泄露</strong>和<strong>幻觉代码</strong>。</p>
+<pre><code>风险矩阵:
+
+风险          严重程度    防御措施
+────────────────────────────────────────────
+代码上传云端    ⚠️ 高     → 敏感项目用本地部署(ollama)
+                          → .clinerules 禁止上传特定文件
+                          → 内网隔离部署(Claude Enterprise)
+
+幻觉/错误代码  ⚠️ 高     → 必须 Code Review
+                          → CI/CD 加自动化测试兜底
+                          → 关键模块禁用 AI 直接提交
+
+依赖注入风险    ⚠️ 中     → AI 可能引入不安全的 npm 包
+                          → lockfile 审计 + Snyk 扫描
+
+合规/许可证     ⚠️ 中     → AI 可能用 GPL 代码(传染性许可证)
+                          → 许可证扫描工具检查
+</code></pre>
+<blockquote>
+<p><strong>面试话术</strong>:"企业用 AI 编程工具必须建立三道防线:1 网络隔离(敏感代码不上传云端);2 流程管控(AI 生成的代码必须走 Code Review + CI);3 安全扫描(依赖审计+许可证检查)。我们团队的做法是:非核心项目 freely use,核心模块(支付、认证)只能让 AI 写单元测试,业务逻辑必须人工写。"</p>
+</blockquote>
+<h3 id="9-claude-code">9. Claude Code 如何做代码审查和安全审计？</h3>
+<p>Claude Code 的核心能力：<strong>理解上下文 + 生成有深度的建议</strong>：</p>
+<pre><code class="language-bash"># 代码审查
+claude --print &quot;审查这段代码的潜在 bug 和安全问题：
+https://github.com/example/project/blob/main/src/auth.py&quot;
+
+# 安全扫描（OWASP Top 10）
+claude --print &quot;用 OWASP Top 10 标准审查：
+$(cat src/payment.py)&quot;
+
+# 对比新旧版本差异
+git diff HEAD~1 | claude --print &quot;Review this diff for bugs:&quot;
+</code></pre>
+<p><strong>最有价值的审查场景</strong>：</p>
+<table>
+<thead>
+<tr>
+<th>场景</th>
+<th>Claude Code 优势</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>并发竞态条件</td>
+<td>分析锁、atomic、线程安全</td>
+</tr>
+<tr>
+<td>SQL 注入风险</td>
+<td>结合上下文判断参数化查询</td>
+</tr>
+<tr>
+<td>性能热点</td>
+<td>分析算法复杂度，给出优化方向</td>
+</tr>
+<tr>
+<td>API 设计</td>
+<td>给出 RESTful 规范建议</td>
+</tr>
+<tr>
+<td>单元测试覆盖率</td>
+<td>分析未覆盖的边界条件</td>
+</tr>
+</tbody>
+</table>
+<p><strong>安全审查示例</strong>：</p>
+<pre><code class="language-python"># 原始代码（有漏洞）
+def get_user(user_id):
+    query = f&quot;SELECT * FROM users WHERE id = {user_id}&quot;
+    return db.execute(query)
+
+# Claude Code 审查后
+# → SQL 注入：user_id 直接拼接
+# → 建议：参数化查询
+# → 建议：增加权限校验
+</code></pre>
+<blockquote>
+<p><strong>扩展</strong>：Claude Code 的 <code>linter</code> 命令可结合 ESLint/Checkstyle；与 GitHub Actions 集成实现 PR 自动审查；安全审计时开启 <code>--dangerously-skip-permissions</code> 并人工复核。</p>
+</blockquote>
+
+<script>
+// Scroll spy — highlight active sidebar item
+window.addEventListener('scroll', function() {
+    var links = document.querySelectorAll('.sidebar-toc a');
+    var scrollY = window.scrollY + 120;
+    var current = '';
+    for (var i = links.length - 1; i >= 0; i--) {
+        var target = document.getElementById(links[i].getAttribute('href').slice(1));
+        if (target && target.offsetTop <= scrollY) {
+            current = links[i];
+            break;
+        }
+    }
+    links.forEach(function(a) { a.style.fontWeight = 'normal'; a.style.color = '#555'; });
+    if (current) { current.style.fontWeight = 'bold'; current.style.color = '#0366d6'; }
+});
+</script>
+
+
+<script>
+document.querySelectorAll('pre > code').forEach(function(codeBlock, i) {
+    var pre = codeBlock.parentNode;
+    pre.style.position = 'relative';
+    var btn = document.createElement('button');
+    btn.className = 'copy-btn';
+    btn.textContent = '复制';
+    pre.appendChild(btn);
+    btn.addEventListener('click', function() {
+        var text = codeBlock.textContent;
+        navigator.clipboard.writeText(text).then(function() {
+            btn.textContent = '已复制';
+            btn.classList.add('copied');
+            setTimeout(function() {
+                btn.textContent = '复制';
+                btn.classList.remove('copied');
+            }, 2000);
+        }).catch(function() {
+            // Fallback
+            var ta = document.createElement('textarea');
+            ta.value = text; ta.style.position = 'fixed'; ta.style.opacity = '0';
+            document.body.appendChild(ta); ta.select();
+            document.execCommand('copy'); document.body.removeChild(ta);
+            btn.textContent = '已复制'; btn.classList.add('copied');
+            setTimeout(function() { btn.textContent = '复制'; btn.classList.remove('copied'); }, 2000);
+        });
+    });
+});
+</script>
+
+
+<script>document.querySelectorAll("pre>code").forEach(function(c){var p=c.parentNode;p.style.position="relative";var b=document.createElement("button");b.className="copy-btn";b.textContent="复制";p.appendChild(b);b.addEventListener("click",function(){var t=c.textContent;navigator.clipboard.writeText(t).then(function(){b.textContent="已复制";b.classList.add("copied");setTimeout(function(){b.textContent="复制";b.classList.remove("copied")},2000)}).catch(function(){var a=document.createElement("textarea");a.value=t;a.style.position="fixed";a.style.opacity="0";document.body.appendChild(a);a.select();document.execCommand("copy");document.body.removeChild(a);b.textContent="已复制";b.classList.add("copied");setTimeout(function(){b.textContent="复制";b.classList.remove("copied")},2000)})})})</script>
+</body>
+</html>

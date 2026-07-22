@@ -1,0 +1,650 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 5.4.2">
+  <link rel="apple-touch-icon" sizes="180x180" href="/blog/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/blog/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/blog/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/blog/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/blog/css/main.css">
+
+
+<link rel="stylesheet" href="/blog/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"ruoxixiruo.github.io","root":"/blog/","scheme":"Gemini","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":true,"show_result":true,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":true},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}};
+  </script>
+
+  <meta name="description" content="1，模型类定义1234567891011121314151617181920212223242526272829303132333435363738394041from django.db import modelsclass Author(models.Model):    id &#x3D; models.AutoField(primary_key&#x3D;True)    name &#x3D; models.Char">
+<meta property="og:type" content="article">
+<meta property="og:title" content="django orm">
+<meta property="og:url" content="https://ruoxixiruo.github.io/blog/2023/07/22/django/django-orm/index.html">
+<meta property="og:site_name" content="RUOXI-BLOG">
+<meta property="og:description" content="1，模型类定义1234567891011121314151617181920212223242526272829303132333435363738394041from django.db import modelsclass Author(models.Model):    id &#x3D; models.AutoField(primary_key&#x3D;True)    name &#x3D; models.Char">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2023-07-22T12:07:31.000Z">
+<meta property="article:modified_time" content="2026-07-22T02:51:55.000Z">
+<meta property="article:author" content="ruoxi">
+<meta property="article:tag" content="django">
+<meta property="article:tag" content="orm">
+<meta name="twitter:card" content="summary">
+
+<link rel="canonical" href="https://ruoxixiruo.github.io/blog/2023/07/22/django/django-orm/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+
+  <title>django orm | RUOXI-BLOG</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/blog/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">RUOXI-BLOG</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/blog/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/blog/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/blog/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/blog/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a>
+
+  </li>
+        <li class="menu-item menu-item-posts">
+
+    <a href="/blog/posts/" rel="section"><i class="fa fa-rss fa-fw"></i>posts</a>
+
+  </li>
+  </ul>
+</nav>
+
+
+
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+  <div class="reading-progress-bar"></div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://ruoxixiruo.github.io/blog/2023/07/22/django/django-orm/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/blog/images/avatar.gif">
+      <meta itemprop="name" content="ruoxi">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="RUOXI-BLOG">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          django orm
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2023-07-22 12:07:31" itemprop="dateCreated datePublished" datetime="2023-07-22T12:07:31+00:00">2023-07-22</time>
+            </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/blog/categories/django/" itemprop="url" rel="index"><span itemprop="name">django</span></a>
+                </span>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <h5 id="1，模型类定义"><a href="#1，模型类定义" class="headerlink" title="1，模型类定义"></a>1，模型类定义</h5><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> django.db <span class="keyword">import</span> models</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">Author</span>(models.Model):</span><br><span class="line">    <span class="built_in">id</span> = models.AutoField(primary_key=<span class="literal">True</span>)</span><br><span class="line">    name = models.CharField(max_length=<span class="number">16</span>)</span><br><span class="line">    age = models.IntegerField()</span><br><span class="line">    author_detail = models.OneToOneField(</span><br><span class="line">        to=<span class="string">&quot;AuthorDetail&quot;</span>,</span><br><span class="line">        on_delete=models.SET_NULL,</span><br><span class="line">        null=<span class="literal">True</span>,</span><br><span class="line">        blank=<span class="literal">True</span>,</span><br><span class="line">    )</span><br><span class="line"></span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">__str__</span>(<span class="params">self</span>):</span><br><span class="line">        <span class="keyword">return</span> <span class="variable language_">self</span>.name</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">AuthorDetail</span>(models.Model):</span><br><span class="line">    <span class="built_in">id</span> = models.AutoField(primary_key=<span class="literal">True</span>)</span><br><span class="line">    addr = models.CharField(max_length=<span class="number">16</span>)</span><br><span class="line">    tel = models.IntegerField()</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">Publish</span>(models.Model):</span><br><span class="line">    <span class="built_in">id</span> = models.AutoField(primary_key=<span class="literal">True</span>)</span><br><span class="line">    name = models.CharField(max_length=<span class="number">16</span>)</span><br><span class="line">    addr = models.CharField(max_length=<span class="number">16</span>)</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">Book</span>(models.Model):</span><br><span class="line">    <span class="built_in">id</span> = models.AutoField(primary_key=<span class="literal">True</span>)</span><br><span class="line">    name = models.CharField(max_length=<span class="number">16</span>)</span><br><span class="line">    price = models.DecimalField(max_digits=<span class="number">6</span>, decimal_places=<span class="number">2</span>)</span><br><span class="line">    publish = models.ForeignKey(</span><br><span class="line">        to=<span class="string">&quot;Publish&quot;</span>,</span><br><span class="line">        on_delete=models.SET_NULL,</span><br><span class="line">        null=<span class="literal">True</span>,</span><br><span class="line">        blank=<span class="literal">True</span>,</span><br><span class="line">    )</span><br><span class="line">    authors = models.ManyToManyField(to=<span class="string">&quot;Author&quot;</span>)</span><br></pre></td></tr></table></figure>
+
+<span id="more"></span>
+
+<h5 id="2，常用字段类型"><a href="#2，常用字段类型" class="headerlink" title="2，常用字段类型"></a>2，常用字段类型</h5><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> django.db <span class="keyword">import</span> models</span><br><span class="line"></span><br><span class="line"><span class="comment"># 数值类</span></span><br><span class="line">models.AutoField(primary_key=<span class="literal">True</span>)              <span class="comment"># 自增主键（默认 id 字段）</span></span><br><span class="line">models.BigAutoField(primary_key=<span class="literal">True</span>)           <span class="comment"># 64位自增主键</span></span><br><span class="line">models.SmallIntegerField()                      <span class="comment"># 小整数 -32768 ~ 32767</span></span><br><span class="line">models.IntegerField()                           <span class="comment"># 整数</span></span><br><span class="line">models.BigIntegerField()                        <span class="comment"># 大整数</span></span><br><span class="line">models.PositiveIntegerField()                   <span class="comment"># 正整数</span></span><br><span class="line">models.PositiveSmallIntegerField()              <span class="comment"># 小正整数 0 ~ 32767</span></span><br><span class="line">models.FloatField()                             <span class="comment"># 浮点数（不精确）</span></span><br><span class="line">models.DecimalField(max_digits=<span class="number">6</span>, decimal_places=<span class="number">2</span>)  <span class="comment"># 精确小数（总位数, 小数位数）</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 字符串类</span></span><br><span class="line">models.CharField(max_length=<span class="number">200</span>)                <span class="comment"># 短文本（必须指定 max_length）</span></span><br><span class="line">models.TextField()                              <span class="comment"># 长文本（不限长度）</span></span><br><span class="line">models.SlugField(max_length=<span class="number">50</span>)                 <span class="comment"># 短标签（仅含字母数字下划线连字符）</span></span><br><span class="line">models.EmailField(max_length=<span class="number">254</span>)               <span class="comment"># 邮箱（带 EmailValidator）</span></span><br><span class="line">models.URLField(max_length=<span class="number">200</span>)                 <span class="comment"># URL（带 URLValidator）</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 布尔类</span></span><br><span class="line">models.BooleanField(default=<span class="literal">False</span>)              <span class="comment"># 布尔值</span></span><br><span class="line">models.NullBooleanField()                       <span class="comment"># 可空的布尔值</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 日期时间类</span></span><br><span class="line">models.DateField(auto_now=<span class="literal">False</span>, auto_now_add=<span class="literal">False</span>)   <span class="comment"># 日期</span></span><br><span class="line">models.TimeField()                              <span class="comment"># 时间</span></span><br><span class="line">models.DateTimeField()                          <span class="comment"># 日期时间</span></span><br><span class="line">models.DurationField()                          <span class="comment"># 时间间隔 timedelta</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># auto_now=True     每次 save() 时自动更新为当前时间</span></span><br><span class="line"><span class="comment"># auto_now_add=True 首次创建时自动设置为当前时间（之后不可改）</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 文件类</span></span><br><span class="line">models.FileField(upload_to=<span class="string">&quot;uploads/&quot;</span>)          <span class="comment"># 文件</span></span><br><span class="line">models.ImageField(upload_to=<span class="string">&quot;images/&quot;</span>)          <span class="comment"># 图片（需 Pillow）</span></span><br><span class="line">models.FilePathField(path=<span class="string">&quot;/var/www/&quot;</span>)          <span class="comment"># 文件路径</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 关系类</span></span><br><span class="line">models.ForeignKey(to, on_delete)                <span class="comment"># 一对多</span></span><br><span class="line">models.OneToOneField(to, on_delete)             <span class="comment"># 一对一</span></span><br><span class="line">models.ManyToManyField(to)                      <span class="comment"># 多对多</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 其他</span></span><br><span class="line">models.JSONField()                              <span class="comment"># JSON 数据（需 MySQL 5.7+ / PostgreSQL 9.4+）</span></span><br><span class="line">models.UUIDField()                              <span class="comment"># UUID</span></span><br><span class="line">models.BinaryField()                            <span class="comment"># 二进制数据</span></span><br><span class="line">models.GenericIPAddressField()                  <span class="comment"># IPv4/IPv6</span></span><br></pre></td></tr></table></figure>
+
+<h5 id="3，字段通用参数"><a href="#3，字段通用参数" class="headerlink" title="3，字段通用参数"></a>3，字段通用参数</h5><table>
+<thead>
+<tr>
+<th>参数</th>
+<th>类型</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>null=True</code></td>
+<td>bool</td>
+<td>数据库层面允许 NULL</td>
+</tr>
+<tr>
+<td><code>blank=True</code></td>
+<td>bool</td>
+<td>表单验证允许为空</td>
+</tr>
+<tr>
+<td><code>default=value</code></td>
+<td>any</td>
+<td>默认值，可以是值或可调用对象</td>
+</tr>
+<tr>
+<td><code>unique=True</code></td>
+<td>bool</td>
+<td>唯一约束</td>
+</tr>
+<tr>
+<td><code>unique_for_date=&quot;pub_date&quot;</code></td>
+<td>str</td>
+<td>日期维度唯一</td>
+</tr>
+<tr>
+<td><code>db_index=True</code></td>
+<td>bool</td>
+<td>创建数据库索引</td>
+</tr>
+<tr>
+<td><code>db_column=&quot;col_name&quot;</code></td>
+<td>str</td>
+<td>自定义数据库列名</td>
+</tr>
+<tr>
+<td><code>primary_key=True</code></td>
+<td>bool</td>
+<td>设为主键（会替换 id）</td>
+</tr>
+<tr>
+<td><code>editable=False</code></td>
+<td>bool</td>
+<td>Admin 和 ModelForm 中不可编辑</td>
+</tr>
+<tr>
+<td><code>verbose_name=&quot;名称&quot;</code></td>
+<td>str</td>
+<td>可读名称</td>
+</tr>
+<tr>
+<td><code>help_text=&quot;提示&quot;</code></td>
+<td>str</td>
+<td>帮助文本，Admin 中显示</td>
+</tr>
+<tr>
+<td><code>choices=[(val, label), ...]</code></td>
+<td>list</td>
+<td>可选项列表</td>
+</tr>
+<tr>
+<td><code>validators=[...]</code></td>
+<td>list</td>
+<td>自定义验证器列表</td>
+</tr>
+<tr>
+<td><code>error_messages=&#123;...&#125;</code></td>
+<td>dict</td>
+<td>自定义错误消息</td>
+</tr>
+<tr>
+<td><code>max_length=200</code></td>
+<td>int</td>
+<td>最大长度（CharField 必填）</td>
+</tr>
+</tbody></table>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># choices 用法示例</span></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">Book</span>(models.Model):</span><br><span class="line">    STATUS_CHOICES = [</span><br><span class="line">        (<span class="string">&quot;draft&quot;</span>, <span class="string">&quot;草稿&quot;</span>),</span><br><span class="line">        (<span class="string">&quot;published&quot;</span>, <span class="string">&quot;已发布&quot;</span>),</span><br><span class="line">        (<span class="string">&quot;archived&quot;</span>, <span class="string">&quot;已归档&quot;</span>),</span><br><span class="line">    ]</span><br><span class="line">    status = models.CharField(</span><br><span class="line">        max_length=<span class="number">20</span>,</span><br><span class="line">        choices=STATUS_CHOICES,</span><br><span class="line">        default=<span class="string">&quot;draft&quot;</span>,</span><br><span class="line">    )</span><br><span class="line"></span><br><span class="line"><span class="comment"># 获取显示值</span></span><br><span class="line"><span class="comment"># book.get_status_display() → &quot;已发布&quot;</span></span><br></pre></td></tr></table></figure>
+
+<h5 id="4，表关系详解"><a href="#4，表关系详解" class="headerlink" title="4，表关系详解"></a>4，表关系详解</h5><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># ============ ForeignKey（一对多）============</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">Book</span>(models.Model):</span><br><span class="line">    publish = models.ForeignKey(</span><br><span class="line">        to=<span class="string">&quot;Publish&quot;</span>,                       <span class="comment"># 关联模型（可用 &quot;app.Model&quot; 或 Model 类）</span></span><br><span class="line">        on_delete=models.CASCADE,           <span class="comment"># 删除策略（必填）</span></span><br><span class="line">        related_name=<span class="string">&quot;books&quot;</span>,               <span class="comment"># 反向查询名 publish.books.all()</span></span><br><span class="line">        related_query_name=<span class="string">&quot;book&quot;</span>,          <span class="comment"># 反向过滤名 Publish.objects.filter(book__name=...)</span></span><br><span class="line">        db_constraint=<span class="literal">True</span>,                 <span class="comment"># 是否创建数据库外键约束</span></span><br><span class="line">        null=<span class="literal">True</span>,                          <span class="comment"># 数据库允许 NULL</span></span><br><span class="line">        blank=<span class="literal">True</span>,                         <span class="comment"># 表单允许空</span></span><br><span class="line">        db_column=<span class="string">&quot;publish_fk&quot;</span>,            <span class="comment"># 自定义列名</span></span><br><span class="line">        limit_choices_to=&#123;<span class="string">&quot;is_active&quot;</span>: <span class="literal">True</span>&#125;, <span class="comment"># Admin 下拉选项过滤</span></span><br><span class="line">        to_field=<span class="string">&quot;id&quot;</span>,                      <span class="comment"># 关联到目标模型的哪个字段</span></span><br><span class="line">    )</span><br><span class="line"></span><br><span class="line"><span class="comment"># on_delete 选项：</span></span><br><span class="line"><span class="comment"># CASCADE      级联删除 —— 删除作者时，该作者的所有书也被删除</span></span><br><span class="line"><span class="comment"># PROTECT      阻止删除 —— 如果书存在则抛 ProtectedError</span></span><br><span class="line"><span class="comment"># RESTRICT     阻止删除（Django 3.1+，CASCADE 存在时级联不阻止）</span></span><br><span class="line"><span class="comment"># SET_NULL     设为 NULL —— 需配合 null=True</span></span><br><span class="line"><span class="comment"># SET_DEFAULT  设为默认值 —— 需设置 default</span></span><br><span class="line"><span class="comment"># SET(value)   设为指定值</span></span><br><span class="line"><span class="comment"># DO_NOTHING   什么都不做，由数据库约束决定</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 正向查询（从 Book 到 Publish）</span></span><br><span class="line">book = Book.objects.first()</span><br><span class="line">publish = book.publish                    <span class="comment"># 返回 Publish 对象</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 反向查询（从 Publish 到 Book）</span></span><br><span class="line">publish = Publish.objects.first()</span><br><span class="line">books = publish.book_set.<span class="built_in">all</span>()            <span class="comment"># 默认：&lt;小写模型名&gt;_set</span></span><br><span class="line">books = publish.books.<span class="built_in">all</span>()               <span class="comment"># 如果设置了 related_name=&quot;books&quot;</span></span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="comment"># ============ OneToOneField（一对一）============</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">AuthorDetail</span>(models.Model):</span><br><span class="line">    author = models.OneToOneField(</span><br><span class="line">        to=<span class="string">&quot;Author&quot;</span>,</span><br><span class="line">        on_delete=models.CASCADE,</span><br><span class="line">        related_name=<span class="string">&quot;detail&quot;</span>,            <span class="comment"># author.detail 反向访问</span></span><br><span class="line">    )</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="comment"># ============ ManyToManyField（多对多）============</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">Book</span>(models.Model):</span><br><span class="line">    authors = models.ManyToManyField(</span><br><span class="line">        to=<span class="string">&quot;Author&quot;</span>,</span><br><span class="line">        related_name=<span class="string">&quot;books&quot;</span>,             <span class="comment"># author.books.all()</span></span><br><span class="line">        through=<span class="string">&quot;BookAuthor&quot;</span>,            <span class="comment"># 使用自定义中间表</span></span><br><span class="line">        <span class="comment"># through_fields=(&quot;book&quot;, &quot;author&quot;),  # 指定中间表中哪个是外键</span></span><br><span class="line">        symmetrical=<span class="literal">True</span>,                 <span class="comment"># 自关联时是否对称（如 User ↔ User）</span></span><br><span class="line">    )</span><br><span class="line"></span><br><span class="line"><span class="comment"># 自定义中间表（需要额外字段时）</span></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">BookAuthor</span>(models.Model):</span><br><span class="line">    book = models.ForeignKey(Book, on_delete=models.CASCADE)</span><br><span class="line">    author = models.ForeignKey(Author, on_delete=models.CASCADE)</span><br><span class="line">    role = models.CharField(max_length=<span class="number">50</span>)         <span class="comment"># 额外字段：合著角色</span></span><br><span class="line">    date_joined = models.DateField()               <span class="comment"># 额外字段：加入日期</span></span><br></pre></td></tr></table></figure>
+
+<h5 id="5，Meta-类选项"><a href="#5，Meta-类选项" class="headerlink" title="5，Meta 类选项"></a>5，Meta 类选项</h5><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> django.db <span class="keyword">import</span> models</span><br><span class="line"></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">Book</span>(models.Model):</span><br><span class="line">    name = models.CharField(max_length=<span class="number">16</span>)</span><br><span class="line">    price = models.DecimalField(max_digits=<span class="number">6</span>, decimal_places=<span class="number">2</span>)</span><br><span class="line">    status = models.CharField(max_length=<span class="number">10</span>, default=<span class="string">&quot;draft&quot;</span>)</span><br><span class="line"></span><br><span class="line">    <span class="keyword">class</span> <span class="title class_">Meta</span>:</span><br><span class="line">        <span class="comment"># 数据库表名</span></span><br><span class="line">        db_table = <span class="string">&quot;library_book&quot;</span></span><br><span class="line"></span><br><span class="line">        <span class="comment"># 联合索引</span></span><br><span class="line">        indexes = [</span><br><span class="line">            models.Index(fields=[<span class="string">&quot;name&quot;</span>]),</span><br><span class="line">            models.Index(fields=[<span class="string">&quot;status&quot;</span>, <span class="string">&quot;-price&quot;</span>], name=<span class="string">&quot;status_price_idx&quot;</span>),</span><br><span class="line">        ]</span><br><span class="line"></span><br><span class="line">        <span class="comment"># 联合唯一约束</span></span><br><span class="line">        unique_together = [[<span class="string">&quot;name&quot;</span>, <span class="string">&quot;publish&quot;</span>]]</span><br><span class="line">        <span class="comment"># 或新写法（Django 4.2+）</span></span><br><span class="line">        <span class="comment"># constraints = [</span></span><br><span class="line">        <span class="comment">#     models.UniqueConstraint(fields=[&quot;name&quot;, &quot;publish&quot;], name=&quot;unique_name_publish&quot;),</span></span><br><span class="line">        <span class="comment"># ]</span></span><br><span class="line"></span><br><span class="line">        <span class="comment"># 约束</span></span><br><span class="line">        constraints = [</span><br><span class="line">            models.CheckConstraint(</span><br><span class="line">                check=models.Q(price__gte=<span class="number">0</span>),</span><br><span class="line">                name=<span class="string">&quot;price_non_negative&quot;</span>,</span><br><span class="line">            ),</span><br><span class="line">        ]</span><br><span class="line"></span><br><span class="line">        <span class="comment"># 排序（影响所有查询）</span></span><br><span class="line">        ordering = [<span class="string">&quot;-price&quot;</span>, <span class="string">&quot;name&quot;</span>]          <span class="comment"># 先按价格倒序，再按名称正序</span></span><br><span class="line">        <span class="comment"># ordering = [&quot;?&quot;]                     # 随机排序（谨慎使用）</span></span><br><span class="line"></span><br><span class="line">        <span class="comment"># 后台显示名称</span></span><br><span class="line">        verbose_name = <span class="string">&quot;图书&quot;</span></span><br><span class="line">        verbose_name_plural = <span class="string">&quot;图书列表&quot;</span></span><br><span class="line"></span><br><span class="line">        <span class="comment"># 抽象基类</span></span><br><span class="line">        <span class="comment"># abstract = True</span></span><br><span class="line"></span><br><span class="line">        <span class="comment"># 代理模型</span></span><br><span class="line">        <span class="comment"># proxy = True</span></span><br><span class="line"></span><br><span class="line">        <span class="comment"># 默认权限</span></span><br><span class="line">        <span class="comment"># default_permissions = (&quot;add&quot;, &quot;change&quot;, &quot;delete&quot;, &quot;view&quot;)</span></span><br><span class="line"></span><br><span class="line">        <span class="comment"># 自定义权限</span></span><br><span class="line">        permissions = [</span><br><span class="line">            (<span class="string">&quot;can_publish&quot;</span>, <span class="string">&quot;可以发布图书&quot;</span>),</span><br><span class="line">            (<span class="string">&quot;can_export&quot;</span>, <span class="string">&quot;可以导出图书&quot;</span>),</span><br><span class="line">        ]</span><br></pre></td></tr></table></figure>
+
+<h5 id="6，增删改查（CRUD）"><a href="#6，增删改查（CRUD）" class="headerlink" title="6，增删改查（CRUD）"></a>6，增删改查（CRUD）</h5><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># ============ 创建 Create ============</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 方式一：save()</span></span><br><span class="line">book = Book(name=<span class="string">&quot;高等数学&quot;</span>, price=<span class="number">80</span>, publish_id=<span class="number">1</span>)</span><br><span class="line">book.save()</span><br><span class="line"></span><br><span class="line"><span class="comment"># 方式二：create()</span></span><br><span class="line">book = Book.objects.create(name=<span class="string">&quot;线性代数&quot;</span>, price=<span class="number">60</span>, publish_id=<span class="number">1</span>)</span><br><span class="line"></span><br><span class="line"><span class="comment"># 方式三：get_or_create</span></span><br><span class="line">book, created = Book.objects.get_or_create(</span><br><span class="line">    name=<span class="string">&quot;高等数学&quot;</span>,</span><br><span class="line">    defaults=&#123;<span class="string">&quot;price&quot;</span>: <span class="number">80</span>, <span class="string">&quot;publish_id&quot;</span>: <span class="number">1</span>&#125;,</span><br><span class="line">)</span><br><span class="line"><span class="comment"># created=True 表示新建，created=False 表示已存在</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 方式四：update_or_create</span></span><br><span class="line">book, created = Book.objects.update_or_create(</span><br><span class="line">    name=<span class="string">&quot;高等数学&quot;</span>,</span><br><span class="line">    defaults=&#123;<span class="string">&quot;price&quot;</span>: <span class="number">90</span>&#125;,       <span class="comment"># 存在则更新 price</span></span><br><span class="line">)</span><br><span class="line"></span><br><span class="line"><span class="comment"># 方式五：bulk_create（批量创建，不触发 save 信号）</span></span><br><span class="line">Book.objects.bulk_create([</span><br><span class="line">    Book(name=<span class="string">f&quot;图书<span class="subst">&#123;i&#125;</span>&quot;</span>, price=i * <span class="number">10</span>) <span class="keyword">for</span> i <span class="keyword">in</span> <span class="built_in">range</span>(<span class="number">1000</span>)</span><br><span class="line">])</span><br><span class="line"><span class="comment"># 指定批量大小，配合 SQLite 等有限制的数据库</span></span><br><span class="line">Book.objects.bulk_create(books, batch_size=<span class="number">500</span>)</span><br><span class="line"></span><br><span class="line"><span class="comment"># 创建关联对象</span></span><br><span class="line">publish = Publish.objects.create(name=<span class="string">&quot;工业出版社&quot;</span>, addr=<span class="string">&quot;北京市&quot;</span>)</span><br><span class="line">book = Book.objects.create(name=<span class="string">&quot;算法导论&quot;</span>, price=<span class="number">120</span>, publish=publish)</span><br><span class="line"></span><br><span class="line"><span class="comment"># ============ 查询 Read ============</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># —— 基础查询 ——</span></span><br><span class="line"></span><br><span class="line">Book.objects.<span class="built_in">all</span>()                              <span class="comment"># 获取所有 QuerySet</span></span><br><span class="line">Book.objects.<span class="built_in">filter</span>(price__gt=<span class="number">50</span>)               <span class="comment"># 过滤</span></span><br><span class="line">Book.objects.exclude(status=<span class="string">&quot;archived&quot;</span>)         <span class="comment"># 排除</span></span><br><span class="line">Book.objects.get(pk=<span class="number">1</span>)                          <span class="comment"># 获取单条（不存在或多条则报错）</span></span><br><span class="line">Book.objects.first()                            <span class="comment"># 第一条</span></span><br><span class="line">Book.objects.last()                             <span class="comment"># 最后一条</span></span><br><span class="line">Book.objects.earliest(<span class="string">&quot;pub_date&quot;</span>)               <span class="comment"># 按字段最早</span></span><br><span class="line">Book.objects.latest(<span class="string">&quot;pub_date&quot;</span>)                 <span class="comment"># 按字段最晚</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># —— 字段查找操作符 ——</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 精确</span></span><br><span class="line">Book.objects.<span class="built_in">filter</span>(id__exact=<span class="number">1</span>)                <span class="comment"># 同 id=1</span></span><br><span class="line">Book.objects.<span class="built_in">filter</span>(id__in=[<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>])           <span class="comment"># IN</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 比较</span></span><br><span class="line">Book.objects.<span class="built_in">filter</span>(price__gt=<span class="number">50</span>)               <span class="comment"># 大于</span></span><br><span class="line">Book.objects.<span class="built_in">filter</span>(price__gte=<span class="number">50</span>)              <span class="comment"># 大于等于</span></span><br><span class="line">Book.objects.<span class="built_in">filter</span>(price__lt=<span class="number">50</span>)               <span class="comment"># 小于</span></span><br><span class="line">Book.objects.<span class="built_in">filter</span>(price__lte=<span class="number">50</span>)              <span class="comment"># 小于等于</span></span><br><span class="line">Book.objects.<span class="built_in">filter</span>(price__range=(<span class="number">30</span>, <span class="number">80</span>))      <span class="comment"># 范围（含边界）</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 字符串</span></span><br><span class="line">Book.objects.<span class="built_in">filter</span>(name__contains=<span class="string">&quot;数学&quot;</span>)       <span class="comment"># LIKE &#x27;%数学%&#x27;（区分大小写）</span></span><br><span class="line">Book.objects.<span class="built_in">filter</span>(name__icontains=<span class="string">&quot;数学&quot;</span>)      <span class="comment"># ILIKE &#x27;%数学%&#x27;（不区分大小写）</span></span><br><span class="line">Book.objects.<span class="built_in">filter</span>(name__startswith=<span class="string">&quot;高等&quot;</span>)     <span class="comment"># 以...开头</span></span><br><span class="line">Book.objects.<span class="built_in">filter</span>(name__istartswith=<span class="string">&quot;高等&quot;</span>)    <span class="comment"># 以...开头（不区分大小写）</span></span><br><span class="line">Book.objects.<span class="built_in">filter</span>(name__endswith=<span class="string">&quot;导论&quot;</span>)       <span class="comment"># 以...结尾</span></span><br><span class="line">Book.objects.<span class="built_in">filter</span>(name__iendswith=<span class="string">&quot;导论&quot;</span>)      <span class="comment"># 以...结尾（不区分大小写）</span></span><br><span class="line">Book.objects.<span class="built_in">filter</span>(name__regex=<span class="string">r&quot;^[A-Z]&quot;</span>)       <span class="comment"># 正则</span></span><br><span class="line">Book.objects.<span class="built_in">filter</span>(name__iregex=<span class="string">r&quot;^[a-z]&quot;</span>)      <span class="comment"># 正则（不区分大小写）</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 日期时间</span></span><br><span class="line">Book.objects.<span class="built_in">filter</span>(pub_date__year=<span class="number">2023</span>)</span><br><span class="line">Book.objects.<span class="built_in">filter</span>(pub_date__month=<span class="number">6</span>)</span><br><span class="line">Book.objects.<span class="built_in">filter</span>(pub_date__day=<span class="number">15</span>)</span><br><span class="line">Book.objects.<span class="built_in">filter</span>(pub_date__week_day=<span class="number">1</span>)         <span class="comment"># 星期几（1=周日）</span></span><br><span class="line">Book.objects.<span class="built_in">filter</span>(pub_date__date=datetime.date(<span class="number">2023</span>, <span class="number">6</span>, <span class="number">15</span>))</span><br><span class="line"></span><br><span class="line"><span class="comment"># 空值</span></span><br><span class="line">Book.objects.<span class="built_in">filter</span>(publish__isnull=<span class="literal">True</span>)        <span class="comment"># 无出版社的书</span></span><br><span class="line">Book.objects.<span class="built_in">filter</span>(publish__isnull=<span class="literal">False</span>)       <span class="comment"># 有出版社的书</span></span><br></pre></td></tr></table></figure>
+
+<h5 id="7，一对多、多对多关联操作"><a href="#7，一对多、多对多关联操作" class="headerlink" title="7，一对多、多对多关联操作"></a>7，一对多、多对多关联操作</h5><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># ============ 一对多插入 ============</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 方式一：通过外键字段名 _id</span></span><br><span class="line">book = Book.objects.create(name=<span class="string">&quot;高等数学&quot;</span>, price=<span class="number">80</span>, publish_id=<span class="number">1</span>)</span><br><span class="line"></span><br><span class="line"><span class="comment"># 方式二：通过关联对象</span></span><br><span class="line">publish = Publish.objects.get(<span class="built_in">id</span>=<span class="number">1</span>)</span><br><span class="line">book = Book.objects.create(name=<span class="string">&quot;高等数学&quot;</span>, price=<span class="number">80</span>, publish=publish)</span><br><span class="line"></span><br><span class="line"><span class="comment"># ============ 多对多插入 ============</span></span><br><span class="line"></span><br><span class="line">book = Book.objects.create(name=<span class="string">&quot;Python实战&quot;</span>, price=<span class="number">99</span>, publish_id=<span class="number">1</span>)</span><br><span class="line"></span><br><span class="line"><span class="comment"># add —— 添加关联</span></span><br><span class="line">book.authors.add(<span class="number">1</span>)                              <span class="comment"># 通过主键</span></span><br><span class="line">book.authors.add(<span class="number">1</span>, <span class="number">2</span>)                           <span class="comment"># 多个主键</span></span><br><span class="line">book.authors.add(*[<span class="number">1</span>, <span class="number">2</span>])                        <span class="comment"># 解包列表</span></span><br><span class="line">authors = Author.objects.<span class="built_in">filter</span>(name__in=[<span class="string">&quot;tom&quot;</span>, <span class="string">&quot;mike&quot;</span>])</span><br><span class="line">book.authors.add(*authors)                       <span class="comment"># 通过 QuerySet</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 通过中间表额外字段插入</span></span><br><span class="line"><span class="comment"># BookAuthor.objects.create(book=book, author=author, role=&quot;主编&quot;)</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># remove —— 移除关联</span></span><br><span class="line">book.authors.remove(<span class="number">1</span>)</span><br><span class="line">book.authors.remove(Author.objects.get(<span class="built_in">id</span>=<span class="number">3</span>))</span><br><span class="line">book.authors.remove(<span class="number">1</span>, <span class="number">2</span>)</span><br><span class="line">book.authors.remove(*Author.objects.<span class="built_in">filter</span>(age__lt=<span class="number">20</span>))</span><br><span class="line"></span><br><span class="line"><span class="comment"># clear —— 清空所有关联</span></span><br><span class="line">book.authors.clear()</span><br><span class="line"></span><br><span class="line"><span class="comment"># set —— 替换关联（先清空再设置）</span></span><br><span class="line">book.authors.<span class="built_in">set</span>([<span class="number">1</span>, <span class="number">2</span>])</span><br><span class="line">book.authors.<span class="built_in">set</span>(Author.objects.<span class="built_in">filter</span>(age__gte=<span class="number">18</span>))</span><br><span class="line"></span><br><span class="line"><span class="comment"># 获取关联对象</span></span><br><span class="line">book.authors.<span class="built_in">all</span>()                               <span class="comment"># 书本的所有作者</span></span><br><span class="line">author.books.<span class="built_in">all</span>()                               <span class="comment"># 作者的所有书（需设置 related_name）</span></span><br></pre></td></tr></table></figure>
+
+<h5 id="8，查询操作"><a href="#8，查询操作" class="headerlink" title="8，查询操作"></a>8，查询操作</h5><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># ============ 跨表查询 ============</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 正向查询（通过 FK 字段）</span></span><br><span class="line">book = Book.objects.get(<span class="built_in">id</span>=<span class="number">1</span>)</span><br><span class="line">book.publish                                      <span class="comment"># Publish 对象（一条 SQL）</span></span><br><span class="line">book.authors.<span class="built_in">all</span>()                                <span class="comment"># Author QuerySet</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 反向查询</span></span><br><span class="line">publish = Publish.objects.get(<span class="built_in">id</span>=<span class="number">1</span>)</span><br><span class="line">publish.book_set.<span class="built_in">all</span>()                            <span class="comment"># 默认：模型名小写_set</span></span><br><span class="line">author = Author.objects.get(<span class="built_in">id</span>=<span class="number">1</span>)</span><br><span class="line">author.book_set.<span class="built_in">all</span>()</span><br><span class="line"></span><br><span class="line"><span class="comment"># ============ 双下划线跨表查询（基于 JOIN）============</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 正向：按关系字段名 __</span></span><br><span class="line">Book.objects.values(<span class="string">&quot;publish__name&quot;</span>, <span class="string">&quot;name&quot;</span>, <span class="string">&quot;price&quot;</span>, <span class="string">&quot;authors__name&quot;</span>)</span><br><span class="line"><span class="comment"># SELECT publish.name, book.name, book.price, author.name</span></span><br><span class="line"><span class="comment"># FROM book</span></span><br><span class="line"><span class="comment"># JOIN publish ON book.publish_id = publish.id</span></span><br><span class="line"><span class="comment"># JOIN book_authors ON book.id = book_authors.book_id</span></span><br><span class="line"><span class="comment"># JOIN author ON book_authors.author_id = author.id</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 反向：按模型名小写 __（或 related_name）</span></span><br><span class="line">Publish.objects.<span class="built_in">filter</span>(book__name__icontains=<span class="string">&quot;高等&quot;</span>)</span><br><span class="line">Publish.objects.<span class="built_in">filter</span>(book__price__gt=<span class="number">50</span>)</span><br><span class="line"></span><br><span class="line"><span class="comment"># 多级跨表</span></span><br><span class="line">Author.objects.<span class="built_in">filter</span>(book__publish__name=<span class="string">&quot;工业出版社&quot;</span>)</span><br><span class="line"></span><br><span class="line"><span class="comment"># 组合查询</span></span><br><span class="line">Book.objects.<span class="built_in">filter</span>(</span><br><span class="line">    Q(publish__name__icontains=<span class="string">&quot;工业&quot;</span>) | Q(authors__name=<span class="string">&quot;mike&quot;</span>)</span><br><span class="line">).values(<span class="string">&quot;publish__name&quot;</span>, <span class="string">&quot;name&quot;</span>, <span class="string">&quot;price&quot;</span>, <span class="string">&quot;authors__name&quot;</span>)</span><br><span class="line"></span><br><span class="line"><span class="comment"># 反向跨表查询示例</span></span><br><span class="line">Publish.objects.<span class="built_in">filter</span>(book__name__icontains=<span class="string">&quot;简史&quot;</span>).values(<span class="string">&quot;name&quot;</span>, <span class="string">&quot;book__name&quot;</span>, <span class="string">&quot;addr&quot;</span>)</span><br><span class="line">Author.objects.<span class="built_in">filter</span>(book__name__icontains=<span class="string">&quot;简史&quot;</span>).values(</span><br><span class="line">    <span class="string">&quot;name&quot;</span>, <span class="string">&quot;book__name&quot;</span>, <span class="string">&quot;book__price&quot;</span>, <span class="string">&quot;book__publish__name&quot;</span></span><br><span class="line">)</span><br><span class="line"></span><br><span class="line"><span class="comment"># ============ 关联查询的额外过滤 ============</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 获取有书的作者（书数量 &gt; 0）</span></span><br><span class="line">Author.objects.<span class="built_in">filter</span>(book__isnull=<span class="literal">False</span>).distinct()</span><br><span class="line"></span><br><span class="line"><span class="comment"># 获取价格大于 50 的书的所有作者</span></span><br><span class="line">Author.objects.<span class="built_in">filter</span>(book__price__gt=<span class="number">50</span>).distinct()</span><br><span class="line"></span><br><span class="line"><span class="comment"># 获取写了大于等于 2 本书的作者</span></span><br><span class="line"><span class="keyword">from</span> django.db.models <span class="keyword">import</span> Count</span><br><span class="line">Author.objects.annotate(book_count=Count(<span class="string">&quot;book&quot;</span>)).<span class="built_in">filter</span>(book_count__gte=<span class="number">2</span>)</span><br></pre></td></tr></table></figure>
+
+<h5 id="9，排序与切片"><a href="#9，排序与切片" class="headerlink" title="9，排序与切片"></a>9，排序与切片</h5><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 排序</span></span><br><span class="line">Book.objects.order_by(<span class="string">&quot;price&quot;</span>)                   <span class="comment"># 按价格升序</span></span><br><span class="line">Book.objects.order_by(<span class="string">&quot;-price&quot;</span>)                  <span class="comment"># 按价格降序</span></span><br><span class="line">Book.objects.order_by(<span class="string">&quot;publish__name&quot;</span>, <span class="string">&quot;-price&quot;</span>) <span class="comment"># 多字段排序</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 随机排序</span></span><br><span class="line">Book.objects.order_by(<span class="string">&quot;?&quot;</span>)                       <span class="comment"># 性能差，慎用</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 切片（等价于 LIMIT / OFFSET）</span></span><br><span class="line">Book.objects.<span class="built_in">all</span>()[:<span class="number">10</span>]                          <span class="comment"># LIMIT 10</span></span><br><span class="line">Book.objects.<span class="built_in">all</span>()[<span class="number">10</span>:<span class="number">20</span>]                        <span class="comment"># OFFSET 10 LIMIT 10</span></span><br><span class="line">Book.objects.order_by(<span class="string">&quot;-price&quot;</span>)[:<span class="number">5</span>]              <span class="comment"># 最贵的 5 本书</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 不支持负索引</span></span><br><span class="line"><span class="comment"># Book.objects.all()[-5:]   ← 报错！</span></span><br></pre></td></tr></table></figure>
+
+<h5 id="10，values-values-list"><a href="#10，values-values-list" class="headerlink" title="10，values / values_list"></a>10，values / values_list</h5><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># values —— 返回字典列表（不创建模型实例，性能更好）</span></span><br><span class="line">Book.objects.values(<span class="string">&quot;id&quot;</span>, <span class="string">&quot;name&quot;</span>)                 <span class="comment"># [&#123;id: 1, name: &quot;x&quot;&#125;, ...]</span></span><br><span class="line">Book.objects.values(<span class="string">&quot;publish__name&quot;</span>, <span class="string">&quot;name&quot;</span>)      <span class="comment"># 跨表取值</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># values_list —— 返回元组列表</span></span><br><span class="line">Book.objects.values_list(<span class="string">&quot;id&quot;</span>, <span class="string">&quot;name&quot;</span>)            <span class="comment"># [(1, &quot;x&quot;), ...]</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># flat=True —— 单字段时返回扁平列表</span></span><br><span class="line">Book.objects.values_list(<span class="string">&quot;name&quot;</span>, flat=<span class="literal">True</span>)        <span class="comment"># [&quot;x&quot;, &quot;y&quot;, &quot;z&quot;]</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># named=True —— 返回命名元组</span></span><br><span class="line">books = Book.objects.values_list(<span class="string">&quot;id&quot;</span>, <span class="string">&quot;name&quot;</span>, named=<span class="literal">True</span>)</span><br><span class="line"><span class="comment"># books[0].id, books[0].name</span></span><br></pre></td></tr></table></figure>
+
+<h5 id="11，聚合与分组"><a href="#11，聚合与分组" class="headerlink" title="11，聚合与分组"></a>11，聚合与分组</h5><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> django.db.models <span class="keyword">import</span> Avg, Max, Min, Sum, Count, StdDev, Variance</span><br><span class="line"></span><br><span class="line"><span class="comment"># ============ 聚合（aggregate）============</span></span><br><span class="line"><span class="comment"># 汇总整表，返回字典</span></span><br><span class="line"></span><br><span class="line">Book.objects.aggregate(Avg(<span class="string">&quot;price&quot;</span>))              <span class="comment"># 平均价格</span></span><br><span class="line">Book.objects.aggregate(Max(<span class="string">&quot;price&quot;</span>))              <span class="comment"># 最高价格</span></span><br><span class="line">Book.objects.aggregate(Min(<span class="string">&quot;price&quot;</span>))              <span class="comment"># 最低价格</span></span><br><span class="line">Book.objects.aggregate(Sum(<span class="string">&quot;price&quot;</span>))              <span class="comment"># 价格总和</span></span><br><span class="line">Book.objects.aggregate(Count(<span class="string">&quot;id&quot;</span>))               <span class="comment"># 总数</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 多个聚合一次查询</span></span><br><span class="line">result = Book.objects.aggregate(</span><br><span class="line">    price_avg=Avg(<span class="string">&quot;price&quot;</span>),</span><br><span class="line">    price_max=Max(<span class="string">&quot;price&quot;</span>),</span><br><span class="line">    price_min=Min(<span class="string">&quot;price&quot;</span>),</span><br><span class="line">    total=Count(<span class="string">&quot;id&quot;</span>),</span><br><span class="line">)</span><br><span class="line"><span class="comment"># &#123;&quot;price_avg&quot;: 75.5, &quot;price_max&quot;: 120, &quot;price_min&quot;: 20, &quot;total&quot;: 10&#125;</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 条件聚合</span></span><br><span class="line"><span class="keyword">from</span> django.db.models <span class="keyword">import</span> Q</span><br><span class="line">Book.objects.aggregate(</span><br><span class="line">    expensive_count=Count(<span class="string">&quot;id&quot;</span>, <span class="built_in">filter</span>=Q(price__gt=<span class="number">100</span>)),</span><br><span class="line">    cheap_count=Count(<span class="string">&quot;id&quot;</span>, <span class="built_in">filter</span>=Q(price__lte=<span class="number">50</span>)),</span><br><span class="line">)</span><br><span class="line"></span><br><span class="line"><span class="comment"># ============ 分组（annotate）============</span></span><br><span class="line"><span class="comment"># 为每条记录（或每分组）添加计算字段</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 按出版社分组统计图书数量和均价</span></span><br><span class="line">Publish.objects.values(<span class="string">&quot;name&quot;</span>).annotate(</span><br><span class="line">    book_count=Count(<span class="string">&quot;book&quot;</span>),</span><br><span class="line">    avg_price=Avg(<span class="string">&quot;book__price&quot;</span>),</span><br><span class="line">    max_price=Max(<span class="string">&quot;book__price&quot;</span>),</span><br><span class="line">)</span><br><span class="line"></span><br><span class="line"><span class="comment"># annotate 前的 values 指定分组字段</span></span><br><span class="line">Book.objects.values(<span class="string">&quot;publish_id&quot;</span>).annotate(</span><br><span class="line">    price_sum=Sum(<span class="string">&quot;price&quot;</span>)</span><br><span class="line">).values(<span class="string">&quot;publish__name&quot;</span>, <span class="string">&quot;price_sum&quot;</span>)</span><br><span class="line"></span><br><span class="line"><span class="comment"># 按多个字段分组</span></span><br><span class="line">Book.objects.values(<span class="string">&quot;publish_id&quot;</span>, <span class="string">&quot;status&quot;</span>).annotate(</span><br><span class="line">    count=Count(<span class="string">&quot;id&quot;</span>),</span><br><span class="line">    avg_price=Avg(<span class="string">&quot;price&quot;</span>),</span><br><span class="line">)</span><br><span class="line"></span><br><span class="line"><span class="comment"># annotate 不配合 values（分组默认按 model 的主键）</span></span><br><span class="line">Book.objects.annotate(author_count=Count(<span class="string">&quot;authors&quot;</span>))</span><br><span class="line"><span class="comment"># 每本书的作者数量</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># HAVING 过滤（对分组结果过滤）</span></span><br><span class="line">Book.objects.values(<span class="string">&quot;publish&quot;</span>).annotate(</span><br><span class="line">    book_count=Count(<span class="string">&quot;id&quot;</span>)</span><br><span class="line">).<span class="built_in">filter</span>(book_count__gte=<span class="number">3</span>)                     <span class="comment"># 出书 3 本以上的出版社</span></span><br></pre></td></tr></table></figure>
+
+<h5 id="12，F-查询"><a href="#12，F-查询" class="headerlink" title="12，F 查询"></a>12，F 查询</h5><p><code>F()</code> 表达式允许在查询中引用模型字段的值，避免了将数据读到 Python 层面的开销。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> django.db.models <span class="keyword">import</span> F</span><br><span class="line"></span><br><span class="line"><span class="comment"># 比较两个字段</span></span><br><span class="line">Book.objects.<span class="built_in">filter</span>(price__gt=F(<span class="string">&quot;id&quot;</span>))           <span class="comment"># 价格大于 ID</span></span><br><span class="line">Book.objects.<span class="built_in">filter</span>(price__gt=F(<span class="string">&quot;price&quot;</span>) * <span class="number">0.8</span>)  <span class="comment"># 未打 8 折的</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 字段运算更新（原子操作，避免竞态条件）</span></span><br><span class="line">Book.objects.update(price=F(<span class="string">&quot;price&quot;</span>) + <span class="number">5</span>)        <span class="comment"># 所有书涨价 5 元</span></span><br><span class="line">Book.objects.<span class="built_in">filter</span>(status=<span class="string">&quot;published&quot;</span>).update(price=F(<span class="string">&quot;price&quot;</span>) * <span class="number">1.1</span>)  <span class="comment"># 涨价 10%</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># F 作用于关联字段</span></span><br><span class="line">Book.objects.annotate(</span><br><span class="line">    publisher_name=F(<span class="string">&quot;publish__name&quot;</span>)             <span class="comment"># 引用关联字段</span></span><br><span class="line">)</span><br><span class="line"></span><br><span class="line"><span class="comment"># F 表达式条件更新</span></span><br><span class="line"><span class="keyword">from</span> django.db.models <span class="keyword">import</span> Case, When</span><br><span class="line">Book.objects.update(</span><br><span class="line">    price=Case(</span><br><span class="line">        When(price__lt=<span class="number">50</span>, then=F(<span class="string">&quot;price&quot;</span>) + <span class="number">10</span>),</span><br><span class="line">        When(price__gt=<span class="number">100</span>, then=F(<span class="string">&quot;price&quot;</span>) - <span class="number">10</span>),</span><br><span class="line">        default=F(<span class="string">&quot;price&quot;</span>),</span><br><span class="line">    )</span><br><span class="line">)</span><br><span class="line"></span><br><span class="line"><span class="comment"># 跨字段更新</span></span><br><span class="line">Book.objects.update(price=F(<span class="string">&quot;id&quot;</span>) * <span class="number">10</span>)</span><br></pre></td></tr></table></figure>
+
+<h5 id="13，Q-查询"><a href="#13，Q-查询" class="headerlink" title="13，Q 查询"></a>13，Q 查询</h5><p><code>Q()</code> 对象用于构建复杂查询条件（OR、NOT、嵌套）。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> django.db.models <span class="keyword">import</span> Q</span><br><span class="line"></span><br><span class="line"><span class="comment"># OR 查询</span></span><br><span class="line">Book.objects.<span class="built_in">filter</span>(Q(name__icontains=<span class="string">&quot;Python&quot;</span>) | Q(name__icontains=<span class="string">&quot;Django&quot;</span>))</span><br><span class="line"></span><br><span class="line"><span class="comment"># AND 查询</span></span><br><span class="line">Book.objects.<span class="built_in">filter</span>(Q(price__gt=<span class="number">50</span>) &amp; Q(status=<span class="string">&quot;published&quot;</span>))</span><br><span class="line"></span><br><span class="line"><span class="comment"># NOT 查询</span></span><br><span class="line">Book.objects.<span class="built_in">filter</span>(~Q(status=<span class="string">&quot;archived&quot;</span>))        <span class="comment"># 排除已归档</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 组合</span></span><br><span class="line">Book.objects.<span class="built_in">filter</span>(</span><br><span class="line">    (Q(name__icontains=<span class="string">&quot;Python&quot;</span>) | Q(name__icontains=<span class="string">&quot;Django&quot;</span>))</span><br><span class="line">    &amp; Q(price__gt=<span class="number">50</span>)</span><br><span class="line">    &amp; ~Q(status=<span class="string">&quot;archived&quot;</span>)</span><br><span class="line">)</span><br><span class="line"></span><br><span class="line"><span class="comment"># 动态构建 Q 对象</span></span><br><span class="line">q = Q()</span><br><span class="line">q.connector = <span class="string">&quot;or&quot;</span>                                <span class="comment"># 连接方式：AND（默认）/ OR</span></span><br><span class="line">q.children.append((<span class="string">&quot;id__lt&quot;</span>, <span class="number">3</span>))</span><br><span class="line">q.children.append((<span class="string">&quot;price__gt&quot;</span>, <span class="number">100</span>))</span><br><span class="line">Book.objects.<span class="built_in">filter</span>(q)</span><br><span class="line"><span class="comment"># 等价于 Book.objects.filter(Q(id__lt=3) | Q(price__gt=100))</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 用 reduce 动态组合</span></span><br><span class="line"><span class="keyword">import</span> operator</span><br><span class="line"><span class="keyword">from</span> functools <span class="keyword">import</span> reduce</span><br><span class="line"></span><br><span class="line">conditions = [</span><br><span class="line">    Q(name__icontains=<span class="string">&quot;Python&quot;</span>),</span><br><span class="line">    Q(price__gt=<span class="number">50</span>),</span><br><span class="line">    Q(status=<span class="string">&quot;published&quot;</span>),</span><br><span class="line">]</span><br><span class="line">combined = reduce(operator.and_, conditions)       <span class="comment"># 全部 AND</span></span><br><span class="line">combined = reduce(operator.or_, conditions)        <span class="comment"># 全部 OR</span></span><br><span class="line">Book.objects.<span class="built_in">filter</span>(combined)</span><br></pre></td></tr></table></figure>
+
+<h5 id="14，select-related-与-prefetch-related"><a href="#14，select-related-与-prefetch-related" class="headerlink" title="14，select_related 与 prefetch_related"></a>14，select_related 与 prefetch_related</h5><p>两者都是为了减少 SQL 查询次数（解决 N+1 问题），但实现方式不同。</p>
+<table>
+<thead>
+<tr>
+<th>特性</th>
+<th>select_related</th>
+<th>prefetch_related</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>机制</td>
+<td>SQL JOIN</td>
+<td>分开查询 + Python 拼接</td>
+</tr>
+<tr>
+<td>SQL 数量</td>
+<td>1 条</td>
+<td>2 条（主查询 + 预取查询）</td>
+</tr>
+<tr>
+<td>适用关系</td>
+<td>ForeignKey / OneToOneField</td>
+<td>ManyToManyField / ForeignKey 反向</td>
+</tr>
+<tr>
+<td>结果类型</td>
+<td>JOIN 后的大表</td>
+<td>Python 内存中拼接</td>
+</tr>
+</tbody></table>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># ============ select_related ============</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 单个关联</span></span><br><span class="line">books = Book.objects.select_related(<span class="string">&quot;publish&quot;</span>).<span class="built_in">all</span>()</span><br><span class="line"><span class="comment"># SELECT ... FROM book LEFT JOIN publish ON ...</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 多层关联</span></span><br><span class="line">books = Book.objects.select_related(<span class="string">&quot;publish__addr&quot;</span>).<span class="built_in">all</span>()</span><br><span class="line"></span><br><span class="line"><span class="comment"># 多个关联</span></span><br><span class="line">books = Book.objects.select_related(<span class="string">&quot;publish&quot;</span>, <span class="string">&quot;author_detail&quot;</span>).<span class="built_in">all</span>()</span><br><span class="line"></span><br><span class="line"><span class="comment"># 查看生成的 SQL</span></span><br><span class="line"><span class="built_in">print</span>(books.query)</span><br><span class="line"></span><br><span class="line"><span class="comment"># ============ prefetch_related ============</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 多对多</span></span><br><span class="line">books = Book.objects.prefetch_related(<span class="string">&quot;authors&quot;</span>).<span class="built_in">all</span>()</span><br><span class="line"><span class="comment"># SELECT * FROM book</span></span><br><span class="line"><span class="comment"># SELECT * FROM book_authors WHERE book_id IN (...)</span></span><br><span class="line"><span class="comment"># SELECT * FROM author WHERE id IN (...)</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 反向查询</span></span><br><span class="line">publishes = Publish.objects.prefetch_related(<span class="string">&quot;book_set&quot;</span>).<span class="built_in">all</span>()</span><br><span class="line"></span><br><span class="line"><span class="comment"># Prefetch 对象 —— 对预取数据进一步过滤</span></span><br><span class="line"><span class="keyword">from</span> django.db.models <span class="keyword">import</span> Prefetch</span><br><span class="line"></span><br><span class="line">books = Book.objects.prefetch_related(</span><br><span class="line">    Prefetch(</span><br><span class="line">        <span class="string">&quot;authors&quot;</span>,                              <span class="comment"># 关联名</span></span><br><span class="line">        queryset=Author.objects.<span class="built_in">filter</span>(age__gt=<span class="number">20</span>),  <span class="comment"># 过滤预取数据</span></span><br><span class="line">        to_attr=<span class="string">&quot;adult_authors&quot;</span>,                <span class="comment"># 将预取结果存到此属性</span></span><br><span class="line">    )</span><br><span class="line">)</span><br><span class="line"></span><br><span class="line"><span class="comment"># 多层预取</span></span><br><span class="line">books = Book.objects.prefetch_related(</span><br><span class="line">    Prefetch(</span><br><span class="line">        <span class="string">&quot;authors&quot;</span>,</span><br><span class="line">        queryset=Author.objects.prefetch_related(<span class="string">&quot;author_detail&quot;</span>)</span><br><span class="line">    )</span><br><span class="line">)</span><br><span class="line"></span><br><span class="line"><span class="comment"># 两者结合使用</span></span><br><span class="line">books = Book.objects.select_related(<span class="string">&quot;publish&quot;</span>).prefetch_related(<span class="string">&quot;authors&quot;</span>).<span class="built_in">all</span>()</span><br></pre></td></tr></table></figure>
+
+<h5 id="15，defer-only"><a href="#15，defer-only" class="headerlink" title="15，defer / only"></a>15，defer / only</h5><p>按需加载字段，减少传输的数据量。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># only —— 只加载指定字段</span></span><br><span class="line">books = Book.objects.only(<span class="string">&quot;id&quot;</span>, <span class="string">&quot;name&quot;</span>)</span><br><span class="line"><span class="comment"># 访问 price 会产生额外查询（延迟加载）</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># defer —— 排除指定字段（延迟加载）</span></span><br><span class="line">books = Book.objects.defer(<span class="string">&quot;price&quot;</span>, <span class="string">&quot;publish&quot;</span>)</span><br><span class="line"><span class="comment"># SELECT id, name, status, ... FROM book（排除 price 和 publish_id）</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 组合使用</span></span><br><span class="line">books = Book.objects.select_related(<span class="string">&quot;publish&quot;</span>).only(<span class="string">&quot;name&quot;</span>, <span class="string">&quot;publish__name&quot;</span>)</span><br></pre></td></tr></table></figure>
+
+<h5 id="16，exists-count-first-last"><a href="#16，exists-count-first-last" class="headerlink" title="16，exists / count / first / last"></a>16，exists / count / first / last</h5><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># exists —— 判断是否存在（性能最优）</span></span><br><span class="line"><span class="keyword">if</span> Book.objects.<span class="built_in">filter</span>(price__gt=<span class="number">100</span>).exists():</span><br><span class="line">    <span class="built_in">print</span>(<span class="string">&quot;存在高价书&quot;</span>)</span><br><span class="line"></span><br><span class="line"><span class="comment"># 比下面这种好（不需要加载数据到内存）</span></span><br><span class="line"><span class="comment"># if Book.objects.filter(price__gt=100):       ← 加载全部数据！</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># count —— 计数</span></span><br><span class="line">total = Book.objects.count()</span><br><span class="line">published = Book.objects.<span class="built_in">filter</span>(status=<span class="string">&quot;published&quot;</span>).count()</span><br><span class="line"></span><br><span class="line"><span class="comment"># first / last</span></span><br><span class="line">book = Book.objects.<span class="built_in">filter</span>(price__gt=<span class="number">50</span>).first()          <span class="comment"># 第一条，无则 None</span></span><br><span class="line">book = Book.objects.<span class="built_in">filter</span>(price__gt=<span class="number">50</span>).last()           <span class="comment"># 最后一条</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># earliest / latest —— 按指定字段</span></span><br><span class="line">oldest = Book.objects.earliest(<span class="string">&quot;pub_date&quot;</span>)                <span class="comment"># 最早</span></span><br><span class="line">newest = Book.objects.latest(<span class="string">&quot;pub_date&quot;</span>)                  <span class="comment"># 最新</span></span><br><span class="line"><span class="comment"># 需要在 Meta 中设置 get_latest_by = &quot;pub_date&quot; 或手动指定字段</span></span><br></pre></td></tr></table></figure>
+
+<h5 id="17，in-bulk-iterator"><a href="#17，in-bulk-iterator" class="headerlink" title="17，in_bulk / iterator"></a>17，in_bulk / iterator</h5><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># in_bulk —— 按主键批量获取为字典</span></span><br><span class="line">books = Book.objects.in_bulk([<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>])</span><br><span class="line"><span class="comment"># &#123;1: Book(id=1), 2: Book(id=2), 3: Book(id=3)&#125;</span></span><br><span class="line"></span><br><span class="line">books = Book.objects.in_bulk()</span><br><span class="line"><span class="comment"># 获取所有记录（&#123;id: instance&#125;）</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># iterator —— 流式处理大数据集</span></span><br><span class="line"><span class="keyword">for</span> book <span class="keyword">in</span> Book.objects.iterator(chunk_size=<span class="number">1000</span>):</span><br><span class="line">    process(book)                                   <span class="comment"># 不会一次性加载所有数据到内存</span></span><br></pre></td></tr></table></figure>
+
+<h5 id="18，常用辅助方法"><a href="#18，常用辅助方法" class="headerlink" title="18，常用辅助方法"></a>18，常用辅助方法</h5><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># distinct —— 去重</span></span><br><span class="line">Book.objects.values(<span class="string">&quot;status&quot;</span>).distinct()            <span class="comment"># 所有状态值</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># union —— 合并（要求字段一致）</span></span><br><span class="line">qs1 = Book.objects.<span class="built_in">filter</span>(price__gt=<span class="number">100</span>)</span><br><span class="line">qs2 = Book.objects.<span class="built_in">filter</span>(status=<span class="string">&quot;bestseller&quot;</span>)</span><br><span class="line">combined = qs1.union(qs2)</span><br><span class="line"></span><br><span class="line"><span class="comment"># intersection —— 交集</span></span><br><span class="line">shared = qs1.intersection(qs2)</span><br><span class="line"></span><br><span class="line"><span class="comment"># difference —— 差集</span></span><br><span class="line">diff = qs1.difference(qs2)</span><br><span class="line"></span><br><span class="line"><span class="comment"># reverse —— 反转排序</span></span><br><span class="line">Book.objects.order_by(<span class="string">&quot;price&quot;</span>).reverse()            <span class="comment"># 等价于 order_by(&quot;-price&quot;)</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># none —— 空 QuerySet</span></span><br><span class="line">Book.objects.none()                                 <span class="comment"># 无结果的空查询集</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># explain —— 查看执行计划</span></span><br><span class="line"><span class="built_in">print</span>(Book.objects.<span class="built_in">filter</span>(price__gt=<span class="number">50</span>).explain())</span><br><span class="line"><span class="comment"># MySQL 下可指定格式</span></span><br><span class="line"><span class="built_in">print</span>(Book.objects.<span class="built_in">filter</span>(price__gt=<span class="number">50</span>).explain(<span class="built_in">format</span>=<span class="string">&quot;json&quot;</span>))</span><br></pre></td></tr></table></figure>
+
+<h5 id="19，数据库函数"><a href="#19，数据库函数" class="headerlink" title="19，数据库函数"></a>19，数据库函数</h5><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> django.db.models.functions <span class="keyword">import</span> (</span><br><span class="line">    Lower, Upper, Length, Concat, Substr, Trim, LTrim, RTrim,</span><br><span class="line">    Coalesce, Greatest, Least,</span><br><span class="line">    Now, Extract, TruncDate, TruncMonth, TruncYear,</span><br><span class="line">    Cast, Round,</span><br><span class="line">)</span><br><span class="line"><span class="keyword">from</span> django.db.models <span class="keyword">import</span> Value, F, CharField, FloatField</span><br><span class="line"></span><br><span class="line"><span class="comment"># 字符串函数</span></span><br><span class="line">Author.objects.annotate(lower_name=Lower(<span class="string">&quot;name&quot;</span>))</span><br><span class="line">Author.objects.annotate(full_info=Concat(<span class="string">&quot;name&quot;</span>, Value(<span class="string">&quot; - &quot;</span>), <span class="string">&quot;age&quot;</span>))</span><br><span class="line">Book.objects.annotate(title_len=Length(<span class="string">&quot;name&quot;</span>))</span><br><span class="line">Book.objects.annotate(trimmed=Trim(<span class="string">&quot;name&quot;</span>))</span><br><span class="line"></span><br><span class="line"><span class="comment"># 日期函数</span></span><br><span class="line">Book.objects.<span class="built_in">filter</span>(pub_date__year=Extract(Now(), <span class="string">&quot;year&quot;</span>))   <span class="comment"># 今年的书</span></span><br><span class="line">Book.objects.annotate(</span><br><span class="line">    pub_month=Extract(<span class="string">&quot;pub_date&quot;</span>, <span class="string">&quot;month&quot;</span>)</span><br><span class="line">).<span class="built_in">filter</span>(pub_month=<span class="number">6</span>)</span><br><span class="line"></span><br><span class="line"><span class="comment"># NULL 处理</span></span><br><span class="line">Book.objects.annotate(</span><br><span class="line">    display_price=Coalesce(<span class="string">&quot;discount_price&quot;</span>, <span class="string">&quot;price&quot;</span>)   <span class="comment"># 有折扣价取折扣价，否则取原价</span></span><br><span class="line">)</span><br><span class="line"></span><br><span class="line"><span class="comment"># 类型转换</span></span><br><span class="line">Book.objects.annotate(</span><br><span class="line">    price_as_int=Cast(<span class="string">&quot;price&quot;</span>, IntegerField())</span><br><span class="line">)</span><br><span class="line"></span><br><span class="line"><span class="comment"># 数学</span></span><br><span class="line">Book.objects.annotate(</span><br><span class="line">    rounded_price=Round(<span class="string">&quot;price&quot;</span>)</span><br><span class="line">)</span><br></pre></td></tr></table></figure>
+
+<h5 id="20，原生-SQL"><a href="#20，原生-SQL" class="headerlink" title="20，原生 SQL"></a>20，原生 SQL</h5><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># raw() —— 返回模型实例的 QuerySet</span></span><br><span class="line">books = Book.objects.raw(<span class="string">&quot;SELECT * FROM library_book WHERE price &gt; %s&quot;</span>, [<span class="number">50</span>])</span><br><span class="line"><span class="keyword">for</span> book <span class="keyword">in</span> books:</span><br><span class="line">    <span class="built_in">print</span>(book.name, book.price)</span><br><span class="line"></span><br><span class="line"><span class="comment"># 使用数据库连接执行 SQL</span></span><br><span class="line"><span class="keyword">from</span> django.db <span class="keyword">import</span> connection</span><br><span class="line"></span><br><span class="line"><span class="comment"># 查询</span></span><br><span class="line"><span class="keyword">with</span> connection.cursor() <span class="keyword">as</span> cursor:</span><br><span class="line">    cursor.execute(<span class="string">&quot;SELECT name, price FROM library_book WHERE price &gt; %s&quot;</span>, [<span class="number">50</span>])</span><br><span class="line">    rows = cursor.fetchall()</span><br><span class="line">    <span class="comment"># rows = cursor.fetchone()</span></span><br><span class="line">    <span class="comment"># rows = cursor.fetchmany(size=10)</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 执行（INSERT / UPDATE / DELETE）</span></span><br><span class="line"><span class="keyword">with</span> connection.cursor() <span class="keyword">as</span> cursor:</span><br><span class="line">    cursor.execute(</span><br><span class="line">        <span class="string">&quot;UPDATE library_book SET price = price + %s WHERE status = %s&quot;</span>,</span><br><span class="line">        [<span class="number">10</span>, <span class="string">&quot;published&quot;</span>],</span><br><span class="line">    )</span><br><span class="line">    affected_rows = cursor.rowcount</span><br></pre></td></tr></table></figure>
+
+<h5 id="21，事务"><a href="#21，事务" class="headerlink" title="21，事务"></a>21，事务</h5><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> django.db <span class="keyword">import</span> transaction, IntegrityError</span><br><span class="line"></span><br><span class="line"><span class="comment"># 装饰器方式</span></span><br><span class="line"><span class="meta">@transaction.atomic</span></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">create_order</span>():</span><br><span class="line">    Book.objects.create(name=<span class="string">&quot;新书&quot;</span>, price=<span class="number">50</span>)</span><br><span class="line">    <span class="comment"># 如果中间出错，上方的 create 会回滚</span></span><br><span class="line">    Publish.objects.create(name=<span class="string">&quot;新出版社&quot;</span>)</span><br><span class="line"></span><br><span class="line"><span class="comment"># 上下文管理器</span></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">transfer_money</span>():</span><br><span class="line">    <span class="keyword">with</span> transaction.atomic():</span><br><span class="line">        Account.objects.<span class="built_in">filter</span>(<span class="built_in">id</span>=<span class="number">1</span>).update(balance=F(<span class="string">&quot;balance&quot;</span>) - <span class="number">100</span>)</span><br><span class="line">        Account.objects.<span class="built_in">filter</span>(<span class="built_in">id</span>=<span class="number">2</span>).update(balance=F(<span class="string">&quot;balance&quot;</span>) + <span class="number">100</span>)</span><br><span class="line"></span><br><span class="line"><span class="comment"># 保存点</span></span><br><span class="line"><span class="keyword">with</span> transaction.atomic():</span><br><span class="line">    Book.objects.create(name=<span class="string">&quot;一定能创建的书&quot;</span>)</span><br><span class="line">    sid = transaction.savepoint()</span><br><span class="line">    <span class="keyword">try</span>:</span><br><span class="line">        <span class="comment"># 可能失败的操作</span></span><br><span class="line">        Book.objects.create(name=<span class="string">&quot;可能失败的书&quot;</span>, <span class="built_in">id</span>=<span class="number">1</span>)  <span class="comment"># id 冲突</span></span><br><span class="line">    <span class="keyword">except</span> IntegrityError:</span><br><span class="line">        transaction.savepoint_rollback(sid)     <span class="comment"># 只回滚这一本</span></span><br><span class="line">    <span class="comment"># 继续执行...</span></span><br></pre></td></tr></table></figure>
+
+<h5 id="22，自定义-Manager-与-QuerySet"><a href="#22，自定义-Manager-与-QuerySet" class="headerlink" title="22，自定义 Manager 与 QuerySet"></a>22，自定义 Manager 与 QuerySet</h5><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">class</span> <span class="title class_">BookQuerySet</span>(models.QuerySet):</span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">published</span>(<span class="params">self</span>):</span><br><span class="line">        <span class="keyword">return</span> <span class="variable language_">self</span>.<span class="built_in">filter</span>(status=<span class="string">&quot;published&quot;</span>)</span><br><span class="line"></span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">expensive</span>(<span class="params">self, threshold=<span class="number">100</span></span>):</span><br><span class="line">        <span class="keyword">return</span> <span class="variable language_">self</span>.<span class="built_in">filter</span>(price__gte=threshold)</span><br><span class="line"></span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">by_publish</span>(<span class="params">self, publish_name</span>):</span><br><span class="line">        <span class="keyword">return</span> <span class="variable language_">self</span>.<span class="built_in">filter</span>(publish__name=publish_name)</span><br><span class="line"></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">BookManager</span>(models.Manager):</span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">get_queryset</span>(<span class="params">self</span>):</span><br><span class="line">        <span class="keyword">return</span> BookQuerySet(<span class="variable language_">self</span>.model, using=<span class="variable language_">self</span>._db)</span><br><span class="line"></span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">published</span>(<span class="params">self</span>):</span><br><span class="line">        <span class="keyword">return</span> <span class="variable language_">self</span>.get_queryset().published()</span><br><span class="line"></span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">expensive</span>(<span class="params">self, threshold=<span class="number">100</span></span>):</span><br><span class="line">        <span class="keyword">return</span> <span class="variable language_">self</span>.get_queryset().expensive(threshold)</span><br><span class="line"></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">Book</span>(models.Model):</span><br><span class="line">    name = models.CharField(max_length=<span class="number">16</span>)</span><br><span class="line">    price = models.DecimalField(max_digits=<span class="number">6</span>, decimal_places=<span class="number">2</span>)</span><br><span class="line">    status = models.CharField(max_length=<span class="number">10</span>, default=<span class="string">&quot;draft&quot;</span>)</span><br><span class="line"></span><br><span class="line">    <span class="comment"># 使用自定义管理器</span></span><br><span class="line">    objects = BookManager()</span><br><span class="line"></span><br><span class="line"><span class="comment"># 调用</span></span><br><span class="line">Book.objects.published().expensive(<span class="number">80</span>)</span><br><span class="line">Book.objects.expensive(<span class="number">50</span>).by_publish(<span class="string">&quot;工业出版社&quot;</span>)</span><br></pre></td></tr></table></figure>
+
+<h5 id="23，查询优化技巧清单"><a href="#23，查询优化技巧清单" class="headerlink" title="23，查询优化技巧清单"></a>23，查询优化技巧清单</h5><table>
+<thead>
+<tr>
+<th>技巧</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>select_related()</code></td>
+<td>FK/OneToOne 用 JOIN 一次查询</td>
+</tr>
+<tr>
+<td><code>prefetch_related()</code></td>
+<td>M2M/反向查询用分批预取</td>
+</tr>
+<tr>
+<td><code>values()/values_list()</code></td>
+<td>不需要模型实例时只取字段</td>
+</tr>
+<tr>
+<td><code>only()/defer()</code></td>
+<td>只加载需要的字段</td>
+</tr>
+<tr>
+<td><code>annotate()</code> 代替循环计数</td>
+<td>用聚合代替 N+1 查询</td>
+</tr>
+<tr>
+<td><code>iterator()</code></td>
+<td>流式处理大数据集</td>
+</tr>
+<tr>
+<td><code>bulk_create()</code></td>
+<td>批量创建，比逐条 save 快百倍</td>
+</tr>
+<tr>
+<td><code>bulk_update()</code></td>
+<td>批量更新，避免逐条 save</td>
+</tr>
+<tr>
+<td><code>exists()</code> 代替 <code>if qs:</code></td>
+<td>判断是否存在，性能更好</td>
+</tr>
+<tr>
+<td><code>count()</code> 代替 <code>len(qs)</code></td>
+<td>用 SQL COUNT 代替 Python len</td>
+</tr>
+<tr>
+<td><code>update()</code> 代替循环 save()</td>
+<td>直接 SQL UPDATE</td>
+</tr>
+<tr>
+<td>创建索引</td>
+<td>对常过滤的字段加 <code>db_index=True</code></td>
+</tr>
+<tr>
+<td>分页避免全量加载</td>
+<td>用 Paginator 分页</td>
+</tr>
+<tr>
+<td>预编译正则</td>
+<td><code>re.compile()</code> 用于复杂过滤</td>
+</tr>
+<tr>
+<td>explain()</td>
+<td>分析查询计划</td>
+</tr>
+<tr>
+<td>避免 order_by(“?”)</td>
+<td>随机排序极耗性能</td>
+</tr>
+</tbody></table>
+<h5 id="24，调试-SQL-查询"><a href="#24，调试-SQL-查询" class="headerlink" title="24，调试 SQL 查询"></a>24，调试 SQL 查询</h5><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 方式一：查看 QuerySet 生成的 SQL</span></span><br><span class="line">qs = Book.objects.<span class="built_in">filter</span>(price__gt=<span class="number">50</span>)</span><br><span class="line"><span class="built_in">print</span>(qs.query)</span><br><span class="line"></span><br><span class="line"><span class="comment"># 方式二：记录所有 SQL（开发调试用）</span></span><br><span class="line"><span class="keyword">import</span> logging</span><br><span class="line">logging.basicConfig(level=logging.DEBUG)</span><br><span class="line">logging.getLogger(<span class="string">&quot;django.db.backends&quot;</span>).setLevel(logging.DEBUG)</span><br><span class="line"><span class="comment"># 或 settings.py 中：</span></span><br><span class="line"><span class="comment"># LOGGING = &#123;</span></span><br><span class="line"><span class="comment">#     &quot;loggers&quot;: &#123;</span></span><br><span class="line"><span class="comment">#         &quot;django.db.backends&quot;: &#123;&quot;level&quot;: &quot;DEBUG&quot;, &quot;handlers&quot;: [&quot;console&quot;]&#125;,</span></span><br><span class="line"><span class="comment">#     &#125;</span></span><br><span class="line"><span class="comment"># &#125;</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 方式三：django-debug-toolbar（推荐）</span></span><br><span class="line"><span class="comment"># pip install django-debug-toolbar</span></span><br><span class="line"><span class="comment"># 在浏览器中查看每个请求的 SQL 查询及耗时</span></span><br></pre></td></tr></table></figure>
+
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/blog/tags/django/" rel="tag"># django</a>
+              <a href="/blog/tags/orm/" rel="tag"># orm</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/blog/2023/07/18/python/python%E4%BD%BF%E7%94%A8setuptools%E6%89%93%E5%8C%85/" rel="prev" title="python使用setuptools打包">
+      <i class="fa fa-chevron-left"></i> python使用setuptools打包
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/blog/2023/07/22/mysql/mysql%E7%BB%83%E4%B9%A0%E9%A2%98/" rel="next" title="mysql练习题">
+      mysql练习题 <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-5"><a class="nav-link" href="#1%EF%BC%8C%E6%A8%A1%E5%9E%8B%E7%B1%BB%E5%AE%9A%E4%B9%89"><span class="nav-number">1.</span> <span class="nav-text">1，模型类定义</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#2%EF%BC%8C%E5%B8%B8%E7%94%A8%E5%AD%97%E6%AE%B5%E7%B1%BB%E5%9E%8B"><span class="nav-number">2.</span> <span class="nav-text">2，常用字段类型</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#3%EF%BC%8C%E5%AD%97%E6%AE%B5%E9%80%9A%E7%94%A8%E5%8F%82%E6%95%B0"><span class="nav-number">3.</span> <span class="nav-text">3，字段通用参数</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#4%EF%BC%8C%E8%A1%A8%E5%85%B3%E7%B3%BB%E8%AF%A6%E8%A7%A3"><span class="nav-number">4.</span> <span class="nav-text">4，表关系详解</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#5%EF%BC%8CMeta-%E7%B1%BB%E9%80%89%E9%A1%B9"><span class="nav-number">5.</span> <span class="nav-text">5，Meta 类选项</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#6%EF%BC%8C%E5%A2%9E%E5%88%A0%E6%94%B9%E6%9F%A5%EF%BC%88CRUD%EF%BC%89"><span class="nav-number">6.</span> <span class="nav-text">6，增删改查（CRUD）</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#7%EF%BC%8C%E4%B8%80%E5%AF%B9%E5%A4%9A%E3%80%81%E5%A4%9A%E5%AF%B9%E5%A4%9A%E5%85%B3%E8%81%94%E6%93%8D%E4%BD%9C"><span class="nav-number">7.</span> <span class="nav-text">7，一对多、多对多关联操作</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#8%EF%BC%8C%E6%9F%A5%E8%AF%A2%E6%93%8D%E4%BD%9C"><span class="nav-number">8.</span> <span class="nav-text">8，查询操作</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#9%EF%BC%8C%E6%8E%92%E5%BA%8F%E4%B8%8E%E5%88%87%E7%89%87"><span class="nav-number">9.</span> <span class="nav-text">9，排序与切片</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#10%EF%BC%8Cvalues-values-list"><span class="nav-number">10.</span> <span class="nav-text">10，values &#x2F; values_list</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#11%EF%BC%8C%E8%81%9A%E5%90%88%E4%B8%8E%E5%88%86%E7%BB%84"><span class="nav-number">11.</span> <span class="nav-text">11，聚合与分组</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#12%EF%BC%8CF-%E6%9F%A5%E8%AF%A2"><span class="nav-number">12.</span> <span class="nav-text">12，F 查询</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#13%EF%BC%8CQ-%E6%9F%A5%E8%AF%A2"><span class="nav-number">13.</span> <span class="nav-text">13，Q 查询</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#14%EF%BC%8Cselect-related-%E4%B8%8E-prefetch-related"><span class="nav-number">14.</span> <span class="nav-text">14，select_related 与 prefetch_related</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#15%EF%BC%8Cdefer-only"><span class="nav-number">15.</span> <span class="nav-text">15，defer &#x2F; only</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#16%EF%BC%8Cexists-count-first-last"><span class="nav-number">16.</span> <span class="nav-text">16，exists &#x2F; count &#x2F; first &#x2F; last</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#17%EF%BC%8Cin-bulk-iterator"><span class="nav-number">17.</span> <span class="nav-text">17，in_bulk &#x2F; iterator</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#18%EF%BC%8C%E5%B8%B8%E7%94%A8%E8%BE%85%E5%8A%A9%E6%96%B9%E6%B3%95"><span class="nav-number">18.</span> <span class="nav-text">18，常用辅助方法</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#19%EF%BC%8C%E6%95%B0%E6%8D%AE%E5%BA%93%E5%87%BD%E6%95%B0"><span class="nav-number">19.</span> <span class="nav-text">19，数据库函数</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#20%EF%BC%8C%E5%8E%9F%E7%94%9F-SQL"><span class="nav-number">20.</span> <span class="nav-text">20，原生 SQL</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#21%EF%BC%8C%E4%BA%8B%E5%8A%A1"><span class="nav-number">21.</span> <span class="nav-text">21，事务</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#22%EF%BC%8C%E8%87%AA%E5%AE%9A%E4%B9%89-Manager-%E4%B8%8E-QuerySet"><span class="nav-number">22.</span> <span class="nav-text">22，自定义 Manager 与 QuerySet</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#23%EF%BC%8C%E6%9F%A5%E8%AF%A2%E4%BC%98%E5%8C%96%E6%8A%80%E5%B7%A7%E6%B8%85%E5%8D%95"><span class="nav-number">23.</span> <span class="nav-text">23，查询优化技巧清单</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#24%EF%BC%8C%E8%B0%83%E8%AF%95-SQL-%E6%9F%A5%E8%AF%A2"><span class="nav-number">24.</span> <span class="nav-text">24，调试 SQL 查询</span></a></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">ruoxi</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/blog/archives/">
+        
+          <span class="site-state-item-count">80</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/blog/categories/">
+          
+        <span class="site-state-item-count">17</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/blog/tags/">
+          
+        <span class="site-state-item-count">47</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2026</span>
+  <span class="with-love">
+    <i class="fa fa-code"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">ruoxi</span>
+</div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/blog/lib/anime.min.js"></script>
+  <script src="/blog/lib/velocity/velocity.min.js"></script>
+  <script src="/blog/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/blog/js/utils.js"></script>
+
+<script src="/blog/js/motion.js"></script>
+
+
+<script src="/blog/js/schemes/pisces.js"></script>
+
+
+<script src="/blog/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+</body>
+</html>

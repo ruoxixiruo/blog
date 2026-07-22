@@ -1,0 +1,914 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>面试题 - Elasticsearch</title>
+<style>
+body {
+    transition: margin-left .25s ease;
+    font-family: -apple-system, "Noto Sans SC", "Microsoft YaHei", sans-serif;
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 20px 24px 60px;
+    line-height: 1.8;
+    color: #333;
+    background: #fff;
+}
+h1 { border-bottom: 2px solid #eee; padding-bottom: 10px; color: #222; }
+h2 { color: #333; margin-top: 32px; }
+h3 { color: #555; }
+a { color: #0366d6; text-decoration: none; }
+a:hover { text-decoration: underline; }
+pre {
+    background: #f6f8fa;
+    border-radius: 6px;
+    padding: 16px;
+    overflow-x: auto;
+    font-size: 14px;
+    line-height: 1.45;
+}
+code {
+    background: #f0f2f4;
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-size: 14px;
+}
+pre code { background: none; padding: 0; }
+blockquote {
+    border-left: 4px solid #ddd;
+    margin: 0;
+    padding: 0 16px;
+    color: #666;
+}
+table {
+    border-collapse: collapse;
+    width: 100%;
+    margin: 16px 0;
+}
+th, td {
+    border: 1px solid #ddd;
+    padding: 8px 12px;
+    text-align: left;
+}
+th { background: #f6f8fa; }
+img { max-width: 100%; }
+.back-link {
+    margin-bottom: 20px;
+    display: block;
+    color: #666;
+}
+.back-link:hover { color: #0366d6; }
+
+.sidebar-toc {
+    transition: left .25s ease;
+    position: fixed;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    width: 220px;
+    background: #f8f9fa;
+    border-right: 1px solid #e9ecef;
+    padding: 20px 0;
+    overflow-y: auto;
+    font-size: 13px;
+    z-index: 100;
+}
+.sidebar-toc a {
+    display: block;
+    padding: 6px 16px;
+    color: #555;
+    text-decoration: none;
+    border-left: 3px solid transparent;
+    line-height: 1.5;
+}
+.sidebar-toc a:hover {
+    background: #e9ecef;
+    color: #0366d6;
+    border-left-color: #0366d6;
+}
+.sidebar-toc .toc-h3 { padding-left: 20px; font-size: 12px; }
+body { margin-left: 240px; }
+
+
+.copy-btn {
+    position: absolute; top: 6px; right: 6px;
+    background: #e9ecef; border: none;
+    border-radius: 4px; padding: 3px 10px;
+    font-size: 12px; color: #555; cursor: pointer;
+    opacity: 0; transition: opacity 0.2s;
+    z-index: 1;
+}
+pre:hover .copy-btn { opacity: 1; }
+.copy-btn:hover { background: #d0d7de; }
+.copy-btn.copied { opacity: 1; background: #2da44e; color: #fff; }
+.copy-btn{position:absolute;top:6px;right:6px;background:#e9ecef;border:none;border-radius:4px;padding:3px 10px;font-size:12px;color:#555;cursor:pointer;opacity:0;transition:opacity .2s;z-index:1}pre:hover .copy-btn{opacity:1}.copy-btn:hover{background:#d0d7de}.copy-btn.copied{opacity:1;background:#2da44e;color:#fff}
+.copy-btn{position:absolute;top:6px;right:6px;background:#e9ecef;border:none;border-radius:4px;padding:3px 10px;font-size:12px;color:#555;cursor:pointer;opacity:0;transition:opacity .2s;z-index:1}pre:hover .copy-btn{opacity:1}.copy-btn:hover{background:#d0d7de}.copy-btn.copied{opacity:1;background:#2da44e;color:#fff}
+.copy-btn{position:absolute;top:6px;right:6px;background:#e9ecef;border:none;border-radius:4px;padding:3px 10px;font-size:12px;color:#555;cursor:pointer;opacity:0;transition:opacity .2s;z-index:1}pre:hover .copy-btn{opacity:1}.copy-btn:hover{background:#d0d7de}.copy-btn.copied{opacity:1;background:#2da44e;color:#fff}
+.sidebar-toggle-btn {
+  position: fixed;
+  left: 220px;
+  top: 0;
+  width: 28px;
+  height: 40px;
+  background: #f8f9fa;
+  border: 1px solid #e9ecef;
+  border-left: none;
+  border-radius: 0 4px 4px 0;
+  cursor: pointer;
+  font-size: 16px;
+  color: #555;
+  z-index: 101;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: left .25s, background .2s;
+  padding: 0;
+  line-height: 1;
+}
+.sidebar-toggle-btn:hover { background: #e9ecef; color: #0366d6; }
+.sidebar-collapsed .sidebar-toc { left: -220px; }
+.sidebar-collapsed .sidebar-toggle-btn { left: 0; }
+.sidebar-collapsed body, body.sidebar-collapsed { margin-left: 28px; }
+.sidebar-overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,.3);
+  z-index: 99;
+}
+@media (max-width: 768px) {
+  .sidebar-collapsed .sidebar-overlay { display: none; }
+  .sidebar-toc { left: -220px; }
+  .sidebar-toggle-btn { left: 0; }
+  body { margin-left: 28px; }
+}
+
+</style>
+</head>
+</head>
+<body>
+<nav class="sidebar-toc"><a class="toc-h3" href="#1-es-mysql">1. 什么是倒排索引?为什么 ES 比 MySQL 快?</a><a class="toc-h3" href="#2-es">2. ES 集群有哪些节点角色?</a><a class="toc-h3" href="#3">3. 什么是分片和副本?</a><a class="toc-h3" href="#4">4. 如何避免脑裂?</a><a class="toc-h3" href="#5-es">5. ES 为什么是近实时搜索?</a><a class="toc-h3" href="#6-query-filter">6. query 和 filter 的区别?</a><a class="toc-h3" href="#7">7. 深分页怎么解决?</a><a class="toc-h3" href="#8">8. 集群健康状态怎么判断?</a><a class="toc-h3" href="#9-es">9. ES 写入数据的完整流程?</a><a class="toc-h3" href="#10-term-match">10. term 和 match 的区别?</a><a class="toc-h3" href="#11-es-mapping-dynamic-mapping">11. ES 的 Mapping 是什么?dynamic mapping 的优缺点?</a><a class="toc-h3" href="#12-es">12. ES 删除/更新文档的底层原理?</a><a class="toc-h3" href="#13-es-analyzerik">13. ES 的分词器(Analyzer)是什么?IK 分词器怎么选?</a><a class="toc-h3" href="#14-es-refresh-flush">14. ES 的 Refresh 和 Flush 有什么区别?</a><a class="toc-h3" href="#15-es">15. ES 如何实现海量数据的高效聚合分析?</a><a class="toc-h3" href="#16-es">16. ES 集群数据倾斜怎么解决?</a><a class="toc-h3" href="#17-es">17. ES 写入性能瓶颈如何优化?</a><a class="toc-h3" href="#18-es-dsl">18. ES 查询DSL的执行流程与优化？</a></nav>
+<button class="sidebar-toggle-btn" onclick="toggleSidebar()" title="切换侧栏">☰</button>
+
+<div class="sidebar-overlay" onclick="toggleSidebar()"></div>
+
+<script>
+function toggleSidebar() {
+  document.body.classList.toggle('sidebar-collapsed');
+  try { localStorage.setItem('sidebarCollapsed', document.body.classList.contains('sidebar-collapsed')); } catch(e) {}
+}
+(function() {
+  try {
+    if (localStorage.getItem('sidebarCollapsed') === 'true') {
+      document.body.classList.add('sidebar-collapsed');
+    }
+  } catch(e) {}
+})();
+</script>
+<a class="back-link" href="/blog/2026/05/16/面试题/面试题/">← 返回面试题目录</a>
+<h1 id=page-title>Elasticsearch</h1>
+<h3 id="1-es-mysql">1. 什么是倒排索引?为什么 ES 比 MySQL 快?</h3>
+<pre><code>正排索引(MySQL):
+  文档1 → &quot;Java 面试题详解&quot;
+  文档2 → &quot;Spring Boot 入门&quot;
+  查&quot;Java&quot; → 必须扫所有文档 → O(n)
+
+倒排索引(ES):
+  &quot;Java&quot;    → [文档1, 文档5, 文档15]   ← 直接找到!
+  &quot;面试题&quot;  → [文档1, 文档8, 文档20]
+  &quot;Spring&quot;  → [文档2, 文档6]
+  查&quot;Java&quot; → 直接拿到文档列表 → O(1)
+</code></pre>
+<p>就像书的<strong>关键词索引页</strong>--查"Java"直接看索引写着"第 3、7、15 页",瞬间定位。不用翻完整本书。</p>
+<p>Elasticsearch 底层用 Lucene 实现倒排索引,核心数据结构包括:
+- <strong>Term Dictionary</strong>(词项字典):排序的词汇表,二分查找定位词项
+- <strong>Posting List</strong>(倒排列表):每个词对应哪些文档的 ID 列表
+- <strong>FST</strong>(有限状态转换器):把 Term Dictionary 压缩,前缀共享,省内存又加快查找</p>
+<blockquote>
+<p><strong>扩展</strong>:MySQL 的 LIKE '%关键词%' 无法利用 B+ 树索引(前缀模糊匹配),必须全表扫描。ES 不仅查得快,还支持分词("北京大学" → "北京"+"大学"+"北京大学")、相关性评分(TF-IDF/BM25)、高亮、聚合分析。但 ES 不适合做事务性写入(没有 ACID),通常和 MySQL 配合使用--MySQL 做主存储,ES 做搜索。</p>
+</blockquote>
+<h3 id="2-es">2. ES 集群有哪些节点角色?</h3>
+<pre><code>ES 节点角色:
+
+┌────────────┬─────────────────────────────────┐
+│ Master     │ 集群大脑:创建/删除索引、分配分片│
+│ (CEO)      │ 跟踪节点上下线、维护集群状态     │
+├────────────┼─────────────────────────────────┤
+│ Data       │ 数据工人:存储数据、执行 CRUD    │
+│ (员工)     │ 占用最多资源(磁盘+内存+CPU)    │
+├────────────┼─────────────────────────────────┤
+│ Coordinating│ 前台:接收客户端请求             │
+│ (协调节点)  │ 分发到各分片 → 汇总结果返回     │
+├────────────┼─────────────────────────────────┤
+│ Ingest     │ 预处理:数据写入前做格式转换     │
+│            │ 如 grok 解析日志、geoip 转地理位置│
+└────────────┴─────────────────────────────────┘
+</code></pre>
+<p>ES 7.x 后默认所有节点都是以上角色的组合(除非显式配置),小集群可以不分。大集群建议 Master 专用节点(只做管理,不存数据)和协调专用节点(转发汇总)。</p>
+<blockquote>
+<p><strong>扩展</strong>:Machine Learning 节点(付费功能)、Transform 节点、Remote Cluster Client 节点(跨集群搜索)是 ES 7.x+ 的新角色。<code>node.roles</code> 配置控制节点角色。Master 候选节点数建议为 3 或 5(奇数),只有候选节点才能参与 Master 选举。</p>
+</blockquote>
+<h3 id="3">3. 什么是分片和副本?</h3>
+<pre><code>索引 = 主分片 × N + 副本 × M
+
+假设 3 个主分片 + 1 个副本:
+
+  Node1: P0 + R1
+  Node2: P1 + R2
+  Node3: P2 + R0
+
+P=主分片(Primary),R=副本分片(Replica)
+每个分片的数据分布在不同的节点上
+</code></pre>
+<table>
+<thead>
+<tr>
+<th>对比</th>
+<th>主分片(Primary Shard)</th>
+<th>副本分片(Replica Shard)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>作用</td>
+<td>水平扩展(存储 + 读写吞吐)</td>
+<td>高可用(容错) + 提升读吞吐</td>
+</tr>
+<tr>
+<td>数量</td>
+<td>创建后<strong>不可改</strong></td>
+<td>可动态调整</td>
+</tr>
+<tr>
+<td>读写</td>
+<td>处理读写</td>
+<td>只处理读,写由主分片同步过来</td>
+</tr>
+</tbody>
+</table>
+<p><strong>黄金法则</strong>:单个分片 10~50GB 最佳(太大迁移慢,太小管理开销大)。副本至少 1 个(保证单节点挂了对服务无影响)。</p>
+<blockquote>
+<p><strong>扩展</strong>:写请求→协调节点→路由到主分片→主分片写入→同步到副本→确认返回。读请求可以走主分片或副本(负载均衡)。分片数量需要在"写入吞吐"和"查询聚合"之间平衡--分片越多写入越分散(好),但查询要汇总更多分片(慢)。</p>
+</blockquote>
+<h3 id="4">4. 如何避免脑裂?</h3>
+<pre><code>脑裂(Split Brain)场景:
+
+  3 个 Master 候选节点:M1 M2 M3
+  网络故障 → M1 与 M2,M3 断开
+  → M1 自己选为 Master(以为 M2,M3 挂了)
+  → M2,M3 也选出一个 Master
+  → 两个 Master 同时接受写入 → 数据冲突!
+
+解决方案:discovery.zen.minimum_master_nodes = N/2 + 1(ES 7.x 之前)
+         或 initial_master_nodes / discovery.seed_hosts(ES 7.x+ 自动管理)
+
+  3 个节点 → 至少 2 票才能当选 Master
+  M1 只有 1 票 → 不够 → 不会成为 Master ✓
+  M2+M3 → 2 票 → 合法 Master ✓
+</code></pre>
+<p><strong>建议</strong>:Master 候选节点设奇数个(3 或 5),<code>N/2+1</code> 保证任何网络分区只有一边能过半。</p>
+<blockquote>
+<p><strong>扩展</strong>:ES 7.x 后选举机制改进了--不再需要手动配置 <code>minimum_master_nodes</code>,通过 <code>discovery.seed_hosts</code> 配置候选节点列表即可。脑裂的一个常见原因是 GC 停顿--Master 长时间 GC 导致心跳超时,其他节点以为它挂了。给 Master 专用节点配足够内存可减少 GC 停顿。</p>
+</blockquote>
+<h3 id="5-es">5. ES 为什么是近实时搜索?</h3>
+<pre><code>写入到可搜索的流程:
+
+写入数据 → 写入内存 Buffer(不可搜索)
+           ↓ 默认每 1 秒 refresh
+        生成新 Segment(可搜索)
+           ↓ Translog 记录每次操作
+        数据真正安全(flush 到磁盘)
+
+为什么叫&quot;近实时&quot;(Near Real-Time):
+  默认 refresh_interval = 1s
+  → 写入后最多等 1 秒才能搜到
+  → 这就是&quot;近&quot;(快但不是即时)
+</code></pre>
+<table>
+<thead>
+<tr>
+<th>操作</th>
+<th>作用</th>
+<th>默认频率</th>
+<th>数据安全保障</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>refresh</td>
+<td>内存→Segment(可搜索)</td>
+<td>1s</td>
+<td>可能丢 1s 数据</td>
+</tr>
+<tr>
+<td>flush</td>
+<td>Segment→磁盘 + 清 Translog</td>
+<td>30min 或 Translog 满</td>
+<td>持久化</td>
+</tr>
+<tr>
+<td>Translog</td>
+<td>记录每次操作(WAL)</td>
+<td>每次写入</td>
+<td>宕机恢复的依据</td>
+</tr>
+</tbody>
+</table>
+<blockquote>
+<p><strong>扩展</strong>:<code>refresh_interval</code> 可以设为 -1(禁用自动刷新,批量导入时提升性能)。Translog 是 ES 的"redo log"--节点宕机后通过重放 Translog 恢复未 flush 的数据。ES 的 Segment 是<strong>不可变的</strong>(写入后不会被修改),更新的文档标记为 deleted,后续 merge 时真正删除。不可变性简化了并发控制和缓存。</p>
+</blockquote>
+<h3 id="6-query-filter">6. <code>query</code> 和 <code>filter</code> 的区别?</h3>
+<table>
+<thead>
+<tr>
+<th>对比</th>
+<th>query</th>
+<th>filter</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>相关性评分</td>
+<td>计算 <code>_score</code></td>
+<td>不算分,只判断 yes/no</td>
+</tr>
+<tr>
+<td>缓存</td>
+<td>不缓存(每次都算分)</td>
+<td>缓存结果(filter cache)</td>
+</tr>
+<tr>
+<td>性能</td>
+<td>慢</td>
+<td>快</td>
+</tr>
+<tr>
+<td>适用</td>
+<td>全文搜索、模糊匹配</td>
+<td>精确过滤(状态/分类/日期)</td>
+</tr>
+</tbody>
+</table>
+<pre><code>推荐用法:
+GET /orders/_search
+{
+  &quot;query&quot;: {
+    &quot;bool&quot;: {
+      &quot;must&quot;: { &quot;match&quot;: { &quot;product_name&quot;: &quot;手机&quot; } },   ← query,算相关性
+      &quot;filter&quot;: { &quot;term&quot;: { &quot;status&quot;: &quot;paid&quot; } }         ← filter,只过滤
+    }
+  }
+}
+</code></pre>
+<p><strong>经验法则</strong>:精确匹配用 filter(快),搜索打分用 query。filter 的缓存是自动的--ES 会缓存常用的 filter 结果。</p>
+<blockquote>
+<p><strong>扩展</strong>:<code>constant_score</code> 查询可以把 query 包装成 filter(不算分,统一给分 1.0)。<code>bool</code> 查询的 <code>must</code>、<code>should</code>、<code>filter</code>、<code>must_not</code> 四个子句可以灵活组合。ES 的 filter cache 在 Segment 级别(不是整个索引级别),Segment merge 时缓存失效。</p>
+</blockquote>
+<h3 id="7">7. 深分页怎么解决?</h3>
+<pre><code>from+size 深分页问题:
+  查 from=10000, size=10
+  → 每个分片要查出 10010 条数据
+  → 协调节点汇总 3 个分片 = 30030 条
+  → 排序后丢弃前 9990 条,返回 10 条
+  → 浪费了大量 IO、网络、内存!
+  ES 默认限制 from+size ≤ 10000 (max_result_window)
+</code></pre>
+<p><strong>两种替代方案</strong>:</p>
+<table>
+<thead>
+<tr>
+<th>方案</th>
+<th>search_after</th>
+<th>scroll</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>原理</td>
+<td>记住上页最后一条的 sort 值,下一页从它之后开始</td>
+<td>生成一个数据快照游标,一路扫到底</td>
+</tr>
+<tr>
+<td>适用</td>
+<td>实时翻页、APP 列表</td>
+<td>离线导出、全量数据迁移</td>
+</tr>
+<tr>
+<td>是否实时</td>
+<td>是(每次查最新数据)</td>
+<td>否(快照那一刻的数据)</td>
+</tr>
+<tr>
+<td>跳页</td>
+<td>不支持(只能一页页翻)</td>
+<td>不支持</td>
+</tr>
+</tbody>
+</table>
+<blockquote>
+<p><strong>扩展</strong>:<code>max_result_window</code> 可以调大但治标不治本(默认 10000)。APP 端的"无限下滑"用 search_after 最适合。scroll 会占用内存(维护快照),用完要 <code>DELETE _search/scroll/{scroll_id}</code> 清理。ES 7.x 后推荐用 <code>pit</code>(Point In Time)+ <code>search_after</code> 代替 scroll。</p>
+</blockquote>
+<h3 id="8">8. 集群健康状态怎么判断?</h3>
+<pre><code>集群三色灯:
+
+Green  🟢:所有主分片 + 副本都正常分配
+  读写正常,最健康状态
+
+Yellow 🟡:主分片全部正常,但部分副本没有分配
+  读写正常(数据不丢),但副本缺失 = 少了高可用保障
+  常见原因:节点数不够(比如单节点跑 ES,副本无处分配)
+  处理:加节点 / 减少副本数 / 接受单节点风险
+
+Red   🔴:部分主分片不可用
+  数据不完整!部分数据读写都会失败
+  紧急处理:恢复宕机节点 / 从快照恢复
+</code></pre>
+<p><strong>排查步骤</strong>:
+1. <code>GET _cluster/health?level=indices</code> → 看哪些索引不健康
+2. <code>GET _cat/shards?v&amp;h=index,shard,prirep,state,unassigned.reason</code> → 看未分配分片的原因
+3. <code>GET _cluster/allocation/explain</code> → 解释某个分片为什么没有被分配</p>
+<blockquote>
+<p><strong>扩展</strong>:Yellow 在单节点集群中是正常的(副本无处分配),只要数据有备份就行。Red 是生产事故--<code>_cluster/health</code> 的 <code>status</code> 是 Red 时,对应的分片 <code>GET/POST</code> 操作都会报错。定期快照(Snapshot)是最后的数据保障--万一主分片全丢了还能从快照恢复。</p>
+</blockquote>
+<h3 id="9-es">9. ES 写入数据的完整流程?</h3>
+<pre><code>1 文档写入 → 2 Memory Buffer → 3 refresh(默认1s) → 4 Segment(可搜索)
+                         │
+                         └──→ 5 Translog(持久化,防止数据丢失)
+                                                    │
+                        6 flush(默认30min) → 7 磁盘 Segment + 清空 Translog
+</code></pre>
+<table>
+<thead>
+<tr>
+<th>概念</th>
+<th>作用</th>
+<th>默认间隔</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>refresh</strong></td>
+<td>将 Memory Buffer 的数据刷到 Segment,使文档<strong>可搜索</strong></td>
+<td>1 秒</td>
+</tr>
+<tr>
+<td><strong>translog</strong></td>
+<td>写入操作先记录到 translog(类似 MySQL binlog),断电后<strong>恢复数据</strong></td>
+<td>每次写入</td>
+</tr>
+<tr>
+<td><strong>flush</strong></td>
+<td>将 Segment 持久化到磁盘,清空 translog</td>
+<td>30 分钟</td>
+</tr>
+</tbody>
+</table>
+<pre><code>为什么&quot;近实时&quot;(NRT)?
+
+  写入 → Memory Buffer(不可搜索)
+         → refresh(1s) → Segment(可搜索) ← 这就是 1 秒延迟的来源
+         → flush(30min) → 磁盘永久存储
+
+  如果还没 flush 就断电 → translog 恢复
+</code></pre>
+<blockquote>
+<p><strong>扩展</strong>:<code>refresh_interval</code> 可以设为 -1(关闭自动刷新)来加速大批量写入--等数据全写完了再手动 refresh。这就是为什么 ES 批量导入时速度能达到单条写入的几十倍。</p>
+</blockquote>
+<h3 id="10-term-match">10. <code>term</code> 和 <code>match</code> 的区别?</h3>
+<table>
+<thead>
+<tr>
+<th>查询</th>
+<th>行为</th>
+<th>适用字段</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>term</strong></td>
+<td>不对查询词分词,精确匹配</td>
+<td>keyword 类型(状态码、ID、标签)</td>
+</tr>
+<tr>
+<td><strong>match</strong></td>
+<td>先对查询词分词,再对每个词做匹配</td>
+<td>text 类型(标题、正文)</td>
+</tr>
+</tbody>
+</table>
+<pre><code class="language-json">// term:不分词,&quot;上海浦东&quot; 作为一个完整词去匹配
+// 适用于 keyword 字段
+GET /index/_search
+{
+  &quot;query&quot;: { &quot;term&quot;: { &quot;city&quot;: &quot;上海浦东&quot; } }
+}
+
+// match:把 &quot;上海浦东&quot; 分词为 [&quot;上海&quot;, &quot;浦东&quot;],分别匹配
+// 文档包含 &quot;上海&quot; 或 &quot;浦东&quot; 都能命中
+GET /index/_search
+{
+  &quot;query&quot;: { &quot;match&quot;: { &quot;description&quot;: &quot;上海浦东&quot; } }
+}
+</code></pre>
+<blockquote>
+<p><strong>扩展</strong>:如果你对 keyword 字段用 match 可能会查不到(keyword 不分词,match 分词后找不到匹配);如果对 text 字段用 term 也大概率查不到(因为 term 不分词,但 text 字段存储的是分词后的结果)。</p>
+</blockquote>
+<h3 id="11-es-mapping-dynamic-mapping">11. ES 的 Mapping 是什么?dynamic mapping 的优缺点?</h3>
+<p><strong>Mapping</strong> 定义了索引中字段的类型、是否分词、是否索引等。就像 MySQL 建表时的 CREATE TABLE 一样。</p>
+<pre><code class="language-json">PUT /user
+{
+  &quot;mappings&quot;: {
+    &quot;properties&quot;: {
+      &quot;id&quot;:     { &quot;type&quot;: &quot;long&quot; },
+      &quot;name&quot;:   { &quot;type&quot;: &quot;keyword&quot; },    // 不分词,精确匹配
+      &quot;bio&quot;:    { &quot;type&quot;: &quot;text&quot; },       // 分词,全文搜索
+      &quot;age&quot;:    { &quot;type&quot;: &quot;integer&quot; },
+      &quot;status&quot;: { &quot;type&quot;: &quot;keyword&quot; }     // 精确匹配,聚合用
+    }
+  }
+}
+</code></pre>
+<table>
+<thead>
+<tr>
+<th>方式</th>
+<th>做法</th>
+<th>建议</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>dynamic: true(默认)</td>
+<td>自动推断字段类型</td>
+<td>快速开始,但可能猜错</td>
+</tr>
+<tr>
+<td>dynamic: false</td>
+<td>忽略未定义字段(不索引但存储)</td>
+<td>数据只存不查</td>
+</tr>
+<tr>
+<td>dynamic: strict</td>
+<td>未定义字段直接报错</td>
+<td><strong>生产推荐</strong>,防止脏数据</td>
+</tr>
+</tbody>
+</table>
+<blockquote>
+<p><strong>扩展</strong>:dynamic mapping 最大的坑是<strong>把 ID 之类的字段猜测为 text 而非 keyword</strong>(如订单号 <code>OD20240001</code> 被分词就没意义了)。生产和测试索引最好使用<strong>显式 Mapping</strong>,或者至少把 String 类型的默认映射从 text 改为 keyword。</p>
+</blockquote>
+<h3 id="12-es">12. ES 删除/更新文档的底层原理?</h3>
+<p>ES 的 Segment 是<strong>不可变的</strong>(写入后不能改),所以删除和更新靠"标记":</p>
+<ul>
+<li><strong>删除</strong>:在 <code>.del</code> 文件中标记该文档为"已删除"(逻辑删除),搜索时跳过</li>
+<li><strong>更新</strong>:标记旧文档删除 + 写入新文档到新 Segment(不是原地更新!)</li>
+</ul>
+<pre><code>&quot;更新&quot;过程:
+
+  旧 Segment: Doc1(id=1, name=&quot;张三&quot;)
+                   │ 更新 name=&quot;张老三&quot;
+                   ▼
+  .del 文件: [Doc1 标记删除]
+  新 Segment: Doc2(id=1, name=&quot;张老三&quot;)
+
+  搜索时:从 .del 知道 Doc1 已删 → 返回 Doc2
+</code></pre>
+<p><strong>段合并(Segment Merge)</strong>:后台自动把小 Segment 合并成大 Segment,同时真正删除被标记的文档。合并时 ES 会自动均衡 IO,不影响搜索。</p>
+<blockquote>
+<p><strong>扩展</strong>:如果大量删除后不做段合并,<code>.del</code> 文件越来越大,搜索性能下降。可以用 <code>_forcemerge</code> API 强制合并(如 <code>POST /index/_forcemerge?max_num_segments=1</code>),但生产环境不要在业务高峰期执行。</p>
+</blockquote>
+<h3 id="13-es-analyzerik">13. ES 的分词器(Analyzer)是什么?IK 分词器怎么选?</h3>
+<p><strong>Analyzer(分析器)</strong> = Character Filter(字符过滤) + Tokenizer(分词) + Token Filter(词项过滤)。</p>
+<pre><code>输入:&quot;The 2 QUICK Brown-Foxes&quot;
+  │
+  ▼ Character Filter(字符过滤:去 HTML、替换字符)
+  │
+  ▼ Tokenizer(分词:拆成词项)
+  │
+  ▼ Token Filter(过滤:小写化、去停用词、词干提取)
+  │
+  ▼ 输出:[&quot;the&quot;, &quot;2&quot;, &quot;quick&quot;, &quot;brown&quot;, &quot;foxes&quot;]
+</code></pre>
+<p><strong>IK 分词器的两种模式</strong>:</p>
+<table>
+<thead>
+<tr>
+<th>模式</th>
+<th>策略</th>
+<th>示例</th>
+<th>适用</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>ik_max_word</strong></td>
+<td>最细粒度,尽可能多分</td>
+<td>"中华人民共和国" → ["中华人民共和国", "中华人民", "中华", "华人", "人民", "共和国"]</td>
+<td>索引时(提高召回率)</td>
+</tr>
+<tr>
+<td><strong>ik_smart</strong></td>
+<td>最粗粒度,最少词数</td>
+<td>"中华人民共和国" → ["中华人民共和国"]</td>
+<td>搜索时(精准匹配)</td>
+</tr>
+</tbody>
+</table>
+<blockquote>
+<p><strong>扩展</strong>:推荐策略--<strong>索引时用 ik_max_word(尽量多分词),搜索时用 ik_smart(精准匹配)</strong>。IK 分词器还可以自定义词典(<code>IKAnalyzer.cfg.xml</code>),添加项目专有词汇(如公司名、产品名、黑话),这些词就不会被错误切分了。</p>
+</blockquote>
+<hr />
+<h3 id="14-es-refresh-flush">14. ES 的 Refresh 和 Flush 有什么区别?</h3>
+<p>Refresh:buffer &gt; OS Cache,文档可被搜索。Flush:OS Cache &gt; 磁盘,清空 translog。批量写入时可临时关闭 refresh 提写入速度。</p>
+<h3 id="15-es">15. ES 如何实现海量数据的高效聚合分析?</h3>
+<p><strong>核心思路</strong>:减少参与聚合的数据量 + 分层聚合 + 缓存优化。</p>
+<pre><code>优化策略:
+
+1. 时间范围过滤 + 条件过滤
+   GET /logs/_search
+   {
+     &quot;query&quot;: {
+       &quot;bool&quot;: {
+         &quot;filter&quot;: [
+           { &quot;range&quot;: { &quot;timestamp&quot;: { &quot;gte&quot;: &quot;now-7d&quot; } } },  ← 先过滤
+           { &quot;term&quot;: { &quot;level&quot;: &quot;ERROR&quot; } }
+         ]
+       }
+     },
+     &quot;aggs&quot;: {
+       &quot;error_by_service&quot;: {
+         &quot;terms&quot;: { &quot;field&quot;: &quot;service&quot;, &quot;size&quot;: 10 }
+       }
+     }
+   }
+
+2. 分层聚合:先粗粒度再细粒度
+   aggs:
+     地区聚合 → 每个地区内再聚合服务
+
+3. 使用 composite 聚合做深度分页
+   &quot;aggs&quot;: {
+     &quot;my_buckets&quot;: {
+       &quot;composite&quot;: {
+         &quot;size&quot;: 100,
+         &quot;sources&quot;: [{ &quot;date&quot;: { &quot;date_histogram&quot;: { &quot;field&quot;: &quot;timestamp&quot;, &quot;interval&quot;: &quot;1d&quot; } } }]
+       }
+     }
+   }
+</code></pre>
+<p><strong>性能对比</strong>:</p>
+<table>
+<thead>
+<tr>
+<th>优化手段</th>
+<th>效果</th>
+<th>适用场景</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>filter + aggs</td>
+<td>过滤90%数据后再聚合</td>
+<td>有明确查询条件</td>
+</tr>
+<tr>
+<td>composite</td>
+<td>支持深度分页聚合</td>
+<td>结果集超10万</td>
+</tr>
+<tr>
+<td>外部排序</td>
+<td>降低内存占用</td>
+<td>高基数聚合</td>
+</tr>
+<tr>
+<td>预计算</td>
+<td>直接查预聚合索引</td>
+<td>固定维度统计</td>
+</tr>
+</tbody>
+</table>
+<blockquote>
+<p><strong>扩展</strong>:聚合默认不分页,返回 top N。如果结果集太大(百万级),使用 composite 聚合分批获取。高基数聚合(如 user_id)会导致内存暴涨,解决方案是使用 <code>eager_global_ordinals</code>:true 预加载全局序数,或者改用 rollup 索引预聚合。</p>
+</blockquote>
+<h3 id="16-es">16. ES 集群数据倾斜怎么解决?</h3>
+<p><strong>现象</strong>:某些节点磁盘快满了,某些节点还很空;查询慢时发现热点数据集中在少数分片。</p>
+<p><strong>根因分析</strong>:</p>
+<ol>
+<li><strong>分片数量不均</strong>:早期创建的索引分片少,后期扩容节点多不均衡</li>
+<li><strong>数据分布不均</strong>:按时间分索引,新数据在少数节点</li>
+<li><strong>热点数据</strong>:查询集中在少数分片</li>
+</ol>
+<p><strong>解决方案</strong>:</p>
+<pre><code>1. 索引设计层面
+   - 按时间分索引:logs-2024-01, logs-2024-02
+   - 每个索引的分片数 = 节点数 × 单节点分片数
+   - 设置 index.routing_partition_size 打散路由
+
+2. 运维调整
+   - PUT _cluster/settings {
+       &quot;persistent&quot;: {
+         &quot;cluster.routing.allocation.balance.threshold&quot;: 0.1
+       }
+     }
+   - 手动移动分片:POST _cluster/reroute
+
+3. 冷热分离架构
+   - Hot 节点:SSD,存近期数据(7天)
+   - Warm 节点:HDD,存历史数据
+   - Curator 自动迁移冷数据
+</code></pre>
+<p><strong>迁移命令示例</strong>:</p>
+<pre><code class="language-json">POST _cluster/reroute
+{
+  &quot;commands&quot;: [
+    {
+      &quot;move&quot;: {
+        &quot;index&quot;: &quot;logs-2024-01&quot;,
+        &quot;shard&quot;: 0,
+        &quot;from_node&quot;: &quot;node-1&quot;,
+        &quot;to_node&quot;: &quot;node-3&quot;
+      }
+    }
+  ]
+}
+</code></pre>
+<blockquote>
+<p><strong>扩展</strong>:生产环境建议每个节点分片数控制在 20 个以内(单个分片 10-50GB)。分片太多增加管理开销,太少影响并行度。使用 <code>_cat/shards?v&amp;h=index,shard,prirep,state,store,node&amp;s=store:desc</code> 排查磁盘占用最高的分片。</p>
+</blockquote>
+<h3 id="17-es">17. ES 写入性能瓶颈如何优化?</h3>
+<p><strong>核心结论</strong>:批量写入 + 关闭刷新 + 增大缓冲区 + 异步刷盘 = 吞吐提升 10-50 倍。</p>
+<pre><code>优化配置:
+
+1. 批量写入 bulk API
+   POST _bulk
+   { &quot;index&quot;: { &quot;_index&quot;: &quot;logs&quot;, &quot;_id&quot;: &quot;1&quot; } }
+   { &quot;message&quot;: &quot;log content&quot; }
+   { &quot;index&quot;: { &quot;_index&quot;: &quot;logs&quot;, &quot;_id&quot;: &quot;2&quot; } }
+   { &quot;message&quot;: &quot;another log&quot; }
+
+   批量大小:5-15MB 一批(别超过)_
+
+2. 写入前关闭刷新
+   PUT /logs/_settings
+   { &quot;refresh_interval&quot;: -1 }  ← 关闭!
+
+3. 增大 translog 缓冲
+   PUT /logs/_settings
+   {
+     &quot;translog&quot;: {
+       &quot;flush_threshold_size&quot;: &quot;512mb&quot;,  ← 默认 512mb
+       &quot;sync_interval&quot;: &quot;5s&quot;            ← 异步刷盘
+     }
+   }
+
+4. 调整线程池
+   thread_pool:
+     write:
+       size: 16        ← CPU 核数
+       queue_size: 1000
+</code></pre>
+<p><strong>性能对比</strong>(单节点 10 亿日志导入):</p>
+<table>
+<thead>
+<tr>
+<th>配置</th>
+<th>耗时</th>
+<th>吞吐</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>默认配置</td>
+<td>8 小时</td>
+<td>3500 docs/s</td>
+</tr>
+<tr>
+<td>bulk + 关 refresh</td>
+<td>25 分钟</td>
+<td>67000 docs/s</td>
+</tr>
+<tr>
+<td>+ 异步 translog</td>
+<td>15 分钟</td>
+<td>111000 docs/s</td>
+</tr>
+</tbody>
+</table>
+<blockquote>
+<p><strong>扩展</strong>:写入完成后记得恢复 <code>refresh_interval</code> 并手动调用 <code>_forcemerge</code> 合并段。如果源数据在 MySQL,建议用 Logstash 或 Canal 同步,别自己写代码轮询。大批量写入还要注意磁盘 IO 压力--SSD 是必须的,否则优化空间有限。</p>
+</blockquote>
+<h3 id="18-es-dsl">18. ES 查询DSL的执行流程与优化？</h3>
+<p><strong>查询流程</strong>：</p>
+<pre><code>GET /products/_search
+{
+  &quot;query&quot;: {
+    &quot;bool&quot;: {
+      &quot;must&quot;:   [{ &quot;match&quot;: { &quot;name&quot;: &quot;手机&quot; } }],
+      &quot;filter&quot;: [{ &quot;range&quot;: { &quot;price&quot;: { &quot;lte&quot;: 3000 } } }]
+    }
+  }
+}
+
+执行流程:
+  Query Phase:
+    1. 协调节点接收请求
+    2. 广播到所有分片（并行）
+    3. 每个分片执行：评分（must）+ 过滤（filter缓存）
+    4. 每个分片返回 top N 文档 ID
+
+  Fetch Phase:
+    5. 协调节点收集所有分片结果
+    6. 合并排序，取 top 10
+    7. 向目标分片请求完整文档
+    8. 返回客户端
+</code></pre>
+<p><strong>优化方向</strong>：</p>
+<table>
+<thead>
+<tr>
+<th>优化点</th>
+<th>方法</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>减少分片数</td>
+<td>冷数据合并分片（<code>_forcemerge</code>）</td>
+</tr>
+<tr>
+<td>善用 filter</td>
+<td>filter 不评分，自动缓存</td>
+</tr>
+<tr>
+<td><code>search_after</code> 分页</td>
+<td>深度分页用游标，不吃内存</td>
+</tr>
+<tr>
+<td><code>source filtering</code></td>
+<td><code>"_source": ["name","price"]</code> 只取必要字段</td>
+</tr>
+<tr>
+<td>预热</td>
+<td>warmup API 提前加载热点数据</td>
+</tr>
+</tbody>
+</table>
+<blockquote>
+<p><strong>扩展</strong>：7.x 后默认每分片 <code>_primary</code>，6.x 是 <code>_primary|_replica</code>；<code>preference=_local</code> 让查询优先读本地分片，减少网络跳数；写入优化用 bulk API + refresh_interval="30s"。</p>
+</blockquote>
+
+<script>
+// Scroll spy — highlight active sidebar item
+window.addEventListener('scroll', function() {
+    var links = document.querySelectorAll('.sidebar-toc a');
+    var scrollY = window.scrollY + 120;
+    var current = '';
+    for (var i = links.length - 1; i >= 0; i--) {
+        var target = document.getElementById(links[i].getAttribute('href').slice(1));
+        if (target && target.offsetTop <= scrollY) {
+            current = links[i];
+            break;
+        }
+    }
+    links.forEach(function(a) { a.style.fontWeight = 'normal'; a.style.color = '#555'; });
+    if (current) { current.style.fontWeight = 'bold'; current.style.color = '#0366d6'; }
+});
+</script>
+
+
+<script>
+document.querySelectorAll('pre > code').forEach(function(codeBlock, i) {
+    var pre = codeBlock.parentNode;
+    pre.style.position = 'relative';
+    var btn = document.createElement('button');
+    btn.className = 'copy-btn';
+    btn.textContent = '复制';
+    pre.appendChild(btn);
+    btn.addEventListener('click', function() {
+        var text = codeBlock.textContent;
+        navigator.clipboard.writeText(text).then(function() {
+            btn.textContent = '已复制';
+            btn.classList.add('copied');
+            setTimeout(function() {
+                btn.textContent = '复制';
+                btn.classList.remove('copied');
+            }, 2000);
+        }).catch(function() {
+            // Fallback
+            var ta = document.createElement('textarea');
+            ta.value = text; ta.style.position = 'fixed'; ta.style.opacity = '0';
+            document.body.appendChild(ta); ta.select();
+            document.execCommand('copy'); document.body.removeChild(ta);
+            btn.textContent = '已复制'; btn.classList.add('copied');
+            setTimeout(function() { btn.textContent = '复制'; btn.classList.remove('copied'); }, 2000);
+        });
+    });
+});
+</script>
+
+
+<script>document.querySelectorAll("pre>code").forEach(function(c){var p=c.parentNode;p.style.position="relative";var b=document.createElement("button");b.className="copy-btn";b.textContent="复制";p.appendChild(b);b.addEventListener("click",function(){var t=c.textContent;navigator.clipboard.writeText(t).then(function(){b.textContent="已复制";b.classList.add("copied");setTimeout(function(){b.textContent="复制";b.classList.remove("copied")},2000)}).catch(function(){var a=document.createElement("textarea");a.value=t;a.style.position="fixed";a.style.opacity="0";document.body.appendChild(a);a.select();document.execCommand("copy");document.body.removeChild(a);b.textContent="已复制";b.classList.add("copied");setTimeout(function(){b.textContent="复制";b.classList.remove("copied")},2000)})})})</script>
+</body>
+</html>

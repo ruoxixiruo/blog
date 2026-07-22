@@ -1,0 +1,437 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 5.4.2">
+  <link rel="apple-touch-icon" sizes="180x180" href="/blog/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/blog/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/blog/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/blog/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/blog/css/main.css">
+
+
+<link rel="stylesheet" href="/blog/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"ruoxixiruo.github.io","root":"/blog/","scheme":"Gemini","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":true,"show_result":true,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":true},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}};
+  </script>
+
+  <meta name="description" content="1，JVM 内存模型123456789101112# JVM 内存分区┌─────────────────────────────────────────┐│                    JVM                   │├─────────────┬───────────────────────────┤│  线程私有    │         线程共享">
+<meta property="og:type" content="article">
+<meta property="og:title" content="java高级">
+<meta property="og:url" content="https://ruoxixiruo.github.io/blog/2024/06/01/java/java%E9%AB%98%E7%BA%A7/index.html">
+<meta property="og:site_name" content="RUOXI-BLOG">
+<meta property="og:description" content="1，JVM 内存模型123456789101112# JVM 内存分区┌─────────────────────────────────────────┐│                    JVM                   │├─────────────┬───────────────────────────┤│  线程私有    │         线程共享">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2024-06-01T10:20:00.000Z">
+<meta property="article:modified_time" content="2026-07-22T02:51:55.000Z">
+<meta property="article:author" content="ruoxi">
+<meta property="article:tag" content="java">
+<meta name="twitter:card" content="summary">
+
+<link rel="canonical" href="https://ruoxixiruo.github.io/blog/2024/06/01/java/java%E9%AB%98%E7%BA%A7/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+
+  <title>java高级 | RUOXI-BLOG</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/blog/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">RUOXI-BLOG</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/blog/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/blog/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/blog/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/blog/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a>
+
+  </li>
+        <li class="menu-item menu-item-posts">
+
+    <a href="/blog/posts/" rel="section"><i class="fa fa-rss fa-fw"></i>posts</a>
+
+  </li>
+  </ul>
+</nav>
+
+
+
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+  <div class="reading-progress-bar"></div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://ruoxixiruo.github.io/blog/2024/06/01/java/java%E9%AB%98%E7%BA%A7/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/blog/images/avatar.gif">
+      <meta itemprop="name" content="ruoxi">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="RUOXI-BLOG">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          java高级
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2024-06-01 10:20:00" itemprop="dateCreated datePublished" datetime="2024-06-01T10:20:00+00:00">2024-06-01</time>
+            </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/blog/categories/java/" itemprop="url" rel="index"><span itemprop="name">java</span></a>
+                </span>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <h5 id="1，JVM-内存模型"><a href="#1，JVM-内存模型" class="headerlink" title="1，JVM 内存模型"></a>1，JVM 内存模型</h5><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># JVM 内存分区</span></span><br><span class="line"></span><br><span class="line">┌─────────────────────────────────────────┐</span><br><span class="line">│                    JVM                   │</span><br><span class="line">├─────────────┬───────────────────────────┤</span><br><span class="line">│  线程私有    │         线程共享           │</span><br><span class="line">├─────────────┼──────────────┬────────────┤</span><br><span class="line">│  程序计数器   │   堆（Heap）  │  方法区     │</span><br><span class="line">│  虚拟机栈    │   - 新生代   │  - 类信息   │</span><br><span class="line">│  本地方法栈  │   - 老年代   │  - 常量池   │</span><br><span class="line">│             │              │  - 静态变量  │</span><br><span class="line">└─────────────┴──────────────┴────────────┘</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 堆内存结构</span></span><br><span class="line"><span class="comment">// 新生代（Young Gen）</span></span><br><span class="line"><span class="comment">//   ├── Eden 区（80%）：新对象分配</span></span><br><span class="line"><span class="comment">//   └── Survivor 区（from + to，各 10%）：GC 后存活对象</span></span><br><span class="line"><span class="comment">// 老年代（Old Gen）：存活久的对象</span></span><br><span class="line"><span class="comment">// 元空间（Metaspace，JDK 8+）：类元数据，使用本地内存</span></span><br><span class="line"></span><br><span class="line"><span class="comment">// JVM 参数</span></span><br><span class="line"><span class="comment">// -Xms512m          初始堆大小</span></span><br><span class="line"><span class="comment">// -Xmx2048m         最大堆大小</span></span><br><span class="line"><span class="comment">// -Xmn256m          新生代大小</span></span><br><span class="line"><span class="comment">// -XX:SurvivorRatio=8     Eden/Survivor 比例</span></span><br><span class="line"><span class="comment">// -XX:MetaspaceSize=128m  元空间初始大小</span></span><br><span class="line"><span class="comment">// -XX:MaxMetaspaceSize=256m</span></span><br></pre></td></tr></table></figure>
+
+<span id="more"></span>
+
+<h5 id="2，垃圾回收（GC）"><a href="#2，垃圾回收（GC）" class="headerlink" title="2，垃圾回收（GC）"></a>2，垃圾回收（GC）</h5><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// ============ 判断对象可回收 ============</span></span><br><span class="line"><span class="comment">// 1. 引用计数法（Java 不用，有循环引用问题）</span></span><br><span class="line"><span class="comment">// 2. 可达性分析：从 GC Roots 出发，不可达的对象可回收</span></span><br><span class="line"></span><br><span class="line"><span class="comment">// GC Roots 包括：</span></span><br><span class="line"><span class="comment">// - 虚拟机栈中局部变量引用的对象</span></span><br><span class="line"><span class="comment">// - 静态变量引用的对象</span></span><br><span class="line"><span class="comment">// - 常量引用的对象</span></span><br><span class="line"><span class="comment">// - JNI 引用的对象</span></span><br><span class="line"></span><br><span class="line"><span class="comment">// ============ 垃圾回收算法 ============</span></span><br><span class="line"><span class="comment">// 标记-清除   ：标记 → 清除 → 产生碎片</span></span><br><span class="line"><span class="comment">// 标记-整理   ：标记 → 存活对象前移 → 清除边界外</span></span><br><span class="line"><span class="comment">// 复制        ：存活对象复制到另一区域 → 清空原区域（新生代常用）</span></span><br><span class="line"><span class="comment">// 分代收集    ：新生代用复制，老年代用标记整理</span></span><br><span class="line"></span><br><span class="line"><span class="comment">// ============ 垃圾回收器 ============</span></span><br><span class="line"><span class="comment">// 新生代：</span></span><br><span class="line"><span class="comment">//   Serial     单线程，客户端模式</span></span><br><span class="line"><span class="comment">//   ParNew     多线程版 Serial（常配合 CMS）</span></span><br><span class="line"><span class="comment">//   Parallel Scavenge  吞吐量优先</span></span><br><span class="line"><span class="comment">// 老年代：</span></span><br><span class="line"><span class="comment">//   Serial Old     单线程</span></span><br><span class="line"><span class="comment">//   CMS            低停顿（已废弃，JDK 14 移除）</span></span><br><span class="line"><span class="comment">//   Parallel Old   多线程</span></span><br><span class="line"><span class="comment">// 全代：</span></span><br><span class="line"><span class="comment">//   G1        平衡吞吐和延迟（JDK 9+ 默认）</span></span><br><span class="line"><span class="comment">//   ZGC       超低延迟（JDK 15+ 生产）</span></span><br><span class="line"><span class="comment">//   Shenandoah</span></span><br><span class="line"></span><br><span class="line"><span class="comment">// ============ 引用类型 ============</span></span><br><span class="line"></span><br><span class="line"><span class="comment">// 强引用：普通 new，绝不回收</span></span><br><span class="line"><span class="type">Object</span> <span class="variable">obj</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">Object</span>();</span><br><span class="line"></span><br><span class="line"><span class="comment">// 软引用：内存不足时回收（适合缓存）</span></span><br><span class="line">SoftReference&lt;Object&gt; soft = <span class="keyword">new</span> <span class="title class_">SoftReference</span>&lt;&gt;(<span class="keyword">new</span> <span class="title class_">Object</span>());</span><br><span class="line"></span><br><span class="line"><span class="comment">// 弱引用：GC 时立即回收（适合 WeakHashMap）</span></span><br><span class="line">WeakReference&lt;Object&gt; weak = <span class="keyword">new</span> <span class="title class_">WeakReference</span>&lt;&gt;(<span class="keyword">new</span> <span class="title class_">Object</span>());</span><br><span class="line"></span><br><span class="line"><span class="comment">// 虚引用：无法获取对象，用于跟踪回收状态</span></span><br><span class="line">PhantomReference&lt;Object&gt; phantom = <span class="keyword">new</span> <span class="title class_">PhantomReference</span>&lt;&gt;(obj, queue);</span><br></pre></td></tr></table></figure>
+
+<h5 id="3，并发编程（JUC）"><a href="#3，并发编程（JUC）" class="headerlink" title="3，并发编程（JUC）"></a>3，并发编程（JUC）</h5><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// ============ 线程池 ============</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> java.util.concurrent.*;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 创建线程池</span></span><br><span class="line"><span class="type">ExecutorService</span> <span class="variable">pool</span> <span class="operator">=</span> Executors.newFixedThreadPool(<span class="number">4</span>);        <span class="comment">// 固定大小</span></span><br><span class="line"><span class="type">ExecutorService</span> <span class="variable">cached</span> <span class="operator">=</span> Executors.newCachedThreadPool();      <span class="comment">// 可缓存</span></span><br><span class="line"><span class="type">ExecutorService</span> <span class="variable">single</span> <span class="operator">=</span> Executors.newSingleThreadExecutor();   <span class="comment">// 单线程</span></span><br><span class="line"></span><br><span class="line"><span class="comment">// 推荐：手动创建（明确参数）</span></span><br><span class="line"><span class="type">ThreadPoolExecutor</span> <span class="variable">executor</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">ThreadPoolExecutor</span>(</span><br><span class="line">    <span class="number">4</span>,                              <span class="comment">// corePoolSize  核心线程数</span></span><br><span class="line">    <span class="number">10</span>,                             <span class="comment">// maximumPoolSize 最大线程数</span></span><br><span class="line">    <span class="number">60L</span>, TimeUnit.SECONDS,           <span class="comment">// 空闲线程存活时间</span></span><br><span class="line">    <span class="keyword">new</span> <span class="title class_">LinkedBlockingQueue</span>&lt;&gt;(<span class="number">100</span>),  <span class="comment">// 工作队列</span></span><br><span class="line">    <span class="keyword">new</span> <span class="title class_">ThreadPoolExecutor</span>.CallerRunsPolicy()  <span class="comment">// 拒绝策略</span></span><br><span class="line">);</span><br><span class="line"><span class="comment">// 拒绝策略：</span></span><br><span class="line"><span class="comment">// AbortPolicy        抛异常（默认）</span></span><br><span class="line"><span class="comment">// CallerRunsPolicy   由提交任务的线程执行</span></span><br><span class="line"><span class="comment">// DiscardPolicy      直接丢弃</span></span><br><span class="line"><span class="comment">// DiscardOldestPolicy  丢弃队列中最旧的</span></span><br><span class="line"></span><br><span class="line"><span class="comment">// 提交任务</span></span><br><span class="line">Future&lt;String&gt; future = executor.submit(() -&gt; &#123;</span><br><span class="line">    <span class="keyword">return</span> <span class="string">&quot;result&quot;</span>;</span><br><span class="line">&#125;);</span><br><span class="line">executor.execute(() -&gt; System.out.println(<span class="string">&quot;run&quot;</span>));</span><br><span class="line"></span><br><span class="line"><span class="comment">// 关闭</span></span><br><span class="line">executor.shutdown();                  <span class="comment">// 优雅关闭</span></span><br><span class="line">executor.shutdownNow();               <span class="comment">// 立即关闭</span></span><br><span class="line">executor.awaitTermination(<span class="number">10</span>, TimeUnit.SECONDS);</span><br><span class="line"></span><br><span class="line"><span class="comment">// ============ ConcurrentHashMap ============</span></span><br><span class="line"></span><br><span class="line">ConcurrentHashMap&lt;String, Integer&gt; map = <span class="keyword">new</span> <span class="title class_">ConcurrentHashMap</span>&lt;&gt;();</span><br><span class="line">map.put(<span class="string">&quot;key&quot;</span>, <span class="number">1</span>);</span><br><span class="line">map.get(<span class="string">&quot;key&quot;</span>);</span><br><span class="line"></span><br><span class="line"><span class="comment">// JDK 7：分段锁（Segment）</span></span><br><span class="line"><span class="comment">// JDK 8：CAS + synchronized，粒度更细</span></span><br><span class="line"></span><br><span class="line"><span class="comment">// ============ 并发集合 ============</span></span><br><span class="line"></span><br><span class="line">CopyOnWriteArrayList&lt;String&gt; cowList = <span class="keyword">new</span> <span class="title class_">CopyOnWriteArrayList</span>&lt;&gt;();</span><br><span class="line"><span class="comment">// 写时复制，适合读多写少</span></span><br><span class="line"></span><br><span class="line">ConcurrentLinkedQueue&lt;String&gt; clq = <span class="keyword">new</span> <span class="title class_">ConcurrentLinkedQueue</span>&lt;&gt;();</span><br><span class="line"><span class="comment">// 无界非阻塞队列</span></span><br><span class="line"></span><br><span class="line">BlockingQueue&lt;String&gt; bq = <span class="keyword">new</span> <span class="title class_">LinkedBlockingQueue</span>&lt;&gt;(<span class="number">10</span>);</span><br><span class="line">bq.put(<span class="string">&quot;item&quot;</span>);                    <span class="comment">// 阻塞直到有空间</span></span><br><span class="line"><span class="type">String</span> <span class="variable">item</span> <span class="operator">=</span> bq.take();           <span class="comment">// 阻塞直到有元素</span></span><br><span class="line"></span><br><span class="line"><span class="comment">// ============ Atomic 原子类 ============</span></span><br><span class="line"></span><br><span class="line"><span class="type">AtomicInteger</span> <span class="variable">ai</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">AtomicInteger</span>(<span class="number">0</span>);</span><br><span class="line">ai.incrementAndGet();              <span class="comment">// 原子 ++i</span></span><br><span class="line">ai.getAndIncrement();              <span class="comment">// 原子 i++</span></span><br><span class="line">ai.compareAndSet(expect, update);  <span class="comment">// CAS</span></span><br><span class="line"><span class="comment">// 原理：CAS + 自旋，无锁但可能 ABA 问题</span></span><br><span class="line"><span class="comment">// 解决 ABA：AtomicStampedReference / AtomicMarkableReference</span></span><br><span class="line"></span><br><span class="line"><span class="comment">// ============ ThreadLocal ============</span></span><br><span class="line"><span class="comment">// 每个线程有自己的变量副本，隔离线程间数据</span></span><br><span class="line"></span><br><span class="line">ThreadLocal&lt;String&gt; threadLocal = <span class="keyword">new</span> <span class="title class_">ThreadLocal</span>&lt;&gt;();</span><br><span class="line">threadLocal.set(<span class="string">&quot;user_&quot;</span> + Thread.currentThread().getName());</span><br><span class="line"><span class="type">String</span> <span class="variable">value</span> <span class="operator">=</span> threadLocal.get();</span><br><span class="line">threadLocal.remove();              <span class="comment">// 重要：用完必须 remove 防内存泄漏</span></span><br><span class="line"></span><br><span class="line"><span class="comment">// ============ CompletableFuture（异步编排）============</span></span><br><span class="line"></span><br><span class="line">CompletableFuture&lt;String&gt; cf = CompletableFuture</span><br><span class="line">    .supplyAsync(() -&gt; <span class="string">&quot;Hello&quot;</span>)              <span class="comment">// 异步执行</span></span><br><span class="line">    .thenApply(s -&gt; s + <span class="string">&quot; World&quot;</span>)            <span class="comment">// 转换结果</span></span><br><span class="line">    .thenAccept(System.out::println)         <span class="comment">// 消费结果</span></span><br><span class="line">    .thenRun(() -&gt; System.out.println(<span class="string">&quot;完&quot;</span>)) <span class="comment">// 最后执行</span></span><br><span class="line"></span><br><span class="line"><span class="comment">// 组合多个</span></span><br><span class="line">CompletableFuture&lt;String&gt; cf1 = CompletableFuture.supplyAsync(() -&gt; <span class="string">&quot;A&quot;</span>);</span><br><span class="line">CompletableFuture&lt;String&gt; cf2 = CompletableFuture.supplyAsync(() -&gt; <span class="string">&quot;B&quot;</span>);</span><br><span class="line"></span><br><span class="line">cf1.thenCombine(cf2, (a, b) -&gt; a + b);       <span class="comment">// 等两个都有结果</span></span><br><span class="line">cf1.applyToEither(cf2, s -&gt; s);              <span class="comment">// 任意一个先完成</span></span><br><span class="line"></span><br><span class="line">CompletableFuture.allOf(cf1, cf2).join();     <span class="comment">// 等全部完成</span></span><br><span class="line">CompletableFuture.anyOf(cf1, cf2).join();     <span class="comment">// 等任意完成</span></span><br></pre></td></tr></table></figure>
+
+<h5 id="4，NIO（New-I-O）"><a href="#4，NIO（New-I-O）" class="headerlink" title="4，NIO（New I/O）"></a>4，NIO（New I/O）</h5><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// NIO 三大核心：Channel、Buffer、Selector</span></span><br><span class="line"><span class="comment">// 非阻塞、面向缓冲、选择器多路复用</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> java.nio.*;</span><br><span class="line"><span class="keyword">import</span> java.nio.channels.*;</span><br><span class="line"><span class="keyword">import</span> java.nio.file.*;</span><br><span class="line"><span class="keyword">import</span> java.io.*;</span><br><span class="line"></span><br><span class="line"><span class="comment">// ============ Buffer ============</span></span><br><span class="line"></span><br><span class="line"><span class="comment">// position 当前读写位置  limit 可读/可写边界  capacity 总容量</span></span><br><span class="line"><span class="type">ByteBuffer</span> <span class="variable">buf</span> <span class="operator">=</span> ByteBuffer.allocate(<span class="number">1024</span>);      <span class="comment">// 堆内存</span></span><br><span class="line"><span class="type">ByteBuffer</span> <span class="variable">direct</span> <span class="operator">=</span> ByteBuffer.allocateDirect(<span class="number">1024</span>); <span class="comment">// 直接内存</span></span><br><span class="line"></span><br><span class="line">buf.put(<span class="string">&quot;hello&quot;</span>.getBytes());      <span class="comment">// 写入</span></span><br><span class="line">buf.flip();                       <span class="comment">// 切换为读模式</span></span><br><span class="line"><span class="keyword">while</span> (buf.hasRemaining()) &#123;</span><br><span class="line">    System.out.print((<span class="type">char</span>) buf.get());  <span class="comment">// 读取</span></span><br><span class="line">&#125;</span><br><span class="line">buf.clear();                      <span class="comment">// 切换为写模式（数据不保留）</span></span><br><span class="line"></span><br><span class="line"><span class="comment">// ============ Channel ============</span></span><br><span class="line"></span><br><span class="line"><span class="comment">// FileChannel</span></span><br><span class="line"><span class="keyword">try</span> (<span class="type">FileChannel</span> <span class="variable">channel</span> <span class="operator">=</span> FileChannel.open(Path.of(<span class="string">&quot;file.txt&quot;</span>),</span><br><span class="line">        StandardOpenOption.READ)) &#123;</span><br><span class="line">    <span class="type">ByteBuffer</span> <span class="variable">buffer</span> <span class="operator">=</span> ByteBuffer.allocate(<span class="number">1024</span>);</span><br><span class="line">    <span class="keyword">while</span> (channel.read(buffer) != -<span class="number">1</span>) &#123;</span><br><span class="line">        buffer.flip();</span><br><span class="line">        <span class="comment">// 处理数据</span></span><br><span class="line">        buffer.clear();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// SocketChannel（非阻塞）</span></span><br><span class="line"><span class="type">SocketChannel</span> <span class="variable">socketChannel</span> <span class="operator">=</span> SocketChannel.open();</span><br><span class="line">socketChannel.configureBlocking(<span class="literal">false</span>);</span><br><span class="line">socketChannel.connect(<span class="keyword">new</span> <span class="title class_">InetSocketAddress</span>(<span class="string">&quot;localhost&quot;</span>, <span class="number">8080</span>));</span><br><span class="line"></span><br><span class="line"><span class="comment">// ServerSocketChannel</span></span><br><span class="line"><span class="type">ServerSocketChannel</span> <span class="variable">serverChannel</span> <span class="operator">=</span> ServerSocketChannel.open();</span><br><span class="line">serverChannel.bind(<span class="keyword">new</span> <span class="title class_">InetSocketAddress</span>(<span class="number">8080</span>));</span><br><span class="line">serverChannel.configureBlocking(<span class="literal">false</span>);</span><br><span class="line"></span><br><span class="line"><span class="type">Selector</span> <span class="variable">selector</span> <span class="operator">=</span> Selector.open();</span><br><span class="line">serverChannel.register(selector, SelectionKey.OP_ACCEPT);</span><br><span class="line"></span><br><span class="line"><span class="keyword">while</span> (<span class="literal">true</span>) &#123;</span><br><span class="line">    selector.select();             <span class="comment">// 阻塞，直到有事件</span></span><br><span class="line"></span><br><span class="line">    <span class="keyword">for</span> (SelectionKey key : selector.selectedKeys()) &#123;</span><br><span class="line">        <span class="keyword">if</span> (key.isAcceptable()) &#123;</span><br><span class="line">            <span class="type">SocketChannel</span> <span class="variable">client</span> <span class="operator">=</span> serverChannel.accept();</span><br><span class="line">            client.configureBlocking(<span class="literal">false</span>);</span><br><span class="line">            client.register(selector, SelectionKey.OP_READ);</span><br><span class="line">        &#125; <span class="keyword">else</span> <span class="keyword">if</span> (key.isReadable()) &#123;</span><br><span class="line">            <span class="type">SocketChannel</span> <span class="variable">client</span> <span class="operator">=</span> (SocketChannel) key.channel();</span><br><span class="line">            <span class="type">ByteBuffer</span> <span class="variable">buffer</span> <span class="operator">=</span> ByteBuffer.allocate(<span class="number">1024</span>);</span><br><span class="line">            client.read(buffer);</span><br><span class="line">            <span class="comment">// 处理...</span></span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    selector.selectedKeys().clear();</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// ============ Files（NIO.2）============</span></span><br><span class="line"></span><br><span class="line"><span class="type">Path</span> <span class="variable">path</span> <span class="operator">=</span> Path.of(<span class="string">&quot;/home/user&quot;</span>);</span><br><span class="line">Files.list(path).forEach(System.out::println);</span><br><span class="line">Files.walk(path).filter(p -&gt; p.toString().endsWith(<span class="string">&quot;.java&quot;</span>)).forEach(System.out::println);</span><br></pre></td></tr></table></figure>
+
+<h5 id="5，类加载机制"><a href="#5，类加载机制" class="headerlink" title="5，类加载机制"></a>5，类加载机制</h5><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// ============ 类加载过程 ============</span></span><br><span class="line"><span class="comment">// 加载 → 验证 → 准备 → 解析 → 初始化 → 使用 → 卸载</span></span><br><span class="line"></span><br><span class="line"><span class="comment">// ============ 类加载器 ============</span></span><br><span class="line"><span class="comment">// Bootstrap ClassLoader     加载 rt.jar（核心类库）—— C++ 实现，Java 中为 null</span></span><br><span class="line"><span class="comment">// Extension ClassLoader     加载 ext/ 目录下的 jar</span></span><br><span class="line"><span class="comment">// Application ClassLoader   加载 classpath 下的类</span></span><br><span class="line"></span><br><span class="line"><span class="comment">// 双亲委派模型：自底向上（先问父加载器是否已加载）</span></span><br><span class="line"><span class="comment">// 好处：避免核心类被篡改，保证类型安全</span></span><br><span class="line"></span><br><span class="line"><span class="comment">// 自定义类加载器</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">MyClassLoader</span> <span class="keyword">extends</span> <span class="title class_">ClassLoader</span> &#123;</span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="keyword">protected</span> Class&lt;?&gt; findClass(String name) <span class="keyword">throws</span> ClassNotFoundException &#123;</span><br><span class="line">        <span class="type">byte</span>[] bytes = loadClassData(name);</span><br><span class="line">        <span class="keyword">return</span> defineClass(name, bytes, <span class="number">0</span>, bytes.length);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">private</span> <span class="type">byte</span>[] loadClassData(String name) &#123;</span><br><span class="line">        <span class="comment">// 从自定义路径读取 .class 文件</span></span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 破坏双亲委派（如 Tomcat、JDBC 的场景）</span></span><br><span class="line"><span class="comment">// 重写 loadClass() 而非 findClass()</span></span><br></pre></td></tr></table></figure>
+
+<h5 id="6，设计模式"><a href="#6，设计模式" class="headerlink" title="6，设计模式"></a>6，设计模式</h5><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// ============ 单例模式 ============</span></span><br><span class="line"><span class="comment">// 双重检查锁（DCL）</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">Singleton</span> &#123;</span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">volatile</span> Singleton instance;</span><br><span class="line">    <span class="keyword">private</span> <span class="title function_">Singleton</span><span class="params">()</span> &#123;&#125;</span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> Singleton <span class="title function_">getInstance</span><span class="params">()</span> &#123;</span><br><span class="line">        <span class="keyword">if</span> (instance == <span class="literal">null</span>) &#123;</span><br><span class="line">            <span class="keyword">synchronized</span> (Singleton.class) &#123;</span><br><span class="line">                <span class="keyword">if</span> (instance == <span class="literal">null</span>) &#123;</span><br><span class="line">                    instance = <span class="keyword">new</span> <span class="title class_">Singleton</span>();</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> instance;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// ============ 工厂模式 ============</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">interface</span> <span class="title class_">Animal</span> &#123; <span class="keyword">void</span> <span class="title function_">speak</span><span class="params">()</span>; &#125;</span><br><span class="line"><span class="keyword">class</span> <span class="title class_">Dog</span> <span class="keyword">implements</span> <span class="title class_">Animal</span> &#123; <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">speak</span><span class="params">()</span> &#123; System.out.println(<span class="string">&quot;汪汪&quot;</span>); &#125; &#125;</span><br><span class="line"><span class="keyword">class</span> <span class="title class_">Cat</span> <span class="keyword">implements</span> <span class="title class_">Animal</span> &#123; <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">speak</span><span class="params">()</span> &#123; System.out.println(<span class="string">&quot;喵喵&quot;</span>); &#125; &#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">AnimalFactory</span> &#123;</span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> Animal <span class="title function_">create</span><span class="params">(String type)</span> &#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">switch</span> (type) &#123;</span><br><span class="line">            <span class="keyword">case</span> <span class="string">&quot;dog&quot;</span> -&gt; <span class="keyword">new</span> <span class="title class_">Dog</span>();</span><br><span class="line">            <span class="keyword">case</span> <span class="string">&quot;cat&quot;</span> -&gt; <span class="keyword">new</span> <span class="title class_">Cat</span>();</span><br><span class="line">            <span class="keyword">default</span> -&gt; <span class="keyword">throw</span> <span class="keyword">new</span> <span class="title class_">IllegalArgumentException</span>();</span><br><span class="line">        &#125;;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// ============ 建造者模式 ============</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">Computer</span> &#123;</span><br><span class="line">    <span class="keyword">private</span> String cpu;</span><br><span class="line">    <span class="keyword">private</span> String ram;</span><br><span class="line">    <span class="keyword">private</span> String disk;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">private</span> <span class="title function_">Computer</span><span class="params">(Builder b)</span> &#123;</span><br><span class="line">        <span class="built_in">this</span>.cpu = b.cpu;</span><br><span class="line">        <span class="built_in">this</span>.ram = b.ram;</span><br><span class="line">        <span class="built_in">this</span>.disk = b.disk;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">class</span> <span class="title class_">Builder</span> &#123;</span><br><span class="line">        <span class="keyword">private</span> String cpu;</span><br><span class="line">        <span class="keyword">private</span> String ram;</span><br><span class="line">        <span class="keyword">private</span> String disk;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">public</span> Builder <span class="title function_">cpu</span><span class="params">(String cpu)</span> &#123; <span class="built_in">this</span>.cpu = cpu; <span class="keyword">return</span> <span class="built_in">this</span>; &#125;</span><br><span class="line">        <span class="keyword">public</span> Builder <span class="title function_">ram</span><span class="params">(String ram)</span> &#123; <span class="built_in">this</span>.ram = ram; <span class="keyword">return</span> <span class="built_in">this</span>; &#125;</span><br><span class="line">        <span class="keyword">public</span> Builder <span class="title function_">disk</span><span class="params">(String disk)</span> &#123; <span class="built_in">this</span>.disk = disk; <span class="keyword">return</span> <span class="built_in">this</span>; &#125;</span><br><span class="line">        <span class="keyword">public</span> Computer <span class="title function_">build</span><span class="params">()</span> &#123; <span class="keyword">return</span> <span class="keyword">new</span> <span class="title class_">Computer</span>(<span class="built_in">this</span>); &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="type">Computer</span> <span class="variable">pc</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">Computer</span>.Builder()</span><br><span class="line">    .cpu(<span class="string">&quot;i7&quot;</span>)</span><br><span class="line">    .ram(<span class="string">&quot;16GB&quot;</span>)</span><br><span class="line">    .disk(<span class="string">&quot;1TB SSD&quot;</span>)</span><br><span class="line">    .build();</span><br><span class="line"></span><br><span class="line"><span class="comment">// ============ 代理模式 ============</span></span><br><span class="line"></span><br><span class="line"><span class="comment">// JDK 动态代理（基于接口）</span></span><br><span class="line"><span class="keyword">interface</span> <span class="title class_">UserService</span> &#123; <span class="keyword">void</span> <span class="title function_">save</span><span class="params">()</span>; &#125;</span><br><span class="line"><span class="keyword">class</span> <span class="title class_">UserServiceImpl</span> <span class="keyword">implements</span> <span class="title class_">UserService</span> &#123;</span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">save</span><span class="params">()</span> &#123; System.out.println(<span class="string">&quot;保存用户&quot;</span>); &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">LogHandler</span> <span class="keyword">implements</span> <span class="title class_">InvocationHandler</span> &#123;</span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">final</span> Object target;</span><br><span class="line">    LogHandler(Object target) &#123; <span class="built_in">this</span>.target = target; &#125;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="keyword">public</span> Object <span class="title function_">invoke</span><span class="params">(Object proxy, Method method, Object[] args)</span> <span class="keyword">throws</span> Throwable &#123;</span><br><span class="line">        System.out.println(<span class="string">&quot;开始: &quot;</span> + method.getName());</span><br><span class="line">        <span class="type">Object</span> <span class="variable">result</span> <span class="operator">=</span> method.invoke(target, args);</span><br><span class="line">        System.out.println(<span class="string">&quot;结束: &quot;</span> + method.getName());</span><br><span class="line">        <span class="keyword">return</span> result;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="type">UserService</span> <span class="variable">proxy</span> <span class="operator">=</span> (UserService) Proxy.newProxyInstance(</span><br><span class="line">    UserService.class.getClassLoader(),</span><br><span class="line">    <span class="keyword">new</span> <span class="title class_">Class</span>[]&#123;UserService.class&#125;,</span><br><span class="line">    <span class="keyword">new</span> <span class="title class_">LogHandler</span>(<span class="keyword">new</span> <span class="title class_">UserServiceImpl</span>())</span><br><span class="line">);</span><br><span class="line">proxy.save();</span><br><span class="line"></span><br><span class="line"><span class="comment">// CGLIB 代理（基于继承，无接口也可代理）</span></span><br><span class="line"><span class="comment">// Enhancer enhancer = new Enhancer();</span></span><br><span class="line"><span class="comment">// enhancer.setSuperclass(Target.class);</span></span><br><span class="line"><span class="comment">// enhancer.setCallback(new MethodInterceptor() &#123; ... &#125;);</span></span><br></pre></td></tr></table></figure>
+
+<h5 id="7，Java-新版本特性"><a href="#7，Java-新版本特性" class="headerlink" title="7，Java 新版本特性"></a>7，Java 新版本特性</h5><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// ============ JDK 9 ============</span></span><br><span class="line"><span class="comment">// 模块系统</span></span><br><span class="line"><span class="comment">// module-info.java:</span></span><br><span class="line"><span class="comment">// module com.example &#123; exports com.example.api; requires java.sql; &#125;</span></span><br><span class="line"></span><br><span class="line"><span class="comment">// 不可变集合工厂</span></span><br><span class="line">List.of(<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>);</span><br><span class="line">Set.of(<span class="string">&quot;a&quot;</span>, <span class="string">&quot;b&quot;</span>);</span><br><span class="line">Map.of(<span class="string">&quot;k1&quot;</span>, <span class="number">1</span>, <span class="string">&quot;k2&quot;</span>, <span class="number">2</span>);</span><br><span class="line"></span><br><span class="line"><span class="comment">// 接口私有方法</span></span><br><span class="line"><span class="comment">// private void helper() &#123;&#125;</span></span><br><span class="line"></span><br><span class="line"><span class="comment">// try-with-resources 改进</span></span><br><span class="line"><span class="comment">// 资源可在 try 外声明：try (reader) &#123; &#125;</span></span><br><span class="line"></span><br><span class="line"><span class="comment">// ============ JDK 11 (LTS) ============</span></span><br><span class="line"><span class="comment">// var 局部变量类型推断</span></span><br><span class="line"><span class="type">var</span> <span class="variable">list</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">ArrayList</span>&lt;String&gt;();</span><br><span class="line"><span class="type">var</span> <span class="variable">name</span> <span class="operator">=</span> <span class="string">&quot;Java&quot;</span>;</span><br><span class="line"></span><br><span class="line"><span class="comment">// HTTP Client</span></span><br><span class="line"><span class="type">HttpClient</span> <span class="variable">client</span> <span class="operator">=</span> HttpClient.newHttpClient();</span><br><span class="line"><span class="type">HttpRequest</span> <span class="variable">request</span> <span class="operator">=</span> HttpRequest.newBuilder()</span><br><span class="line">    .uri(URI.create(<span class="string">&quot;https://example.com&quot;</span>))</span><br><span class="line">    .build();</span><br><span class="line">HttpResponse&lt;String&gt; response = client.send(request, HttpResponse.BodyHandlers.ofString());</span><br><span class="line"></span><br><span class="line"><span class="comment">// String 新方法</span></span><br><span class="line"><span class="string">&quot;  &quot;</span>.isBlank();                    <span class="comment">// true</span></span><br><span class="line"><span class="string">&quot;  &quot;</span>.strip();                      <span class="comment">// 去首尾空格（比 trim 更全面）</span></span><br><span class="line"><span class="string">&quot;line1\nline2&quot;</span>.lines().count();    <span class="comment">// 2</span></span><br><span class="line"></span><br><span class="line"><span class="comment">// ============ JDK 14 ============</span></span><br><span class="line"><span class="comment">// record（不可变数据载体）</span></span><br><span class="line"><span class="keyword">record</span> <span class="title class_">Point</span><span class="params">(<span class="type">int</span> x, <span class="type">int</span> y)</span> &#123;&#125;</span><br><span class="line"><span class="type">Point</span> <span class="variable">p</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">Point</span>(<span class="number">3</span>, <span class="number">4</span>);</span><br><span class="line">p.x();    <span class="comment">// 自动生成 getter</span></span><br><span class="line"><span class="comment">// 自动生成 equals/hashCode/toString</span></span><br><span class="line"></span><br><span class="line"><span class="comment">// switch 表达式</span></span><br><span class="line"><span class="type">String</span> <span class="variable">grade</span> <span class="operator">=</span> <span class="keyword">switch</span> (score / <span class="number">10</span>) &#123;</span><br><span class="line">    <span class="keyword">case</span> <span class="number">9</span>, <span class="number">10</span> -&gt; <span class="string">&quot;A&quot;</span>;</span><br><span class="line">    <span class="keyword">case</span> <span class="number">8</span> -&gt; <span class="string">&quot;B&quot;</span>;</span><br><span class="line">    <span class="keyword">case</span> <span class="number">6</span>, <span class="number">7</span> -&gt; <span class="string">&quot;C&quot;</span>;</span><br><span class="line">    <span class="keyword">default</span> -&gt; &#123;</span><br><span class="line">        System.out.println(<span class="string">&quot;低分&quot;</span>);</span><br><span class="line">        <span class="keyword">yield</span> <span class="string">&quot;F&quot;</span>;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="comment">// ============ JDK 17 (LTS) ============</span></span><br><span class="line"><span class="comment">// sealed 类（限制子类）</span></span><br><span class="line"><span class="keyword">sealed</span> <span class="keyword">class</span> <span class="title class_">Shape</span> <span class="keyword">permits</span> Circle, Rectangle, Triangle &#123;&#125;</span><br><span class="line"><span class="keyword">final</span> <span class="keyword">class</span> <span class="title class_">Circle</span> <span class="keyword">extends</span> <span class="title class_">Shape</span> &#123;&#125;</span><br><span class="line"><span class="keyword">final</span> <span class="keyword">class</span> <span class="title class_">Rectangle</span> <span class="keyword">extends</span> <span class="title class_">Shape</span> &#123;&#125;</span><br><span class="line"><span class="keyword">non-sealed</span> <span class="keyword">class</span> <span class="title class_">Triangle</span> <span class="keyword">extends</span> <span class="title class_">Shape</span> &#123;&#125;   <span class="comment">// 开放子类化</span></span><br><span class="line"></span><br><span class="line"><span class="comment">// 文本块（JDK 15 预览 → JDK 15 正式）</span></span><br><span class="line"><span class="type">String</span> <span class="variable">json</span> <span class="operator">=</span> <span class="string">&quot;&quot;&quot;</span></span><br><span class="line"><span class="string">    &#123;</span></span><br><span class="line"><span class="string">        &quot;name&quot;: &quot;Java&quot;,</span></span><br><span class="line"><span class="string">        &quot;version&quot;: 17</span></span><br><span class="line"><span class="string">    &#125;</span></span><br><span class="line"><span class="string">    &quot;&quot;&quot;</span>;</span><br><span class="line"></span><br><span class="line"><span class="comment">// ============ JDK 21 (LTS) ============</span></span><br><span class="line"><span class="comment">// 虚拟线程（Virtual Threads，协程）</span></span><br><span class="line"><span class="comment">// try (var executor = Executors.newVirtualThreadPerTaskExecutor()) &#123;</span></span><br><span class="line"><span class="comment">//     executor.submit(() -&gt; &#123; ... &#125;);</span></span><br><span class="line"><span class="comment">// &#125;</span></span><br><span class="line"></span><br><span class="line"><span class="comment">// 模式匹配 for switch</span></span><br><span class="line"><span class="comment">// Object obj = ...;</span></span><br><span class="line"><span class="comment">// switch (obj) &#123;</span></span><br><span class="line"><span class="comment">//     case Integer i -&gt; System.out.println(&quot;int: &quot; + i);</span></span><br><span class="line"><span class="comment">//     case String s -&gt; System.out.println(&quot;str: &quot; + s);</span></span><br><span class="line"><span class="comment">//     default -&gt; System.out.println(&quot;other&quot;);</span></span><br><span class="line"><span class="comment">// &#125;</span></span><br><span class="line"></span><br><span class="line"><span class="comment">// Record 模式</span></span><br><span class="line"><span class="comment">// if (obj instanceof Point(int x, int y)) &#123;</span></span><br><span class="line"><span class="comment">//     System.out.println(x + &quot;,&quot; + y);</span></span><br><span class="line"><span class="comment">// &#125;</span></span><br></pre></td></tr></table></figure>
+
+<h5 id="8，性能优化"><a href="#8，性能优化" class="headerlink" title="8，性能优化"></a>8，性能优化</h5><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// ============ 字符串优化 ============</span></span><br><span class="line"><span class="comment">// 循环中优先用 StringBuilder</span></span><br><span class="line"><span class="type">StringBuilder</span> <span class="variable">sb</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">StringBuilder</span>();</span><br><span class="line"><span class="keyword">for</span> (<span class="type">int</span> <span class="variable">i</span> <span class="operator">=</span> <span class="number">0</span>; i &lt; <span class="number">10000</span>; i++) sb.append(i);</span><br><span class="line"><span class="type">String</span> <span class="variable">result</span> <span class="operator">=</span> sb.toString();</span><br><span class="line"></span><br><span class="line"><span class="comment">// ============ 集合优化 ============</span></span><br><span class="line"><span class="comment">// 指定初始容量，避免扩容</span></span><br><span class="line">List&lt;String&gt; list = <span class="keyword">new</span> <span class="title class_">ArrayList</span>&lt;&gt;(<span class="number">1000</span>);</span><br><span class="line">Map&lt;String, Integer&gt; map = <span class="keyword">new</span> <span class="title class_">HashMap</span>&lt;&gt;(<span class="number">16</span>, <span class="number">0.75f</span>);</span><br><span class="line"></span><br><span class="line"><span class="comment">// 只读场景用不可变集合</span></span><br><span class="line">List&lt;String&gt; immutable = Collections.unmodifiableList(list);</span><br><span class="line"></span><br><span class="line"><span class="comment">// 优先用局部变量</span></span><br><span class="line"><span class="comment">// ============ 对象创建优化 ============</span></span><br><span class="line"><span class="comment">// 复用对象</span></span><br><span class="line"><span class="comment">// 使用对象池</span></span><br><span class="line"><span class="comment">// 避免在循环中创建不必要的新对象</span></span><br><span class="line"></span><br><span class="line"><span class="comment">// ============ 日志优化 ============</span></span><br><span class="line"><span class="comment">// 使用参数化日志，避免字符串拼接</span></span><br><span class="line"><span class="comment">// logger.debug(&quot;user: &#123;&#125;, age: &#123;&#125;&quot;, name, age);   // SLF4J</span></span><br><span class="line"></span><br><span class="line"><span class="comment">// ============ 序列化优化 ============</span></span><br><span class="line"><span class="comment">// 使用 transient 标记不需序列化的字段</span></span><br><span class="line"><span class="comment">// 使用自定义 readObject/writeObject 方法</span></span><br><span class="line"><span class="comment">// 或使用 kryo/protobuf 等高性能序列化框架</span></span><br></pre></td></tr></table></figure>
+
+<h5 id="9，日志框架"><a href="#9，日志框架" class="headerlink" title="9，日志框架"></a>9，日志框架</h5><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// SLF4J + Logback（最常用组合）</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> org.slf4j.Logger;</span><br><span class="line"><span class="keyword">import</span> org.slf4j.LoggerFactory;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">MyService</span> &#123;</span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">final</span> <span class="type">Logger</span> <span class="variable">log</span> <span class="operator">=</span> LoggerFactory.getLogger(MyService.class);</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">process</span><span class="params">()</span> &#123;</span><br><span class="line">        log.info(<span class="string">&quot;处理开始&quot;</span>);</span><br><span class="line">        log.debug(<span class="string">&quot;参数: &#123;&#125;&quot;</span>, param);       <span class="comment">// 参数化，避免字符串拼接</span></span><br><span class="line">        log.warn(<span class="string">&quot;警告信息&quot;</span>);</span><br><span class="line">        log.error(<span class="string">&quot;错误信息&quot;</span>, exception);    <span class="comment">// 自动打印堆栈</span></span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// logback.xml 基本配置</span></span><br><span class="line"><span class="comment">// &lt;configuration&gt;</span></span><br><span class="line"><span class="comment">//     &lt;appender name=&quot;CONSOLE&quot; class=&quot;ch.qos.logback.core.ConsoleAppender&quot;&gt;</span></span><br><span class="line"><span class="comment">//         &lt;encoder&gt;</span></span><br><span class="line"><span class="comment">//             &lt;pattern&gt;%d&#123;HH:mm:ss.SSS&#125; [%thread] %-5level %logger&#123;36&#125; - %msg%n&lt;/pattern&gt;</span></span><br><span class="line"><span class="comment">//         &lt;/encoder&gt;</span></span><br><span class="line"><span class="comment">//     &lt;/appender&gt;</span></span><br><span class="line"><span class="comment">//     &lt;root level=&quot;INFO&quot;&gt;</span></span><br><span class="line"><span class="comment">//         &lt;appender-ref ref=&quot;CONSOLE&quot; /&gt;</span></span><br><span class="line"><span class="comment">//     &lt;/root&gt;</span></span><br><span class="line"><span class="comment">// &lt;/configuration&gt;</span></span><br></pre></td></tr></table></figure>
+
+<h5 id="10，Maven-核心"><a href="#10，Maven-核心" class="headerlink" title="10，Maven 核心"></a>10，Maven 核心</h5><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># Maven 坐标</span></span><br><span class="line"><span class="comment"># groupId:artifactId:version</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 常用命令</span></span><br><span class="line">mvn clean              <span class="comment"># 清理 target</span></span><br><span class="line">mvn compile            <span class="comment"># 编译</span></span><br><span class="line">mvn <span class="built_in">test</span>               <span class="comment"># 运行测试</span></span><br><span class="line">mvn package            <span class="comment"># 打包（jar/war）</span></span><br><span class="line">mvn install            <span class="comment"># 安装到本地仓库</span></span><br><span class="line">mvn deploy             <span class="comment"># 发布到远程仓库</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 依赖范围 scope</span></span><br><span class="line"><span class="comment"># compile   编译、测试、运行都可用（默认）</span></span><br><span class="line"><span class="comment"># provided  编译、测试可用，运行时由容器提供（如 servlet-api）</span></span><br><span class="line"><span class="comment"># runtime   测试和运行时可用（如 JDBC 驱动）</span></span><br><span class="line"><span class="comment"># test      仅测试可用（如 JUnit）</span></span><br><span class="line"><span class="comment"># system    类似 provided，需显式指定路径（不推荐）</span></span><br></pre></td></tr></table></figure>
+
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">&lt;!-- pom.xml 基本结构 --&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">project</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>com.example<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>myapp<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">version</span>&gt;</span>1.0.0<span class="tag">&lt;/<span class="name">version</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">packaging</span>&gt;</span>jar<span class="tag">&lt;/<span class="name">packaging</span>&gt;</span></span><br><span class="line"></span><br><span class="line">    <span class="tag">&lt;<span class="name">dependencies</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">dependency</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>org.projectlombok<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>lombok<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">version</span>&gt;</span>1.18.30<span class="tag">&lt;/<span class="name">version</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">scope</span>&gt;</span>provided<span class="tag">&lt;/<span class="name">scope</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;/<span class="name">dependencies</span>&gt;</span></span><br><span class="line"></span><br><span class="line">    <span class="tag">&lt;<span class="name">build</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">plugins</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">plugin</span>&gt;</span></span><br><span class="line">                <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>org.apache.maven.plugins<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">                <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>maven-compiler-plugin<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">                <span class="tag">&lt;<span class="name">version</span>&gt;</span>3.11.0<span class="tag">&lt;/<span class="name">version</span>&gt;</span></span><br><span class="line">                <span class="tag">&lt;<span class="name">configuration</span>&gt;</span></span><br><span class="line">                    <span class="tag">&lt;<span class="name">source</span>&gt;</span>17<span class="tag">&lt;/<span class="name">source</span>&gt;</span></span><br><span class="line">                    <span class="tag">&lt;<span class="name">target</span>&gt;</span>17<span class="tag">&lt;/<span class="name">target</span>&gt;</span></span><br><span class="line">                <span class="tag">&lt;/<span class="name">configuration</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;/<span class="name">plugin</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;/<span class="name">plugins</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;/<span class="name">build</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">project</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/blog/tags/java/" rel="tag"># java</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/blog/2024/06/01/java/java%E8%BF%9B%E9%98%B6/" rel="prev" title="java进阶">
+      <i class="fa fa-chevron-left"></i> java进阶
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/blog/2024/06/10/java/java%E5%B9%B6%E5%8F%91%E5%AD%A6%E4%B9%A0/" rel="next" title="java并发学习">
+      java并发学习 <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-5"><a class="nav-link" href="#1%EF%BC%8CJVM-%E5%86%85%E5%AD%98%E6%A8%A1%E5%9E%8B"><span class="nav-number">1.</span> <span class="nav-text">1，JVM 内存模型</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#2%EF%BC%8C%E5%9E%83%E5%9C%BE%E5%9B%9E%E6%94%B6%EF%BC%88GC%EF%BC%89"><span class="nav-number">2.</span> <span class="nav-text">2，垃圾回收（GC）</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#3%EF%BC%8C%E5%B9%B6%E5%8F%91%E7%BC%96%E7%A8%8B%EF%BC%88JUC%EF%BC%89"><span class="nav-number">3.</span> <span class="nav-text">3，并发编程（JUC）</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#4%EF%BC%8CNIO%EF%BC%88New-I-O%EF%BC%89"><span class="nav-number">4.</span> <span class="nav-text">4，NIO（New I&#x2F;O）</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#5%EF%BC%8C%E7%B1%BB%E5%8A%A0%E8%BD%BD%E6%9C%BA%E5%88%B6"><span class="nav-number">5.</span> <span class="nav-text">5，类加载机制</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#6%EF%BC%8C%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F"><span class="nav-number">6.</span> <span class="nav-text">6，设计模式</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#7%EF%BC%8CJava-%E6%96%B0%E7%89%88%E6%9C%AC%E7%89%B9%E6%80%A7"><span class="nav-number">7.</span> <span class="nav-text">7，Java 新版本特性</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#8%EF%BC%8C%E6%80%A7%E8%83%BD%E4%BC%98%E5%8C%96"><span class="nav-number">8.</span> <span class="nav-text">8，性能优化</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#9%EF%BC%8C%E6%97%A5%E5%BF%97%E6%A1%86%E6%9E%B6"><span class="nav-number">9.</span> <span class="nav-text">9，日志框架</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#10%EF%BC%8CMaven-%E6%A0%B8%E5%BF%83"><span class="nav-number">10.</span> <span class="nav-text">10，Maven 核心</span></a></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">ruoxi</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/blog/archives/">
+        
+          <span class="site-state-item-count">80</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/blog/categories/">
+          
+        <span class="site-state-item-count">17</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/blog/tags/">
+          
+        <span class="site-state-item-count">47</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2026</span>
+  <span class="with-love">
+    <i class="fa fa-code"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">ruoxi</span>
+</div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/blog/lib/anime.min.js"></script>
+  <script src="/blog/lib/velocity/velocity.min.js"></script>
+  <script src="/blog/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/blog/js/utils.js"></script>
+
+<script src="/blog/js/motion.js"></script>
+
+
+<script src="/blog/js/schemes/pisces.js"></script>
+
+
+<script src="/blog/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+</body>
+</html>

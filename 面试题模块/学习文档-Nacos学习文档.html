@@ -1,0 +1,1159 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Nacos学习文档</title>
+<style>
+body {
+    transition: margin-left .25s ease;
+    font-family: -apple-system, "Noto Sans SC", "Microsoft YaHei", sans-serif;
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 20px 24px 60px;
+    line-height: 1.8;
+    color: #333;
+    background: #fff;
+}
+h1 { border-bottom: 2px solid #eee; padding-bottom: 10px; color: #222; }
+h2 { color: #333; margin-top: 32px; }
+h3 { color: #555; }
+a { color: #0366d6; text-decoration: none; }
+a:hover { text-decoration: underline; }
+pre {
+    background: #f6f8fa;
+    border-radius: 6px;
+    padding: 16px;
+    overflow-x: auto;
+    font-size: 14px;
+    line-height: 1.45;
+}
+code {
+    background: #f0f2f4;
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-size: 14px;
+}
+pre code { background: none; padding: 0; }
+blockquote {
+    border-left: 4px solid #ddd;
+    margin: 0;
+    padding: 0 16px;
+    color: #666;
+}
+table {
+    border-collapse: collapse;
+    width: 100%;
+    margin: 16px 0;
+}
+th, td {
+    border: 1px solid #ddd;
+    padding: 8px 12px;
+    text-align: left;
+}
+th { background: #f6f8fa; }
+img { max-width: 100%; }
+.back-link {
+    margin-bottom: 20px;
+    display: block;
+    color: #666;
+}
+.back-link:hover { color: #0366d6; }
+
+.sidebar-toc {
+    transition: left .25s ease;
+    position: fixed;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    width: 220px;
+    background: #f8f9fa;
+    border-right: 1px solid #e9ecef;
+    padding: 20px 0;
+    overflow-y: auto;
+    font-size: 13px;
+    z-index: 100;
+}
+.sidebar-toc a {
+    display: block;
+    padding: 6px 16px;
+    color: #555;
+    text-decoration: none;
+    border-left: 3px solid transparent;
+    line-height: 1.5;
+}
+.sidebar-toc a:hover {
+    background: #e9ecef;
+    color: #0366d6;
+    border-left-color: #0366d6;
+}
+.sidebar-toc .toc-h2 { padding-left: 16px; font-weight: 500; }
+.sidebar-toc .toc-h3 { padding-left: 32px; font-size: 12px; }
+body { margin-left: 240px; }
+
+
+.copy-btn {
+    position: absolute; top: 6px; right: 6px;
+    background: #e9ecef; border: none;
+    border-radius: 4px; padding: 3px 10px;
+    font-size: 12px; color: #555; cursor: pointer;
+    opacity: 0; transition: opacity 0.2s;
+    z-index: 1;
+}
+pre:hover .copy-btn { opacity: 1; }
+.copy-btn:hover { background: #d0d7de; }
+.copy-btn.copied { opacity: 1; background: #2da44e; color: #fff; }
+.copy-btn{position:absolute;top:6px;right:6px;background:#e9ecef;border:none;border-radius:4px;padding:3px 10px;font-size:12px;color:#555;cursor:pointer;opacity:0;transition:opacity .2s;z-index:1}pre:hover .copy-btn{opacity:1}.copy-btn:hover{background:#d0d7de}.copy-btn.copied{opacity:1;background:#2da44e;color:#fff}
+.copy-btn{position:absolute;top:6px;right:6px;background:#e9ecef;border:none;border-radius:4px;padding:3px 10px;font-size:12px;color:#555;cursor:pointer;opacity:0;transition:opacity .2s;z-index:1}pre:hover .copy-btn{opacity:1}.copy-btn:hover{background:#d0d7de}.copy-btn.copied{opacity:1;background:#2da44e;color:#fff}
+.copy-btn{position:absolute;top:6px;right:6px;background:#e9ecef;border:none;border-radius:4px;padding:3px 10px;font-size:12px;color:#555;cursor:pointer;opacity:0;transition:opacity .2s;z-index:1}pre:hover .copy-btn{opacity:1}.copy-btn:hover{background:#d0d7de}.copy-btn.copied{opacity:1;background:#2da44e;color:#fff}
+.sidebar-toggle-btn {
+  position: fixed;
+  left: 220px;
+  top: 0;
+  width: 28px;
+  height: 40px;
+  background: #f8f9fa;
+  border: 1px solid #e9ecef;
+  border-left: none;
+  border-radius: 0 4px 4px 0;
+  cursor: pointer;
+  font-size: 16px;
+  color: #555;
+  z-index: 101;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: left .25s, background .2s;
+  padding: 0;
+  line-height: 1;
+}
+.sidebar-toggle-btn:hover { background: #e9ecef; color: #0366d6; }
+.sidebar-collapsed .sidebar-toc { left: -220px; }
+.sidebar-collapsed .sidebar-toggle-btn { left: 0; }
+.sidebar-collapsed body, body.sidebar-collapsed { margin-left: 28px; }
+.sidebar-overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,.3);
+  z-index: 99;
+}
+@media (max-width: 768px) {
+  .sidebar-collapsed .sidebar-overlay { display: none; }
+  .sidebar-toc { left: -220px; }
+  .sidebar-toggle-btn { left: 0; }
+  body { margin-left: 28px; }
+}
+
+</style>
+</head>
+</head>
+<body>
+<nav class="sidebar-toc"><a class="toc-h2" href="#1-nacos">1. Nacos 概述</a><a class="toc-h3" href="#_2">比喻理解</a><a class="toc-h3" href="#_3">正式定义</a><a class="toc-h3" href="#nacos_2">三大核心能力</a><a class="toc-h3" href="#nacos_3">Nacos 架构</a><a class="toc-h3" href="#service-reg-flow">服务注册与发现流程</a><a class="toc-h3" href="#_4">术语对照表</a><a class="toc-h2" href="#2">2. 配置管理 -- 热更新原理</a><a class="toc-h3" href="#_5">核心流程</a><a class="toc-h3" href="#21">2.1 配置管理模型</a><a class="toc-h3" href="#22-data-id">2.2 Data ID 命名规范</a><a class="toc-h3" href="#23">2.3 配置发布示例</a><a class="toc-h3" href="#24">2.4 配置变更推送原理</a><a class="toc-h3" href="#25">2.5 配置隔离层级</a><a class="toc-h3" href="#26">2.6 配置监听与热更新</a><a class="toc-h3" href="#27">2.7 共享配置与扩展配置</a><a class="toc-h2" href="#3">3. 服务发现 -- 注册、心跳、负载均衡</a><a class="toc-h3" href="#_6">核心流程</a><a class="toc-h3" href="#31">3.1 服务注册与发现模型</a><a class="toc-h3" href="#32">3.2 服务注册内容</a><a class="toc-h3" href="#33">3.3 服务发现方式</a><a class="toc-h3" href="#34">3.4 负载均衡策略</a><a class="toc-h3" href="#35">3.5 健康检查机制</a><a class="toc-h3" href="#36">3.6 分区可用性</a><a class="toc-h2" href="#4-nacos-client">4. Client 集成</a><a class="toc-h3" href="#41-spring-cloud-alibaba">4.1 Spring Cloud Alibaba</a><a class="toc-h3" href="#42-dubbo-nacos">4.2 Dubbo + Nacos</a><a class="toc-h3" href="#43-spring-cloud-loadbalancer">4.3 Spring Cloud LoadBalancer</a><a class="toc-h3" href="#44">4.4 多环境切换</a><a class="toc-h2" href="#5">5. 集群部署</a><a class="toc-h3" href="#_7">概述</a><a class="toc-h3" href="#51">5.1 集群架构</a><a class="toc-h3" href="#52-clusterconf">5.2 cluster.conf</a><a class="toc-h3" href="#53">5.3 MySQL 持久化配置</a><a class="toc-h3" href="#54">5.4 部署模式对比</a><a class="toc-h3" href="#55-nginx">5.5 Nginx 代理配置</a><a class="toc-h3" href="#56">5.6 启动参数</a><a class="toc-h2" href="#6-nacos-sync">6. Nacos Sync -- 跨机房同步</a><a class="toc-h3" href="#_8">概述</a><a class="toc-h3" href="#61-nacos-sync">6.1 典型场景</a><a class="toc-h3" href="#62">6.2 同步架构</a><a class="toc-h3" href="#63">6.3 同步配置</a><a class="toc-h2" href="#7-nacos-2x">7. Nacos 2.x 新特性</a><a class="toc-h3" href="#_9">核心变化</a><a class="toc-h3" href="#71-nacos-1x-vs-2x">7.1 1.x vs 2.x 对比</a><a class="toc-h3" href="#72-nacos-2x">7.2 端口说明</a><a class="toc-h3" href="#73">7.3 推送优势对比</a><a class="toc-h3" href="#74-2x">7.4 兼容性</a><a class="toc-h2" href="#8">8. 认证与安全</a><a class="toc-h3" href="#_10">概述</a><a class="toc-h3" href="#81">8.1 开启认证</a><a class="toc-h3" href="#82">8.2 客户端认证</a><a class="toc-h3" href="#83">8.3 安全最佳实践</a><a class="toc-h2" href="#9">9. 配置持久化</a><a class="toc-h3" href="#_11">概述</a><a class="toc-h3" href="#91">9.1 持久化方案对比</a><a class="toc-h3" href="#92">9.2 配置表结构</a><a class="toc-h3" href="#93">9.3 敏感配置加密</a><a class="toc-h3" href="#94">9.4 变更历史与回滚</a><a class="toc-h2" href="#10-nacos">10. 组件对比</a><a class="toc-h3" href="#101">10.1 配置中心对比</a><a class="toc-h3" href="#102">10.2 注册中心对比</a><a class="toc-h3" href="#103-cap-nacos">10.3 CAP 定理与 AP/CP 切换</a><a class="toc-h2" href="#11">11. 常见问题与调优</a><a class="toc-h3" href="#111">11.1 问题排查</a><a class="toc-h3" href="#112">11.2 版本对应关系</a><a class="toc-h3" href="#113">11.3 生产环境调优</a><a class="toc-h2" href="#12">12. 高频面试题</a><a class="toc-h3" href="#q1nacos">Q1：服务注册与发现流程</a><a class="toc-h3" href="#q2nacos">Q2：数据一致性保证</a><a class="toc-h3" href="#q3nacos-eureka">Q3：Nacos 和 Eureka</a><a class="toc-h3" href="#q4nacos">Q4：心跳机制</a><a class="toc-h3" href="#q5nacos">Q5：配置热更新</a><a class="toc-h3" href="#q6nacos-2x-grpc">Q6：gRPC 通信原理</a><a class="toc-h3" href="#q7nacos-namespace-group">Q7：Namespace 和 Group</a><a class="toc-h3" href="#q8nacos">Q8：权限控制</a><a class="toc-h3" href="#q9nacos">Q9：集群选主机制</a><a class="toc-h3" href="#q10nacos-spring-cloud-config">Q10：与 Spring Cloud Config</a><a class="toc-h3" href="#q11nacos">Q11：元数据的作用</a><a class="toc-h3" href="#q12nacos-2x-9848-9849">Q12：9848/9849 端口</a><a class="toc-h3" href="#q13nacos-k8s">Q13：K8s 部署</a><a class="toc-h3" href="#q14nacos">Q14：配置防误删</a><a class="toc-h3" href="#q15nacos-distro">Q15：Distro 协议</a><a class="toc-h2" href="#nacos-open-api">附录：Open API 速查</a></nav>
+<button class="sidebar-toggle-btn" onclick="toggleSidebar()" title="切换侧栏">☰</button>
+
+<div class="sidebar-overlay" onclick="toggleSidebar()"></div>
+
+<script>
+function toggleSidebar() {
+  document.body.classList.toggle('sidebar-collapsed');
+  try { localStorage.setItem('sidebarCollapsed', document.body.classList.contains('sidebar-collapsed')); } catch(e) {}
+}
+(function() {
+  try {
+    if (localStorage.getItem('sidebarCollapsed') === 'true') {
+      document.body.classList.add('sidebar-collapsed');
+    }
+  } catch(e) {}
+})();
+</script>
+<a class="back-link" href="/blog/2026/05/16/面试题/面试题/">← 返回面试题目录</a>
+<h1 id=page-title>Nacos 面试学习文档</h1>
+<blockquote>
+<p><strong>微服务的"电话号码本 + 遥控器"</strong> -- 服务发现 + 配置管理一站式平台</p>
+<p>学习日期：2026-06-14 | 目标：掌握 Nacos 架构、服务注册发现、配置热更新、集群部署</p>
+</blockquote>
+<hr />
+
+<h2 id="1-nacos">1. Nacos 概述</h2>
+<h3 id="_2">比喻理解</h3>
+<p>微服务之间需要互相调用，但不知道对方的 IP 和端口。Nacos 充当<strong>中央通讯录</strong>（服务发现）+ <strong>统一遥控器</strong>（配置管理）：服务启动时自动注册，配置变更一键推送全部生效。</p>
+
+<h3 id="_3">正式定义</h3>
+<p>Nacos（Dynamic Naming and Configuration Service）是阿里巴巴开源的动态服务发现、配置管理和服务管理平台。</p>
+<ul>
+<li><strong>定位</strong>：微服务架构中的基础设施</li>
+<li><strong>官方文档</strong>：https://nacos.io/zh-cn/index.html</li>
+<li><strong>GitHub</strong>：https://github.com/alibaba/nacos</li>
+<li><strong>版本</strong>：1.x（HTTP/1.1 轮询）、2.x（gRPC 长连接推送）</li>
+</ul>
+
+<h3 id="nacos_2">三大核心能力</h3>
+<table>
+<thead><tr><th>能力</th><th>说明</th><th>技术实现</th></tr></thead>
+<tbody>
+<tr><td><strong>服务发现</strong></td><td>微服务通讯录，自动注册/查找</td><td>注册、健康检查、负载均衡、元数据</td></tr>
+<tr><td><strong>配置管理</strong></td><td>统一遥控器，热更新不重启</td><td>集中配置、热更新、多环境隔离、变更推送</td></tr>
+<tr><td><strong>服务及元数据管理</strong></td><td>标签、分组、版本管理</td><td>元数据、标签、DNS 域名</td></tr>
+</tbody>
+</table>
+
+<h3 id="nacos_3">Nacos 架构</h3>
+<pre><code>                          +----------------------------+
+                          |      Nginx / VIP (LB)      |
+                          +-------------+--------------+
+                                        |
+              +-------------------------+-------------------------+
+              |                         |                         |
+     +--------v---------+    +---------v--------+    +---------v--------+
+     |   Nacos Node 1   |    |   Nacos Node 2   |    |   Nacos Node 3   |
+     |  (Leader / Raft) |&lt;--&gt;|   (Follower)     |&lt;--&gt;|   (Follower)     |
+     +--------+---------+    +---------+--------+    +---------+--------+
+              |                         |                         |
+              +-------------------------+-------------------------+
+                                        |
+                          +-------------v-------------+
+                          |  MySQL (Shared Store)     |
+                          |  Config + Service Data    |
+                          +---------------------------+
+
+     +--------------------+  +--------------------+  +--------------------+
+     | Provider App       |  | Consumer App A     |  | Consumer App B     |
+     | (Nacos Client)     |  | (Nacos Client)     |  | (Nacos Client)     |
+     +--------------------+  +--------------------+  +--------------------+
+
+     Server Internal Layers:
+     +--------------------------------------------------------+
+     |  Open API (HTTP/REST)   |   Admin Console (Web UI)     |
+     +-------------------------+------------------------------+
+     |          Distro (AP) / Raft (CP) Protocol Layer        |
+     +--------------------+-------------------+---------------+
+     |  Config Service    |  Naming Service   |  -- Core      |
+     +--------------------+-------------------+---------------+
+     |            Persistence (MySQL / Derby / PostgreSQL)    |
+     +--------------------------------------------------------+</code></pre>
+
+<h3 id="service-reg-flow">服务注册与发现流程</h3>
+<pre><code>  Provider                        Nacos Server                     Consumer
+     |                                |                                |
+     | 1. Register(IP, port, meta)    |                                |
+     |-------------------------------&gt;|                                |
+     |                                | 2. Store in cache + DB         |
+     |                                |                                |
+     | 3. Heartbeat (every 5s)        |                                |
+     |-------------------------------&gt;|                                |
+     |                                |                                |
+     |                                |    4. Subscribe(serviceName)   |
+     |                                |&lt;-------------------------------|
+     |                                |                                |
+     |                                | 5. Return healthy instances    |
+     |                                |-------------------------------&gt;|
+     |                                |                                |
+     |                                |    6. Local cache + LB pick    |
+     |                                |                                |--&gt; Call
+     |                                |                                |
+     |  7. Heartbeat lost &gt; 30s      |                                |
+     |     -- mark unhealthy          |                                |
+     |                                |  8. Push change (gRPC)         |
+     |                                |-------------------------------&gt;|
+     |                                |                                |
+     |                                |    9. Refresh local cache      |
+     |                                |                                |</code></pre>
+
+<h3 id="_4">术语对照表</h3>
+<table>
+<thead><tr><th>术语</th><th>说明</th></tr></thead>
+<tbody>
+<tr><td>Data ID</td><td>配置文件唯一标识</td></tr>
+<tr><td>Group</td><td>配置分组，默认 DEFAULT_GROUP</td></tr>
+<tr><td>Namespace</td><td>命名空间，环境隔离（dev/test/prod）</td></tr>
+<tr><td>Cluster</td><td>集群，物理机房/可用区概念</td></tr>
+<tr><td>Instance</td><td>服务实例（单个进程）</td></tr>
+<tr><td>Service</td><td>服务（一组相同实例的逻辑集合）</td></tr>
+<tr><td>Weight</td><td>实例权重，影响流量分配</td></tr>
+</tbody>
+</table>
+<hr />
+
+<h2 id="2">2. 配置管理 -- 热更新原理</h2>
+<h3 id="_5">核心流程</h3>
+<p>传统方式：改文件 --> 打包 --> 重启 --> 上线。Nacos：控制台修改 --> 发布 --> gRPC 实时推送 --> 全部服务实例热更新，<strong>无需重启</strong>。</p>
+
+<h3 id="21">2.1 配置管理模型</h3>
+<pre><code>Namespace（命名空间）--&gt; Group（配置分组）--&gt; Data ID（配置文件）</code></pre>
+<ul>
+<li><strong>Namespace</strong>：默认 <code>public</code>，多环境隔离</li>
+<li><strong>Group</strong>：默认 <code>DEFAULT_GROUP</code>，多项目/多模块分组</li>
+<li><strong>Data ID</strong>：<code>${prefix}-${profile}.${file-extension}</code></li>
+</ul>
+
+<h3 id="22-data-id">2.2 Data ID 命名规范</h3>
+<pre><code class="language-yaml"># 格式: ${prefix}-${spring.profile.active}.${file-extension}
+# prefix 默认取 spring.application.name
+
+# 示例（spring.application.name=demo-app）：
+# dev   --&gt; demo-app-dev.yaml
+# test  --&gt; demo-app-test.yaml
+# prod  --&gt; demo-app-prod.yaml
+# 无后缀 --&gt; demo-app.yaml（共享配置）</code></pre>
+
+<h3 id="23">2.3 配置发布示例</h3>
+<pre><code class="language-yaml"># Data ID: demo-app-dev.yaml / Group: DEFAULT_GROUP / Namespace: dev
+
+spring:
+  application:
+    name: demo-app
+  datasource:
+    url: jdbc:mysql://localhost:3306/demo
+    username: root
+    password: ${DB_PASSWORD}  # 支持占位符
+
+app:
+  max-connections: 100
+  timeout: 3000
+  feature-flags:
+    enable-new-search: true</code></pre>
+
+<h3 id="24">2.4 配置变更推送原理（面试高频）</h3>
+<pre><code>配置发布流程：
+  Nacos Console 修改配置
+    --&gt; 写入 MySQL (持久化)
+    --&gt; 查找所有订阅此 Data ID 的 Client 长连接
+    --&gt; gRPC Push 变更通知 (Nacos 2.x, 毫秒级)
+      或 HTTP 轮询等待 (Nacos 1.x, 最多 30s)
+    --&gt; Client 收到通知
+    --&gt; 触发 @NacosConfigurationProperties / @NacosValue 刷新
+    --&gt; 应用内存中配置立即生效，无需重启
+
+推送方式对比：
+  Push (gRPC 2.x): Server 主动推，毫秒级延迟，连接复用
+  Pull (HTTP 1.x): Client 定时轮询，最多 30s 延迟，消耗带宽</code></pre>
+
+<h3 id="25">2.5 配置隔离层级</h3>
+<pre><code class="language-yaml"># 三层隔离（由粗到细）：
+# Namespace 隔离：完全物理隔离，不同 namespace 互不可见
+# Group 隔离：   逻辑分组，同 namespace 下按业务/模块划分
+# Data ID 隔离： 应用级别，每个应用独立的配置文件</code></pre>
+
+<h3 id="26">2.6 配置监听与热更新</h3>
+<pre><code class="language-java">// 方式1：@ConfigurationProperties（推荐，自动同步）
+@Data
+@ConfigurationProperties(prefix = "app")
+@Component
+public class AppConfig {
+    private int maxConnections;
+    private int timeout;
+    private Map&lt;String, Boolean&gt; featureFlags;
+}
+
+// 方式2：@NacosValue + 手动监听
+public class MyConfig {
+    @NacosValue(value = "${app.timeout:3000}", autoRefreshed = true)
+    private int timeout;
+
+    @NacosConfigurationProperties.DataListener(changedKeys = "app.max-connections")
+    public void onMaxConnectionsChanged(String newValue) {
+        System.out.println("max-connections 变更: " + newValue);
+    }
+}</code></pre>
+
+<h3 id="27">2.7 共享配置与扩展配置</h3>
+<pre><code class="language-yaml"># bootstrap.yml
+spring:
+  application:
+    name: order-service
+  cloud:
+    nacos:
+      config:
+        server-addr: nacos-server:8848
+        namespace: dev
+
+        # 共享配置（多个服务共用）
+        shared-configs:
+          - data-id: common.yaml
+            group: DEFAULT_GROUP
+            refresh: true
+          - data-id: redis.yaml
+            group: SHARED_GROUP
+            refresh: true
+
+        # 扩展配置（可选）
+        extension-configs:
+          - data-id: db-config.yaml
+            group: DEFAULT_GROUP
+            refresh: true</code></pre>
+<hr />
+
+<h2 id="3">3. 服务发现 -- 注册、心跳、负载均衡</h2>
+<h3 id="_6">核心流程</h3>
+<p>Provider 启动时向 Nacos 注册（IP + 端口 + 元数据），Consumer 从 Nacos 订阅服务获取实例列表并本地缓存。Provider 定期发心跳，30s 无心跳则被剔除，Consumer 通过 gRPC 实时收到变更通知。</p>
+
+<h3 id="31">3.1 服务注册与发现模型</h3>
+<pre><code>Namespace --&gt; Cluster（机房/可用区）--&gt; Service（服务名）--&gt; Instance（实例 1..N）</code></pre>
+
+<h3 id="32">3.2 服务注册内容</h3>
+<pre><code class="language-java">NacosClient.registerInstance(serviceName, instance);
+
+Instance {
+    instanceId: "192.168.1.100:8080",  // 实例唯一ID
+    ip: "192.168.1.100",
+    port: 8080,
+    serviceName: "order-service",
+    weight: 1.0,                         // 权重
+    healthy: true,                       // 健康状态
+    enabled: true,                      // 是否启用
+    ephemeral: true,                     // true=临时实例 false=永久实例
+    clusterName: "DEFAULT",              // 所属集群
+    namespaceId: "public",
+    metadata: {                          // 自定义元数据
+        version: "v1",
+        region: "shanghai"
+    }
+}</code></pre>
+
+<h3 id="33">3.3 服务发现方式</h3>
+<table>
+<thead><tr><th>方式</th><th>说明</th></tr></thead>
+<tbody>
+<tr><td><strong>DNS-F 模式</strong></td><td>服务名解析为 IP:Port，类 DNS</td></tr>
+<tr><td><strong>HTTP API</strong></td><td>调用 Nacos Open API 获取实例列表</td></tr>
+<tr><td><strong>Nacos SDK</strong></td><td>Java/Go SDK 直接调用</td></tr>
+</tbody>
+</table>
+
+<h3 id="34">3.4 负载均衡策略</h3>
+<pre><code class="language-yaml"># 配合 Ribbon 或 Spring Cloud LoadBalancer 使用：
+# 1. 权重随机（默认）-- 同权重随机选
+# 2. 加权响应时间    -- 根据平均响应时间动态分配权重
+# 3. 最少活跃调用    -- 选当前活跃连接数最少的实例
+# 4. 一致性哈希     -- 相同参数路由到同一实例</code></pre>
+
+<h3 id="35">3.5 健康检查机制</h3>
+<pre><code>+------------------------------------------------------------------+
+|                         Nacos Health Check                        |
+|                                                                   |
+|  TEMP Instance (ephemeral=true) -- 无状态服务 (推荐)              |
+|    Client --heartbeat(5s)--&gt; Server                               |
+|    No heartbeat &gt; 15s --&gt; UNHEALTHY                              |
+|    No heartbeat &gt; 30s --&gt; REMOVE from registry                  |
+|    Push change notification to all subscribers                    |
+|                                                                   |
+|  PERSIST Instance (ephemeral=false) -- 有状态服务                 |
+|    Server --TCP/HTTP probe--&gt; Instance                            |
+|    Unhealthy: mark only, do NOT remove                            |
+|    Suitable for DB, cache, etc.                                   |
++------------------------------------------------------------------+</code></pre>
+<pre><code class="language-yaml"># 临时实例心跳配置
+nacos:
+  naming:
+    heart:
+      beat-interval: 5000     # 心跳间隔（ms）
+      expire-time: 15000      # 过期时间（ms）</code></pre>
+
+<h3 id="36">3.6 分区可用性</h3>
+<p>Nacos 2.x 通过 Cluster 分组实现机房就近访问，配合 Istio 等网格感知拓扑。</p>
+<pre><code class="language-json">{
+  "serviceName": "payment-service",
+  "clusters": [
+    {
+      "clusterName": "shanghai",
+      "instances": [
+        { "ip": "10.0.1.1", "port": 8080, "healthy": true }
+      ]
+    },
+    {
+      "clusterName": "beijing",
+      "instances": [
+        { "ip": "10.0.2.1", "port": 8080, "healthy": true }
+      ]
+    }
+  ]
+}</code></pre>
+<hr />
+
+<h2 id="4-nacos-client">4. Client 集成</h2>
+<h3 id="41-spring-cloud-alibaba">4.1 Spring Cloud Alibaba</h3>
+<pre><code class="language-xml">&lt;!-- pom.xml --&gt;
+&lt;dependencies&gt;
+    &lt;dependency&gt;
+        &lt;groupId&gt;com.alibaba.cloud&lt;/groupId&gt;
+        &lt;artifactId&gt;spring-cloud-starter-alibaba-nacos-discovery&lt;/artifactId&gt;
+    &lt;/dependency&gt;
+    &lt;dependency&gt;
+        &lt;groupId&gt;com.alibaba.cloud&lt;/groupId&gt;
+        &lt;artifactId&gt;spring-cloud-starter-alibaba-nacos-config&lt;/artifactId&gt;
+    &lt;/dependency&gt;
+&lt;/dependencies&gt;</code></pre>
+<pre><code class="language-yaml"># bootstrap.yml（优先级高于 application.yml）
+spring:
+  application:
+    name: order-service
+  cloud:
+    nacos:
+      server-addr: nacos-server:8848
+      username: nacos
+      password: nacos123
+      namespace: dev
+      discovery:
+        cluster-name: SH
+        enabled: true
+        register-enabled: true
+        weight: 1.0
+        metadata:
+          version: v1
+      config:
+        file-extension: yaml
+        refresh-enabled: true
+        group: DEFAULT_GROUP</code></pre>
+
+<h3 id="42-dubbo-nacos">4.2 Dubbo + Nacos</h3>
+<pre><code class="language-yaml"># Dubbo 接入 Nacos 注册中心
+dubbo:
+  registry:
+    address: nacos://nacos-server:8848
+    group: dubbo
+    parameters:
+      namespace: dev
+  application:
+    name: dubbo-provider</code></pre>
+<pre><code class="language-java">// Dubbo 服务发布（自动注册到 Nacos）
+@DubboService(version = "1.0.0", group = "order")
+public class OrderServiceImpl implements OrderService { ... }
+
+// Dubbo 服务消费
+@DubboReference(version = "1.0.0", group = "order")
+private OrderService orderService;</code></pre>
+
+<h3 id="43-spring-cloud-loadbalancer">4.3 Spring Cloud LoadBalancer</h3>
+<pre><code class="language-yaml">spring:
+  cloud:
+    loadbalancer:
+      ribbon:
+        enabled: false  # 禁用 Ribbon</code></pre>
+
+<h3 id="44">4.4 多环境切换</h3>
+<pre><code class="language-yaml"># bootstrap-prod.yml
+spring:
+  cloud:
+    nacos:
+      server-addr: ${NACOS_ADDR}
+      namespace: ${NACOS_NAMESPACE}
+      username: ${NACOS_USERNAME}
+      password: ${NACOS_PASSWORD}
+
+# 启动: java -jar app.jar --spring.profiles.active=prod</code></pre>
+<hr />
+
+<h2 id="5">5. 集群部署</h2>
+<h3 id="_7">概述</h3>
+<p>生产环境必须集群部署：N 个 Nacos 节点 + Raft 选主 + MySQL 共享存储，前端 Nginx 做 LB。</p>
+
+<h3 id="51">5.1 集群架构</h3>
+<pre><code>                        +---------------------------+
+                        |       VIP / Nginx         |
+                        |      (Load Balancer)      |
+                        +-------------+-------------+
+                                      |
+         +----------------------------+----------------------------+
+         |                            |                            |
+  +------v-------+            +------v-------+            +------v-------+
+  |   Nacos-1    |&lt;----------&gt;|   Nacos-2    |&lt;----------&gt;|   Nacos-3    |
+  |   (leader)   |    Raft    |  (follower)  |    Raft    |  (follower)  |
+  +------+-------+            +--------------+            +--------------+
+         |
+         v
+  +--------------------------------------------------+
+  |              MySQL Master-Slave                  |
+  |            (Shared Persistent Store)             |
+  +--------------------------------------------------+</code></pre>
+
+<h3 id="52-clusterconf">5.2 cluster.conf</h3>
+<pre><code class="language-properties"># /nacos/conf/cluster.conf (2.x 格式: IP:port:grpc-port)
+192.168.1.101:8848:9848
+192.168.1.102:8848:9848
+192.168.1.103:8848:9848</code></pre>
+
+<h3 id="53">5.3 MySQL 持久化配置</h3>
+<pre><code class="language-properties"># application.properties
+spring.datasource.platform=mysql
+db.num=1
+db.url.0=jdbc:mysql://mysql-server:3306/nacos?characterEncoding=utf8&amp;connectTimeout=1000&amp;socketTimeout=3000&amp;autoReconnect=true&amp;useUnicode=true&amp;useSSL=false&amp;serverTimezone=UTC
+db.user.0=nacos
+db.password.0=nacos_password
+db.pool.config.minimum-idle=5
+db.pool.config.maximum-pool-size=20</code></pre>
+
+<h3 id="54">5.4 部署模式对比</h3>
+<table>
+<thead><tr><th>模式</th><th>数据存储</th><th>适用场景</th></tr></thead>
+<tbody>
+<tr><td>单机模式</td><td>Derby（嵌入式）</td><td>本地开发/测试</td></tr>
+<tr><td>集群模式</td><td>MySQL（共享存储）</td><td>生产环境</td></tr>
+<tr><td>多集群模式</td><td>各集群独立 MySQL + Nacos Sync</td><td>异地多活</td></tr>
+</tbody>
+</table>
+
+<h3 id="55-nginx">5.5 Nginx 代理配置</h3>
+<pre><code class="language-nginx">upstream nacos-cluster {
+    server 192.168.1.101:8848;
+    server 192.168.1.102:8848;
+    server 192.168.1.103:8848;
+}
+
+server {
+    listen 8848;
+    server_name nacos.example.com;
+
+    location / {
+        proxy_pass http://nacos-cluster;
+
+        # HTTP 升级长连接支持（Nacos 2.x gRPC）
+        proxy_http_version 1.1;
+        proxy_set_header Upgrade $http_upgrade;
+        proxy_set_header Connection "upgrade";
+
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+    }
+}</code></pre>
+
+<h3 id="56">5.6 启动参数</h3>
+<pre><code class="language-bash"># 单机启动
+sh startup.sh -m standalone
+
+# 集群启动
+sh startup.sh -m cluster
+
+# JVM 参数
+JAVA_OPTS="-Xms512m -Xmx512m -Dnacos.standalone=true"</code></pre>
+<hr />
+
+<h2 id="6-nacos-sync">6. Nacos Sync -- 跨机房同步</h2>
+<h3 id="_8">概述</h3>
+<p>多机房部署时，各机房 Nacos 通过 Nacos Sync 双向同步服务实例和配置，实现异地多活。</p>
+
+<h3 id="61-nacos-sync">6.1 典型场景</h3>
+<ul>
+<li><strong>双活架构</strong>：两机房各自 Nacos，Sync 双向同步</li>
+<li><strong>迁移场景</strong>：自建 Nacos 迁移到阿里云 MSE Nacos</li>
+<li><strong>多云同步</strong>：私有云 + 公有云实例同步</li>
+</ul>
+
+<h3 id="62">6.2 同步架构</h3>
+<pre><code>  +---------------------+    Nacos Sync    +---------------------+
+  |   Nacos Cluster A    |&lt;===============&gt;|   Nacos Cluster B    |
+  |   (上海机房)          |    双向同步      |   (北京机房)          |
+  |   Service-A (50%)    |                  |   Service-A (50%)    |
+  +---------------------+                  +---------------------+</code></pre>
+
+<h3 id="63">6.3 同步配置</h3>
+<pre><code class="language-yaml">nacos:
+  sync:
+    task-interval: 1000   # 同步间隔（ms）
+    retry-times: 3        # 重试次数
+    timeout: 5000         # 超时时间（ms）</code></pre>
+<hr />
+
+<h2 id="7-nacos-2x">7. Nacos 2.x 新特性</h2>
+<h3 id="_9">核心变化</h3>
+<p>从 HTTP 短连接轮询（最多 30s 延迟）升级为 gRPC 长连接推送（毫秒级延迟），吞吐量提升 10 倍。</p>
+
+<h3 id="71-nacos-1x-vs-2x">7.1 1.x vs 2.x 对比</h3>
+<table>
+<thead><tr><th>特性</th><th>Nacos 1.x</th><th>Nacos 2.x</th></tr></thead>
+<tbody>
+<tr><td>通信协议</td><td>HTTP/1.1</td><td>gRPC（长连接）</td></tr>
+<tr><td>变更推送</td><td>轮询（Poll）</td><td>推送（Push）</td></tr>
+<tr><td>端口</td><td>1 个（8848）</td><td>3 个（8848+9848+9849）</td></tr>
+<tr><td>吞吐量</td><td>~1,000 TPS</td><td>~10,000+ TPS</td></tr>
+<tr><td>服务端处理</td><td>同步阻塞</td><td>异步非阻塞</td></tr>
+<tr><td>连接模型</td><td>短连接</td><td>长连接（Session 保持）</td></tr>
+</tbody>
+</table>
+
+<h3 id="72-nacos-2x">7.2 端口说明</h3>
+<table>
+<thead><tr><th>端口</th><th>用途</th><th>必须开放</th></tr></thead>
+<tbody>
+<tr><td>8848</td><td>HTTP 控制台 + REST API</td><td>是</td></tr>
+<tr><td>9848</td><td>gRPC Client &lt;--&gt; Server</td><td>是（否则长连接失败）</td></tr>
+<tr><td>9849</td><td>gRPC Server &lt;--&gt; Server（Raft）</td><td>是（集群内互通）</td></tr>
+</tbody>
+</table>
+
+<h3 id="73">7.3 推送优势对比</h3>
+<pre><code>1.x 轮询：Client(每30s) --poll--&gt; Server --&gt; 全量返回 --&gt; 高延迟 + 高带宽
+2.x 推送：Client --gRPC connect--&gt; Server --&gt; 变更即 Push --&gt; 毫秒级 + 低带宽</code></pre>
+
+<h3 id="74-2x">7.4 兼容性</h3>
+<ul>
+<li>Nacos 2.x Server 兼容 1.x Client（HTTP 降级）</li>
+<li>Nacos 2.x Client 可连 1.x Server（自动降级 HTTP）</li>
+<li>配置和服务数据格式完全兼容</li>
+</ul>
+<hr />
+
+<h2 id="8">8. 认证与安全</h2>
+<h3 id="_10">概述</h3>
+<p>默认无认证，生产环境必须开启。2.x 支持 RBAC 权限模型 + Token 认证。</p>
+
+<h3 id="81">8.1 开启认证</h3>
+<pre><code class="language-properties"># application.properties
+nacos.core.auth.enabled=true
+nacos.core.auth.token.expire.seconds=18000
+nacos.core.auth.enable.userAgentAuthWhite=false
+nacos.core.auth.service.correlation.enabled=true
+nacos.core.auth.caching.enabled=true
+# 密钥必填，不能使用默认值
+nacos.core.auth.plugin.nacos.token.secret.key=${TOKEN_SECRET_KEY}</code></pre>
+
+<h3 id="82">8.2 客户端认证</h3>
+<pre><code class="language-yaml">spring:
+  cloud:
+    nacos:
+      server-addr: nacos-server:8848
+      username: nacos
+      password: nacos123</code></pre>
+
+<h3 id="83">8.3 安全最佳实践</h3>
+<pre><code class="language-properties"># 1. 更换默认密钥
+nacos.core.auth.plugin.nacos.token.secret.key=YOUR_BASE64_KEY
+
+# 2. 开启服务身份识别（2.x）
+nacos.core.auth.service.correlation.enabled=true
+
+# 3. 网络层限制：仅内网访问、HTTPS（Nginx 反向代理）
+# 4. 定期轮换凭证</code></pre>
+<hr />
+
+<h2 id="9">9. 配置持久化</h2>
+<h3 id="_11">概述</h3>
+<p>开发用 Derby（嵌入式，零配置），生产用 MySQL 共享存储，集群节点共享同一份数据。</p>
+
+<h3 id="91">9.1 持久化方案对比</h3>
+<table>
+<thead><tr><th>数据库</th><th>适用规模</th><th>优点</th><th>缺点</th></tr></thead>
+<tbody>
+<tr><td>Derby</td><td>单节点</td><td>零配置，开箱即用</td><td>不支持多节点共享</td></tr>
+<tr><td>MySQL</td><td>中小规模（~1000 实例）</td><td>社区成熟，运维方便</td><td>需维护主从</td></tr>
+<tr><td>PostgreSQL</td><td>中大规模</td><td>支持 JSON 类型</td><td>配置稍复杂</td></tr>
+<tr><td>Oracle</td><td>企业大规模</td><td>高可靠</td><td>商业授权</td></tr>
+</tbody>
+</table>
+
+<h3 id="92">9.2 配置表结构</h3>
+<pre><code class="language-sql">CREATE TABLE config_info (
+    id             BIGINT NOT NULL AUTO_INCREMENT,
+    data_id        VARCHAR(255) NOT NULL,
+    group_id       VARCHAR(128) DEFAULT '',
+    content        LONGTEXT NOT NULL,
+    md5            VARCHAR(32) DEFAULT NULL,
+    gmt_create     DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    gmt_modified   DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    src_user       TEXT,
+    src_ip         VARCHAR(50) DEFAULT NULL,
+    app_name       VARCHAR(128) DEFAULT NULL,
+    tenant_id      VARCHAR(128) DEFAULT '',
+    c_desc         VARCHAR(256) DEFAULT NULL,
+    c_use          VARCHAR(64) DEFAULT NULL,
+    effect         VARCHAR(64) DEFAULT NULL,
+    type           VARCHAR(32) DEFAULT NULL,
+    c_schema       TEXT,
+    encrypted_data_key TEXT(512) DEFAULT NULL,  -- 密文密钥
+    PRIMARY KEY (id),
+    UNIQUE KEY uk_configinfo_datagrouptenant (data_id, group_id, tenant_id)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;</code></pre>
+
+<h3 id="93">9.3 敏感配置加密</h3>
+<p>Nacos 2.x 支持 AES 加密配置内容：</p>
+<pre><code class="language-yaml"># 使用 {aes} 前缀标记加密值
+password: {aes}encrypted_base64_content
+
+# Server 端配置密钥
+nacos.core.auth.plugin.nacos.encryption.aes.secret.key=YOUR_32_CHARS_KEY</code></pre>
+
+<h3 id="94">9.4 配置变更历史与回滚</h3>
+<pre><code class="language-bash"># 查询配置历史
+GET /v1/cs/configs/history?dataId=demo.yaml&amp;group=DEFAULT_GROUP
+
+# 回滚到指定版本
+POST /v1/cs/configs/history/rollback
+{
+  "dataId": "demo.yaml",
+  "group": "DEFAULT_GROUP",
+  "tenant": "",
+  "batchId": 123
+}</code></pre>
+<hr />
+
+<h2 id="10-nacos">10. 组件对比</h2>
+<h3 id="101">10.1 配置中心对比</h3>
+<table>
+<thead><tr><th>对比项</th><th>Nacos</th><th>Apollo</th><th>Spring Cloud Config</th><th>Disconf</th></tr></thead>
+<tbody>
+<tr><td>配置推送</td><td>gRPC 长连接</td><td>长轮询</td><td>Git Webhook</td><td>Zookeeper</td></tr>
+<tr><td>多环境</td><td>Namespace</td><td>多环境</td><td>Git 分支</td><td>多环境</td></tr>
+<tr><td>功能完善度</td><td>高</td><td>高</td><td>中</td><td>中</td></tr>
+<tr><td>运维复杂度</td><td>低</td><td>中</td><td>低</td><td>中</td></tr>
+<tr><td>界面</td><td>有</td><td>有（精美）</td><td>无</td><td>有</td></tr>
+<tr><td>权限管理</td><td>支持（2.x）</td><td>完整</td><td>无</td><td>支持</td></tr>
+<tr><td>灰度发布</td><td>支持</td><td>支持</td><td>无</td><td>支持</td></tr>
+<tr><td>审计日志</td><td>支持</td><td>完整</td><td>无</td><td>支持</td></tr>
+<tr><td>客户端</td><td>Java/Go/Python</td><td>多语言</td><td>Java</td><td>Java</td></tr>
+</tbody>
+</table>
+
+<h3 id="102">10.2 注册中心对比</h3>
+<table>
+<thead><tr><th>对比项</th><th>Nacos</th><th>Eureka</th><th>Consul</th><th>Zookeeper</th></tr></thead>
+<tbody>
+<tr><td>CAP</td><td>CP+AP 可切换</td><td>AP</td><td>CP</td><td>CP</td></tr>
+<tr><td>一致性协议</td><td>Raft/Distro</td><td>最终一致</td><td>Raft</td><td>Zab</td></tr>
+<tr><td>健康检查</td><td>TCP/HTTP/MySQL/自定义</td><td>客户端心跳</td><td>Consul Agent</td><td>无</td></tr>
+<tr><td>多机房</td><td>Cluster 分组</td><td>无</td><td>支持</td><td>无</td></tr>
+<tr><td>运维成本</td><td>低</td><td>低</td><td>中</td><td>中</td></tr>
+<tr><td>界面</td><td>有</td><td>无</td><td>Consul UI</td><td>无</td></tr>
+<tr><td>K8s 集成</td><td>有限</td><td>有限</td><td>原生</td><td>无</td></tr>
+<tr><td>活跃度</td><td>高（阿里维护）</td><td>停维（Netflix）</td><td>中</td><td>高</td></tr>
+</tbody>
+</table>
+
+<h3 id="103-cap-nacos">10.3 CAP 定理与 Nacos AP/CP 切换</h3>
+<blockquote>
+<p><strong>CAP 定理</strong>：分布式系统无法同时满足 Consistency（一致性）、Availability（可用性）、Partition tolerance（分区容错性）。Nacos 通过双协议支持 AP 和 CP 两种模式。</p>
+</blockquote>
+
+<pre><code>+------------------------------------------------------------------+
+|                    Nacos AP/CP Mode Switching                     |
++------------------------------------------------------------------+
+|                                                                   |
+|  +-----------------------------+    +-----------------------------+|
+|  |      AP Mode (Distro)       |    |      CP Mode (Raft)         ||
+|  |  Default for Naming Service |    |  Default for Config Service ||
+|  +-----------------------------+    +-----------------------------+|
+|  |                             |    |                             ||
+|  | Write Flow:                 |    | Write Flow:                 ||
+|  |  Any node accepts write     |    |  Only Leader accepts        ||
+|  |  Async replicate to peers   |    |  Replicate to majority      ||
+|  |  Return success instantly   |    |  Confirm quorum then ack    ||
+|  |                             |    |                             ||
+|  | Read Flow:                  |    | Read Flow:                  ||
+|  |  Read from local cache      |    |  Read from Leader           ||
+|  |  (may be stale briefly)     |    |  (strongly consistent)      ||
+|  |                             |    |                             ||
+|  | Partition Behavior:         |    | Partition Behavior:         ||
+|  |  Each partition works       |    |  Minority partition         ||
+|  |  independently              |    |  cannot serve writes        ||
+|  |                             |    |                             ||
+|  +-----------------------------+    +-----------------------------+|
+|                                                                   |
+|  Switching (2.x):                                                 |
+|    nacos.core.protocol.raft.data.type=file                        |
+|    nacos.core.protocol.raft.minimum.commit.index=1                |
++------------------------------------------------------------------+
+
+Usage Guidance:
+  AP (Distro) --&gt; Service Registration (availability matters most)
+  CP (Raft)   --&gt; Configuration Management (consistency matters most)</code></pre>
+
+<pre><code class="language-yaml"># Nacos 2.x 切换为 CP 模式配置
+nacos.core.protocol.raft.data.type=file
+nacos.core.protocol.raft.minimum.commit.index=1</code></pre>
+<hr />
+
+<h2 id="11">11. 常见问题与调优</h2>
+<h3 id="111">11.1 问题排查</h3>
+<table>
+<thead><tr><th>问题</th><th>原因</th><th>解决方案</th></tr></thead>
+<tbody>
+<tr><td>服务注册失败</td><td>namespace 不一致</td><td>确认两边 <code>namespace</code> 参数一致</td></tr>
+<tr><td>配置不生效</td><td>未使用 <code>bootstrap.yml</code></td><td>Spring Cloud 必须用 bootstrap.yml</td></tr>
+<tr><td>配置获取为空</td><td>Data ID 拼写错误</td><td>检查与 Nacos 控制台一致</td></tr>
+<tr><td>启动报 404</td><td>版本不兼容</td><td>确认 Spring Cloud Alibaba 版本对应</td></tr>
+<tr><td>gRPC 连接失败</td><td>端口 9848 未开放</td><td>确认防火墙/Nginx 开放 9848</td></tr>
+<tr><td>服务被剔除</td><td>心跳超时</td><td>调大 <code>nacos.naming.expire.time</code></td></tr>
+<tr><td>配置读取乱码</td><td>文件编码问题</td><td>控制台保存时选 UTF-8</td></tr>
+<tr><td>获取配置超时</td><td>网络/权限问题</td><td>检查认证配置及凭证</td></tr>
+</tbody>
+</table>
+
+<h3 id="112">11.2 版本对应关系</h3>
+<pre><code class="language-xml">&lt;!-- Spring Boot 与 Spring Cloud Alibaba 版本对应 --&gt;
+&lt;!-- 详见: https://github.com/alibaba/spring-cloud-alibaba/wiki/版本说明 --&gt;
+
+&lt;!-- Spring Boot 2.6.x / Spring Cloud 2021.x --&gt;
+&lt;dependency&gt;
+    &lt;groupId&gt;com.alibaba.cloud&lt;/groupId&gt;
+    &lt;artifactId&gt;spring-cloud-starter-alibaba-nacos-discovery&lt;/artifactId&gt;
+    &lt;version&gt;2021.0.5.0&lt;/version&gt;
+&lt;/dependency&gt;
+
+&lt;!-- Spring Boot 3.x 需要 Nacos 2.2.x+ --&gt;</code></pre>
+
+<h3 id="113">11.3 生产环境调优</h3>
+<pre><code class="language-properties"># JVM 参数（4C8G 机器建议）
+JAVA_OPTS="-Xms4g -Xmx4g \
+  -XX:+UseG1GC \
+  -XX:MaxGCPauseMillis=200 \
+  -XX:+HeapDumpOnOutOfMemoryError \
+  -XX:HeapDumpPath=/home/nacos/logs/heap.hprof"
+
+# 核心参数
+nacos.naming.expire.time=30                   # 30s 无心跳剔除
+nacos.naming.cleanExpired.metadata.interval=6  # 每 6s 检查过期
+nacos.core.protocol.dists.task.queue.size=10000
+
+# Raft 配置（CP 模式）
+nacos.core.protocol.raft.minimum.election.term=3
+nacos.core.protocol.raft.election.timeout=5s
+nacos.core.protocol.raft.session.timeout=20s
+
+# 日志级别
+nacos.naming.log.level=WARN
+nacos.config.log.level=WARN</code></pre>
+<hr />
+
+<h2 id="12">12. 高频面试题</h2>
+<h3 id="q1nacos">Q1：Nacos 的服务注册与发现流程？</h3>
+<pre><code>Provider 启动:
+  --&gt; Client 发送 REST 注册实例到 Server
+  --&gt; Server 存入 ConcurrentHashMap 缓存 + 异步写 MySQL
+  --&gt; 向订阅此服务的 Consumer 推送变更通知
+
+Consumer 启动:
+  --&gt; Client 订阅服务
+  --&gt; Server 返回所有健康实例列表
+  --&gt; Client 本地缓存 + 负载均衡选择实例发起调用
+
+健康检查:
+  --&gt; 临时实例每 5s 心跳，30s 无心跳剔除
+  --&gt; 永久实例 Server 主动 TCP/HTTP 探测，只标记不剔除
+  --&gt; 变更通过 gRPC 长连接实时推送</code></pre>
+<blockquote>
+<p><strong>面试话术</strong>："Provider 启动注册实例，Consumer 订阅获取实例列表并本地缓存。临时实例心跳 30s 超时剔除，永久实例服务端探测只标记。变更通过 gRPC 长连接实时推送。"</p>
+</blockquote>
+
+<h3 id="q2nacos">Q2：Nacos 如何保证配置中心的数据一致性？</h3>
+<ul>
+<li><strong>CP 模式（Raft）</strong>：Leader 接收写请求，复制到多数 Follower 确认后返回。分区时少数派不可写入。用于配置管理。</li>
+<li><strong>AP 模式（Distro）</strong>：任意节点独立处理写请求，异步同步。分区时各节点独立工作。用于服务注册。</li>
+</ul>
+<p>配置中心默认 CP，通过 Raft 选主保证一致性。</p>
+
+<h3 id="q3nacos-eureka">Q3：Nacos 和 Eureka 的区别？</h3>
+<table>
+<thead><tr><th>对比项</th><th>Nacos</th><th>Eureka</th></tr></thead>
+<tbody>
+<tr><td>维护状态</td><td>阿里活跃维护</td><td>Netflix 停维</td></tr>
+<tr><td>功能</td><td>配置中心 + 注册中心</td><td>仅注册中心</td></tr>
+<tr><td>一致性</td><td>CP+AP 可切换</td><td>仅 AP</td></tr>
+<tr><td>健康检查</td><td>TCP/HTTP/MySQL/自定义</td><td>客户端心跳</td></tr>
+<tr><td>界面</td><td>有</td><td>无</td></tr>
+<tr><td>配置管理</td><td>原生支持</td><td>需配合 Config</td></tr>
+</tbody>
+</table>
+<p>Eureka 2.x 已停维，生产推荐 Nacos。</p>
+
+<h3 id="q4nacos">Q4：Nacos 的心跳机制？</h3>
+<pre><code>临时实例 (ephemeral=true, 推荐):
+  Client --每5s--&gt; Server 心跳
+  15s 无心跳 --&gt; UNHEALTHY
+  30s 无心跳 --&gt; 从注册表移除
+  适用：无状态服务（Pod/IP 漂移）
+
+永久实例 (ephemeral=false):
+  Server --TCP/HTTP--&gt; Instance 主动探测
+  不健康仅标记，不移除
+  适用：有状态服务（DB/Cache）</code></pre>
+
+<h3 id="q5nacos">Q5：Nacos 如何实现配置热更新？</h3>
+<pre><code>配置发布 --&gt; Server 写入 DB
+         --&gt; 查找订阅此配置的 Client gRPC 连接
+         --&gt; Push 变更通知 (毫秒级)
+         --&gt; Client 回调 @NacosConfigurationProperties 监听器
+         --&gt; Bean 自动刷新，无需重启</code></pre>
+
+<h3 id="q6nacos-2x-grpc">Q6：Nacos 2.x gRPC 通信原理？</h3>
+<pre><code>1. Client 启动 --&gt; 与 Server:9848 建立 gRPC 长连接 --&gt; 建立 Session
+2. 配置/服务变更 --&gt; Server 通过 gRPC Stream 实时 Push
+3. 优势：毫秒级延迟（vs 1.x 30s 轮询）、低资源占用、双向通信
+4. 降级：2.x Server 保留 HTTP 接口，兼容 1.x Client</code></pre>
+
+<h3 id="q7nacos-namespace-group">Q7：Namespace 和 Group 的区别？</h3>
+<table>
+<thead><tr><th>概念</th><th>作用</th><th>隔离级别</th></tr></thead>
+<tbody>
+<tr><td><strong>Namespace</strong></td><td>环境隔离</td><td>最彻底（dev/test/prod 完全隔离）</td></tr>
+<tr><td><strong>Group</strong></td><td>项目/模块分组</td><td>中等（DEFAULT_GROUP / 自定义）</td></tr>
+<tr><td><strong>Data ID</strong></td><td>配置文件标识</td><td>细粒度（应用级别）</td></tr>
+</tbody>
+</table>
+<pre><code class="language-yaml"># 典型分层
+Namespace: dev
+  Group: order-service
+    Data ID: order-service-dev.yaml
+  Group: payment-service
+    Data ID: payment-service-dev.yaml
+  Group: common
+    Data ID: redis-dev.yaml（共享）
+    Data ID: mysql-dev.yaml（共享）</code></pre>
+
+<h3 id="q8nacos">Q8：Nacos 权限控制？</h3>
+<p>2.x 支持 RBAC：用户 --&gt; 角色（admin/developer/guest）--&gt; 权限。</p>
+<pre><code class="language-yaml">nacos.core.auth.enabled=true
+spring.cloud.nacos.username=developer
+spring.cloud.nacos.password=xxxxxx</code></pre>
+
+<h3 id="q9nacos">Q9：Nacos 集群选主机制？</h3>
+<p>使用 <strong>Raft 协议</strong>：所有节点初始为 Follower --&gt; 选举超时随机 150-300ms --&gt; Candidate 发起投票 --&gt; 获多数票者成为 Leader --&gt; Leader 定期发送心跳维持地位 --&gt; Leader 故障则新一轮选举。</p>
+
+<h3 id="q10nacos-spring-cloud-config">Q10：Nacos 与 Spring Cloud Config 对比？</h3>
+<table>
+<thead><tr><th>对比项</th><th>Nacos</th><th>Spring Cloud Config</th></tr></thead>
+<tbody>
+<tr><td>配置推送</td><td>gRPC 长连接，毫秒级</td><td>Git Webhook + Bus</td></tr>
+<tr><td>多环境</td><td>Namespace 原生支持</td><td>Git 分支</td></tr>
+<tr><td>界面</td><td>有</td><td>无</td></tr>
+<tr><td>权限管理</td><td>有</td><td>无</td></tr>
+<tr><td>灰度发布</td><td>支持</td><td>无</td></tr>
+<tr><td>综合评价</td><td>高</td><td>中</td></tr>
+</tbody>
+</table>
+
+<h3 id="q11nacos">Q11：服务实例元数据的作用？</h3>
+<pre><code class="language-yaml"># 用途：灰度发布、机房路由、标签分组、监控标识
+spring:
+  cloud:
+    nacos:
+      discovery:
+        metadata:
+          version: v2
+          region: shanghai
+          datacenter: az-01
+
+# 调用方可按元数据筛选实例
+@Bean
+public ServiceInstanceListSupplier supplier(
+        ConfigurationServiceManager manager,
+        ContextIdentity context) {
+    return ServiceInstanceListSupplier.builder()
+        .withDiscoveryClient(discoveryClient)
+        .withPredicate(info -&gt;
+            "shanghai".equals(info.getMetadata().get("region")))
+        .build();
+}</code></pre>
+
+<h3 id="q12nacos-2x-9848-9849">Q12：9848 和 9849 端口区别？</h3>
+<table>
+<thead><tr><th>端口</th><th>作用</th><th>必须开放</th></tr></thead>
+<tbody>
+<tr><td>8848</td><td>HTTP 控制台 + REST API</td><td>是</td></tr>
+<tr><td>9848</td><td>gRPC Client &lt;--&gt; Server</td><td>是</td></tr>
+<tr><td>9849</td><td>gRPC Server &lt;--&gt; Server (Raft)</td><td>是（集群内）</td></tr>
+</tbody>
+</table>
+<pre><code class="language-bash"># 防火墙开放
+firewall-cmd --add-port=8848/tcp
+firewall-cmd --add-port=9848/tcp
+firewall-cmd --add-port=9849/tcp</code></pre>
+
+<h3 id="q13nacos-k8s">Q13：Nacos 在 K8s 中如何部署？</h3>
+<pre><code class="language-yaml"># StatefulSet + Headless Service
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: nacos
+spec:
+  serviceName: nacos-headless
+  replicas: 3
+  selector:
+    matchLabels:
+      app: nacos
+  template:
+    spec:
+      containers:
+      - name: nacos
+        image: nacos/nacos-server:v2.2.3
+        ports:
+        - containerPort: 8848
+          name: client
+        - containerPort: 9848
+          name: grpc
+        env:
+        - name: MYSQL_SERVICE_HOST
+          value: mysql
+        - name: NACOS_SERVERS
+          value: "nacos-0.nacos-headless:8848 nacos-1.nacos-headless:8848 nacos-2.nacos-headless:8848"
+        - name: JVM_XMS
+          value: "512m"
+        - name: JVM_XMX
+          value: "512m"</code></pre>
+
+<h3 id="q14nacos">Q14：Nacos 如何防止配置误删？</h3>
+<ol>
+<li><strong>配置备份</strong>：控制台手动导出</li>
+<li><strong>历史版本</strong>：每次变更生成快照，支持回滚</li>
+<li><strong>软删除</strong>：<code>del_flag = 1</code>，非物理删除</li>
+<li><strong>审计日志</strong>：记录所有变更操作</li>
+<li><strong>权限控制</strong>：仅管理员可修改生产配置</li>
+<li><strong>回收站</strong>（2.x）：支持配置恢复</li>
+</ol>
+
+<h3 id="q15nacos-distro">Q15：Distro 协议原理？</h3>
+<p>Nacos 自研的 AP 协议（最终一致性）：</p>
+<pre><code>1. 写：任意节点接收 --&gt; 异步同步其他节点 --&gt; 本地立即返回成功
+2. 读：本地直接读（无需跨节点），可能短暂不一致
+3. 数据分片：节点按哈希分片，只负责部分数据
+4. 适用：服务注册（AP 足够，强一致性非必须）</code></pre>
+<hr />
+
+<h2 id="nacos-open-api">附录：Nacos Open API 速查</h2>
+<pre><code class="language-bash"># 配置管理
+GET    /v1/cs/configs?dataId=xxx&amp;group=DEFAULT_GROUP&amp;tenant=dev
+POST   /v1/cs/configs  (dataId, group, content, type=yaml)
+PUT    /v1/cs/configs  (发布配置)
+DELETE /v1/cs/configs  (删除配置)
+GET    /v1/cs/configs/history?dataId=xxx&amp;group=xxx  (变更历史)
+
+# 服务发现
+GET    /v1/ns/instance/list?serviceName=xxx&amp;namespaceId=public
+POST   /v1/ns/instance  (注册实例)
+DELETE /v1/ns/instance  (注销实例)
+PUT    /v1/ns/instance/beat  (心跳)
+GET    /v1/ns/operator/metrics  (服务统计)
+
+# 命名空间
+GET    /v1/console/namespaces  (获取列表)
+POST   /v1/console/namespace  (创建)
+DELETE /v1/console/namespace?namespaceId=xxx  (删除)</code></pre>
+<hr />
+<blockquote>
+<p><strong>学习建议</strong>：Nacos 面试核心围绕三个关键词 -- <strong>配置热更新</strong>（gRPC 推送原理）、<strong>服务注册发现</strong>（心跳机制、AP/CP 切换）、<strong>集群部署</strong>（Raft 选主、端口规划）。建议先理解整体架构，再深入核心原理，最后掌握集群部署和调优。常与 Spring Cloud Alibaba、Dubbo、Seata 等组件联合考察。</p>
+<p><strong>面试方向</strong>：微服务/中间件/架构方向，常联合考察 Spring Cloud 全家桶、K8s、分布式一致性（Raft/CAP）、服务网格（Istio）。</p>
+</blockquote>
+
+<script>
+// Scroll spy — highlight active sidebar item
+window.addEventListener('scroll', function() {
+    var links = document.querySelectorAll('.sidebar-toc a');
+    var scrollY = window.scrollY + 120;
+    var current = '';
+    for (var i = links.length - 1; i >= 0; i--) {
+        var target = document.getElementById(links[i].getAttribute('href').slice(1));
+        if (target && target.offsetTop <= scrollY) {
+            current = links[i];
+            break;
+        }
+    }
+    links.forEach(function(a) { a.style.fontWeight = 'normal'; a.style.color = '#555'; });
+    if (current) { current.style.fontWeight = 'bold'; current.style.color = '#0366d6'; }
+});
+</script>
+
+
+<script>
+document.querySelectorAll("pre>code").forEach(function(c){var p=c.parentNode;p.style.position="relative";var b=document.createElement("button");b.className="copy-btn";b.textContent="复制";p.appendChild(b);b.addEventListener("click",function(){var t=c.textContent;navigator.clipboard.writeText(t).then(function(){b.textContent="已复制";b.classList.add("copied");setTimeout(function(){b.textContent="复制";b.classList.remove("copied")},2000)}).catch(function(){var a=document.createElement("textarea");a.value=t;a.style.position="fixed";a.style.opacity="0";document.body.appendChild(a);a.select();document.execCommand("copy");document.body.removeChild(a);b.textContent="已复制";b.classList.add("copied");setTimeout(function(){b.textContent="复制";b.classList.remove("copied")},2000)})})})
+</script>
+</body>
+</html>
